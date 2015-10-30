@@ -1,0 +1,91 @@
+body {
+  padding: 0;
+  margin: 0;
+  font: 20px/150% "Helvetica Neue", "Lucida Grande", Verdana, sans-serif;
+  color: #000;
+  background: #FFF;
+  overflow: hidden; }
+
+#preloader {
+  background-color: #000;
+  position: absolute;
+  z-index: 1000;
+  left: 0;
+  top: 0; }
+
+#preloader.full {
+  background-image: url("/assets/images/Logo_wait.jpg");
+  background-repeat: no-repeat;
+  width: 1024px;
+  height: 548px; }
+
+#preloader.small {
+  width: 100px;
+  height: 100px; }
+
+#preloader.center {
+  width: 1024px;
+  height: 548px;
+  background-color: transparent; }
+
+#preloader > div {
+  background-image: url("/assets/images/preloader.gif");
+  background-size: 70px 70px;
+  background-repeat: no-repeat;
+  margin: 0px auto;
+  width: 70px;
+  height: 70px;
+  position: relative;
+  transform: translateY(-50%); }
+
+#preloader.full > div {
+  top: 60%; }
+
+#preloader.center > div {
+  top: 44%; }
+
+.loader {
+  position: relative;
+  display: block;
+  width: 70px;
+  height: 70px; }
+
+.box {
+  width: 45%;
+  height: 45%;
+  background: rgba(255, 255, 255, 0.7);
+  opacity: 0;
+  -webkit-filter: blur(1px);
+  animation: load 1s linear infinite; }
+  .box:nth-of-type(1) {
+    position: absolute;
+    top: 2.5%;
+    left: 2.5%; }
+  .box:nth-of-type(2) {
+    position: absolute;
+    top: 2.5%;
+    right: 2.5%;
+    animation-delay: -0.25s; }
+  .box:nth-of-type(3) {
+    position: absolute;
+    bottom: 2.5%;
+    right: 2.5%;
+    animation-delay: -0.5s; }
+  .box:nth-of-type(4) {
+    position: absolute;
+    bottom: 2.5%;
+    left: 2.5%;
+    animation-delay: -0.75s; }
+
+@keyframes load {
+  0% {
+    opacity: 0; }
+
+  30% {
+    opacity: 0; }
+
+  90% {
+    opacity: 1; }
+
+  100% {
+    opacity: 0; } }
