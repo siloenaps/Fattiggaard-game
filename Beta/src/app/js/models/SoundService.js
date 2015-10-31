@@ -33,7 +33,7 @@ SoundService.properties = {
 	slidePath: 'assets/sounds/'
 };
 SoundService.matrix = {
-	dormitry: { src:SoundService.properties.basePath+'dormitry.mp3', duration: 1.078 },
+	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
 	drunk: { src:SoundService.properties.basePath+'drunk.mp3', duration: 1.078 },
 	constable: { src:SoundService.properties.basePath+'constable.mp3', duration: 1.815 },
 	whatnow: {
@@ -43,8 +43,8 @@ SoundService.matrix = {
 	},
 	jobinterview: {
 		'svendborg': { 
-			'part1': { src:SoundService.properties.basePath+'jobinterview_svendborg_part_1.mp3', duration: 1.078 },
-			'part2': { src:SoundService.properties.basePath+'jobinterview_svendborg_part_2.mp3', duration: 1.815 }
+			'part1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
+			'part2': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 }
 		}
 	},
 	prerecruitment: {
@@ -52,13 +52,13 @@ SoundService.matrix = {
 	},
 	advice: {
 		'svendborg': {
-			'A': { src:SoundService.properties.basePath+'advice_svendborg_A.mp3', duration: 8.314 },
-			'B': { src:SoundService.properties.basePath+'advice_svendborg_B.mp3', duration: 1.078 }
+			'A': { src:SoundService.properties.basePath+'1.3.4_RaadIndlagt.mp3', duration: 41.987 },
+			'B': { src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 }
 		},
 	},
 	work: {
 		'svendborg': {
-			'A': { src:SoundService.properties.basePath+'work_svendborg_A.mp3', duration: 8.314 },
+			'A': { src:SoundService.properties.basePath+'1.1.2a_slaa_skaerver.mp3', duration: 12.408 },
 			'B': { src:SoundService.properties.basePath+'work_svendborg_B.mp3', duration: 1.078 },
 			'C': { src:SoundService.properties.basePath+'work_svendborg_C.mp3', duration: 1.815 }
 		},

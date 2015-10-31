@@ -431,7 +431,7 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	this.currentPage.gotoAndStop(PlayerStats.advice); // Frame label could be 'A' or 'B'
 
 	// Get sound
-	var sound = SoundService.matrix.work[this.id][PlayerStats.advice]; // "svendborg/A", "svendborg/B"
+	var sound = SoundService.matrix.advice[this.id][PlayerStats.advice];
 
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
