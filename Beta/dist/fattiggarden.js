@@ -968,6 +968,11 @@ FlowPoorhouse.prototype.onComplete = function(event) {
 FlowPoorhouse.prototype.onContinue = function(event) {
 	'use strict';
 	this.next();
+
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
 };
 FlowPoorhouse.prototype.removeEvents = function() {
 	'use strict';
@@ -1256,7 +1261,7 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	this.currentPage.gotoAndStop(PlayerStats.advice); // Frame label could be 'A' or 'B'
 
 	// Get sound
-	var sound = SoundService.matrix.work[this.id][PlayerStats.advice]; // "svendborg/A", "svendborg/B"
+	var sound = SoundService.matrix.advice[this.id][PlayerStats.advice];
 
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
@@ -1839,7 +1844,7 @@ var FlowGermany1 = function(container){
 
 FlowGermany1.prototype.start = function(){
 	LoadJS.load(
-		['../assets/logic/games/germany1.js', '../assets/logic/slides/slide_germany1_traveling.js'], 
+		['../assets/logic/games/germany1.js', '../assets/logic/slides/slide_2_5.js'], 
 		Delegate.create(this.setup, this)
 	);
 }
@@ -1912,6 +1917,11 @@ FlowGermany1.prototype.setup = function(){
 FlowGermany1.prototype.onContinue = function(event) {
 	'use strict';
 	this.flow.next(this.trigger);
+
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
 };
 FlowGermany1.prototype.removeEvents = function() {
 	'use strict';
@@ -1954,13 +1964,16 @@ FlowGermany1.prototype.traveling = function(trigger){
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_5);
 	
 	// Slide. Loading is self contained
-	this.slideLib = germany1SlideLib;	
-	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-	this.listeners.complete = self.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload('slide_germany1_traveling', this.slideLib);
-
+	try{
+		this.slideLib = lib;	
+		this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+		this.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+		}, self);
+		this.playerComponent.preload('slide_2_5', this.slideLib);
+	}catch(err){
+		console.log(err);
+	}
 	this.continueBtn.activate('skip');
 };
 FlowGermany1.prototype.dormitry = function(trigger){
@@ -2034,18 +2047,16 @@ FlowGermany1.prototype.work = function(trigger){
 		// Get path to slide script
 		switch(PlayerStats.job_germany[0]){
 			case 'A':
-				slidePath = '../assets/logic/slides/slide_work_amory.js';
-				slideName = 'slide_work_amory';
+				slideName = 'slide_2_7_1_amory';
 			break;
 			case 'B':
-				slidePath = '../assets/logic/slides/slide_work_mine.js';
-				slideName = 'slide_work_mine';
+				slideName = 'slide_2_7_1_mine';
 			break;
 			case 'C':
-				slidePath = '../assets/logic/slides/slide_work_butcher.js';
-				slideName = 'slide_work_butcher';
+				slideName = 'slide_2_7_1_butcher';
 			break;
 		}
+		slidePath = '../assets/logic/slides/'+slideName+'.js';
 	}catch(err){
 		console.log(err);
 	}	
@@ -2591,10 +2602,213 @@ FlowCharacter.prototype.destroy = function() {
 	// createjs.Tween.removeTweens(event.target);
 };
 createjs.EventDispatcher.initialize(FlowCharacter.prototype);
+var SoundService = function(){
+	'use strict';
+}
+
+// SoundService.getPathByKey = function(key){
+// 	'use strict';
+// 	return SoundService.properties.basePath + this.matrix[key].file;
+// };
+// SoundService.getDurationByKey = function(key){
+// 	'use strict';
+// 	return this.matrix[key].duration;
+// };
+
+SoundService.getSlideDurationById = function(id){
+	'use strict';
+	return this.matrix.slides[id].duration;
+};
+SoundService.getSlideSoundpathById = function(id){
+	'use strict';
+	return SoundService.properties.slidePath + id+'.mp3';
+};
+SoundService.getSlideSoundById = function(id){
+	'use strict';
+	return SoundService.matrix.slides[id]
+};
+SoundService.getSoundByCharacter = function(character){
+	'use strict';
+	return;
+};
+
+SoundService.properties = {
+	basePath: 'assets/sounds/',
+	slidePath: 'assets/sounds/'
+};
+SoundService.matrix = {
+	points: {
+		plus: { src:SoundService.properties.basePath+'Point_plus.mp3', duration: 2.208 },
+		minus: { src:SoundService.properties.basePath+'Point_minus.mp3', duration: 1.128 }
+	},
+	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
+	drunk: { src:SoundService.properties.basePath+'drunk.mp3', duration: 1.078 },
+	constable: { src:SoundService.properties.basePath+'constable.mp3', duration: 1.815 },
+	whatnow: {
+		'A': { src:SoundService.properties.basePath+'whatnow_A.mp3', duration: 8.314 },
+		'B': { src:SoundService.properties.basePath+'whatnow_B.mp3', duration: 1.078 },
+		'C': { src:SoundService.properties.basePath+'whatnow_C.mp3', duration: 1.815 }
+	},
+	jobinterview: {
+		'svendborg': { 
+			'part1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
+			'part2': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 }
+		}
+	},
+	prerecruitment: {
+		'svendborg': { src:SoundService.properties.basePath+'prerecruitment_svendborg.mp3', duration: 1.078 }
+	},
+	advice: {
+		'svendborg': {
+			'A': { src:SoundService.properties.basePath+'1.3.4_RaadIndlagt.mp3', duration: 41.987 },
+			'B': { src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 }
+		},
+	},
+	work: {
+		'svendborg': {
+			'A': { src:SoundService.properties.basePath+'1.1.2a_slaa_skaerver.mp3', duration: 12.408 },
+			'B': { src:SoundService.properties.basePath+'work_svendborg_B.mp3', duration: 1.078 },
+			'C': { src:SoundService.properties.basePath+'work_svendborg_C.mp3', duration: 1.815 }
+		},
+	},
+	slides: {
+				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
+				'slide_svendborg': { src:SoundService.properties.basePath+'Fattiggaarden_Svendborg.mp3', duration: 48.573 },
+				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
+				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
+				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3', duration: 61.208 },
+				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3', duration: 48.573 },
+				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3', duration: 48.573 },
+				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 }
+				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
+			},
+	challenge: {
+				'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
+				'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
+				'C': { label: 'manager', src:SoundService.properties.basePath+'weakness.mp3', duration: 1.815 }
+			},
+	family: {
+				'D': null,
+				'E': { label: 'daughter', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
+				'F': null
+			}
+	// characters: {
+	// 			'AD': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
+	// 			'AE': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
+	// 			'AF': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
+	// 			'BD': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
+	// 			'BE': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
+	// 			'BF': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
+	// 			'CD': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ],
+	// 			'CE': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
+	// 			'CF': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ]
+	// 		}
+};
+var PlayerStats = {
+	challenge: 'B',			// Default test value
+	family: 'D',			// Default test value
+	nickname: null,
+	poorhouse: null,
+	mood: 2,
+	health: 4,
+	money: 3,
+	job: null,
+	advice: null,
+	wayout: null,
+	job_germany: ['A', 'A'], // Default test values
+	spending: null,
+	whatnow: null,
+	pointsDiff: {mood: 0, health: 0, money: 0},
+
+	resetDiff: function(){
+		this.pointsDiff = {mood: 0, health: 0, money: 0};
+	},
+
+	isAPlusPoint: function(){
+		for(var key in this.pointsDiff){
+			if(this.pointsDiff[key] > 0){
+				return true;
+			}
+		}
+	},
+
+	isAMinusPoint: function(){
+		for(var key in this.pointsDiff){
+			if(this.pointsDiff[key] < 0){
+				return true;
+			}
+		}
+	},
+
+	set: function(type, val){	
+		// Reset diff
+		this.pointsDiff[type] = 0;
+
+		// Remember the previous value
+		var prev = this[type];	
+
+		// Set new value
+		this[type] = val;
+
+		// Find diff
+		this.pointsDiff[type] = this[type] - prev;		
+
+		// Cap values for points
+		if(type == 'mood' || type == 'health' || type == 'money'){
+			if(this[type] > 10){
+				this[type] = 10;
+			}
+			if(this[type] < 1){
+				this[type] = 1;
+			}
+		}
+	},
+	append: function(type, val){		
+		// Reset diff
+		this.pointsDiff[type] = 0;
+		
+		// Remember the previous value
+		var prev = this[type];	
+
+		// Set new value
+		this[type] += val;
+
+		// Find diff
+		this.pointsDiff[type] = this[type] - prev;			
+
+		// Cap values for points
+		if(type == 'mood' || type == 'health' || type == 'money'){
+			if(this[type] > 10){
+				this[type] = 10;
+			}
+			if(this[type] < 1){
+				this[type] = 1;
+			}
+		}
+	}
+}
+var FlowData ={
+	
+}
+// var Assets = {
+// 	fattiggard: {
+// 		svendborg: {
+// 			images: [
+// 				{src: '../assets/images/1_0BGsvendborg.png', id:'1_0BGsvendborg'},
+// 				{src: '../assets/images/1_1BGsvendborg.png', id:'1_1BGsvendborg'},
+// 				{src: '../assets/images/1_2BGsvendborgA.png', id:'1_2BGsvendborgA'},
+// 				{src: '../assets/images/1_2BGsvendborgB.png', id:'1_2BGsvendborgB'},
+// 				{src: '../assets/images/1_2BGsvendborgC.png', id:'1_2BGsvendborgC'},
+// 				{src: '../assets/images/1_3BGsvendborg.png', id:'1_3BGsvendborg'}
+// 			]
+// 		}
+// 	}
+// }
 var Topbar = {
 	view: null,
+	soundController: null,
 	init: function(view){
-		this.view = view;
+		this.view = view;		
 	},
 	go: function(frm){
 		// console.log(this.view);
@@ -2839,163 +3053,122 @@ var Delegate = {
 	    }
 	}
 };
-var SoundService = function(){
+/**
+	Controller uses the browser's AUDIO element as play back for sound
+*/
+function SoundController(audioPath, duration) {
 	'use strict';
+
+	var self = this;
+	
+	this.sndObj = document.createElement('AUDIO');		
+	this.sndObj.src = audioPath;
+	this.duration = duration;
+
+	// Firefox does not invoke the audio load method?! But setting load automated seems to work
+	if(Environment.browser.firefox){
+		this.sndObj.preload = 'auto';
+	}else{
+		this.sndObj.preload = 'none';
+	}
+
+	// LIsten for sound being ready 
+	this.sndObj.addEventListener('canplaythrough', function(event){
+		var e = new createjs.Event('ready');
+ 		self.dispatchEvent(e);
+	}, false);
+	this.sndObj.addEventListener('ended', function(event){
+ 		this.complete = true;
+	}, false);
 }
 
-// SoundService.getPathByKey = function(key){
-// 	'use strict';
-// 	return SoundService.properties.basePath + this.matrix[key].file;
-// };
-// SoundService.getDurationByKey = function(key){
-// 	'use strict';
-// 	return this.matrix[key].duration;
-// };
+SoundController.prototype = {
+	sndObj: null,
+	currentSndPosition: 0,
+	duration: 0,
+	paused: false,
+	self: this,
+	complete: false,
 
-SoundService.getSlideDurationById = function(id){
-	'use strict';
-	return this.matrix.slides[id].duration;
-};
-SoundService.getSlideSoundpathById = function(id){
-	'use strict';
-	return SoundService.properties.slidePath + id+'.mp3';
-};
-SoundService.getSlideSoundById = function(id){
-	'use strict';
-	return SoundService.matrix.slides[id]
-};
-SoundService.getSoundByCharacter = function(character){
-	'use strict';
-	return;
-};
-
-SoundService.properties = {
-	basePath: 'assets/sounds/',
-	slidePath: 'assets/sounds/'
-};
-SoundService.matrix = {
-	dormitry: { src:SoundService.properties.basePath+'dormitry.mp3', duration: 1.078 },
-	drunk: { src:SoundService.properties.basePath+'drunk.mp3', duration: 1.078 },
-	constable: { src:SoundService.properties.basePath+'constable.mp3', duration: 1.815 },
-	whatnow: {
-		'A': { src:SoundService.properties.basePath+'whatnow_A.mp3', duration: 8.314 },
-		'B': { src:SoundService.properties.basePath+'whatnow_B.mp3', duration: 1.078 },
-		'C': { src:SoundService.properties.basePath+'whatnow_C.mp3', duration: 1.815 }
-	},
-	jobinterview: {
-		'svendborg': { 
-			'part1': { src:SoundService.properties.basePath+'jobinterview_svendborg_part_1.mp3', duration: 1.078 },
-			'part2': { src:SoundService.properties.basePath+'jobinterview_svendborg_part_2.mp3', duration: 1.815 }
+	load: function(){
+		'use strict';
+		// Firefox does not invoke the audio load function?! 
+		// So load has been set 'auto' so we don't need to invoke the load method
+		if(!Environment.browser.firefox){			
+			this.sndObj.load();
 		}
 	},
-	prerecruitment: {
-		'svendborg': { src:SoundService.properties.basePath+'prerecruitment_svendborg.mp3', duration: 1.078 }
+
+	play: function() {
+		'use strict';
+		this.sndObj.play();
+		this.paused = false;
+		this.complete = false;
 	},
-	advice: {
-		'svendborg': {
-			'A': { src:SoundService.properties.basePath+'advice_svendborg_A.mp3', duration: 8.314 },
-			'B': { src:SoundService.properties.basePath+'advice_svendborg_B.mp3', duration: 1.078 }
-		},
+	stop: function() {
+		'use strict';
+		this.sndObj.pause();
+		this.sndObj.currentTime = 0;
+		this.paused = false;
 	},
-	work: {
-		'svendborg': {
-			'A': { src:SoundService.properties.basePath+'work_svendborg_A.mp3', duration: 8.314 },
-			'B': { src:SoundService.properties.basePath+'work_svendborg_B.mp3', duration: 1.078 },
-			'C': { src:SoundService.properties.basePath+'work_svendborg_C.mp3', duration: 1.815 }
-		},
+	pause: function() {
+		'use strict';
+		this.currentSndPosition = this.sndObj.currentTime;
+		this.sndObj.pause();
+		this.paused = true;
 	},
-	slides: {
-				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
-				'slide_svendborg': { src:SoundService.properties.basePath+'Fattiggaarden_Svendborg.mp3', duration: 48.573 },
-				'slide_germany1_traveling': { src:SoundService.properties.basePath+'slide_germany1_traveling.mp3', duration: 48.573 },
-				'slide_work_amory': { src:SoundService.properties.basePath+'slide_work_amory.mp3', duration: 48.573 },
-				'slide_work_butcher': { src:SoundService.properties.basePath+'slide_work_butcher.mp3', duration: 48.573 },
-				'slide_work_mine': { src:SoundService.properties.basePath+'slide_work_mine.mp3', duration: 48.573 },
-				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3', duration: 48.573 },
-				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 }
-				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
-			},
-	challenge: {
-				'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
-				'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
-				'C': { label: 'manager', src:SoundService.properties.basePath+'weakness.mp3', duration: 1.815 }
-			},
-	family: {
-				'D': null,
-				'E': { label: 'daughter', src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 },
-				'F': null
-			}
-	// characters: {
-	// 			'AD': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'AE': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'AF': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'BD': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'BE': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'BF': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'CD': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ],
-	// 			'CE': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'CF': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ]
-	// 		}
+	resume: function() {
+		'use strict';
+		this.sndObj.play();
+	},
+	progress: function(){
+		'use strict';
+		var num = this.sndObj.currentTime / this.duration;
+		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
+	},
+	isComplete: function(){
+		'use strict';
+		return this.complete;
+	},
+	destroy: function(){
+		'use strict';
+		this.sndObj = null;
+		this.duration = null;
+	}
 };
-var PlayerStats = {
-	challenge: 'B',			// Default test value
-	family: 'D',			// Default test value
-	nickname: null,
-	poorhouse: null,
-	mood: 2,
-	health: 4,
-	money: 3,
-	job: null,
-	advice: null,
-	wayout: null,
-	job_germany: ['A', 'A'], // Default test values
-	spending: null,
-	whatnow: null,
-
-	set: function(type, val){		
-		this[type] = val;
-
-		// Cap values for points
-		if(type == 'mood' || type == 'health' || type == 'money'){
-			if(this[type] > 10){
-				this[type] = 10;
-			}
-			if(this[type] < 1){
-				this[type] = 1;
-			}
-		}
+createjs.EventDispatcher.initialize(SoundController.prototype);
+var HUDController = {
+	init: function(view){
+		this.view = view;		
+		this.update();
+		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src, SoundService.matrix.points.plus.duration);
+		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src, SoundService.matrix.points.minus.duration);
 	},
-	append: function(type, val){		
-		this[type] += val;
+	update: function(){
+		var self = this;
+		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
+		this.view.health.points.gotoAndStop(PlayerStats.health-1);
+		this.view.money.points.gotoAndStop(PlayerStats.money-1);
 
-		// Cap values for points
-		if(type == 'mood' || type == 'health' || type == 'money'){
-			if(this[type] > 10){
-				this[type] = 10;
-			}
-			if(this[type] < 1){
-				this[type] = 1;
+		var delay = 0;
+		for(var key in PlayerStats.pointsDiff){
+			if(PlayerStats.pointsDiff[key] > 0){
+				setTimeout(function(){ 
+					self.soundControllerPlus.play();
+				}, delay);
+				delay += 1000;
+			}else if(PlayerStats.pointsDiff[key] < 0){
+				setTimeout(function(){ 
+					self.soundControllerMinus.play();
+				}, delay);
+				delay += 1000;
 			}
 		}
+
+		// Need to reset 
+		PlayerStats.resetDiff();
 	}
 }
-var FlowData ={
-	
-}
-// var Assets = {
-// 	fattiggard: {
-// 		svendborg: {
-// 			images: [
-// 				{src: '../assets/images/1_0BGsvendborg.png', id:'1_0BGsvendborg'},
-// 				{src: '../assets/images/1_1BGsvendborg.png', id:'1_1BGsvendborg'},
-// 				{src: '../assets/images/1_2BGsvendborgA.png', id:'1_2BGsvendborgA'},
-// 				{src: '../assets/images/1_2BGsvendborgB.png', id:'1_2BGsvendborgB'},
-// 				{src: '../assets/images/1_2BGsvendborgC.png', id:'1_2BGsvendborgC'},
-// 				{src: '../assets/images/1_3BGsvendborg.png', id:'1_3BGsvendborg'}
-// 			]
-// 		}
-// 	}
-// }
 var GameManager = {
 	root: null,
 	init: function(root){
@@ -3214,101 +3387,6 @@ var ApplicationManager = {
 		'use strict';
 	}
 };
-/**
-	Controller uses the browser's AUDIO element as play back for sound
-*/
-function SoundController(audioPath, duration) {
-	'use strict';
-
-	var self = this;
-	
-	this.sndObj = document.createElement('AUDIO');		
-	this.sndObj.src = audioPath;
-	this.duration = duration;
-
-	// Firefox does not invoke the audio load method?! But setting load automated seems to work
-	if(Environment.browser.firefox){
-		this.sndObj.preload = 'auto';
-	}else{
-		this.sndObj.preload = 'none';
-	}
-
-	// LIsten for sound being ready 
-	this.sndObj.addEventListener('canplaythrough', function(event){
-		var e = new createjs.Event('ready');
- 		self.dispatchEvent(e);
-	}, false);
-	this.sndObj.addEventListener('ended', function(event){
- 		this.complete = true;
-	}, false);
-}
-
-SoundController.prototype = {
-	sndObj: null,
-	currentSndPosition: 0,
-	duration: 0,
-	paused: false,
-	self: this,
-	complete: false,
-
-	load: function(){
-		'use strict';
-		// Firefox does not invoke the audio load function?! 
-		// So load has been set 'auto' so we don't need to invoke the load method
-		if(!Environment.browser.firefox){			
-			this.sndObj.load();
-		}
-	},
-
-	play: function() {
-		'use strict';
-		this.sndObj.play();
-		this.paused = false;
-		this.complete = false;
-	},
-	stop: function() {
-		'use strict';
-		this.sndObj.pause();
-		this.sndObj.currentTime = 0;
-		this.paused = false;
-	},
-	pause: function() {
-		'use strict';
-		this.currentSndPosition = this.sndObj.currentTime;
-		this.sndObj.pause();
-		this.paused = true;
-	},
-	resume: function() {
-		'use strict';
-		this.sndObj.play();
-	},
-	progress: function(){
-		'use strict';
-		var num = this.sndObj.currentTime / this.duration;
-		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
-	},
-	isComplete: function(){
-		'use strict';
-		return this.complete;
-	},
-	destroy: function(){
-		'use strict';
-		this.sndObj = null;
-		this.duration = null;
-	}
-};
-createjs.EventDispatcher.initialize(SoundController.prototype);
-var HUDController = {
-	init: function(view){
-		this.view = view;		
-		this.update();
-	},
-	update: function(){
-		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
-		this.view.health.points.gotoAndStop(PlayerStats.health-1);
-		this.view.money.points.gotoAndStop(PlayerStats.money-1);
-	}
-}
 var PlayerSoundComponent = function(view){
 	'use strict';
 	if(PlayerSoundComponent.counter == null)
@@ -5854,8 +5932,8 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_germany1_traveling.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_germany1_traveling</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_germany1_traveling.js"></script><script>var canvas, stage, exportRoot;\n' +
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_5.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_5</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_5.js"></script><script>var canvas, stage, exportRoot;\n' +
     '\n' +
     'function init() {\n' +
     '	canvas = document.getElementById("canvas");\n' +
@@ -5864,7 +5942,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(germany1SlideLib.properties.manifest);\n' +
+    '	loader.loadManifest(lib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -5872,13 +5950,124 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new germany1SlideLib.slide_germany1_traveling();\n' +
+    '	exportRoot = new lib.slide_2_5();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(germany1SlideLib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_amory.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_amory</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_amory.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(lib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new lib.slide_2_7_1_amory();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_butcher.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_butcher</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_butcher.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(lib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new lib.slide_2_7_1_butcher();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_mine.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_mine</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_mine.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(lib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new lib.slide_2_7_1_mine();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
@@ -6027,117 +6216,6 @@ module.run(['$templateCache', function($templateCache) {
     '	stage.update();\n' +
     '\n' +
     '	createjs.Ticker.setFPS(svendborgSlideLib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_work_amory.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_work_amory</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_work_amory.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(lib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new lib.slide_work_amory();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_work_butcher.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_work_butcher</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_work_butcher.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(lib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new lib.slide_work_butcher();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_work_mine.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_work_mine</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_work_mine.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(lib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new lib.slide_work_mine();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);

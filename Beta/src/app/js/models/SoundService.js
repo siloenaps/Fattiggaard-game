@@ -85,7 +85,7 @@ SoundService.matrix = {
 			},
 	family: {
 				'D': null,
-				'E': { label: 'daughter', src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 },
+				'E': { label: 'daughter', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
 				'F': null
 			}
 	// characters: {

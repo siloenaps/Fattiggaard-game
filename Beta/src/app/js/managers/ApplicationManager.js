@@ -30,9 +30,9 @@ var ApplicationManager = {
          });
 
 		// Go to start
-		// FlowManager.gotoPage('0.0');
+		FlowManager.gotoPage('0.0');
 		// FlowManager.gotoPage('0.4');
-		FlowManager.gotoPage('2.5');
+		// FlowManager.gotoPage('2.5');
 	},
 	restart: function(){
 		'use strict';
