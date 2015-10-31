@@ -33,6 +33,10 @@ SoundService.properties = {
 	slidePath: 'assets/sounds/'
 };
 SoundService.matrix = {
+	points: {
+		plus: { src:SoundService.properties.basePath+'Point_plus.mp3', duration: 2.208 },
+		minus: { src:SoundService.properties.basePath+'Point_minus.mp3', duration: 1.128 }
+	},
 	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
 	drunk: { src:SoundService.properties.basePath+'drunk.mp3', duration: 1.078 },
 	constable: { src:SoundService.properties.basePath+'constable.mp3', duration: 1.815 },

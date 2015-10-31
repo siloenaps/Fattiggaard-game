@@ -1,7 +1,8 @@
 var Topbar = {
 	view: null,
+	soundController: null,
 	init: function(view){
-		this.view = view;
+		this.view = view;		
 	},
 	go: function(frm){
 		// console.log(this.view);
