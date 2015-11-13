@@ -79,9 +79,12 @@ SoundService.matrix = {
 				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
 			},
 	challenge: {
-				'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
-				'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
-				'C': { label: 'manager', src:SoundService.properties.basePath+'weakness.mp3', duration: 1.815 }
+				// 'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
+				// 'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
+				// 'C': { label: 'manager', src:SoundService.properties.basePath+'weakness.mp3', duration: 1.815 }
+				'A': { label: 'manager', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
+				'B': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
+				'C': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 }
 			},
 	family: {
 				'D': null,
