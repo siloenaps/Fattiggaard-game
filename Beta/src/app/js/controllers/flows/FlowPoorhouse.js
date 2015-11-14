@@ -42,15 +42,15 @@ FlowPoorhouse.prototype.setup = function(){
 	// Setup flow
 	this.flow = new SubFlowController();
 	this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
-	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
-	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.5'); // TEST
+	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
+	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.3'); // TEST
 	this.flow.addAction('1.1.1', Delegate.create(this.caretaker, this), '1.1.2');
 	this.flow.addAction('1.1.2', Delegate.create(this.chooseJob, this), '1.2.1');
 	this.flow.addAction('1.2.1', Delegate.create(this.work, this), '1.2.2');
 	this.flow.addAction('1.2.2', Delegate.create(this.points2, this), '1.3.1');
 	this.flow.addAction('1.3.1', Delegate.create(this.points3, this), '1.3.2');
 	this.flow.addAction('1.3.2', Delegate.create(this.getout, this), '1.3.3');
-	this.flow.addAction('1.3.3', Delegate.create(this.chooseAdvice, this), '1.3.4');
+	this.flow.addAction('1.3.3', Delegate.create(this.playAdvice, this), '1.3.4');
 	this.flow.addAction('1.3.4', Delegate.create(this.playAdvice, this), '1.3.5');
 	this.flow.addAction('1.3.5', Delegate.create(this.chooseWayOut, this), {'A':'1.6.1', 'B':'1.7', 'C':'1.9'}); 
 	this.flow.addAction('1.6.1', Delegate.create(this.drunk, this), '1.6.2');
@@ -128,22 +128,25 @@ FlowPoorhouse.prototype.next = function(){
 };
 FlowPoorhouse.prototype.onComplete = function(event) {
 	'use strict';
-	// Set next button active
-	this.continueBtn.activate('next');
-
 	// Remove events
 	if(this.playerComponent != null){
 		this.playerComponent.off('complete', this.listeners.complete);	
-	}	
+	}
+
+	// Set next button active
+	this.continueBtn.activate('next');	
 };
 FlowPoorhouse.prototype.onContinue = function(event) {
 	'use strict';
-	this.next();
-
+	
 	// Stop player if any
 	if(this.playerComponent != null){
 		this.playerComponent.stop();
 	}
+
+	this.next();
+
+	console.log('this.playerComponent:', this.playerComponent)
 };
 FlowPoorhouse.prototype.removeEvents = function() {
 	'use strict';
@@ -378,53 +381,55 @@ FlowPoorhouse.prototype.getout = function(trigger) {
 
 	this.continueBtn.activate('next');
 };
-FlowPoorhouse.prototype.chooseAdvice = function(trigger) {
-	'use strict';
-	var self = this;
+// FlowPoorhouse.prototype.chooseAdvice = function(trigger) {
+// 	'use strict';
+// 	var self = this;
 
-	// Next move
-	this.trigger = trigger;
+// 	// Next move
+// 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutAlpha(this.currentPage);
+// 	// Previous page out
+// 	Transitions.transOutAlpha(this.currentPage);
 
-	// Set new page out
-	this.currentPage = this.view.chooseadvice;
+// 	// Set new page out
+// 	this.currentPage = this.view.chooseadvice;
 
-	// New page in
-	Transitions.transInPosition(this.currentPage);
+// 	// New page in
+// 	Transitions.transInPosition(this.currentPage);
 
-	// Desactivate continue button
-	this.continueBtn.ghost('next');
+// 	// Desactivate continue button
+// 	this.continueBtn.ghost('next');
 
 
-	// Checkboxes
-	CheckboxGroup.setup(
-		[this.currentPage.checkbox1, this.currentPage.checkbox2],
-		['A', 'B'],
-		Delegate.create(function(vo){
-			console.log('checkbox:', vo);
+// 	// Checkboxes
+// 	CheckboxGroup.setup(
+// 		[this.currentPage.checkbox1, this.currentPage.checkbox2],
+// 		['A', 'B'],
+// 		Delegate.create(function(vo){
+// 			console.log('checkbox:', vo);
 
-			// Save chosen 'advice'
-			PlayerStats.advice = vo.value;
+// 			// Save chosen 'advice'
+// 			PlayerStats.advice = vo.value;
 
-			// Only first time a checkbox is clicked
-			if(vo.clicked === 1){
-				// User may continue
-				self.continueBtn.activate('next');
-				// Add listener to continue button
-				self.listeners.continueClick = self.continueBtn.on('click', function(event){
-					event.remove();
-					// Clear checkboxes
-					CheckboxGroup.clear();
-				});
-			}
-		}, this)
-	);
-};
+// 			// Only first time a checkbox is clicked
+// 			if(vo.clicked === 1){
+// 				// User may continue
+// 				self.continueBtn.activate('next');
+// 				// Add listener to continue button
+// 				self.listeners.continueClick = self.continueBtn.on('click', function(event){
+// 					event.remove();
+// 					// Clear checkboxes
+// 					CheckboxGroup.clear();
+// 				});
+// 			}
+// 		}, this)
+// 	);
+// };
 FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	'use strict';
 	var self = this;
+	var currentTrigger = this.trigger;
+	var sound;
 
 	// Next move
 	this.trigger = trigger;
@@ -434,19 +439,35 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	// Previous page out
 	Transitions.transOutPosition(this.currentPage);
 
+	console.log('playAdvice:', currentTrigger);
+
 	// Set new page out
-	this.currentPage = this.view.getadvice;
+	switch(currentTrigger){
+		case '1.3.3': // Inmate
+			this.currentPage = this.view.adviceinmate;	
+
+			// Get sound
+			sound = SoundService.matrix.advice[this.id]['inmate'];
+		break;
+		case '1.3.4': // Emplkoiyee
+			this.currentPage = this.view.adviceemployee;
+
+			// Get sound
+			sound = SoundService.matrix.advice[this.id]['employee'];
+		break;
+	}	
+
+	// Portrait
+	this.currentPage.portrait.gotoAndStop(this.id);
 
 	// New page in
 	Transitions.transInPosition(this.currentPage);
 
 	// Frame according to choice of advice
-	this.currentPage.gotoAndStop(PlayerStats.advice); // Frame label could be 'A' or 'B'
-
-	// Get sound
-	var sound = SoundService.matrix.advice[this.id][PlayerStats.advice];
+	// this.currentPage.gotoAndStop(PlayerStats.advice); // Frame label could be 'A' or 'B'
 
 	// Reuse player component var for sound
+	this.playerComponent = null;
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 	this.listeners.complete = this.playerComponent.on('complete', function(event){
 		self.continueBtn.activate('next');

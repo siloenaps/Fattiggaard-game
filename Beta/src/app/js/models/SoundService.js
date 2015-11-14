@@ -61,8 +61,8 @@ SoundService.matrix = {
 	},
 	advice: {
 		'svendborg': {
-			'A': { src:SoundService.properties.basePath+'1.3.4_RaadIndlagt.mp3', duration: 41.987 },
-			'B': { src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 }
+			'employee': { src:SoundService.properties.basePath+'1.3.4_RaadIndlagt.mp3', duration: 41.987 }, 	// Employee
+			'inmate': { src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 }		// Fellow inmate
 		},
 	},
 	work: {

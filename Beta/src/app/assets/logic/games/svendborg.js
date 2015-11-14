@@ -32,6 +32,8 @@ lib.properties = {
 		{src:"../../../assets/images/games/svendborg/CDCloseUp.png", id:"CDCloseUp"},
 		{src:"../../../assets/images/games/svendborg/CECloseUp.png", id:"CECloseUp"},
 		{src:"../../../assets/images/games/svendborg/CFCloseUp.png", id:"CFCloseUp"},
+		{src:"../../../assets/images/games/svendborg/indsat_1.png", id:"indsat_1"},
+		{src:"../../../assets/images/games/svendborg/indsat_2.png", id:"indsat_2"},
 		{src:"../../../assets/images/games/svendborg/LetterArrested.png", id:"LetterArrested"},
 		{src:"../../../assets/images/games/svendborg/LetterBG.png", id:"LetterBG"},
 		{src:"../../../assets/images/games/svendborg/LetterWriteBG.png", id:"LetterWriteBG"},
@@ -184,6 +186,18 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 (lib.CFCloseUp = function() {
 	this.initialize(img.CFCloseUp);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
+(lib.indsat_1 = function() {
+	this.initialize(img.indsat_1);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
+(lib.indsat_2 = function() {
+	this.initialize(img.indsat_2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
@@ -570,6 +584,66 @@ p.nominalBounds = new cjs.Rectangle(196.7,0,657,576.5);
 	this.addChild(this.instance_1,this.instance,this.text_3,this.text_2,this.text_1,this.text);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(212,40,602,187);
+
+
+(lib._134EmployeePortraitMain = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{horsens:0,sundholm:1,svendborg:2});
+
+	// timeline functions:
+	this.frame_0 = function() {
+		this.stop();
+	}
+
+	// actions tween:
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
+
+	// Layer 3
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("#CC0000").s().p("Ak9EaQiEh1AAilQAAikCEh1QCEh2C5ABQC6gBCDB2QCEB1ABCkQgBCliEB1QiDB2i6AAQi5AAiEh2g");
+	this.shape.setTransform(330,480);
+	this.shape._off = true;
+
+	this.timeline.addTween(cjs.Tween.get(this.shape).wait(2).to({_off:false},0).wait(1));
+
+	// Layer 1
+	this.instance = new lib.indsat_1();
+
+	this.instance_1 = new lib.indsat_2();
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance}]},1).wait(1));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
+(lib._133InmatePortraitMain = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{"horsens":0,"sundholm":1,"svendborg":2});
+
+	// timeline functions:
+	this.frame_0 = function() {
+		this.stop();
+	}
+
+	// actions tween:
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
+
+	// Layer 3
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("#003399").s().p("Ak9EaQiEh1AAilQAAikCEh1QCEh2C5ABQC6gBCDB2QCEB1ABCkQgBCliEB1QiDB2i6AAQi5AAiEh2g");
+	this.shape.setTransform(330,480);
+	this.shape._off = true;
+
+	this.timeline.addTween(cjs.Tween.get(this.shape).wait(2).to({_off:false},0).wait(1));
+
+	// Layer 1
+	this.instance = new lib.indsat_1();
+
+	this.instance_1 = new lib.indsat_2();
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance}]},1).wait(1));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
 (lib._131PagePoints3 = function() {
@@ -2208,75 +2282,48 @@ p.nominalBounds = new cjs.Rectangle(210,38,732,296);
 p.nominalBounds = new cjs.Rectangle(210,38,589,408.7);
 
 
-(lib._134PagePlayAdvice = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{A:0,B:1});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(2));
+(lib._134PagePlayAdviceEmployee = function() {
+	this.initialize();
 
 	// Photo
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#009966").s().p("Au1VGMAAAgqKIdqAAMAAAAqKg");
-	this.shape.setTransform(915,365);
-
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#CCCC66").s().p("Au1VGMAAAgqKIdqAAMAAAAqKg");
-	this.shape_1.setTransform(915,365);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape}]}).to({state:[{t:this.shape_1}]},1).wait(1));
+	this.portrait = new lib._134EmployeePortraitMain();
+	this.portrait.setTransform(823,261,1,1,0,0,0,201,279);
 
 	// Text
-	this.text = new cjs.Text("Stik af...", "48px 'Special Elite'", "#FFFFFF");
+	this.text = new cjs.Text("Få et godt råd af en ansat", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
 	this.text.lineWidth = 800;
 	this.text.setTransform(210,38);
-
-	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"?????????"},0).wait(1));
 
 	// Player
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
 
-	this.timeline.addTween(cjs.Tween.get(this.player).wait(2));
+	this.addChild(this.player,this.text,this.portrait);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(210,38,803.8,462);
 
-
-(lib._133PageChooseAdvice = function() {
+(lib._133PagePlayAdviceInmate = function() {
 	this.initialize();
 
-	// Checkboxe
-	this.checkbox2 = new lib.CheckBox();
-	this.checkbox2.setTransform(543.2,303.2,1,1,0,0,0,209.2,29.2);
-
-	this.checkbox1 = new lib.CheckBox();
-	this.checkbox1.setTransform(543.2,193.2,1,1,0,0,0,209.2,29.2);
-
 	// Text
-	this.text = new cjs.Text("fra en ansat", "40px 'BigNoodleTitling'", "#C69700");
-	this.text.lineHeight = 42;
-	this.text.lineWidth = 326;
-	this.text.setTransform(415,281);
+	this.text = new cjs.Text("Få et godt råd af en indsat", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 800;
+	this.text.setTransform(210,38);
 
-	this.text_1 = new cjs.Text("fra en indsat", "40px 'BigNoodleTitling'", "#C69700");
-	this.text_1.lineHeight = 42;
-	this.text_1.lineWidth = 326;
-	this.text_1.setTransform(415,171);
+	// Player
+	this.player = new lib.PlayerAudio();
+	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
 
-	this.text_2 = new cjs.Text("Få et godt råd", "48px 'Special Elite'", "#FFFFFF");
-	this.text_2.lineHeight = 50;
-	this.text_2.lineWidth = 584;
-	this.text_2.setTransform(210,38);
+	// Photo
+	this.portrait = new lib._133InmatePortraitMain();
+	this.portrait.setTransform(823,261,1,1,0,0,0,201,279);
 
-	this.addChild(this.text_2,this.text_1,this.text,this.checkbox1,this.checkbox2);
+	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,38,587.6,298.7);
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 (lib._121PageWork = function() {
@@ -2505,17 +2552,17 @@ p.nominalBounds = new cjs.Rectangle(212,40,600,459);
 
 	this.timeline.addTween(cjs.Tween.get(this.choosewayout).wait(26));
 
-	// 1.3.4 Get Advice
-	this.getadvice = new lib._134PagePlayAdvice();
-	this.getadvice.setTransform(1024,0);
+	// 1.3.4 Advice Employee
+	this.adviceemployee = new lib._134PagePlayAdviceEmployee();
+	this.adviceemployee.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.getadvice).wait(26));
+	this.timeline.addTween(cjs.Tween.get(this.adviceemployee).wait(26));
 
-	// 1.3.3 Choose Advice
-	this.chooseadvice = new lib._133PageChooseAdvice();
-	this.chooseadvice.setTransform(1024,0);
+	// 1.3.3 Advice Inmate
+	this.adviceinmate = new lib._133PagePlayAdviceInmate();
+	this.adviceinmate.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.chooseadvice).wait(26));
+	this.timeline.addTween(cjs.Tween.get(this.adviceinmate).wait(26));
 
 	// 1.3.2 Get Out
 	this.getout = new lib._132PageGetOut();
