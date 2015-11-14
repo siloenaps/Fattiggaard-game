@@ -24,7 +24,7 @@ FlowPoorhouse.prototype.start = function(){
 	var gameFile;
 
 	LoadJS.load(
-		['../assets/logic/games/svendborg.js', '../assets/logic/slides/slide_svendborg.js'], 
+		['../assets/logic/games/svendborg.js', '../assets/logic/slides/slide_1_0_1_svendborg.js'], 
 		Delegate.create(this.setup, this)
 	);
 };
@@ -77,7 +77,7 @@ FlowPoorhouse.prototype.setup = function(){
 			self.dispatchEvent(new createjs.Event('continue'));
 		}, this)
 	);
-console.log("PlayerStats.poorhouse:", PlayerStats.poorhouse);
+
 	switch(this.id){
 		case 'horsens':			
 			this.lib = horsensGameLib;
@@ -96,7 +96,8 @@ console.log("PlayerStats.poorhouse:", PlayerStats.poorhouse);
 		case 'svendborg':	
 			this.lib = svendborgGameLib;
 			Clss = this.lib.svendborg;
-			this.slideLib = svendborgSlideLib;			
+			// this.slideLib = svendborgSlideLib;
+			this.slideLib = lib;			
 			manifest = this.lib.properties.manifest;
 
 		break;
@@ -172,6 +173,8 @@ FlowPoorhouse.prototype.destroy = function() {
 FlowPoorhouse.prototype.intro = function(trigger){
 	'use strict';
 
+	console.log("PlayerStats.intro:", this.id);
+
 	// Next move
 	this.trigger = trigger;
 
@@ -189,7 +192,7 @@ FlowPoorhouse.prototype.intro = function(trigger){
 	this.listeners.complete = self.playerComponent.on('complete', function(event){
 		self.continueBtn.activate('next');
 	}, self);
-	this.playerComponent.preload('slide_'+this.id, this.slideLib);
+	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
 };
 FlowPoorhouse.prototype.points1 = function(trigger) {
 	'use strict';
