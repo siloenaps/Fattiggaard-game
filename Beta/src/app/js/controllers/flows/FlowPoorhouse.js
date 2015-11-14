@@ -232,6 +232,16 @@ FlowPoorhouse.prototype.caretaker = function(trigger) {
 
 	// New page in
 	Transitions.transInAlpha(this.currentPage);
+
+	// Get sound
+	var sound = SoundService.matrix['1.1.1'][this.id]; // E.g. this.id == 'svendborg'
+
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+	this.listeners.complete = this.playerComponent.on('complete', function(event){
+		self.continueBtn.activate('next');
+	}, self);
+	this.playerComponent.preload(sound.src, sound.duration);
 };
 FlowPoorhouse.prototype.chooseJob = function(trigger) {
 	'use strict';

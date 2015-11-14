@@ -33,6 +33,11 @@ SoundService.properties = {
 	slidePath: 'assets/sounds/'
 };
 SoundService.matrix = {
+	'1.1.1' :{
+		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
+		sundholm: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
+		svendborg: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 }
+	},
 	points: {
 		plus: { src:SoundService.properties.basePath+'Point_plus.mp3', duration: 2.208 },
 		minus: { src:SoundService.properties.basePath+'Point_minus.mp3', duration: 1.128 }
