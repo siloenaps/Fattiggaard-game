@@ -1,5 +1,6 @@
 var ContinueButton = {
 	init: function(view){
+		this.type = null;
 
 		// Safety belt
 		this.destroy();		
@@ -26,6 +27,7 @@ var ContinueButton = {
 		this.listners.next = this.nextBtnInstance.on('click', this.onClick, this);
 	},
 	activate: function(type){
+		this.type = type;
 		switch(type){
 			case 'next':
 				this.skipBtnInstance.visible(false);
@@ -39,6 +41,7 @@ var ContinueButton = {
 		}
 	},
 	ghost: function(type){
+		this.type = type;
 		switch(type){
 			case 'next':
 				this.skipBtnInstance.visible(false);
@@ -51,8 +54,24 @@ var ContinueButton = {
 		}
 	},
 	hide: function(){
-		this.skipBtnInstance.visible(false);
-		this.nextBtnInstance.visible(false);
+		switch(this.type){
+			case 'next':
+				this.nextBtnInstance.visible(false);
+			break;
+			case 'skip':
+				this.skipBtnInstance.visible(false);
+			break;
+		}
+	},
+	show: function(){
+		switch(this.type){
+			case 'next':
+				this.nextBtnInstance.visible(true);
+			break;
+			case 'skip':
+				this.skipBtnInstance.visible(true);
+			break;
+		}
 	},
 	onClick: function(event){
 		var e = new createjs.Event('click');

@@ -14,7 +14,12 @@ lib.properties = {
 		{src:"../assets/images/main/_0_2BG.jpg", id:"_0_2BG"},
 		{src:"../assets/images/main/_0_3BG.jpg", id:"_0_3BG"},
 		{src:"../assets/images/main/_0_4BG.jpg", id:"_0_4BG"},
+		{src:"../assets/images/main/_0_5_1_close_bt.png", id:"_0_5_1_close_bt"},
+		{src:"../assets/images/main/_0_5_infobt.png", id:"_0_5_infobt"},
 		{src:"../assets/images/main/_0_5BG.jpg", id:"_0_5BG"},
+		{src:"../assets/images/main/_1_0BGhorsens.jpg", id:"_1_0BGhorsens"},
+		{src:"../assets/images/main/_1_0BGsundholm.jpg", id:"_1_0BGsundholm"},
+		{src:"../assets/images/main/_1_0BGsvendborg.jpg", id:"_1_0BGsvendborg"},
 		{src:"../assets/images/main/ADCloseUp.png", id:"ADCloseUp"},
 		{src:"../assets/images/main/AECloseUp.png", id:"AECloseUp"},
 		{src:"../assets/images/main/AFCloseUp.png", id:"AFCloseUp"},
@@ -55,6 +60,7 @@ lib.properties = {
 		{src:"../assets/images/main/PersonCardCE.png", id:"PersonCardCE"},
 		{src:"../assets/images/main/PersonCardCF.png", id:"PersonCardCF"},
 		{src:"../assets/images/main/PointBG.png", id:"PointBG"},
+		{src:"../assets/images/main/tekst_bg_sort.png", id:"tekst_bg_sort"},
 		{src:"../assets/images/main/TopBG.jpg", id:"TopBG"},
 		{src:"../assets/images/main/TopCard.png", id:"TopCard"}
 	]
@@ -96,8 +102,38 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
+(lib._0_5_1_close_bt = function() {
+	this.initialize(img._0_5_1_close_bt);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,37,37);
+
+
+(lib._0_5_infobt = function() {
+	this.initialize(img._0_5_infobt);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,35,35);
+
+
 (lib._0_5BG = function() {
 	this.initialize(img._0_5BG);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._1_0BGhorsens = function() {
+	this.initialize(img._1_0BGhorsens);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._1_0BGsundholm = function() {
+	this.initialize(img._1_0BGsundholm);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._1_0BGsvendborg = function() {
+	this.initialize(img._1_0BGsvendborg);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -340,6 +376,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,326,426);
 	this.initialize(img.PointBG);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,177,50);
+
+
+(lib.tekst_bg_sort = function() {
+	this.initialize(img.tekst_bg_sort);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 
 
 (lib.TopBG = function() {
@@ -610,6 +652,18 @@ p.nominalBounds = new cjs.Rectangle(0,0,599,262);
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
+(lib.InfoButton = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{});
+
+	// Layer 1
+	this.instance = new lib._0_5_infobt();
+
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(4));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,35,35);
 
 
 (lib.SkipButton = function(mode,startPosition,loop) {
@@ -967,6 +1021,18 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 p.nominalBounds = null;
 
 
+(lib.CloseButton = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{});
+
+	// Layer 1
+	this.instance = new lib._0_5_1_close_bt();
+
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(4));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,37,37);
+
+
 (lib.BlockerButton = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{});
 
@@ -993,6 +1059,17 @@ p.nominalBounds = null;
 	this.addChild(this.shape);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,120,120);
+
+
+(lib.BlackTextBG = function() {
+	this.initialize();
+
+	// Layer 1
+	this.instance = new lib.tekst_bg_sort();
+
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 
 
 (lib.PointsMood = function() {
@@ -1044,6 +1121,52 @@ p.nominalBounds = new cjs.Rectangle(0,0,177,50);
 	this.addChild(this.points,this.text);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,177,50);
+
+
+(lib.InfoPopup = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{});
+
+	// timeline functions:
+	this.frame_0 = function() {
+		this.stop();
+	}
+
+	// actions tween:
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
+
+	// Close Button
+	this.closebutton = new lib.CloseButton();
+	this.closebutton.setTransform(995.5,28.5,1,1,0,0,0,18.5,18.5);
+	new cjs.ButtonHelper(this.closebutton, 0, 1, 2, false, new lib.CloseButton(), 3);
+
+	this.timeline.addTween(cjs.Tween.get(this.closebutton).wait(3));
+
+	// Text
+	this.text = new cjs.Text("Horsens Forsørgelsesanstalt er en fattiganstalt med plads til i alt 74\npersoner, 52 mænd og 22 kvinder. Mænd og kvinder holdes adskilt. Horsens\nForsørgelsesanstalt består af en arbejdsafdeling en forsørgelsesafdeling\nog en sygeafdeling. Arbejdsdygtige individer, alkoholister og forsømmelige\nforsørgere bliver indlagt på arbejdsafdelingen. Der er mure langs anstaltens\ngårdarealer. Anstaltens chef er Forvalteren, det er ham, der bestemmer over\nde indlagte og har det overordnede ansvar for, at stedets regler bliver\noverholdt. Opsynsmændene er forvalterens forlængede arm. ", "28px 'BigNoodleTitling'", "#B9961D");
+	this.text.lineHeight = 30;
+	this.text.lineWidth = 724;
+	this.text.setTransform(219,135.3);
+
+	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Sundholm er en kæmpe stor fattiganstalt på Amager med plads til op mod\n750 indlagte. Mænd og kvinder holdes adskilt. Sundholm består af en\narbejdsanstalt, en forsørgelsesanstalt og en tvangsarbejdsanstalt. \nArbejdsdygtige individer bliver indlagt på arbejdsanstalten eller tvangs-\narbejdsanstalten, da man mener, at de selv bærer hovedansvaret for deres \nfattigdom. Rundt om Sundholm har man gravet en fire meter dyb voldgrav.\nPå kanten af voldgraven står et to meter højt pigtrådshegn. Pigtrådshegnet\ner ca. 1400 meter langt. Anstaltens chef er Forvalteren, det er ham, der\nbestemmer over de indlagte og har det overordnede ansvar for, at stedets\nregler bliver overholdt. Opsynsmændene er forvalterens forlængede arm. ",lineWidth:781},0).wait(1).to({text:"Svendborg Fattiggård er en anstalt med plads til 51 indlagte. Svendborg \nfattiggård indeholder en arbejdsafdeling, en forsørgelsesafdeling og en \nsygeafdeling. Mænd og kvinder holdes adskilt. Arbejdsdygtige individer \nbliver indlagt på arbejdsafdelingen, da man mener, at de er dovne og \narbejdssky, og derfor selv bærer hovedansvaret for deres fattigdom. \nLangs fattiggårdens bygninger er der høje mure med pigtråd på toppen. \nAnstaltens chef er Forvalteren, det er ham, der bestemmer over de indlagte \nog har det overordnede ansvar for, at stedets regler bliver overholdt.",lineWidth:724},0).wait(1));
+
+	// Text BG
+	this.instance = new lib.BlackTextBG("synched",0);
+	this.instance.setTransform(164,108,1.039,1,0,0,0,-0.4,0.1);
+	this.instance.alpha = 0.391;
+
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(1).to({scaleX:1.02,scaleY:1.11},0).wait(1).to({scaleX:1.01,scaleY:0.97},0).wait(1));
+
+	// BG
+	this.instance_1 = new lib._1_0BGhorsens();
+
+	this.instance_2 = new lib._1_0BGsundholm();
+
+	this.instance_3 = new lib._1_0BGsvendborg();
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance_1}]}).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).wait(1));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
 (lib.CheckBoxsmall = function(mode,startPosition,loop) {
@@ -1172,6 +1295,23 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,421.4,61.5);
 (lib._05Map = function() {
 	this.initialize();
 
+	// Info Popup
+	this.infopopup = new lib.InfoPopup();
+	this.infopopup.setTransform(1024,0);
+
+	// Info Buttons
+	this.info3 = new lib.InfoButton();
+	this.info3.setTransform(672,433.5);
+	new cjs.ButtonHelper(this.info3, 0, 1, 2, false, new lib.InfoButton(), 3);
+
+	this.info2 = new lib.InfoButton();
+	this.info2.setTransform(843,342.5);
+	new cjs.ButtonHelper(this.info2, 0, 1, 2, false, new lib.InfoButton(), 3);
+
+	this.info1 = new lib.InfoButton();
+	this.info1.setTransform(578,306);
+	new cjs.ButtonHelper(this.info1, 0, 1, 2, false, new lib.InfoButton(), 3);
+
 	// Checkboxes
 	this.checkbox3 = new lib.CheckBoxsmall();
 	this.checkbox3.setTransform(481.6,425);
@@ -1183,32 +1323,21 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,421.4,61.5);
 	this.checkbox1.setTransform(415.4,298.8);
 
 	// Text
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("#B9961D").s().p("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");
+	this.shape.setTransform(658.7,386.7);
+
 	this.text = new cjs.Text("Vælg hvor du starter", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
 	this.text.lineWidth = 777;
 	this.text.setTransform(210,38);
 
 	// BG
-	this.text_1 = new cjs.Text("svendborg", "37px 'BigNoodleTitling'", "#B9961D");
-	this.text_1.lineHeight = 39;
-	this.text_1.lineWidth = 134;
-	this.text_1.setTransform(542.8,428.1);
-
-	this.text_2 = new cjs.Text("sundby", "37px 'BigNoodleTitling'", "#B9961D");
-	this.text_2.lineHeight = 39;
-	this.text_2.lineWidth = 100;
-	this.text_2.setTransform(722.9,336.6);
-
-	this.text_3 = new cjs.Text("horsens", "37px 'BigNoodleTitling'", "#B9961D");
-	this.text_3.lineHeight = 39;
-	this.text_3.lineWidth = 100;
-	this.text_3.setTransform(476,301.6);
-
 	this.instance = new lib._0_5BG();
 
-	this.addChild(this.instance,this.text_3,this.text_2,this.text_1,this.text,this.checkbox1,this.checkbox2,this.checkbox3);
+	this.addChild(this.instance,this.text,this.shape,this.checkbox1,this.checkbox2,this.checkbox3,this.info1,this.info2,this.info3,this.infopopup);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+p.nominalBounds = new cjs.Rectangle(0,0,2048,540);
 
 
 (lib._03CardMain = function() {

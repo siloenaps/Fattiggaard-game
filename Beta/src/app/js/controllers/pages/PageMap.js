@@ -29,9 +29,50 @@ PageMap.prototype.start = function() {
 		self.continueBtn.on('click', function(e){
 			e.remove();
 			event.remove();
+
+			self.view.info1.off('click', self.listeners['info1']);
+			self.view.info2.off('click', self.listeners['info2']);
+			self.view.info3.off('click', self.listeners['info3']);
+
 			self.dispatchEvent(new createjs.Event('continue'));
 		});
 	}, self);
+
+
+	// Info popup
+	this.view.infopopup.visible = false;
+	this.infoButtons = [];
+	this.infoButtons.push(this.view.info1);
+	this.infoButtons.push(this.view.info2);
+	this.infoButtons.push(this.view.info3);
+	this.view.info1.id = 1;
+	this.view.info2.id = 2;
+	this.view.info3.id = 3;
+	// Info buttons events
+	this.listeners['info1'] = this.view.info1.on('click', function(event){
+		this.openInfo(event.target.id);
+	}, this);
+	this.listeners['info2'] = this.view.info2.on('click', function(event){
+		this.openInfo(event.target.id);
+	}, this);
+	this.listeners['info3'] = this.view.info3.on('click', function(event){
+		this.openInfo(event.target.id);
+	}, this);
+	// Close button	
+	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){
+		this.closeInfo();
+	}, this);
+};
+PageMap.prototype.openInfo = function(id) {
+	this.view.infopopup.gotoAndStop(id-1);
+	this.view.infopopup.x = 0;
+	this.view.infopopup.visible = true;
+	this.continueBtn.hide();
+};
+PageMap.prototype.closeInfo = function(id) {
+	this.view.infopopup.x = 1024;
+	this.view.infopopup.visible = false;
+	this.continueBtn.show();
 };
 PageMap.prototype.destroy = function() {
 	this.view = null;	

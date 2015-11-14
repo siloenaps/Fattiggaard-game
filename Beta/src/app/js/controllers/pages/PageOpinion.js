@@ -30,42 +30,6 @@ var PageOpinion = function(view){
 		this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
 	}
 
-
-	// this.soundChallengeObject = SoundService.matrix.challenge[challenge];
-	// this.soundFamilyObject = SoundService.matrix.family[family];
-
-	// // Player - Challenge
-	// view.playerChallenge.visible = false;
-	// if(this.soundChallengeObject != null){
-	// 	view.playerChallenge.visible = true;
-	// 	this.challengePlayerComponent = new PlayerSoundComponent(view.playerChallenge.player);
-	// 	this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
-	// 	this.playersCount++;
-
-	// 	this.listeners.challengeStart = this.challengePlayerComponent.on("start", this.onSoundStart, this);
-
-	// 	this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
-	// }
-
-	// // Player - Family
-	// view.playerFamily.visible = false;
-	// if(this.soundFamilyObject != null){
-	// 	view.playerFamily.visible = true;
-	// 	this.familyPlayerComponent = new PlayerSoundComponent(view.playerFamily.player);
-	// 	this.familyPlayerComponent.preload(this.soundFamilyObject.src, this.soundFamilyObject.duration);
-	// 	this.playersCount++;
-
-	// 	this.listeners.familiyStart = this.familyPlayerComponent.on("start", this.onSoundStart, this);
-
-	// 	this.listeners.family = this.familyPlayerComponent.on('complete', this.onComplete, this);
-	// }
-
-	// // Place challenge media-player if only player
-	// // NB. Hardcoded positions reltaed to to original poistions in Flash setup
-	// if(this.playersCount == 1){
-	// 	view.playerChallenge.y = 125;
-	// }
-
 	// Continue/Skip button
 	this.continueBtn = ContinueButton;
 	this.continueBtn.activate("skip");
