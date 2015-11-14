@@ -19,7 +19,6 @@ lib.properties = {
 		{src:"../../../assets/images/games/svendborg/_1_3BGsvendborg.jpg", id:"_1_3BGsvendborg"},
 		{src:"../../../assets/images/games/svendborg/_1_4BG.jpg", id:"_1_4BG"},
 		{src:"../../../assets/images/games/svendborg/_1_5BGsvendborg2.jpg", id:"_1_5BGsvendborg2"},
-		{src:"../../../assets/images/games/svendborg/_1_7BGsvendborg2.jpg", id:"_1_7BGsvendborg2"},
 		{src:"../../../assets/images/games/svendborg/_1_8BGsvendborg.jpg", id:"_1_8BGsvendborg"},
 		{src:"../../../assets/images/games/svendborg/_21.jpg", id:"_21"},
 		{src:"../../../assets/images/games/svendborg/_22.jpg", id:"_22"},
@@ -36,7 +35,6 @@ lib.properties = {
 		{src:"../../../assets/images/games/svendborg/indsat_1.png", id:"indsat_1"},
 		{src:"../../../assets/images/games/svendborg/indsat_2.png", id:"indsat_2"},
 		{src:"../../../assets/images/games/svendborg/LetterArrested.png", id:"LetterArrested"},
-		{src:"../../../assets/images/games/svendborg/LetterBG.png", id:"LetterBG"},
 		{src:"../../../assets/images/games/svendborg/LetterWriteBG.png", id:"LetterWriteBG"},
 		{src:"../../../assets/images/games/svendborg/OpsynsmandSvendborg.png", id:"OpsynsmandSvendborg"},
 		{src:"../../../assets/images/games/svendborg/PointDobbeltBG.png", id:"PointDobbeltBG"},
@@ -109,12 +107,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 (lib._1_5BGsvendborg2 = function() {
 	this.initialize(img._1_5BGsvendborg2);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._1_7BGsvendborg2 = function() {
-	this.initialize(img._1_7BGsvendborg2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -213,12 +205,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 	this.initialize(img.LetterArrested);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,657,540);
-
-
-(lib.LetterBG = function() {
-	this.initialize(img.LetterBG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,913,540);
 
 
 (lib.LetterWriteBG = function() {
@@ -392,110 +378,6 @@ p.nominalBounds = new cjs.Rectangle(212,40,601.8,276);
 	this.addChild(this.text);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(212,152,621,373);
-
-
-(lib._173PagePoints5 = function() {
-	this.initialize();
-
-	// Layer 1
-	this.text = new cjs.Text("Point", "48px 'Special Elite'", "#FFFFFF");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 584;
-	this.text.setTransform(212,40);
-
-	this.text_1 = new cjs.Text("Et afslag… det kunne man\nogså have tænkt sig til.", "18px 'Special Elite'");
-	this.text_1.lineHeight = 20;
-	this.text_1.lineWidth = 262;
-	this.text_1.setTransform(529.8,137);
-
-	this.text_2 = new cjs.Text("-1", "48px 'Special Elite'", "#FFFFFF");
-	this.text_2.textAlign = "center";
-	this.text_2.lineHeight = 50;
-	this.text_2.lineWidth = 145;
-	this.text_2.setTransform(323.5,142);
-
-	this.text_3 = new cjs.Text("Humør", "28px 'BigNoodleTitling'");
-	this.text_3.textAlign = "center";
-	this.text_3.lineHeight = 30;
-	this.text_3.lineWidth = 106;
-	this.text_3.setTransform(454.3,144);
-
-	this.instance = new lib.PointNegativ();
-	this.instance.setTransform(238.8,126);
-
-	// Layer 2
-	this.instance_1 = new lib.PointEnkeltBG();
-	this.instance_1.setTransform(214,50);
-
-	this.addChild(this.instance_1,this.instance,this.text_3,this.text_2,this.text_1,this.text);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,40,602,187);
-
-
-(lib._172PageLetterReturn = function() {
-	this.initialize();
-
-	// Text
-	this.text = new cjs.Text("Formanden for det sociale udvalg\nHr. Bundgaard", "24px 'Special Elite'");
-	this.text.lineHeight = 26;
-	this.text.lineWidth = 590;
-	this.text.setTransform(163,453.1);
-
-	this.text_1 = new cjs.Text("Svar fra Socialudvalget", "24px 'Special Elite'");
-	this.text_1.lineHeight = 26;
-	this.text_1.lineWidth = 620;
-	this.text_1.setTransform(163,39.1);
-
-	this.text_2 = new cjs.Text("Tilladelse nægtet!\nDet er opsynsmandens opgave at sikre\nreglementet overholdt. De har efter den \nomtalte opsynsmands overbevisning ikke levet \nop til de ellers yderst rimelige krav, som\nreglementet foreskriver. Desuden nægter\nopsynsmanden bestemt at have udtalt det\npostulerede eller på anden måde været \nnedladende overfor dem. Det påpeges af\nForvalteren, at De indimellem har svært ved\nat skelne mellem Fantasi og virkelighed. ", "24px 'Special Elite'");
-	this.text_2.lineHeight = 26;
-	this.text_2.lineWidth = 633;
-	this.text_2.setTransform(163,113);
-
-	// Letter BG
-	this.instance = new lib.LetterBG();
-	this.instance.setTransform(111,0);
-
-	this.addChild(this.instance,this.text_2,this.text_1,this.text);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(111,0,913,540);
-
-
-(lib._171PagePoints4 = function() {
-	this.initialize();
-
-	// Layer 1
-	this.text = new cjs.Text("Point", "48px 'Special Elite'", "#FFFFFF");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 584;
-	this.text.setTransform(212,40);
-
-	this.text_1 = new cjs.Text("Du er glad for at have fået\nskrevet brevet, og venter\nspændt på svar", "18px 'Special Elite'");
-	this.text_1.lineHeight = 20;
-	this.text_1.lineWidth = 262;
-	this.text_1.setTransform(529.8,137);
-
-	this.text_2 = new cjs.Text("+1", "48px 'Special Elite'", "#FFFFFF");
-	this.text_2.textAlign = "center";
-	this.text_2.lineHeight = 50;
-	this.text_2.lineWidth = 145;
-	this.text_2.setTransform(323.5,142);
-
-	this.text_3 = new cjs.Text("penge", "28px 'BigNoodleTitling'");
-	this.text_3.textAlign = "center";
-	this.text_3.lineHeight = 30;
-	this.text_3.lineWidth = 106;
-	this.text_3.setTransform(454.3,144);
-
-	this.instance = new lib.PointPositiv();
-	this.instance.setTransform(238.8,126);
-
-	// Layer 2
-	this.instance_1 = new lib.PointEnkeltBG();
-	this.instance_1.setTransform(214,50);
-
-	this.addChild(this.instance_1,this.instance,this.text_3,this.text_2,this.text_1,this.text);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 
 
 (lib._163PagePoints6 = function() {
@@ -1233,35 +1115,11 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib.Background1_9 = function() {
-	this.initialize();
-
-	// Layer 1
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#CC6666").s().p("EhP/AqMMAAAhUXMCf/AAAMAAABUXg");
-	this.shape.setTransform(512,270);
-
-	this.addChild(this.shape);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
 (lib.Background1_8 = function() {
 	this.initialize();
 
 	// Layer 1
 	this.instance = new lib._1_8BGsvendborg();
-
-	this.addChild(this.instance);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib.Background1_7 = function() {
-	this.initialize();
-
-	// Layer 1
-	this.instance = new lib._1_7BGsvendborg2();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
@@ -1527,7 +1385,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,34,34);
 	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
 
 	// Text
-	this.text = new cjs.Text("Du er tilbage på Fattiggården, men det er ikke\nblevet nemmere at være her…", "24px 'Special Elite'", "#D9D1B4");
+	this.text = new cjs.Text("30 dage i arresten bare fordi jeg blev en smule\nberuset… og så får man ikke engang sin frihed\nbagefter – bliver bare lukket ud arresten for\nat blive indlagt på fattiggården… mere\nindespærring og et uendeligt mylder af\nregler… De har taget min udgangstilladelse\nfra mig de næste tre uger… Det gør ikke\ntrangen til at komme ud herfra mindre, men\nhvis jeg stikker af igen, bliver jeg sikkert\nbare straffet endnu hårdere næste gang…\nMåske er tysklandsarbejde en mulighed?!", "24px 'Special Elite'", "#D9D1B4");
 	this.text.lineHeight = 26;
 	this.text.lineWidth = 594;
 	this.text.setTransform(212,132);
@@ -2139,23 +1997,6 @@ p.nominalBounds = new cjs.Rectangle(210,38,587.6,408.7);
 p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
 
 
-(lib._19PreRecruitment = function() {
-	this.initialize();
-
-	// Text
-	this.player = new lib.PlayerAudio();
-	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
-
-	this.text = new cjs.Text("1.9 Pre Recruitment", "48px 'Special Elite'", "#FFFFFF");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 800;
-	this.text.setTransform(210,38);
-
-	this.addChild(this.text,this.player);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
-
-
 (lib._17PageLettertoSocialAuthorities = function() {
 	this.initialize();
 
@@ -2492,35 +2333,11 @@ p.nominalBounds = new cjs.Rectangle(212,40,600,459);
 
 	this.timeline.addTween(cjs.Tween.get(this.recruitementoffice).wait(26));
 
-	// 1.9 Pre Recruitment
-	this.prerecruitment = new lib._19PreRecruitment();
-	this.prerecruitment.setTransform(1024,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.prerecruitment).wait(26));
-
 	// 1.8 Back to Poorhouse
 	this.backtopoorhouse = new lib._18PageBacktoPoorhouse();
 	this.backtopoorhouse.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.backtopoorhouse).wait(26));
-
-	// 1.7.3 Points5
-	this.points5 = new lib._173PagePoints5();
-	this.points5.setTransform(1024,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.points5).wait(26));
-
-	// 1.7.2 Answer on letter
-	this.letteranswer = new lib._172PageLetterReturn();
-	this.letteranswer.setTransform(1024,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.letteranswer).wait(26));
-
-	// 1.7.1 Points4
-	this.points4 = new lib._171PagePoints4();
-	this.points4.setTransform(1024,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.points4).wait(26));
 
 	// 1.7 Write Letter
 	this.letterwrite = new lib._17PageLettertoSocialAuthorities();
@@ -2648,23 +2465,11 @@ p.nominalBounds = new cjs.Rectangle(212,40,600,459);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_2_1).wait(26));
 
-	// 1.9
-	this.bg_1_9 = new lib.Background1_9();
-	this.bg_1_9.setTransform(1024,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.bg_1_9).wait(26));
-
 	// 1.8
 	this.bg_1_8 = new lib.Background1_8();
 	this.bg_1_8.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_1_8).wait(26));
-
-	// 1.7
-	this.bg_1_7 = new lib.Background1_7();
-	this.bg_1_7.setTransform(1024,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.bg_1_7).wait(26));
 
 	// 1.6
 	this.bg_1_6 = new lib.Background1_6();
