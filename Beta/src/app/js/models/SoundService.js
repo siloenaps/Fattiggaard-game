@@ -43,7 +43,7 @@ SoundService.matrix = {
 		minus: { src:SoundService.properties.basePath+'Point_minus.mp3', duration: 1.128 }
 	},
 	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
-	drunk: { src:SoundService.properties.basePath+'drunk.mp3', duration: 1.078 },
+	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
 	constable: { src:SoundService.properties.basePath+'constable.mp3', duration: 1.815 },
 	whatnow: {
 		'A': { src:SoundService.properties.basePath+'whatnow_A.mp3', duration: 8.314 },

@@ -43,7 +43,7 @@ FlowPoorhouse.prototype.setup = function(){
 	this.flow = new SubFlowController();
 	this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
 	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
-	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.3'); // TEST
+	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.5'); // TEST
 	this.flow.addAction('1.1.1', Delegate.create(this.caretaker, this), '1.1.2');
 	this.flow.addAction('1.1.2', Delegate.create(this.chooseJob, this), '1.2.1');
 	this.flow.addAction('1.2.1', Delegate.create(this.work, this), '1.2.2');
@@ -52,18 +52,19 @@ FlowPoorhouse.prototype.setup = function(){
 	this.flow.addAction('1.3.2', Delegate.create(this.getout, this), '1.3.3');
 	this.flow.addAction('1.3.3', Delegate.create(this.playAdvice, this), '1.3.4');
 	this.flow.addAction('1.3.4', Delegate.create(this.playAdvice, this), '1.3.5');
-	this.flow.addAction('1.3.5', Delegate.create(this.chooseWayOut, this), {'A':'1.6.1', 'B':'1.7', 'C':'1.9'}); 
-	this.flow.addAction('1.6.1', Delegate.create(this.drunk, this), '1.6.2');
-	this.flow.addAction('1.6.2', Delegate.create(this.points7, this), '1.6.3');
-	this.flow.addAction('1.6.3', Delegate.create(this.constable, this), '1.6.4');
-	this.flow.addAction('1.6.4', Delegate.create(this.report, this), '1.6.5');
-	this.flow.addAction('1.6.5', Delegate.create(this.points6, this), '1.8');	
+	// this.flow.addAction('1.3.5', Delegate.create(this.chooseWayOut, this), {'A':'1.6.1', 'B':'1.7', 'C':'1.9'}); 
+	this.flow.addAction('1.3.5', Delegate.create(this.chooseWayOut, this), {'A':'1.5.1', 'B':'2.1'}); 
+	this.flow.addAction('1.5.1', Delegate.create(this.drunk, this), '1.5.2');
+	this.flow.addAction('1.5.2', Delegate.create(this.points7, this), '1.6.1');
+	this.flow.addAction('1.6.1', Delegate.create(this.constable, this), '1.6.2');
+	this.flow.addAction('1.6.2', Delegate.create(this.report, this), '1.6.3');
+	this.flow.addAction('1.6.3', Delegate.create(this.points6, this), '1.8');	
 	this.flow.addAction('1.7', Delegate.create(this.letterWrite, this), '1.7.1');
 	this.flow.addAction('1.7.1', Delegate.create(this.points4, this), '1.7.2');
 	this.flow.addAction('1.7.2', Delegate.create(this.letterAnswer, this), '1.7.3');
 	this.flow.addAction('1.7.3', Delegate.create(this.points5, this), '1.8');
 	this.flow.addAction('1.8', Delegate.create(this.backToPoorhouse, this), '1.3.5');
-	this.flow.addAction('1.9', Delegate.create(this.preRecruitment, this), '2.1');	// FIXME
+	// this.flow.addAction('1.9', Delegate.create(this.preRecruitment, this), '2.1');	// FIXME
 	this.flow.addAction('2.1', Delegate.create(this.recruimentOffice, this), '2.2.1');
 	this.flow.addAction('2.2.1', Delegate.create(this.jobInterviewPart1, this), '2.2.2');
 	this.flow.addAction('2.2.2', Delegate.create(this.chooseJobGermany, this), '2.2.3');
@@ -492,8 +493,8 @@ FlowPoorhouse.prototype.chooseWayOut = function(triggers) {
 
 	// Checkboxes
 	CheckboxGroup.setup(
-		[this.currentPage.checkbox1, this.currentPage.checkbox2, this.currentPage.checkbox3],
-		['A', 'B', 'C'],
+		[this.currentPage.checkbox1, this.currentPage.checkbox2],
+		['A', 'B'],
 		Delegate.create(function(vo){
 
 		// Save chosen 'way out'
@@ -522,7 +523,7 @@ FlowPoorhouse.prototype.drunk = function(trigger) {
 	this.trigger = trigger;
 
 	// Change background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_6);
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_5);
 
 	// Previous page out
 	Transitions.transOutPosition(this.currentPage);
@@ -532,6 +533,10 @@ FlowPoorhouse.prototype.drunk = function(trigger) {
 
 	// New page in
 	Transitions.transInPosition(this.currentPage);
+
+	// Portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
 
 	// Get sound
 	var sound = SoundService.matrix.drunk;
@@ -571,6 +576,9 @@ FlowPoorhouse.prototype.constable = function(trigger) {
 
 	// Next move
 	this.trigger = trigger;
+
+	// Change background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_6);
 
 	// Previous page out
 	Transitions.transOutPosition(this.currentPage);

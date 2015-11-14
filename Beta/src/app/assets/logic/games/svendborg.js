@@ -10,6 +10,7 @@ lib.properties = {
 	color: "#000000",
 	manifest: [
 		{src:"../../../assets/images/games/svendborg/_112_letter.png", id:"_112_letter"},
+		{src:"../../../assets/images/games/svendborg/_161_arresteret.jpg", id:"_161_arresteret"},
 		{src:"../../../assets/images/games/svendborg/_1_0BGsvendborg.jpg", id:"_1_0BGsvendborg"},
 		{src:"../../../assets/images/games/svendborg/_1_1BGsvendborg.jpg", id:"_1_1BGsvendborg"},
 		{src:"../../../assets/images/games/svendborg/_1_2BGsvendborgA.jpg", id:"_1_2BGsvendborgA"},
@@ -17,7 +18,7 @@ lib.properties = {
 		{src:"../../../assets/images/games/svendborg/_1_2BGsvendborgC.jpg", id:"_1_2BGsvendborgC"},
 		{src:"../../../assets/images/games/svendborg/_1_3BGsvendborg.jpg", id:"_1_3BGsvendborg"},
 		{src:"../../../assets/images/games/svendborg/_1_4BG.jpg", id:"_1_4BG"},
-		{src:"../../../assets/images/games/svendborg/_1_6BGsvendborg2.jpg", id:"_1_6BGsvendborg2"},
+		{src:"../../../assets/images/games/svendborg/_1_5BGsvendborg2.jpg", id:"_1_5BGsvendborg2"},
 		{src:"../../../assets/images/games/svendborg/_1_7BGsvendborg2.jpg", id:"_1_7BGsvendborg2"},
 		{src:"../../../assets/images/games/svendborg/_1_8BGsvendborg.jpg", id:"_1_8BGsvendborg"},
 		{src:"../../../assets/images/games/svendborg/_21.jpg", id:"_21"},
@@ -56,6 +57,12 @@ lib.properties = {
 	this.initialize(img._112_letter);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,465,449);
+
+
+(lib._161_arresteret = function() {
+	this.initialize(img._161_arresteret);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
 (lib._1_0BGsvendborg = function() {
@@ -100,8 +107,8 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._1_6BGsvendborg2 = function() {
-	this.initialize(img._1_6BGsvendborg2);
+(lib._1_5BGsvendborg2 = function() {
+	this.initialize(img._1_5BGsvendborg2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -491,7 +498,7 @@ p.nominalBounds = new cjs.Rectangle(111,0,913,540);
 p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 
 
-(lib._165PagePoints6 = function() {
+(lib._163PagePoints6 = function() {
 	this.initialize();
 
 	// Layer 3
@@ -530,7 +537,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 
 
-(lib._164PoliceReport = function() {
+(lib._162PoliceReport = function() {
 	this.initialize();
 
 	// Text
@@ -547,7 +554,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 p.nominalBounds = new cjs.Rectangle(196.7,0,657,576.5);
 
 
-(lib._162PagePoints7 = function() {
+(lib._152PagePoints7 = function() {
 	this.initialize();
 
 	// Layer 3
@@ -1269,7 +1276,22 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.instance.setTransform(13,48);
 
 	// Layer 1
-	this.instance_1 = new lib._1_6BGsvendborg2();
+	this.instance_1 = new lib._161_arresteret();
+
+	this.addChild(this.instance_1,this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib.Background1_5 = function() {
+	this.initialize();
+
+	// Layer 2
+	this.instance = new lib.svendborg_title();
+	this.instance.setTransform(13,48);
+
+	// Layer 1
+	this.instance_1 = new lib._1_5BGsvendborg2();
 
 	this.addChild(this.instance_1,this.instance);
 }).prototype = p = new cjs.Container();
@@ -2177,7 +2199,7 @@ p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._163Constablearrested = function() {
+(lib._161Constablearrested = function() {
 	this.initialize();
 
 	// Text
@@ -2194,8 +2216,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
 
 
-(lib._161DrunkenSpeach = function() {
+(lib._151DrunkenSpeach = function() {
 	this.initialize();
+
+	// Portrait
+	this.portrait = new lib.OpenionCloseups();
+	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
 
 	// Text
 	this.player = new lib.PlayerAudio();
@@ -2206,9 +2232,9 @@ p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
 	this.text.lineWidth = 800;
 	this.text.setTransform(210,38);
 
-	this.addChild(this.text,this.player);
+	this.addChild(this.text,this.player,this.portrait);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 (lib._14PageRunoff = function() {
@@ -2246,9 +2272,6 @@ p.nominalBounds = new cjs.Rectangle(210,38,732,296);
 	this.initialize();
 
 	// Checkboxes
-	this.checkbox3 = new lib.CheckBox();
-	this.checkbox3.setTransform(543.2,413.2,1,1,0,0,0,209.2,29.2);
-
 	this.checkbox2 = new lib.CheckBox();
 	this.checkbox2.setTransform(543.2,303.2,1,1,0,0,0,209.2,29.2);
 
@@ -2258,28 +2281,23 @@ p.nominalBounds = new cjs.Rectangle(210,38,732,296);
 	// Checkbox text
 	this.text = new cjs.Text("Søger job i tyskland", "40px 'BigNoodleTitling'", "#C69700");
 	this.text.lineHeight = 42;
-	this.text.lineWidth = 326;
-	this.text.setTransform(415,391);
+	this.text.lineWidth = 380;
+	this.text.setTransform(415,281);
 
-	this.text_1 = new cjs.Text("skriver til socialudvalget", "40px 'BigNoodleTitling'", "#C69700");
+	this.text_1 = new cjs.Text("Stikker af", "40px 'BigNoodleTitling'", "#C69700");
 	this.text_1.lineHeight = 42;
-	this.text_1.lineWidth = 380;
-	this.text_1.setTransform(415,281);
-
-	this.text_2 = new cjs.Text("Stikker af", "40px 'BigNoodleTitling'", "#C69700");
-	this.text_2.lineHeight = 42;
-	this.text_2.lineWidth = 326;
-	this.text_2.setTransform(415,171);
+	this.text_1.lineWidth = 326;
+	this.text_1.setTransform(415,171);
 
 	// Text
-	this.text_3 = new cjs.Text("Hvad gør du?", "48px 'Special Elite'", "#FFFFFF");
-	this.text_3.lineHeight = 50;
-	this.text_3.lineWidth = 584;
-	this.text_3.setTransform(210,38);
+	this.text_2 = new cjs.Text("Hvad gør du?", "48px 'Special Elite'", "#FFFFFF");
+	this.text_2.lineHeight = 50;
+	this.text_2.lineWidth = 584;
+	this.text_2.setTransform(210,38);
 
-	this.addChild(this.text_3,this.text_2,this.text_1,this.text,this.checkbox1,this.checkbox2,this.checkbox3);
+	this.addChild(this.text_2,this.text_1,this.text,this.checkbox1,this.checkbox2);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,38,589,408.7);
+p.nominalBounds = new cjs.Rectangle(210,38,589,298.7);
 
 
 (lib._134PagePlayAdviceEmployee = function() {
@@ -2510,32 +2528,32 @@ p.nominalBounds = new cjs.Rectangle(212,40,600,459);
 
 	this.timeline.addTween(cjs.Tween.get(this.letterwrite).wait(26));
 
-	// 1.6.5 Points6
-	this.points6 = new lib._165PagePoints6();
+	// 1.6.4 Points6
+	this.points6 = new lib._163PagePoints6();
 	this.points6.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.points6).wait(26));
 
-	// 1.6.4 Police Report
-	this.report = new lib._164PoliceReport();
+	// 1.6.3 Police Report
+	this.report = new lib._162PoliceReport();
 	this.report.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.report).wait(26));
 
-	// 1.6.3 Constable, arrested
-	this.constable = new lib._163Constablearrested();
+	// 1.6.1 Constable, arrested
+	this.constable = new lib._161Constablearrested();
 	this.constable.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.constable).wait(26));
 
-	// 1.6.2 Points7
-	this.points7 = new lib._162PagePoints7();
+	// 1.5.2 Points7
+	this.points7 = new lib._152PagePoints7();
 	this.points7.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.points7).wait(26));
 
-	// 1.6.1 Drunken Speach
-	this.drunk = new lib._161DrunkenSpeach();
+	// 1.5.1 Drunken Speach
+	this.drunk = new lib._151DrunkenSpeach();
 	this.drunk.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.drunk).wait(26));
@@ -2650,9 +2668,15 @@ p.nominalBounds = new cjs.Rectangle(212,40,600,459);
 
 	// 1.6
 	this.bg_1_6 = new lib.Background1_6();
-	this.bg_1_6.setTransform(1024,0);
+	this.bg_1_6.setTransform(1025,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_1_6).wait(26));
+
+	// 1.5
+	this.bg_1_5 = new lib.Background1_5();
+	this.bg_1_5.setTransform(1025,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_1_5).wait(26));
 
 	// 1.4
 	this.bg_1_4 = new lib.Background1_4();
@@ -2706,7 +2730,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,600,459);
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance_4},{t:this.instance_3},{t:this.instance_2},{t:this.instance_1},{t:this.instance},{t:this.bg_1_0}]}).wait(26));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(512,252,2048,558);
+p.nominalBounds = new cjs.Rectangle(512,252,2049,558);
 
 })(svendborgGameLib = svendborgGameLib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var svendborgGameLib, images, createjs, ss;
