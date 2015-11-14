@@ -38,7 +38,8 @@ FlowGermany1.prototype.setup = function(){
 	// Setup flow
 	this.flow = new SubFlowController();
 	this.flow.addAction('2.5', Delegate.create(this.traveling, this), '2.6.1');
-	this.flow.addAction('2.6.1', Delegate.create(this.dormitry, this), '2.6.2');
+	// this.flow.addAction('2.6.1', Delegate.create(this.dormitry, this), '2.6.2');
+	this.flow.addAction('2.6.1', Delegate.create(this.dormitry, this), '2.11.1'); // TEST
 	this.flow.addAction('2.6.2', Delegate.create(this.points1, this), '2.7.1');
 	this.flow.addAction('2.7.1', Delegate.create(this.work, this), '2.7.2');
 	this.flow.addAction('2.7.2', Delegate.create(this.points2, this), '2.7.3');
@@ -46,8 +47,8 @@ FlowGermany1.prototype.setup = function(){
 	this.flow.addAction('2.8', Delegate.create(this.chooseSpending, this), '2.9.1');
 	this.flow.addAction('2.9.1', Delegate.create(this.spending, this), '2.9.2');
 	this.flow.addAction('2.9.2', Delegate.create(this.points4, this), '2.10.1');
-	this.flow.addAction('2.10.1', Delegate.create(this.whatNow, this), '2.10.2');
-	this.flow.addAction('2.10.2', Delegate.create(this.chooseWhatNow, this), '2.11.1');
+	this.flow.addAction('2.10.1', Delegate.create(this.whatNow, this), '2.11.1');
+	// this.flow.addAction('2.10.2', Delegate.create(this.chooseWhatNow, this), '2.11.1');
 	this.flow.addAction('2.11.1', Delegate.create(this.homeComming, this), '2.11.2');
 	this.flow.addAction('2.11.2', Delegate.create(this.points5, this), '3.0');
 
@@ -452,9 +453,8 @@ FlowGermany1.prototype.whatNow = function(trigger){
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.currentPage.portrait.gotoAndStop(frm);
 
-
 	// Get sound
-	var sound = SoundService.matrix.whatnow[PlayerStats.spending];
+	var sound = SoundService.matrix['2.10.1'];
 
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
@@ -514,15 +514,6 @@ FlowGermany1.prototype.homeComming = function(trigger){
 
 	var self = this;
 
-	// Get 'whot now' related assets
-	var slidePath, slideName;
-	try{		
-		slidePath = '../assets/logic/slides/slide_home1'+PlayerStats.whatnow+'.js';
-		slideName = 'slide_home1'+PlayerStats.whatnow;
-	}catch(err){
-		console.log(err);
-	}	
-
 	// Set background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_11);
 
@@ -530,34 +521,76 @@ FlowGermany1.prototype.homeComming = function(trigger){
 	Transitions.transOutPosition(this.currentPage);
 
 	// Set new page out
-	this.currentPage = this.view.work;
+	this.currentPage = this.view.homecomming;
 
 	// New page in
 	Transitions.transInPosition(this.currentPage);
 
+	// Get sound
+	var sound = SoundService.matrix['2.11.1'];
+
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+	this.listeners.complete = this.playerComponent.on('complete', function(event){
+		self.continueBtn.activate('next');
+	}, self);
+	this.playerComponent.preload(sound.src, sound.duration);
+
 	// Ghost continue button
-	self.continueBtn.ghost('skip');
-
-	try{
-		// Load slide
-		LoadJS.load(
-			[slidePath], 
-			Delegate.create(function(){
-				// Slide. Loading is self contained
-				self.slideLib = lib;	
-				self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
-				self.listeners.complete = self.playerComponent.on('complete', function(event){
-					self.continueBtn.activate('next');
-				}, self);
-				self.playerComponent.preload(slideName, self.slideLib);
-
-				self.continueBtn.activate('skip');
-			}, self)
-		);
-	}catch(err){
-		console.log(err);
-	}
+	self.continueBtn.activate('skip');
 };
+// FlowGermany1.prototype.homeComming = function(trigger){
+// 	'use strict';
+
+// 	// Next move
+// 	this.trigger = trigger;
+
+// 	var self = this;
+
+// 	// Get 'whot now' related assets
+// 	var slidePath, slideName;
+// 	try{		
+// 		slidePath = '../assets/logic/slides/slide_home1'+PlayerStats.whatnow+'.js';
+// 		slideName = 'slide_home1'+PlayerStats.whatnow;
+// 	}catch(err){
+// 		console.log(err);
+// 	}	
+
+// 	// Set background
+// 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_11);
+
+// 	// Previous page out
+// 	Transitions.transOutPosition(this.currentPage);
+
+// 	// Set new page out
+// 	this.currentPage = this.view.work;
+
+// 	// New page in
+// 	Transitions.transInPosition(this.currentPage);
+
+// 	// Ghost continue button
+// 	self.continueBtn.ghost('skip');
+
+// 	try{
+// 		// Load slide
+// 		LoadJS.load(
+// 			[slidePath], 
+// 			Delegate.create(function(){
+// 				// Slide. Loading is self contained
+// 				self.slideLib = lib;	
+// 				self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
+// 				self.listeners.complete = self.playerComponent.on('complete', function(event){
+// 					self.continueBtn.activate('next');
+// 				}, self);
+// 				self.playerComponent.preload(slideName, self.slideLib);
+
+// 				self.continueBtn.activate('skip');
+// 			}, self)
+// 		);
+// 	}catch(err){
+// 		console.log(err);
+// 	}
+// };
 FlowGermany1.prototype.points5 = function(trigger) {
 	'use strict';
 	// Next move

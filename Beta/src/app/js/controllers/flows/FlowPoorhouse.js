@@ -42,8 +42,8 @@ FlowPoorhouse.prototype.setup = function(){
 	// Setup flow
 	this.flow = new SubFlowController();
 	this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
-	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
-	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.5'); // TEST
+	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
+	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.5'); // TEST
 	this.flow.addAction('1.1.1', Delegate.create(this.caretaker, this), '1.1.2');
 	this.flow.addAction('1.1.2', Delegate.create(this.chooseJob, this), '1.2.1');
 	this.flow.addAction('1.2.1', Delegate.create(this.work, this), '1.2.2');
