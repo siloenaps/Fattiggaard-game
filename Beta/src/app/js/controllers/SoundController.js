@@ -1,14 +1,19 @@
 /**
 	Controller uses the browser's AUDIO element as play back for sound
 */
-function SoundController(audioPath, duration) {
+function SoundController(audioPath, duration, loop) {
 	'use strict';
 
 	var self = this;
+
+	if(loop === undefined || loop === null)
+		loop = false;
 	
 	this.sndObj = document.createElement('AUDIO');		
 	this.sndObj.src = audioPath;
+	this.sndObj.loop = loop;
 	this.duration = duration;
+
 
 	// Firefox does not invoke the audio load method?! But setting load automated seems to work
 	if(Environment.browser.firefox){
@@ -43,7 +48,12 @@ SoundController.prototype = {
 			this.sndObj.load();
 		}
 	},
-
+	volume: function(value) {
+		'use strict';
+		if(this.sndObj != null){
+			this.sndObj.volume = value;
+		}
+	},
 	play: function() {
 		'use strict';
 		this.sndObj.play();

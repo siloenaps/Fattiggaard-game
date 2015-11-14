@@ -38,8 +38,8 @@ FlowGermany1.prototype.setup = function(){
 	// Setup flow
 	this.flow = new SubFlowController();
 	this.flow.addAction('2.5', Delegate.create(this.traveling, this), '2.6.1');
-	// this.flow.addAction('2.6.1', Delegate.create(this.dormitry, this), '2.6.2');
-	this.flow.addAction('2.6.1', Delegate.create(this.dormitry, this), '2.11.1'); // TEST
+	this.flow.addAction('2.6.1', Delegate.create(this.dormitry, this), '2.6.2');
+	// this.flow.addAction('2.6.1', Delegate.create(this.dormitry, this), '2.11.1'); // TEST
 	this.flow.addAction('2.6.2', Delegate.create(this.points1, this), '2.7.1');
 	this.flow.addAction('2.7.1', Delegate.create(this.work, this), '2.7.2');
 	this.flow.addAction('2.7.2', Delegate.create(this.points2, this), '2.7.3');

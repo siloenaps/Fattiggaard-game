@@ -19,6 +19,26 @@ var FlowPoorhouse = function(container){
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 };
+FlowPoorhouse.prototype.soundEffectPlay = function(sound){
+	// Sound effect
+	if(this.soundEffect != null){
+		this.soundEffect.destroy();
+		this.soundEffect = null;
+	}
+
+	// var sound = SoundService.matrix.effects.typewriter;
+	this.soundEffect = new SoundEffect(sound.src, sound.duration, true);	
+	soundEffect.volume(.6);
+	soundEffect.play();
+};
+FlowPoorhouse.prototype.soundEffectStop = function(sound){
+	// Sound effect
+	if(this.soundEffect != null){
+		this.soundEffect.stop();
+		this.soundEffect.destroy();
+		this.soundEffect = null;
+	}
+};
 FlowPoorhouse.prototype.start = function(){
 	this.id = PlayerStats.poorhouse;
 	var gameFile;
@@ -144,6 +164,9 @@ FlowPoorhouse.prototype.onContinue = function(event) {
 	if(this.playerComponent != null){
 		this.playerComponent.stop();
 	}
+
+	// Sound effect - stop
+	this.soundEffectStop();
 
 	this.next();
 
@@ -612,6 +635,9 @@ FlowPoorhouse.prototype.report = function(trigger) {
 
 	// Set new page out
 	this.currentPage = this.view.report;
+
+	// Sound effect
+	soundEffect(SoundService.matrix.effects.typewriter);
 
 	// New page in
 	Transitions.transInAlpha(this.currentPage);
