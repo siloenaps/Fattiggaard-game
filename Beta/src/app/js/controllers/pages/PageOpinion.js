@@ -7,16 +7,21 @@ var PageOpinion = function(view){
 	this.playersCount = 0;
 	this.completed = 0;
 
-	var challenge = PlayerStats.challenge;
-	var family = PlayerStats.family;
-	this.soundChallengeObject = SoundService.matrix.challenge[challenge];
-	this.soundFamilyObject = SoundService.matrix.family[family];
+	var key = PlayerStats.challenge + PlayerStats.family;
+
+	// Get sound
+	this.soundChallengeObject = SoundService.matrix.oppinion[key];
+
+	// Set Text
+	this.view.charactertext.gotoAndStop(key);
+	this.view.playerlabel.gotoAndStop(key);
+
 
 	// Player - Challenge
-	view.playerChallenge.visible = false;
+	// view.player.visible = false;
 	if(this.soundChallengeObject != null){
-		view.playerChallenge.visible = true;
-		this.challengePlayerComponent = new PlayerSoundComponent(view.playerChallenge.player);
+		// view.player.visible = true;
+		this.challengePlayerComponent = new PlayerSoundComponent(view.player);
 		this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
 		this.playersCount++;
 
@@ -25,24 +30,41 @@ var PageOpinion = function(view){
 		this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
 	}
 
-	// Player - Family
-	view.playerFamily.visible = false;
-	if(this.soundFamilyObject != null){
-		view.playerFamily.visible = true;
-		this.familyPlayerComponent = new PlayerSoundComponent(view.playerFamily.player);
-		this.familyPlayerComponent.preload(this.soundFamilyObject.src, this.soundFamilyObject.duration);
-		this.playersCount++;
 
-		this.listeners.familiyStart = this.familyPlayerComponent.on("start", this.onSoundStart, this);
+	// this.soundChallengeObject = SoundService.matrix.challenge[challenge];
+	// this.soundFamilyObject = SoundService.matrix.family[family];
 
-		this.listeners.family = this.familyPlayerComponent.on('complete', this.onComplete, this);
-	}
+	// // Player - Challenge
+	// view.playerChallenge.visible = false;
+	// if(this.soundChallengeObject != null){
+	// 	view.playerChallenge.visible = true;
+	// 	this.challengePlayerComponent = new PlayerSoundComponent(view.playerChallenge.player);
+	// 	this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
+	// 	this.playersCount++;
 
-	// Place challenge player if only player
-	// NB. Hardcoded positions reltaed to to original poistions in Flash setup
-	if(this.playersCount == 1){
-		view.playerChallenge.y = 125;
-	}
+	// 	this.listeners.challengeStart = this.challengePlayerComponent.on("start", this.onSoundStart, this);
+
+	// 	this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
+	// }
+
+	// // Player - Family
+	// view.playerFamily.visible = false;
+	// if(this.soundFamilyObject != null){
+	// 	view.playerFamily.visible = true;
+	// 	this.familyPlayerComponent = new PlayerSoundComponent(view.playerFamily.player);
+	// 	this.familyPlayerComponent.preload(this.soundFamilyObject.src, this.soundFamilyObject.duration);
+	// 	this.playersCount++;
+
+	// 	this.listeners.familiyStart = this.familyPlayerComponent.on("start", this.onSoundStart, this);
+
+	// 	this.listeners.family = this.familyPlayerComponent.on('complete', this.onComplete, this);
+	// }
+
+	// // Place challenge media-player if only player
+	// // NB. Hardcoded positions reltaed to to original poistions in Flash setup
+	// if(this.playersCount == 1){
+	// 	view.playerChallenge.y = 125;
+	// }
 
 	// Continue/Skip button
 	this.continueBtn = ContinueButton;
