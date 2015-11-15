@@ -1,3 +1,4 @@
+var stage;
 (function () {
 	'use strict';
 	var app = angular.module('fattiggarden', ['ngRoute']);	
@@ -27,19 +28,23 @@
 			// Instantiate root object. Equivalent to root timeline
 			$scope.exportRoot = new $scope.lib.FlashApp();
 
-			var stage = new createjs.Stage($scope.canvas);
+			stage = new createjs.Stage($scope.canvas);
 			stage.addChild($scope.exportRoot);
 
 			// Do cursor
-			stage.enableMouseOver(25);
+			stage.enableMouseOver(10);
 
 			// Scale canvas according to ratio
 			stage.scaleX = stage.scaleY = Device.ratio;
 			stage.update();
 
 			// Tik tak
-			createjs.Ticker.setFPS($scope.lib.properties.fps);
+			//createjs.Ticker.setFPS($scope.lib.properties.fps);
+			createjs.Ticker.setFPS(10);
 			createjs.Ticker.addEventListener('tick', stage);
+
+			
+			//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
 
 			// --------------------- Go start ->
 			ApplicationManager.start($scope.exportRoot);
