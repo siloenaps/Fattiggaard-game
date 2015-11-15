@@ -7,7 +7,7 @@ var PageStart = function(view){
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
 };
 PageStart.prototype.start = function() {
-	//
+	Tick.disable();
 };
 PageStart.prototype.onContinue = function(event) {
 	this.continueBtn.off('click', this.listeners.continue);	

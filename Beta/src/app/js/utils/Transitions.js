@@ -1,4 +1,42 @@
 var Transitions = {
+	inOut: function(inObj, outObj, delegate){
+		// For checking done of in/out tween
+		var left = 2;
+		var checkDone = function(left){
+			if(left == 0){
+				if(delegate !== undefined){
+					delegate();
+				}
+			}
+		}
+		// Previous page out
+		switch(outObj.prop){
+			case 'pos': 
+				this.transOutPosition(outObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+			case 'alpha': 
+				this.transOutAlpha(outObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+		}
+		// New page in
+		switch(inObj.prop){
+			case 'pos': 
+				this.transInPosition(inObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+			case 'alpha': 
+				this.transInAlpha(inObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+		}
+		
+	},
 	transInPosition: function(pageView, callback){
 		// New page in
 		pageView.alpha = 1;

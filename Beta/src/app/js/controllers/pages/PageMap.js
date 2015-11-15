@@ -8,6 +8,10 @@ var PageMap = function(view){
 PageMap.prototype.start = function() {
 	var self = this;
 
+	// Allow tick
+	Tick.enable();
+	Tick.framerate(5);
+
 	// Checkboxes
 	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
 	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundby'});

@@ -50,6 +50,9 @@ PlayerSoundComponent.prototype.preload = function(src, duration){
 		// Enable buttons
 		self.playBtn.setActive(true);
 		self.stopBtn.setActive(true);
+
+		// Dispatch event 
+		self.dispatchEvent(new createjs.Event('ready'));
 	}, self);
 	self.soundController.load();
 };
@@ -104,6 +107,9 @@ PlayerSoundComponent.prototype.play = function(){
 
 	// Set this last
 	this.paused = false;
+
+	// Tick
+	Tick.enable();
 };
 PlayerSoundComponent.prototype.pause = function(){
 	'use strict';
@@ -127,6 +133,9 @@ PlayerSoundComponent.prototype.pause = function(){
 
 	// Sound
 	this.soundController.pause();
+
+	// Tick
+	Tick.disable(100);
 };
 PlayerSoundComponent.prototype.stop = function(){
 	'use strict';
@@ -148,6 +157,9 @@ PlayerSoundComponent.prototype.stop = function(){
 	// this.dispatchEvent(new createjs.Event('stop'));
 
 	this.paused = false;
+
+	// Tick
+	Tick.disable(100);
 };
 PlayerSoundComponent.prototype.progress = function(){
 	'use strict';

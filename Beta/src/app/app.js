@@ -37,15 +37,9 @@
 			stage.scaleX = stage.scaleY = Device.ratio;
 			stage.update();
 
-			// Tik tak						
-			//createjs.Ticker.setFPS($scope.lib.properties.fps);
-			createjs.Ticker.setFPS(10);
-
-			// Utility to set/remove ticker
-			Tick.init(stage);
-			Tick.enable();			
-			//createjs.Ticker.addEventListener('tick', stage);
-
+			// Tik tak			
+			Tick.init(stage, 15);
+			Tick.enable();		
 			
 			//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
 
