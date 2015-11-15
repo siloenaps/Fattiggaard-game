@@ -52,10 +52,6 @@ FlowGermany1.prototype.setup = function(){
 	this.flow.addAction('2.11.1', Delegate.create(this.homeComming, this), '2.11.2');
 	this.flow.addAction('2.11.2', Delegate.create(this.points5, this), '3.0');
 
-	// this.flow.addAction('', function(){
-	// 	self.removeEvents();
-	// 	this.dispatchEvent(new createjs.Event('continue'));
-	// });
 	try{
 		// Load files for flow	
 		this.lib = germany1GameLib;
@@ -93,12 +89,15 @@ FlowGermany1.prototype.setup = function(){
 // };
 FlowGermany1.prototype.onContinue = function(event) {
 	'use strict';
-	this.flow.next(this.trigger);
+	console.log('FlowGermany1::onContinue');	
 
 	// Stop player if any
 	if(this.playerComponent != null){
 		this.playerComponent.stop();
 	}
+
+	// Must be set after stopping player
+	this.flow.next(this.trigger);
 };
 FlowGermany1.prototype.removeEvents = function() {
 	'use strict';
@@ -146,7 +145,14 @@ FlowGermany1.prototype.traveling = function(trigger){
 		this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 		this.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
+			Tick.disable();
 		}, self);
+		this.playerComponent.on('ready', function(event){
+			event.remove();
+			// No tick
+			Tick.disable();
+			self.continueBtn.activate("skip");
+		});
 		this.playerComponent.preload('slide_2_5', this.slideLib);
 	}catch(err){
 		console.log(err);
@@ -163,48 +169,54 @@ FlowGermany1.prototype.dormitry = function(trigger){
 
 	// Set background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_6);
-	// Set portrait (NB. In background!)
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.currentBackground.portrait.gotoAndStop(frm);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
-	this.currentPage = this.view.dormitry;
-
-	// New page in
-	Transitions.transInAlpha(this.currentPage);
-
-	this.continueBtn.activate('skip');
 
 	// Get sound
 	var sound = SoundService.matrix.dormitry;
 
+
+	// Set portrait (NB. In background!)
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentBackground.portrait.gotoAndStop(frm);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.dormitry;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-	this.listeners.complete = this.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload(sound.src, sound.duration);
+
+	// Next
+	this.continueBtn.ghost('skip');
 };
 FlowGermany1.prototype.points1 = function(trigger) {
 	'use strict';
 	// Next move
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.points1;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('mood', 1);
-			PlayerStats.append('health', -1);
-			Topbar.pointsUpdate();
-		});	
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		PlayerStats.append('mood', 1);
+		PlayerStats.append('health', -1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
 
 	this.continueBtn.activate('next');
 };
@@ -241,54 +253,46 @@ FlowGermany1.prototype.work = function(trigger){
 	// Set background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.work;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage);
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		try{
+			// Load slide
+			LoadJS.load(
+				[slidePath], 
+				Delegate.create(function(){
+					// Slide. Loading is self contained
+					self.slideLib = lib;	
+					self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
+					self.listeners.complete = self.playerComponent.on('complete', function(event){
+						self.continueBtn.activate('next');
+					}, self);
+					self.playerComponent.preload(slideName, self.slideLib);
+					self.continueBtn.activate('skip');
+				}, self)
+			);
+		}catch(err){
+			console.log(err);
+		}
+	}, this));
 
 	// Ghost continue button
 	self.continueBtn.ghost('skip');
-
-	try{
-		// Load slide
-		LoadJS.load(
-			[slidePath], 
-			Delegate.create(function(){
-				// Slide. Loading is self contained
-				self.slideLib = lib;	
-				self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
-				self.listeners.complete = self.playerComponent.on('complete', function(event){
-					self.continueBtn.activate('next');
-				}, self);
-				self.playerComponent.preload(slideName, self.slideLib);
-
-				self.continueBtn.activate('skip');
-			}, self)
-		);
-	}catch(err){
-		console.log(err);
-	}
 };
 FlowGermany1.prototype.points2 = function(trigger) {
 	'use strict';
 	// Next move
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.points2;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('money', 2);
-			Topbar.pointsUpdate();
-		});	
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('money', 2);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
 
 	this.continueBtn.activate('next');
 };
@@ -297,17 +301,14 @@ FlowGermany1.prototype.points3 = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.points3;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('money', -1);
-			Topbar.pointsUpdate();
-		});	
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('money', -1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
 
 	this.continueBtn.activate('next');
 };
@@ -321,18 +322,12 @@ FlowGermany1.prototype.chooseSpending = function(trigger) {
 	// Set background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_8);
 
-	// Previous page out
-	Transitions.transOutAlpha(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosespending;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage);
-
-	// Desactivate continue button
-	this.continueBtn.ghost('next');
-
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
 
 	// Checkboxes
 	CheckboxGroup.setup(
@@ -356,6 +351,9 @@ FlowGermany1.prototype.chooseSpending = function(trigger) {
 			}
 		}, this)
 	);
+
+	// Desactivate continue button
+	this.continueBtn.ghost('next');
 };
 FlowGermany1.prototype.spending = function(trigger) {
 	'use strict';
@@ -376,14 +374,13 @@ FlowGermany1.prototype.spending = function(trigger) {
 	// Set background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
 
-	// Previous page out
-	Transitions.transOutAlpha(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = page;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		Tick.disable();
+	}, this));
 
-	// New page in
-	Transitions.transInPosition(this.currentPage);
 
 	// Desactivate continue button
 	this.continueBtn.activate('next');
@@ -401,29 +398,26 @@ FlowGermany1.prototype.points4 = function(trigger) {
 		console.log(err);
 	}	
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = page;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			console.log(PlayerStats.spending, page);
-			switch(PlayerStats.spending){
-				case 'A':
-					PlayerStats.append('health', 1);
-				break;
-				case 'B':
-					PlayerStats.append('mood', 1);
-				break;
-				case 'C':
-					PlayerStats.append('mood', 1);
-					PlayerStats.append('health', -1);
-				break;
-			}			
-			Topbar.pointsUpdate();
-		});	
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		console.log(PlayerStats.spending, page);
+		switch(PlayerStats.spending){
+			case 'A':
+				PlayerStats.append('health', 1);
+			break;
+			case 'B':
+				PlayerStats.append('mood', 1);
+			break;
+			case 'C':
+				PlayerStats.append('mood', 1);
+				PlayerStats.append('health', -1);
+			break;
+		}			
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
 
 	this.continueBtn.activate('next');
 };
@@ -438,30 +432,35 @@ FlowGermany1.prototype.whatNow = function(trigger){
 	// Set background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_10);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
+	// Get sound
+	var sound = SoundService.matrix['2.10.1'];
 
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.whatnow;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
 
-	// New page in
-	Transitions.transInAlpha(this.currentPage);
-
-	this.continueBtn.activate('skip');
 
 	// Set portrait
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.currentPage.portrait.gotoAndStop(frm);
 
-	// Get sound
-	var sound = SoundService.matrix['2.10.1'];
-
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-	this.listeners.complete = this.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload(sound.src, sound.duration);
+
+	// Next
+	this.continueBtn.ghost('skip');
 };
 FlowGermany1.prototype.chooseWhatNow = function(trigger) {
 	'use strict';
@@ -470,18 +469,12 @@ FlowGermany1.prototype.chooseWhatNow = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutAlpha(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosewhatnow;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage);
-
-	// Desactivate continue button
-	this.continueBtn.ghost('next');
-
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
 
 	// Checkboxes
 	CheckboxGroup.setup(
@@ -505,6 +498,9 @@ FlowGermany1.prototype.chooseWhatNow = function(trigger) {
 			}
 		}, this)
 	);
+
+	// Desactivate continue button
+	this.continueBtn.ghost('next');
 };
 FlowGermany1.prototype.homeComming = function(trigger){
 	'use strict';
@@ -517,80 +513,31 @@ FlowGermany1.prototype.homeComming = function(trigger){
 	// Set background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_11);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
-	this.currentPage = this.view.homecomming;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage);
-
 	// Get sound
 	var sound = SoundService.matrix['2.11.1'];
 
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.homecomming;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-	this.listeners.complete = this.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload(sound.src, sound.duration);
 
 	// Ghost continue button
-	self.continueBtn.activate('skip');
+	self.continueBtn.ghost('skip');
 };
-// FlowGermany1.prototype.homeComming = function(trigger){
-// 	'use strict';
-
-// 	// Next move
-// 	this.trigger = trigger;
-
-// 	var self = this;
-
-// 	// Get 'whot now' related assets
-// 	var slidePath, slideName;
-// 	try{		
-// 		slidePath = '../assets/logic/slides/slide_home1'+PlayerStats.whatnow+'.js';
-// 		slideName = 'slide_home1'+PlayerStats.whatnow;
-// 	}catch(err){
-// 		console.log(err);
-// 	}	
-
-// 	// Set background
-// 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_11);
-
-// 	// Previous page out
-// 	Transitions.transOutPosition(this.currentPage);
-
-// 	// Set new page out
-// 	this.currentPage = this.view.work;
-
-// 	// New page in
-// 	Transitions.transInPosition(this.currentPage);
-
-// 	// Ghost continue button
-// 	self.continueBtn.ghost('skip');
-
-// 	try{
-// 		// Load slide
-// 		LoadJS.load(
-// 			[slidePath], 
-// 			Delegate.create(function(){
-// 				// Slide. Loading is self contained
-// 				self.slideLib = lib;	
-// 				self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
-// 				self.listeners.complete = self.playerComponent.on('complete', function(event){
-// 					self.continueBtn.activate('next');
-// 				}, self);
-// 				self.playerComponent.preload(slideName, self.slideLib);
-
-// 				self.continueBtn.activate('skip');
-// 			}, self)
-// 		);
-// 	}catch(err){
-// 		console.log(err);
-// 	}
-// };
 FlowGermany1.prototype.points5 = function(trigger) {
 	'use strict';
 	// Next move
@@ -604,25 +551,23 @@ FlowGermany1.prototype.points5 = function(trigger) {
 		console.log(err);
 	}	
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = page;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		switch(PlayerStats.whatnow){
+			case 'A':
+				PlayerStats.append('money', 1);
+			break;
+			case 'B':
+				PlayerStats.append('money', -1);
+			break;
+		}			
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
 
-	// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			switch(PlayerStats.whatnow){
-				case 'A':
-					PlayerStats.append('money', 1);
-				break;
-				case 'B':
-					PlayerStats.append('money', -1);
-				break;
-			}			
-			Topbar.pointsUpdate();
-		});	
-
+	// Next
 	this.continueBtn.activate('next');
 };
 createjs.EventDispatcher.initialize(FlowGermany1.prototype);

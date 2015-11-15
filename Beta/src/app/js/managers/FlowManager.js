@@ -7,7 +7,6 @@ var FlowManager = {
 	},
 	gotoPage: function(page){
 		'use strict';
-		console.log("page:", page);
 		if(this.currentPage !== null){
 			this.currentPage.destroy();
 			this.currentPage = null;

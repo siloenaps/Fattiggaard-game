@@ -16,6 +16,12 @@ var SubFlowController = function(){
 		},
 		next: function(trigger){
 			'use strict';
+		
+			// Allow tick
+			Tick.enable();
+			Tick.framerate(15);
+
+
 			var action = this.actions[trigger];
 
 			console.log('next:', trigger, action);

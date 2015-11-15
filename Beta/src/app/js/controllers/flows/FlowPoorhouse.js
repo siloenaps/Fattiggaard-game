@@ -64,8 +64,8 @@ FlowPoorhouse.prototype.setup = function(){
 
 	// Setup flow
 	this.flow = new SubFlowController();
-	this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
-	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '2.4'); // TEST
+	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
+	this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '2.4'); // TEST
 	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
 	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.5'); // TEST
 	this.flow.addAction('1.1.1', Delegate.create(this.caretaker, this), '1.1.2');
@@ -150,9 +150,9 @@ FlowPoorhouse.prototype.setup = function(){
 FlowPoorhouse.prototype.next = function(){
 	'use strict';
 
-	// Allow tick
-	Tick.enable();
-	Tick.framerate(15);
+	// // Allow tick
+	// Tick.enable();
+	// Tick.framerate(15);
 
 	this.flow.next(this.trigger);	
 };
@@ -168,6 +168,8 @@ FlowPoorhouse.prototype.onComplete = function(event) {
 };
 FlowPoorhouse.prototype.onContinue = function(event) {
 	'use strict';
+	
+	console.log('FlowPoorhouse::onContinue');
 	
 	// Stop player if any
 	if(this.playerComponent != null){

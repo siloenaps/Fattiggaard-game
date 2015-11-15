@@ -29,7 +29,7 @@ var Preloader = {
 		loader.loadManifest(manifest);
 	},
 	add: function(clss){
-		console.log('preloader:', clss);
+		// console.log('preloader:', clss);
 		$('body').append(
 			'<div id="preloader" class="'+clss+'"><div><div></div>'
 		);
