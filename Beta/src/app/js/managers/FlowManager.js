@@ -16,6 +16,9 @@ var FlowManager = {
 		this.root.gotoAndStop('character_build'); // TEST
 		switch(page){
 			case '0.0':
+				//Tick.pause();
+				Tick.disable(1000);
+
 				// Go to start frame
 				this.root.gotoAndStop('start');
 				this.currentPage = new PageStart(this.root.pageStart);
@@ -25,9 +28,14 @@ var FlowManager = {
 				this.currentPage.on('continue', function(event){
 					event.remove();
 					self.gotoPage('0.1');
-				}, this);
+					// Tick.enable();
+				}, this);				
+				// Tick.disable(1000);	
+				
 			break;
 			case '0.1':
+				// Tick.disable(1000);	
+
 				this.root.gotoAndStop('character_build');				
 				this.root.page_intro.x = 0;				
 				this.currentPage = new PageIntro(this.root.page_intro, 'intro'); 
