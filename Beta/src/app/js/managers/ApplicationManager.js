@@ -23,11 +23,12 @@ var ApplicationManager = {
 		Topbar.init(root.topbar);
 
 		// Fade black blocker out
-		createjs.Tween.get(root.blocker_black)
-         .to({alpha: 0}, 600, createjs.Ease.linear)
-         .call(function(){
-         	root.blocker_black.visible = false;
-         });
+		// createjs.Tween.get(root.blocker_black)
+  //        .to({alpha: 0}, 600, createjs.Ease.linear)
+  //        .call(function(){
+  //        	root.blocker_black.visible = false;
+  //        });
+         root.blocker_black.visible = false;
 
 		// Go to start
 		FlowManager.gotoPage('0.0');

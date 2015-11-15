@@ -4,7 +4,7 @@
 
 	app.controller('MainController', function($scope, Device) {
 
-		$scope.lib = mainLib;
+		$scope.lib = lib;
 		$scope.images = images;
 		// $scope.exportRoot;
 		// $scope.canvas;
