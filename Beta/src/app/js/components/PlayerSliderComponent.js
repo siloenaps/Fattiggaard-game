@@ -48,7 +48,7 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 			}
 			// // console.log(event.result);
 		}, 
-		function(event){
+		function(event){			
 			// Clean slider container if a slider already has been played
 			if(self.slide !== null){
 				self.container.remove(slide);
@@ -76,6 +76,9 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 					// Enable buttons
 					self.playBtn.setActive(true);
 					self.stopBtn.setActive(true);
+
+					// Dispatch event 
+					self.dispatchEvent(new createjs.Event('ready'));
 				}, self);
 				self.soundController.load();
 			}catch(err){
@@ -154,6 +157,9 @@ PlayerSliderComponent.prototype.play = function(){
 
 	// Set this last
 	this.paused = false;
+
+	// Tick
+	Tick.enable();
 };
 PlayerSliderComponent.prototype.pause = function(){
 	'use strict';
@@ -174,6 +180,9 @@ PlayerSliderComponent.prototype.pause = function(){
 
 	// Sound
 	this.soundController.pause();
+
+	// Tick
+	Tick.disable(100);
 };
 PlayerSliderComponent.prototype.stop = function(){
 	'use strict';
@@ -195,6 +204,9 @@ PlayerSliderComponent.prototype.stop = function(){
 
 	// Sound
 	this.soundController.stop();
+
+	// Tick
+	Tick.disable(100);
 };
 PlayerSliderComponent.prototype.progress = function(){
 	'use strict';

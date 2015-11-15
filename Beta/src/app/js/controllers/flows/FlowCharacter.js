@@ -24,6 +24,10 @@ FlowCharacter.prototype.start = function() {
 
 	// Set INTRO
 	this.next();
+
+	// Tick
+	Tick.enable();
+	Tick.framerate(8);
 };
 FlowCharacter.prototype.onContinue = function(event) {
 	if(this.pagePointer > 3){
@@ -35,6 +39,11 @@ FlowCharacter.prototype.onContinue = function(event) {
 };
 
 FlowCharacter.prototype.next = function(pointer){
+	// Allow tick
+	Tick.enable();
+	Tick.framerate(15);
+
+
 	if(this.currentPage !== null){
 		// Old page out - to left
 		createjs.Tween.get(this.currentPage)
@@ -63,16 +72,21 @@ FlowCharacter.prototype.next = function(pointer){
 FlowCharacter.prototype.intro = function(){		
 	this.currentPage = this.view.character_intro;
 
-	createjs.Tween.get(this.currentPage)
-		.to({x:0}, 300, createjs.Ease.linear);
+	TweenUtil.to(this.currentPage, {x:0}, 300, Delegate.create(function(){
+		Tick.disable();
+	}, this));
 };
 FlowCharacter.prototype.challenge = function(){
 	this.continueBtn.ghost("next");
 
 	this.currentPage = this.view.character_challenge;
 
-	createjs.Tween.get(this.currentPage)
-		.to({x:0}, 300, createjs.Ease.linear);
+
+	TweenUtil.to(this.currentPage, {x:0}, 300, Delegate.create(function(){
+		Tick.framerate(8);
+	}, this));
+	// createjs.Tween.get(this.currentPage)
+	// 	.to({x:0}, 300, createjs.Ease.linear);
 
 	var self = this;	
 
@@ -105,8 +119,9 @@ FlowCharacter.prototype.family = function(){
 
 	this.currentPage = this.view.character_family;
 
-	createjs.Tween.get(this.currentPage)
-		.to({x:0}, 300, createjs.Ease.linear);
+	TweenUtil.to(this.currentPage, {x:0}, 300, Delegate.create(function(){
+		Tick.framerate(8);
+	}, this));
 
 	var self = this;
 
@@ -140,8 +155,9 @@ FlowCharacter.prototype.nickname = function(){
 
 	this.currentPage = this.view.character_nickname;
 
-	createjs.Tween.get(this.currentPage)
-		.to({x:0}, 300, createjs.Ease.linear);
+	TweenUtil.to(this.currentPage, {x:0}, 300, Delegate.create(function(){
+		Tick.framerate(8);
+	}, this));
 
 	var self = this;
 

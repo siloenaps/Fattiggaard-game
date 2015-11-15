@@ -1,4 +1,3 @@
-var stage;
 (function () {
 	'use strict';
 	var app = angular.module('fattiggarden', ['ngRoute']);	
@@ -28,7 +27,7 @@ var stage;
 			// Instantiate root object. Equivalent to root timeline
 			$scope.exportRoot = new $scope.lib.FlashApp();
 
-			stage = new createjs.Stage($scope.canvas);
+			var stage = new createjs.Stage($scope.canvas);
 			stage.addChild($scope.exportRoot);
 
 			// Do cursor
@@ -38,11 +37,9 @@ var stage;
 			stage.scaleX = stage.scaleY = Device.ratio;
 			stage.update();
 
-			// Tik tak
-			//createjs.Ticker.setFPS($scope.lib.properties.fps);
-			createjs.Ticker.setFPS(10);
-			createjs.Ticker.addEventListener('tick', stage);
-
+			// Tik tak			
+			Tick.init(stage, 15);
+			Tick.enable();		
 			
 			//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
 
@@ -56,6 +53,7 @@ var stage;
 	app.directive('slCanvas', function(Device, Canvas) {	
 		function link(scope){	
 			// Create base canvas
+			// Device.ratio = 1;
 			scope.canvas = Canvas.create(1024, 648, Device.ratio);	
 			scope.canvas.style.background = '#000';
 			document.body.appendChild(scope.canvas);	

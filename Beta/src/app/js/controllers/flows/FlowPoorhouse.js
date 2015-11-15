@@ -14,7 +14,7 @@ var FlowPoorhouse = function(container){
 	this.groups = {};
 
 	this.continueBtn = ContinueButton;
-	this.continueBtn.activate('skip');
+	this.continueBtn.ghost('skip');
 
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
@@ -56,12 +56,16 @@ FlowPoorhouse.prototype.setup = function(){
 	// Setup may run ONLY once
 	this.runonce = true;
 
+	// Tick
+	Tick.framerate(15);
+
 	var self = this;
 	var manifest, Clss;	
 
 	// Setup flow
 	this.flow = new SubFlowController();
-	this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
+	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
+	this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '2.4'); // TEST
 	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
 	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.5'); // TEST
 	this.flow.addAction('1.1.1', Delegate.create(this.caretaker, this), '1.1.2');
@@ -79,10 +83,10 @@ FlowPoorhouse.prototype.setup = function(){
 	this.flow.addAction('1.6.1', Delegate.create(this.constable, this), '1.6.2');
 	this.flow.addAction('1.6.2', Delegate.create(this.report, this), '1.6.3');
 	this.flow.addAction('1.6.3', Delegate.create(this.points6, this), '1.8');	
-	this.flow.addAction('1.7', Delegate.create(this.letterWrite, this), '1.7.1');
-	this.flow.addAction('1.7.1', Delegate.create(this.points4, this), '1.7.2');
-	this.flow.addAction('1.7.2', Delegate.create(this.letterAnswer, this), '1.7.3');
-	this.flow.addAction('1.7.3', Delegate.create(this.points5, this), '1.8');
+	// this.flow.addAction('1.7', Delegate.create(this.letterWrite, this), '1.7.1');
+	// this.flow.addAction('1.7.1', Delegate.create(this.points4, this), '1.7.2');
+	// this.flow.addAction('1.7.2', Delegate.create(this.letterAnswer, this), '1.7.3');
+	// this.flow.addAction('1.7.3', Delegate.create(this.points5, this), '1.8');
 	this.flow.addAction('1.8', Delegate.create(this.backToPoorhouse, this), '1.3.5');
 	// this.flow.addAction('1.9', Delegate.create(this.preRecruitment, this), '2.1');	// FIXME
 	this.flow.addAction('2.1', Delegate.create(this.recruimentOffice, this), '2.2.1');
@@ -145,6 +149,11 @@ FlowPoorhouse.prototype.setup = function(){
 };
 FlowPoorhouse.prototype.next = function(){
 	'use strict';
+
+	// // Allow tick
+	// Tick.enable();
+	// Tick.framerate(15);
+
 	this.flow.next(this.trigger);	
 };
 FlowPoorhouse.prototype.onComplete = function(event) {
@@ -160,6 +169,8 @@ FlowPoorhouse.prototype.onComplete = function(event) {
 FlowPoorhouse.prototype.onContinue = function(event) {
 	'use strict';
 	
+	console.log('FlowPoorhouse::onContinue');
+	
 	// Stop player if any
 	if(this.playerComponent != null){
 		this.playerComponent.stop();
@@ -170,7 +181,7 @@ FlowPoorhouse.prototype.onContinue = function(event) {
 
 	this.next();
 
-	console.log('this.playerComponent:', this.playerComponent)
+	// console.log('this.playerComponent:', this.playerComponent)
 };
 FlowPoorhouse.prototype.removeEvents = function() {
 	'use strict';
@@ -200,7 +211,7 @@ FlowPoorhouse.prototype.destroy = function() {
 FlowPoorhouse.prototype.intro = function(trigger){
 	'use strict';
 
-	console.log("PlayerStats.intro:", this.id);
+	// console.log("PlayerStats.intro:", this.id);
 
 	// Next move
 	this.trigger = trigger;
@@ -218,7 +229,15 @@ FlowPoorhouse.prototype.intro = function(trigger){
 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 	this.listeners.complete = self.playerComponent.on('complete', function(event){
 		self.continueBtn.activate('next');
+		Tick.disable();
 	}, self);
+	this.playerComponent.on('ready', function(event){
+		event.remove();
+		// No tick
+		Tick.disable();
+		self.continueBtn.activate("skip");
+		// self.dispatchEvent(new createjs.Event('ready'));
+	});
 	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
 };
 FlowPoorhouse.prototype.points1 = function(trigger) {
@@ -226,69 +245,74 @@ FlowPoorhouse.prototype.points1 = function(trigger) {
 
 	// Next move
 	this.trigger = trigger;
-	
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
 
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.points1;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('mood', -1);
-			PlayerStats.append('health', 1);
-			Topbar.pointsUpdate();
-		});
-
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('mood', -1);
+		PlayerStats.append('health', 1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+	
 	this.continueBtn.activate('next');
 };
 FlowPoorhouse.prototype.caretaker = function(trigger) {
 	'use strict';
 
+	var self = this;
+
 	// Next move
 	this.trigger = trigger;
+	
+	// Get sound
+	var sound = SoundService.matrix['1.1.1'][this.id]; // E.g. this.id == 'svendborg'
 
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_1);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.caretaker;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 
-	// New page in
-	Transitions.transInAlpha(this.currentPage);
-
-	// Get sound
-	var sound = SoundService.matrix['1.1.1'][this.id]; // E.g. this.id == 'svendborg'
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
 
 	// Reuse player component var for sound
-	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-	this.listeners.complete = this.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload(sound.src, sound.duration);
+	this.playerComponent = new PlayerSoundComponent(self.currentPage.player);
+
+	// Desactivate continue button
+	this.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.chooseJob = function(trigger) {
 	'use strict';
 	var self = this;
 
+	console.log('chooseJob');
+
 	// Next move
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutAlpha(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosework;
-	
-	// New page in
-	Transitions.transInPosition(this.currentPage);
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
 
 	// Desactivate continue button
 	this.continueBtn.ghost('next');
-
 
 	// Checkboxes
 	CheckboxGroup.setup(
@@ -321,45 +345,51 @@ FlowPoorhouse.prototype.work = function(trigger) {
 	this.trigger = trigger;
 
 	this.continueBtn.activate('skip');
+
+	// Get sound
+	var sound = SoundService.matrix.work[this.id][PlayerStats.job]; // "svendborg/A"	
 	
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view['bg_1_2'+PlayerStats.job]);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.work;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Tick.disable();
 
-	// New page in
-	Transitions.transInPosition(this.currentPage);
+		// Sound	
+		self.listeners.complete = this.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
 
-	// Get sound
-	var sound = SoundService.matrix.work[this.id][PlayerStats.job]; // "svendborg/A"
+	}, this));
 
 	// Reuse player component var for sound
-	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-	this.listeners.complete = this.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload(sound.src, sound.duration);
+	self.playerComponent = new PlayerSoundComponent(self.currentPage.player);
+
+	// Nxt button
+	self.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.points2 = function(trigger) {
 	'use strict';
 	// Next move
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.points2;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('money', 1);
-			Topbar.pointsUpdate();
-		});
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('money', 1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
 
 	this.continueBtn.activate('next');
 };
@@ -371,17 +401,14 @@ FlowPoorhouse.prototype.points3 = function(trigger) {
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_3);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.points3;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('money', -2);
-			Topbar.pointsUpdate();
-		});	
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('money', -2);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
 
 	this.continueBtn.activate('next');
 };
@@ -390,14 +417,12 @@ FlowPoorhouse.prototype.getout = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.getout;
-
-	// New page in
-	Transitions.transInAlpha(this.currentPage);
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.disable();
+	}, this));
 
 	// Set portrait
 	var frm = PlayerStats.challenge + PlayerStats.family;
@@ -405,50 +430,6 @@ FlowPoorhouse.prototype.getout = function(trigger) {
 
 	this.continueBtn.activate('next');
 };
-// FlowPoorhouse.prototype.chooseAdvice = function(trigger) {
-// 	'use strict';
-// 	var self = this;
-
-// 	// Next move
-// 	this.trigger = trigger;
-
-// 	// Previous page out
-// 	Transitions.transOutAlpha(this.currentPage);
-
-// 	// Set new page out
-// 	this.currentPage = this.view.chooseadvice;
-
-// 	// New page in
-// 	Transitions.transInPosition(this.currentPage);
-
-// 	// Desactivate continue button
-// 	this.continueBtn.ghost('next');
-
-
-// 	// Checkboxes
-// 	CheckboxGroup.setup(
-// 		[this.currentPage.checkbox1, this.currentPage.checkbox2],
-// 		['A', 'B'],
-// 		Delegate.create(function(vo){
-// 			console.log('checkbox:', vo);
-
-// 			// Save chosen 'advice'
-// 			PlayerStats.advice = vo.value;
-
-// 			// Only first time a checkbox is clicked
-// 			if(vo.clicked === 1){
-// 				// User may continue
-// 				self.continueBtn.activate('next');
-// 				// Add listener to continue button
-// 				self.listeners.continueClick = self.continueBtn.on('click', function(event){
-// 					event.remove();
-// 					// Clear checkboxes
-// 					CheckboxGroup.clear();
-// 				});
-// 			}
-// 		}, this)
-// 	);
-// };
 FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	'use strict';
 	var self = this;
@@ -458,12 +439,8 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
-	this.continueBtn.activate('skip');
-
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	console.log('playAdvice:', currentTrigger);
+	// Pages in/out
+	var previousPage = this.currentPage;
 
 	// Set new page out
 	switch(currentTrigger){
@@ -473,43 +450,47 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 			// Get sound
 			sound = SoundService.matrix.advice[this.id]['inmate'];
 		break;
-		case '1.3.4': // Emplkoiyee
+		case '1.3.4': // Employee
 			this.currentPage = this.view.adviceemployee;
 
 			// Get sound
 			sound = SoundService.matrix.advice[this.id]['employee'];
 		break;
 	}	
+	
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
 
 	// Portrait
 	this.currentPage.portrait.gotoAndStop(this.id);
 
-	// New page in
-	Transitions.transInPosition(this.currentPage);
-
-	// Frame according to choice of advice
-	// this.currentPage.gotoAndStop(PlayerStats.advice); // Frame label could be 'A' or 'B'
-
-	// Reuse player component var for sound
-	this.playerComponent = null;
-	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-	this.listeners.complete = this.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload(sound.src, sound.duration);
+	// Next button
+	this.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.chooseWayOut = function(triggers) {
 	'use strict';
 	var self = this;
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosewayout;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage);
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
 
 	// Desactivate continue button
 	this.continueBtn.ghost('next');
@@ -548,49 +529,52 @@ FlowPoorhouse.prototype.drunk = function(trigger) {
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_5);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
+	// Get sound
+	var sound = SoundService.matrix.drunk;
 
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.drunk;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
 
-	// New page in
-	Transitions.transInPosition(this.currentPage);
 
 	// Portrait
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.currentPage.portrait.gotoAndStop(frm);
 
-	// Get sound
-	var sound = SoundService.matrix.drunk;
-
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-	this.listeners.complete = this.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload(sound.src, sound.duration);
 
-
-	this.continueBtn.activate('skip');
+	// Next button
+	this.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.points7 = function(trigger) {
 	'use strict';
 	// Next move
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.points7;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('mood', 1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+		console.log('QUE');
+	}, this));
 
-	// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('mood', 1);
-			Topbar.pointsUpdate();
-		});
-
+	// Next button
 	this.continueBtn.activate('next');
 };
 FlowPoorhouse.prototype.constable = function(trigger) {
@@ -603,26 +587,30 @@ FlowPoorhouse.prototype.constable = function(trigger) {
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_6);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
-	this.currentPage = this.view.constable;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage);
-
 	// Get sound
 	var sound = SoundService.matrix.constable;
 
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.constable;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-	this.listeners.complete = this.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload(sound.src, sound.duration);
 
-	this.continueBtn.activate('skip');
+	// Next button
+	this.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.report = function(trigger) {
 	'use strict';
@@ -630,86 +618,36 @@ FlowPoorhouse.prototype.report = function(trigger) {
 
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.report;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.disable();
+	}, this));
 
 	// Sound effect
-	soundEffect(SoundService.matrix.effects.typewriter);
+	// soundEffect(SoundService.matrix.effects.typewriter);
 
-	// New page in
-	Transitions.transInAlpha(this.currentPage);
+	// Next button
+	this.continueBtn.activate('next');
 };
 FlowPoorhouse.prototype.points6 = function(trigger) {
 	'use strict';
 	// Next move
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutAlpha(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.points6;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		PlayerStats.append('mood', -1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
 
-	// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('mood', -1);
-			Topbar.pointsUpdate();
-		});
-
+	// Next button
 	this.continueBtn.activate('next');
 };
-
-// FlowPoorhouse.prototype.runOff = function(triggers) {
-// 	'use strict';
-// 	var self = this;
-
-// 	// Change background
-// 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_4);
-
-// 	// Previous page out
-// 	Transitions.transOutPosition(this.currentPage);
-
-// 	// Set new page out
-// 	this.currentPage = this.view.runoff;
-
-// 	// New page in
-// 	Transitions.transInPosition(this.currentPage);
-
-// 	// Desactivate continue button
-// 	this.continueBtn.ghost('next');
-
-// 	// Checkboxes
-// 	var btn1 = new RadioButton(this.currentPage.checkbox1, {value:'A'});
-// 	var btn2 = new RadioButton(this.currentPage.checkbox2, {value:'B'});
-
-// 	// Group
-// 	var group = new ButtonGroup();
-// 	group.add(btn1);
-// 	group.add(btn2);
-
-// 	// Checkbox events
-// 	this.listeners.groupClick = group.on('click', function(event){
-
-// 		self.trigger = triggers[event.data.value];
-
-// 		// Only first time a checkbox is clicked
-// 		if(self.listeners.continueClick == null){
-// 			// User may continue
-// 			self.continueBtn.activate('next');
-// 			self.listeners.continueClick = self.continueBtn.on('click', function(e){
-// 				e.remove();
-// 				event.remove();
-// 				group.destroy();
-// 				group = null;
-// 				self.listeners.continueClick = null;
-// 			});
-// 		}
-// 	});
-// };
-
 
 FlowPoorhouse.prototype.letterWrite = function(trigger) {
 	'use strict';
@@ -720,14 +658,12 @@ FlowPoorhouse.prototype.letterWrite = function(trigger) {
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_7);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.letterwrite;
-
-	// New page in
-	Transitions.transInAlpha(this.currentPage);
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
 
 	// Dropdowns
 	var dropdown1 = new Dropdown(this.currentPage.dropdown_A);
@@ -742,14 +678,7 @@ FlowPoorhouse.prototype.letterWrite = function(trigger) {
 		dropdown3.setActive(false);
 	});
 
-	// Group
-	// var group = new ButtonGroup();
-	// group.add(dropdown1);
-	// group.add(dropdown2);
-	// group.add(dropdown3);
-
 	// Name
-	console.log('FIXME');
 	var frm = PlayerStats.challenge + PlayerStats.family;
    	this.view.realname.gotoAndStop(frm);
 
@@ -807,9 +736,9 @@ FlowPoorhouse.prototype.points5 = function(trigger) {
 
 	// New page in
 	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('mood', -1);
-			Topbar.pointsUpdate();
-		});
+		PlayerStats.append('mood', -1);
+		Topbar.pointsUpdate();
+	});
 
 	this.continueBtn.activate('next');
 };
@@ -822,21 +751,17 @@ FlowPoorhouse.prototype.backToPoorhouse = function(trigger) {
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_8);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.backtopoorhouse;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('mood', -1);
-			Topbar.pointsUpdate();
-		});
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.disable();
+	}, this));
 
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.currentPage.portrait.gotoAndStop(frm);
 
+	// Next button
 	this.continueBtn.activate('next');
 };
 FlowPoorhouse.prototype.preRecruitment = function(trigger) {
@@ -849,27 +774,30 @@ FlowPoorhouse.prototype.preRecruitment = function(trigger) {
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_9);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
-	this.currentPage = this.view.prerecruitment;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage);
-
 	// Get sound
 	var sound = SoundService.matrix.prerecruitment[this.id]; // "svendborg"
 
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.prerecruitment;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-	this.listeners.complete = this.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload(sound.src, sound.duration);
 
-
-	this.continueBtn.activate('skip');
+	// Next bnutton
+	this.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.recruimentOffice = function(trigger){
 	this.trigger = trigger;
@@ -877,14 +805,12 @@ FlowPoorhouse.prototype.recruimentOffice = function(trigger){
 	// Set background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_1);
 
-// 	Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementoffice;
-
-	// New page in
-	Transitions.transInAlpha(this.currentPage);
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.disable();
+	}, this));
 
 	// Next in flow
 	this.continueBtn.activate('next');
@@ -897,41 +823,42 @@ FlowPoorhouse.prototype.jobInterviewPart1 = function(trigger){
 	// Set background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_2);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
-	this.currentPage = this.view.jobinterviewpart1;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage);
-
 	// Get sound
 	var sound = SoundService.matrix.jobinterview[this.id]['part1']; // "svendborg"
 
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.jobinterviewpart1;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-	this.listeners.complete = this.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload(sound.src, sound.duration);
 
-	// Next in flow
-	this.continueBtn.activate('skip');
+	// Next button
+	this.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.chooseJobGermany = function(trigger){
 	var self = this;
 
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosejob;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage);
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
 
 	// Next in flow
 	this.continueBtn.ghost('next');
@@ -964,45 +891,45 @@ FlowPoorhouse.prototype.jobInterviewPart2 = function(trigger){
 
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
-	this.currentPage = this.view.jobinterviewpart2;
-
-	// New page in
-	Transitions.transInPosition(this.currentPage);
-
 	// Get sound
 	var sound = SoundService.matrix.jobinterview[this.id]['part2']; // "svendborg"
 
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.jobinterviewpart2;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-	this.listeners.complete = this.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-	}, self);
-	this.playerComponent.preload(sound.src, sound.duration);
 
-	// Next in flow
-	this.continueBtn.activate('skip');
+	// Next Button
+	this.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.points8 = function(trigger){
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutAlpha(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.points8;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('money', 2);
+		PlayerStats.append('mood', 1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
 
-		// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('money', 2);
-			PlayerStats.append('mood', 1);
-			Topbar.pointsUpdate();
-		});
-
-	// Next in flow
+	// Next button
 	this.continueBtn.activate('next');
 };
 FlowPoorhouse.prototype.recruitementLetter = function(trigger){
@@ -1011,14 +938,12 @@ FlowPoorhouse.prototype.recruitementLetter = function(trigger){
 	// Set background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_3);
 
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementletter;
-
-	// New page in
-	Transitions.transInAlpha(this.currentPage);
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
 
 	// Dropdowns
 	var dropdown1 = new Dropdown(this.currentPage.dropdown);
@@ -1034,26 +959,23 @@ FlowPoorhouse.prototype.recruitementLetter = function(trigger){
 	console.log('frm:', frm);
    	this.currentPage.realname.gotoAndStop(frm);
 
-	// Next in flow
+	// Next button
 	this.continueBtn.activate('next');
 };
 FlowPoorhouse.prototype.points9 = function(trigger){
 	this.trigger = trigger;
 
-	// Previous page out
-	Transitions.transOutAlpha(this.currentPage);
-
-	// Set new page out
+	// Pages in/out
+	var previousPage = this.currentPage;
 	this.currentPage = this.view.points9;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		PlayerStats.append('money', -1);
+		PlayerStats.append('mood', -1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
 
-		// New page in
-	Transitions.transInPosition(this.currentPage, function(){
-			PlayerStats.append('money', -1);
-			PlayerStats.append('mood', -1);
-			Topbar.pointsUpdate();
-		});
-
-	// Next in flow
+	// Next button
 	this.continueBtn.activate('next');
 };
 createjs.EventDispatcher.initialize(FlowPoorhouse.prototype);

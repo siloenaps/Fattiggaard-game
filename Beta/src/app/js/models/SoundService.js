@@ -47,7 +47,7 @@ SoundService.matrix = {
 	},
 	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
 	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
-	constable: { src:SoundService.properties.basePath+'constable.mp3', duration: 1.815 },
+	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
 	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
 	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
 	jobinterview: {

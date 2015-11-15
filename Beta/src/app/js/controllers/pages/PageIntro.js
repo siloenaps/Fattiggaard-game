@@ -8,7 +8,7 @@ var PageIntro = function(view, id){
 	this.playerComponent = new PlayerSliderComponent(view.player);
 	
 	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("skip");
+	this.continueBtn.ghost("skip");
 
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
@@ -19,16 +19,27 @@ PageIntro.prototype.start = function() {
 		'../assets/logic/slides/'+"slide_"+this.id+".js", 
 		Delegate.create(this.setup, this)
 	);
+	// Allow tick
+	Tick.enable();
 };
 PageIntro.prototype.setup = function() {
 	if(this.runonce != null)
 		return;
+
+	var self = this;
 
 	// Setup may run ONLY once
 	this.runonce = true;
 
 	try{
 		this.lib = libSlideIntro;
+		this.playerComponent.on('ready', function(event){
+			event.remove();
+			// No tick
+			Tick.disable();
+			self.continueBtn.activate("skip");
+			// self.dispatchEvent(new createjs.Event('ready'));
+		});
 		this.playerComponent.preload("slide_"+this.id, this.lib);
 		this.lib = null;
 	}catch(err) {

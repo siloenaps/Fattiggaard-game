@@ -7,7 +7,6 @@ var FlowManager = {
 	},
 	gotoPage: function(page){
 		'use strict';
-		// console.log("page:", page);
 		if(this.currentPage !== null){
 			this.currentPage.destroy();
 			this.currentPage = null;
@@ -16,6 +15,8 @@ var FlowManager = {
 		this.root.gotoAndStop('character_build'); // TEST
 		switch(page){
 			case '0.0':
+				// Tick.disable();
+
 				// Go to start frame
 				this.root.gotoAndStop('start');
 				this.currentPage = new PageStart(this.root.pageStart);
@@ -24,13 +25,20 @@ var FlowManager = {
 				// Button to next page
 				this.currentPage.on('continue', function(event){
 					event.remove();
-					self.gotoPage('0.1');
-				}, this);
+					self.gotoPage('0.1');					
+				}, this);				
+				// Tick.disable();	
+				
 			break;
 			case '0.1':
+				// Tick.enable();
 				this.root.gotoAndStop('character_build');				
 				this.root.page_intro.x = 0;				
 				this.currentPage = new PageIntro(this.root.page_intro, 'intro'); 
+				// this.currentPage.on('ready', function(event){
+				// 	event.remove();
+				// 	// Tick.disable();
+				// })
 				this.currentPage.start(); 
 
 				// Topbar
@@ -40,9 +48,10 @@ var FlowManager = {
 				this.currentPage.on('continue', function(event){
 					event.remove();
 					self.gotoPage('0.2');
-				}, this);
+				}, this);				
 			break;
 			case '0.2':				
+				// Tick.enable();
 				// this.root.gotoAndStop('character');
 				this.root.page_intro.x = 1024;
 				this.root.page_character.x = 0;
@@ -61,10 +70,13 @@ var FlowManager = {
 					event.remove();
 					self.gotoPage('0.3');
 				}, this);
+				// Tick.disable();
 			break;
 			case '0.3':
-				createjs.Tween.get(this.root.page_character)
-						.to({x:-1024}, 300, createjs.Ease.linear);
+				Tick.framerate(15);
+				TweenUtil.to(this.root.page_character, {x:-1024}, 300, Delegate.create(function(){
+					Tick.framerate(8);
+				}, this));
 
 				this.currentPage = new PageCard(this.root.page_card); // Id references to flow id '0.1'
 				this.currentPage.start(); 
@@ -78,10 +90,13 @@ var FlowManager = {
 					event.remove();
 					self.gotoPage('0.4');
 				}, this);
+				// Tick.disable();
 			break;
 			case '0.4':
-				createjs.Tween.get(this.root.page_card)
-						.to({x:-1024}, 300, createjs.Ease.linear);
+				Tick.framerate(15);
+				TweenUtil.to(this.root.page_card, {x:-1024}, 300, Delegate.create(function(){
+					Tick.framerate(8);
+				}, this));		
 
 				this.currentPage = new PageOpinion(this.root.page_opinion); // Id references to flow id '0.1'
 				this.currentPage.start(); 
@@ -96,10 +111,13 @@ var FlowManager = {
 					event.remove();
 					self.gotoPage('0.5');
 				}, this);
+				// Tick.disable();
 			break;
 			case '0.5':
-				createjs.Tween.get(this.root.page_opinion)
-						.to({x:-1024}, 300, createjs.Ease.linear);
+				Tick.framerate(15);
+				TweenUtil.to(this.root.page_opinion, {x:-1024}, 300, Delegate.create(function(){
+					//Tick.framerate(8);
+				}, this));				
 
 				this.currentPage = new PageMap(this.root.page_map); // Id references to flow id '0.1'
 				this.currentPage.start(); 
@@ -112,10 +130,9 @@ var FlowManager = {
 					// From here it a spereate flow related to chosen poorhouse New page LOADS new content
 					self.gotoPage('1.0');
 				}, this);
+				// Tick.disable();
 			break;
-			case '1.0':
-				// createjs.Tween.get(this.root.page_map)
-				// 		.to({x:-1024}, 300, createjs.Ease.linear);
+			case '1.0':				
 				this.root.page_map.x = -1024;
 
 				// Root frame
@@ -132,6 +149,7 @@ var FlowManager = {
 					event.remove();
 					self.gotoPage('2.5');
 				}, this);
+				// Tick.disable();
 			break;
 			case '2.5':
 				// Root frame
@@ -142,12 +160,7 @@ var FlowManager = {
 
 				this.currentPage = new FlowGermany1(this.root.germany_container); 
 				this.currentPage.start(); 				
-
-				// Button to next page
-				// this.currentPage.on('continue', function(event){
-				// 	event.remove();
-				// 	// self.gotoPage('1.0.2');
-				// }, this);
+				// Tick.disable();
 			break;
 		}
 	},
