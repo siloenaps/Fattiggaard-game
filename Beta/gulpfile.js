@@ -22,14 +22,6 @@ var htmlminOpts = {
   removeRedundantAttributes: true
 };
 
-/**
-* Image min
-*/
-gulp.task('jpgs', function() {
-    return gulp.src('./src/app/assets/images/**/*.jpg')
-    .pipe(imagemin({ progressive: true }))
-    .pipe(gulp.dest('test_min_images'));
-});
 
 /**
  * JS Hint
@@ -128,10 +120,25 @@ function index () {
 /**
  * Assets
  */
-gulp.task('assets', function () {
-  return gulp.src('./src/app/assets/**')
+gulp.task('assets', ['notimages', 'images']);
+
+/**
+ * Assets - !images
+ */
+gulp.task('notimages', function () {
+  return gulp.src(['./src/app/assets/**', '!./src/app/assets/images/**'])
     .pipe(gulp.dest('./dist/assets'));
 });
+
+/**
+* Assets - Images
+*/
+gulp.task('images', function() {
+    return gulp.src('./src/app/assets/images/**/*.*')
+    .pipe(imagemin({ progressive: true }))
+    .pipe(gulp.dest('./dist/assets/images'));
+});
+
 
 /**
  * Dist
