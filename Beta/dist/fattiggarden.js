@@ -6526,6 +6526,82 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/germany1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>germany1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="germany1.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(germany1GameLib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new germany1GameLib.germany_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(germany1GameLib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/svendborg.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>svendborg</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="svendborg.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(svendborgGameLib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new svendborgGameLib.svendborg();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(svendborgGameLib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/fattiggarden/assets/logic/slides/slide_1_0_1_svendborg.html',
     '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_1_0_1_svendborg</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_1_0_1_svendborg.js"></script><script>var canvas, stage, exportRoot;\n' +
     '\n' +
@@ -6812,81 +6888,5 @@ module.run(['$templateCache', function($templateCache) {
     '	createjs.Ticker.setFPS(libSlideIntro.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/germany1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>germany1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="germany1.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(germany1GameLib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new germany1GameLib.germany_1();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(germany1GameLib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/svendborg.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>svendborg</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="svendborg.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(svendborgGameLib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new svendborgGameLib.svendborg();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(svendborgGameLib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
 }]);
 })();
