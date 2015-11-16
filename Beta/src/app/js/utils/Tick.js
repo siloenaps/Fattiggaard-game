@@ -2,7 +2,7 @@ var Tick = {
 	defaultDelay: 100,
 	stage: null,
 	enabled: false,
-	debug: true,
+	debug: false,
 	init: function(stage, framerate){
 		this.stage = stage;
 		// createjs.Ticker.setFPS(framerate);
