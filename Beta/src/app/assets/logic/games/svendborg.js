@@ -35,6 +35,7 @@ lib.properties = {
 		{src:"../../../assets/images/games/svendborg/CFCloseUp.png", id:"CFCloseUp"},
 		{src:"../../../assets/images/games/svendborg/indsat_1.png", id:"indsat_1"},
 		{src:"../../../assets/images/games/svendborg/indsat_2.png", id:"indsat_2"},
+		{src:"../../../assets/images/games/svendborg/indsat_3.png", id:"indsat_3"},
 		{src:"../../../assets/images/games/svendborg/LetterArrested.png", id:"LetterArrested"},
 		{src:"../../../assets/images/games/svendborg/LetterWriteBG.png", id:"LetterWriteBG"},
 		{src:"../../../assets/images/games/svendborg/OpsynsmandSvendborg.png", id:"OpsynsmandSvendborg"},
@@ -206,6 +207,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 	this.initialize(img.indsat_2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
+(lib.indsat_3 = function() {
+	this.initialize(img.indsat_3);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,540,453);
 
 
 (lib.LetterArrested = function() {
@@ -523,20 +530,15 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
 
-	// Layer 3
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#003399").s().p("Ak9EaQiEh1AAilQAAikCEh1QCEh2C5ABQC6gBCDB2QCEB1ABCkQgBCliEB1QiDB2i6AAQi5AAiEh2g");
-	this.shape.setTransform(330,480);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(2).to({_off:false},0).wait(1));
-
 	// Layer 1
 	this.instance = new lib.indsat_1();
 
 	this.instance_1 = new lib.indsat_2();
 
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance}]},1).wait(1));
+	this.instance_2 = new lib.indsat_3();
+	this.instance_2.setTransform(-138,105);
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
@@ -2260,17 +2262,22 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,534.5);
 (lib._111PageCaretaker = function() {
 	this.initialize();
 
-	// Player
+	// Titel
 	this.player = new lib.PlayerAudio();
-	this.player.setTransform(212,98);
+	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
+
+	this.text = new cjs.Text("Opsynsmanden om arbejde:", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 686;
+	this.text.setTransform(211,38);
 
 	// Photo
 	this.instance = new lib.OpsynsmandSvendborg();
 	this.instance.setTransform(665,168);
 
-	this.addChild(this.instance,this.player);
+	this.addChild(this.instance,this.text,this.player);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,98,812,442);
+p.nominalBounds = new cjs.Rectangle(211,38,813,502);
 
 
 (lib._101PageIntro = function() {

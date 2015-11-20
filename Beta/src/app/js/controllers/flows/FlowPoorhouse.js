@@ -26,10 +26,15 @@ FlowPoorhouse.prototype.soundEffectPlay = function(sound){
 		this.soundEffect = null;
 	}
 
-	// var sound = SoundService.matrix.effects.typewriter;
-	this.soundEffect = new SoundEffect(sound.src, sound.duration, true);	
-	soundEffect.volume(.6);
-	soundEffect.play();
+	try{
+		// var sound = SoundService.matrix.effects.typewriter;
+		this.soundEffect = new SoundEffect(sound.src, sound.duration, true);	
+		this.soundEffect.volume(.6);
+		this.soundEffect.play();
+	}catch(err){
+		console.log(err);
+	}
+	
 };
 FlowPoorhouse.prototype.soundEffectStop = function(sound){
 	// Sound effect
@@ -348,6 +353,7 @@ FlowPoorhouse.prototype.work = function(trigger) {
 
 	// Get sound
 	var sound = SoundService.matrix.work[this.id][PlayerStats.job]; // "svendborg/A"	
+	this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
 	
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view['bg_1_2'+PlayerStats.job]);

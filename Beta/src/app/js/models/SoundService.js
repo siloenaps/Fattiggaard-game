@@ -34,7 +34,8 @@ SoundService.properties = {
 };
 SoundService.matrix = {
 	effects: {
-		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 }
+		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', duration: null },
+		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3', duration: null }
 	},
 	'1.1.1' :{
 		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
