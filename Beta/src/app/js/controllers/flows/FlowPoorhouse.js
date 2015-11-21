@@ -16,6 +16,9 @@ var FlowPoorhouse = function(container){
 	this.continueBtn = ContinueButton;
 	this.continueBtn.ghost('skip');
 
+	// TEST
+	// this.id = 'svendborg';
+
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 };
@@ -48,6 +51,12 @@ FlowPoorhouse.prototype.start = function(){
 	this.id = PlayerStats.poorhouse;
 	var gameFile;
 
+	console.log('FlowPoorhouse:start');
+
+	// LoadJS.load(
+	// 	['../assets/logic/games/svendborg.js', '../assets/logic/slides/slide_intro.js'], 
+	// 	Delegate.create(this.setup, this)
+	// );
 	LoadJS.load(
 		['../assets/logic/games/svendborg.js', '../assets/logic/slides/slide_1_0_1_svendborg.js'], 
 		Delegate.create(this.setup, this)
@@ -108,26 +117,31 @@ FlowPoorhouse.prototype.setup = function(){
 		}, this)
 	);
 
+	this.id = 'svendborg';
+	console.log('FlowPoorhouse:setup', this.id);
+
+	this.lib = gamelib;
+	this.slideLib = slidelib;
 	switch(this.id){
 		case 'horsens':			
-			this.lib = horsensGameLib;
+			// this.lib = horsensGameLib;
 			Clss = this.lib.horsens;
-			this.slideLib = horsensSlideLib;			
+			// this.slideLib = horsensSlideLib;			
 			// introClss = this.slideLib.slide_horsens;
 			manifest = this.lib.properties.manifest;
 		break;
 		case 'sundby':
-			this.lib = sundbyGameLib;
+			// this.lib = sundbyGameLib;
 			Clss = this.lib.sundby;
-			this.slideLib = sundbySlideLib;			
+			// this.slideLib = sundbySlideLib;			
 			// introClss = this.slideLib.slide_sundby;
 			manifest = this.lib.properties.manifest;
 		break;
 		case 'svendborg':	
-			this.lib = svendborgGameLib;
+			
 			Clss = this.lib.svendborg;
 			// this.slideLib = svendborgSlideLib;
-			this.slideLib = lib;			
+			// this.slideLib = slidelib;			
 			manifest = this.lib.properties.manifest;
 
 		break;
@@ -139,6 +153,7 @@ FlowPoorhouse.prototype.setup = function(){
 			// console.log(event.item.id, event.result);
 			images[event.item.id] = event.result; 
 		}
+		console.log('FlowPoorhouse:onFileLoad');
 	};
 	var onLoadComplete = function(event){
 		// Instantiate view
@@ -149,6 +164,9 @@ FlowPoorhouse.prototype.setup = function(){
 
 		// Set start page
 		self.next();
+
+		console.log('FlowPoorhouse:onLoadComplete');
+		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
 };
@@ -216,7 +234,6 @@ FlowPoorhouse.prototype.destroy = function() {
 FlowPoorhouse.prototype.intro = function(trigger){
 	'use strict';
 
-	// console.log("PlayerStats.intro:", this.id);
 
 	// Next move
 	this.trigger = trigger;
@@ -244,6 +261,8 @@ FlowPoorhouse.prototype.intro = function(trigger){
 		// self.dispatchEvent(new createjs.Event('ready'));
 	});
 	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
+	// this.playerComponent.preload('slide_intro', this.slideLib);
+	
 };
 FlowPoorhouse.prototype.points1 = function(trigger) {
 	'use strict';

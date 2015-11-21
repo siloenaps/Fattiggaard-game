@@ -75,7 +75,7 @@ SoundService.matrix = {
 	},
 	slides: {
 				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
-				'slide_1_0_1_svendborg': { src:SoundService.properties.basePath+'_101_ankomst.mp3', duration: 67.341 },
+				'slide_1_0_1_svendborg': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
 				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
 				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
 				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3', duration: 61.208 },

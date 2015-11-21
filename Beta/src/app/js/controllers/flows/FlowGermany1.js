@@ -54,7 +54,7 @@ FlowGermany1.prototype.setup = function(){
 
 	try{
 		// Load files for flow	
-		this.lib = germany1GameLib;
+		this.lib = gamelib; //germany1GameLib;
 		var Clss = this.lib.germany_1;
 		var manifest = this.lib.properties.manifest;
 		var onFileLoad = function(event){

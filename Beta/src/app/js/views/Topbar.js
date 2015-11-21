@@ -25,5 +25,11 @@ var Topbar = {
 	},
 	pointsUpdate: function(){
 		HUDController.update();
+	},
+	show: function(){
+		this.view.visible = true;
+	},
+	hide: function(){
+		this.view.visible = false;	
 	}
 }

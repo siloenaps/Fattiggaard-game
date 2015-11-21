@@ -539,312 +539,6 @@ ButtonCustom.prototype.destroy = function(){
 }
 
 createjs.EventDispatcher.initialize(ButtonCustom.prototype);
-var PageStart = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("next");
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageStart.prototype.start = function() {
-	Tick.disable();
-};
-PageStart.prototype.onContinue = function(event) {
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageStart.prototype.destroy = function() {
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageStart.prototype);
-var PageOpinion = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.activePlayer = null;
-
-	this.playersCount = 0;
-	this.completed = 0;
-
-	var key = PlayerStats.challenge + PlayerStats.family;
-
-	// Get sound
-	this.soundChallengeObject = SoundService.matrix.oppinion[key];
-
-	// Set Text
-	this.view.charactertext.gotoAndStop(key);
-	this.view.playerlabel.gotoAndStop(key);
-
-
-	// Player - Challenge
-	// view.player.visible = false;
-	if(this.soundChallengeObject != null){
-		// view.player.visible = true;
-		this.challengePlayerComponent = new PlayerSoundComponent(view.player);
-		this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
-		this.playersCount++;
-
-		this.listeners.challengeStart = this.challengePlayerComponent.on("start", this.onSoundStart, this);
-
-		this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
-	}
-
-	// Continue/Skip button
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("skip");
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageOpinion.prototype.onSoundStart = function(event) {
-	// If there is a player active, pause it
-	if(this.activePlayer != null){
-		if(event.target.id != this.activePlayer.id){
-			this.activePlayer.pause();
-		}
-	}
-
-	// Save activated player
-	this.activePlayer = event.target;
-};
-PageOpinion.prototype.onComplete = function(event){
-	this.completed++;
-	if(this.completed >= this.playersCount){
-		if(this.challengePlayerComponent !== undefined){
-			this.challengePlayerComponent.off('complete', this.listeners.challenge);
-		}
-		if(this.familyPlayerComponent !== undefined){
-			this.familyPlayerComponent.off('complete', this.listeners.family);
-		}
-
-		this.continueBtn.activate("next");
-	}
-};
-PageOpinion.prototype.start = function() {
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.view.portrait.gotoAndStop(frm);
-};
-PageOpinion.prototype.onContinue = function(event) {
-	this.continueBtn.off('click', this.listeners.continue);
-
-	// Stop sound if it still on
-	if(this.challengePlayerComponent !== undefined){
-		this.challengePlayerComponent.stop();
-	}
-
-	if(this.familyPlayerComponent !== undefined){
-		this.familyPlayerComponent.stop();
-	}
-
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageOpinion.prototype.destroy = function() {
-	this.view = null;	
-
-	if(this.challengePlayer != null){
-		this.challengePlayer.destroy();
-		this.challengePlayer = null;
-	}
-	if(this.familyPlayerComponent != null){
-		this.familyPlayerComponent.destroy();
-		this.familyPlayerComponent = null;
-	}
-
-	this.activePlayer = null;
-};
-createjs.EventDispatcher.initialize(PageOpinion.prototype);
-var PageMap = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost("next");	
-};
-PageMap.prototype.start = function() {
-	var self = this;
-
-	// Allow tick
-	Tick.enable();
-	Tick.framerate(5);
-
-	// Checkboxes
-	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
-	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundby'});
-	var btn3 = new RadioButton(this.view.checkbox3, {value:'svendborg'});
-
-	// Group
-	this.group = new ButtonGroup();
-	this.group.add(btn1);
-	this.group.add(btn2);
-	this.group.add(btn3);
-
-	// Events
-	this.listeners.group = this.group.on("click", function(event){
-		// Save chosen "fattiggård"
-		PlayerStats.poorhouse = event.data.value;
-
-		// User may continue
-		self.continueBtn.activate('next');
-		self.continueBtn.on('click', function(e){
-			e.remove();
-			event.remove();
-
-			self.view.info1.off('click', self.listeners['info1']);
-			self.view.info2.off('click', self.listeners['info2']);
-			self.view.info3.off('click', self.listeners['info3']);
-
-			self.dispatchEvent(new createjs.Event('continue'));
-		});
-	}, self);
-
-
-	// Info popup
-	this.view.infopopup.visible = false;
-	this.infoButtons = [];
-	this.infoButtons.push(this.view.info1);
-	this.infoButtons.push(this.view.info2);
-	this.infoButtons.push(this.view.info3);
-	this.view.info1.id = 1;
-	this.view.info2.id = 2;
-	this.view.info3.id = 3;
-	// Info buttons events
-	this.listeners['info1'] = this.view.info1.on('click', function(event){
-		this.openInfo(event.target.id);
-	}, this);
-	this.listeners['info2'] = this.view.info2.on('click', function(event){
-		this.openInfo(event.target.id);
-	}, this);
-	this.listeners['info3'] = this.view.info3.on('click', function(event){
-		this.openInfo(event.target.id);
-	}, this);
-	// Close button	
-	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){
-		this.closeInfo();
-	}, this);
-};
-PageMap.prototype.openInfo = function(id) {
-	this.view.infopopup.gotoAndStop(id-1);
-	this.view.infopopup.x = 0;
-	this.view.infopopup.visible = true;
-	this.continueBtn.hide();
-};
-PageMap.prototype.closeInfo = function(id) {
-	this.view.infopopup.x = 1024;
-	this.view.infopopup.visible = false;
-	this.continueBtn.show();
-};
-PageMap.prototype.destroy = function() {
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageMap.prototype);
-var PageIntro = function(view, id){
-	'use strict';
-	//console.log("view.player:", view.player);
-	this.view = view;
-	this.id = id;
-	this.lib = null;
-	this.listeners = {};
-	this.playerComponent = new PlayerSliderComponent(view.player);
-	
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost("skip");
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
-};
-PageIntro.prototype.start = function() {
-	LoadJS.load(
-		'../assets/logic/slides/'+"slide_"+this.id+".js", 
-		Delegate.create(this.setup, this)
-	);
-	// Allow tick
-	Tick.enable();
-};
-PageIntro.prototype.setup = function() {
-	if(this.runonce != null)
-		return;
-
-	var self = this;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	try{
-		this.lib = libSlideIntro;
-		this.playerComponent.on('ready', function(event){
-			event.remove();
-			// No tick
-			Tick.disable();
-			self.continueBtn.activate("skip");
-			// self.dispatchEvent(new createjs.Event('ready'));
-		});
-		this.playerComponent.preload("slide_"+this.id, this.lib);
-		this.lib = null;
-	}catch(err) {
-   		console.log(err);
-   	}
-};
-PageIntro.prototype.onContinue = function(event) {
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.listeners.continue = null;
-
-	// Stop Player
-	if(this.playerComponent !== undefined){
-		this.playerComponent.stop();
-	}
-
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageIntro.prototype.onComplete = function(event) {
-	this.playerComponent.off('complete', this.listeners.complete);	
-	this.listeners.complete = null;
-
-	// Set next button active
-	this.continueBtn.activate("next");
-};
-PageIntro.prototype.destroy = function() {
-	this.playerComponent.destroy();	
-	this.playerComponent = null;
-	this.view = null;
-};
-createjs.EventDispatcher.initialize(PageIntro.prototype);
-var PageCard = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("next");	
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageCard.prototype.start = function() {
-	var frm;
-
-	// Set portrait an real name
-	frm = PlayerStats.challenge + PlayerStats.family;
-	this.view.portrait.gotoAndStop(frm);
-	this.view.realname.gotoAndStop(frm);
-
-	// Set nickname
-	frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
-	this.view.nickname.gotoAndStop(frm);
-
-	// Set challenge
-	frm = PlayerStats.challenge;
-	this.view.challenge.gotoAndStop(frm);	
-
-	// Set family, kids
-	frm = PlayerStats.family;
-	this.view.family.gotoAndStop(frm);
-	this.view.kids.gotoAndStop(frm);
-};
-PageCard.prototype.onContinue = function(event) {
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageCard.prototype.destroy = function() {
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageCard.prototype);
 var SubFlowController = function(){
 	'use strict';
 
@@ -895,6 +589,243 @@ var SubFlowController = function(){
 		}
 	};
 };
+var FlowProloque = function(container){
+	return{
+		currentPage:null,
+		container: container,
+		// init: function(view){
+		// 	'use strict';
+		// 	this.view = view;
+		// },
+		start: function(){
+			'use strict';
+			this.id = 'proloque';//PlayerStats.poorhouse;
+
+			// console.log('FlowProloque:start', this.view);
+
+			LoadJS.load(
+				['../assets/logic/games/proloque.js'], 
+				Delegate.create(this.setup, this)
+			);
+		},
+		setup: function(){
+			'use strict';
+			if(this.runonce != null)
+				return;
+
+			var self = this;
+
+			// Setup may run ONLY once
+			this.runonce = true;
+
+			// Tick
+			Tick.framerate(15);
+
+
+			// Load files
+			this.lib = gamelib;
+			var Clss = this.lib.proloque;		
+			var manifest = this.lib.properties.manifest;
+
+			var onFileLoad = function(event){
+				if (event.item.type === 'image') { 
+					// console.log(event.item.id, event.result);
+					images[event.item.id] = event.result; 
+				}
+			};
+			var onLoadComplete = function(event){
+				// Instantiate view
+				self.view = new Clss();
+
+				//Add
+				self.container.addChild(self.view);
+
+				// Set start page
+				self.next('0.0');
+
+				// Ready
+				FlowProloque.dispatchEvent(new createjs.Event('ready'));
+			};
+			Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+
+			// this.next('0.0');
+		},
+		next: function(page){
+			'use strict';
+			if(this.currentPage !== null){
+				this.currentPage.destroy();
+				this.currentPage = null;
+			}
+			var self = this;
+			// this.view.gotoAndStop('character_build'); // TEST
+			switch(page){
+				case '0.0':
+					// Tick.disable();
+
+					// Go to start frame
+					this.view.gotoAndStop('start');
+					this.currentPage = new PageStart(this.view.pageStart);
+					this.currentPage.start(); 
+
+					// Button to next page
+					this.currentPage.on('continue', function(event){
+						event.remove();
+						self.next('0.1');					
+					}, this);				
+					// Tick.disable();	
+					
+				break;
+				case '0.1':
+					// Tick.enable();
+					this.view.gotoAndStop('character_build');				
+					this.view.page_intro.x = 0;				
+					this.currentPage = new PageIntro(this.view.page_intro, 'intro'); 
+					// this.currentPage.on('ready', function(event){
+					// 	event.remove();
+					// 	// Tick.disable();
+					// })
+					this.currentPage.start(); 
+
+					// Topbar
+					Topbar.show();
+					Topbar.go('intro');
+					console.log('FlowProloque:next', page, Topbar);
+
+					// Button to next page
+					this.currentPage.on('continue', function(event){
+						event.remove();
+						self.next('0.2');
+					}, this);				
+				break;
+				case '0.2':				
+					// Tick.enable();
+					// this.view.gotoAndStop('character');
+					this.view.page_intro.x = 1024;
+					this.view.page_character.x = 0;
+					this.currentPage = new FlowCharacter(this.view.page_character); // Id references to flow id '0.1'
+					this.currentPage.start(); 
+
+					
+					// createjs.Tween.get(this.view.page_character)
+					// 	.to({x:0}, 300, createjs.Ease.linear);
+
+					// Topbar
+					Topbar.go('character');
+
+					// Button to next page
+					this.currentPage.on('continue', function(event){
+						event.remove();
+						self.next('0.3');
+					}, this);
+					// Tick.disable();
+				break;
+				case '0.3':
+					Tick.framerate(15);
+					TweenUtil.to(this.view.page_character, {x:-1024}, 300, Delegate.create(function(){
+						Tick.framerate(8);
+					}, this));
+
+					this.currentPage = new PageCard(this.view.page_card); // Id references to flow id '0.1'
+					this.currentPage.start(); 
+
+					this.view.page_card.x = 0;
+					// createjs.Tween.get(this.view.page_card)
+					// 		.to({x:0}, 300, createjs.Ease.linear);
+
+					// Button to next page
+					this.currentPage.on('continue', function(event){
+						event.remove();
+						self.next('0.4');
+					}, this);
+					// Tick.disable();
+				break;
+				case '0.4':
+					Tick.framerate(15);
+					TweenUtil.to(this.view.page_card, {x:-1024}, 300, Delegate.create(function(){
+						Tick.framerate(8);
+					}, this));		
+
+					this.currentPage = new PageOpinion(this.view.page_opinion); // Id references to flow id '0.1'
+					this.currentPage.start(); 
+
+					this.view.page_opinion.x = 0;
+
+					// createjs.Tween.get(this.view.page_opinion)
+					// 		.to({x:0}, 300, createjs.Ease.linear);
+
+					// Button to next page
+					this.currentPage.on('continue', function(event){
+						event.remove();
+						self.next('0.5');
+					}, this);
+					// Tick.disable();
+				break;
+				case '0.5':
+					TweenUtil.to(this.view.page_opinion, {x:-1024}, 300, Delegate.create(function(){
+						//Tick.framerate(8);
+					}, this));				
+
+					this.currentPage = new PageMap(this.view.page_map); // Id references to flow id '0.1'
+					this.currentPage.start(); 
+
+					this.view.page_map.x = 0;
+
+					// Button to next page
+					this.currentPage.on('continue', function(event){
+						event.remove();
+
+						// Clean
+						self.lib = null;
+						self.container.removeAllChildren();
+
+						// From here it a sepereate flow related to chosen poorhouse New page LOADS new content						
+						FlowProloque.dispatchEvent(new createjs.Event('continue'));
+					}, this);
+					// Tick.disable();
+				break;
+				// case '1.0':				
+				// 	this.view.page_map.x = -1024;
+
+				// 	// view frame
+				// 	this.view.gotoAndStop('poorhouse');
+
+				// 	// Topbar
+				// 	Topbar.go('game');
+
+				// 	this.currentPage = new FlowPoorhouse(this.view.poorhouse_container); // Id references to flow id '0.1'
+				// 	this.currentPage.start(); 				
+
+				// 	// Button to next page/flow
+				// 	this.currentPage.on('continue', function(event){
+				// 		event.remove();
+				// 		self.next('2.5');
+				// 	}, this);
+				// 	// Tick.disable();
+				// break;
+				// case '2.5':
+				// 	// view frame
+				// 	this.view.gotoAndStop('germany');
+
+				// 	// Topbar
+				// 	Topbar.go('game');
+
+				// 	this.currentPage = new FlowGermany1(this.view.germany_container); 
+				// 	this.currentPage.start(); 				
+				// 	// Tick.disable();
+				// break;
+			}
+		},
+		restart: function(){
+			'use strict';
+			this.currentPage = null;
+		},
+		destroy: function(){
+			'use strict';
+			this.currentPage = null;
+		}
+	};	
+}
+createjs.EventDispatcher.initialize(FlowProloque);
 var FlowPoorhouse = function(container){
 	'use strict';
 	this.container = container;
@@ -913,6 +844,9 @@ var FlowPoorhouse = function(container){
 	this.continueBtn = ContinueButton;
 	this.continueBtn.ghost('skip');
 
+	// TEST
+	// this.id = 'svendborg';
+
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 };
@@ -923,10 +857,15 @@ FlowPoorhouse.prototype.soundEffectPlay = function(sound){
 		this.soundEffect = null;
 	}
 
-	// var sound = SoundService.matrix.effects.typewriter;
-	this.soundEffect = new SoundEffect(sound.src, sound.duration, true);	
-	soundEffect.volume(.6);
-	soundEffect.play();
+	try{
+		// var sound = SoundService.matrix.effects.typewriter;
+		this.soundEffect = new SoundEffect(sound.src, sound.duration, true);	
+		this.soundEffect.volume(.6);
+		this.soundEffect.play();
+	}catch(err){
+		console.log(err);
+	}
+	
 };
 FlowPoorhouse.prototype.soundEffectStop = function(sound){
 	// Sound effect
@@ -940,10 +879,16 @@ FlowPoorhouse.prototype.start = function(){
 	this.id = PlayerStats.poorhouse;
 	var gameFile;
 
+	console.log('FlowPoorhouse:start');
+
 	LoadJS.load(
-		['../assets/logic/games/svendborg.js', '../assets/logic/slides/slide_1_0_1_svendborg.js'], 
+		['../assets/logic/games/svendborg.js', '../assets/logic/slides/slide_intro.js'], 
 		Delegate.create(this.setup, this)
 	);
+	// LoadJS.load(
+	// 	['../assets/logic/games/svendborg.js', '../assets/logic/slides/slide_1_0_1_svendborg.js'], 
+	// 	Delegate.create(this.setup, this)
+	// );
 };
 FlowPoorhouse.prototype.setup = function(){
 	'use strict';
@@ -1000,26 +945,31 @@ FlowPoorhouse.prototype.setup = function(){
 		}, this)
 	);
 
+	this.id = 'svendborg';
+	console.log('FlowPoorhouse:setup', this.id);
+
+	this.lib = gamelib;
+	this.slideLib = slidelib;
 	switch(this.id){
 		case 'horsens':			
-			this.lib = horsensGameLib;
+			// this.lib = horsensGameLib;
 			Clss = this.lib.horsens;
-			this.slideLib = horsensSlideLib;			
+			// this.slideLib = horsensSlideLib;			
 			// introClss = this.slideLib.slide_horsens;
 			manifest = this.lib.properties.manifest;
 		break;
 		case 'sundby':
-			this.lib = sundbyGameLib;
+			// this.lib = sundbyGameLib;
 			Clss = this.lib.sundby;
-			this.slideLib = sundbySlideLib;			
+			// this.slideLib = sundbySlideLib;			
 			// introClss = this.slideLib.slide_sundby;
 			manifest = this.lib.properties.manifest;
 		break;
 		case 'svendborg':	
-			this.lib = svendborgGameLib;
+			
 			Clss = this.lib.svendborg;
 			// this.slideLib = svendborgSlideLib;
-			this.slideLib = lib;			
+			// this.slideLib = slidelib;			
 			manifest = this.lib.properties.manifest;
 
 		break;
@@ -1031,6 +981,7 @@ FlowPoorhouse.prototype.setup = function(){
 			// console.log(event.item.id, event.result);
 			images[event.item.id] = event.result; 
 		}
+		console.log('FlowPoorhouse:onFileLoad');
 	};
 	var onLoadComplete = function(event){
 		// Instantiate view
@@ -1041,6 +992,9 @@ FlowPoorhouse.prototype.setup = function(){
 
 		// Set start page
 		self.next();
+
+		console.log('FlowPoorhouse:onLoadComplete');
+		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
 };
@@ -1108,7 +1062,6 @@ FlowPoorhouse.prototype.destroy = function() {
 FlowPoorhouse.prototype.intro = function(trigger){
 	'use strict';
 
-	// console.log("PlayerStats.intro:", this.id);
 
 	// Next move
 	this.trigger = trigger;
@@ -1135,7 +1088,9 @@ FlowPoorhouse.prototype.intro = function(trigger){
 		self.continueBtn.activate("skip");
 		// self.dispatchEvent(new createjs.Event('ready'));
 	});
-	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
+	// this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
+	this.playerComponent.preload('slide_intro', this.slideLib);
+	
 };
 FlowPoorhouse.prototype.points1 = function(trigger) {
 	'use strict';
@@ -1245,6 +1200,7 @@ FlowPoorhouse.prototype.work = function(trigger) {
 
 	// Get sound
 	var sound = SoundService.matrix.work[this.id][PlayerStats.job]; // "svendborg/A"	
+	this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
 	
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view['bg_1_2'+PlayerStats.job]);
@@ -1935,7 +1891,7 @@ FlowGermany1.prototype.setup = function(){
 
 	try{
 		// Load files for flow	
-		this.lib = germany1GameLib;
+		this.lib = gamelib; //germany1GameLib;
 		var Clss = this.lib.germany_1;
 		var manifest = this.lib.properties.manifest;
 		var onFileLoad = function(event){
@@ -2653,6 +2609,317 @@ FlowCharacter.prototype.destroy = function() {
 	// createjs.Tween.removeTweens(event.target);
 };
 createjs.EventDispatcher.initialize(FlowCharacter.prototype);
+var PageStart = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.continueBtn = ContinueButton;
+	this.continueBtn.activate("next");
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+};
+PageStart.prototype.start = function() {
+	Tick.disable();
+};
+PageStart.prototype.onContinue = function(event) {
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.dispatchEvent(new createjs.Event('continue'));
+};
+PageStart.prototype.destroy = function() {
+	this.view = null;	
+};
+createjs.EventDispatcher.initialize(PageStart.prototype);
+var PageOpinion = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.activePlayer = null;
+
+	this.playersCount = 0;
+	this.completed = 0;
+
+	var key = PlayerStats.challenge + PlayerStats.family;
+
+	// Get sound
+	this.soundChallengeObject = SoundService.matrix.oppinion[key];
+
+	// Set Text
+	this.view.charactertext.gotoAndStop(key);
+	this.view.playerlabel.gotoAndStop(key);
+
+
+	// Player - Challenge
+	// view.player.visible = false;
+	if(this.soundChallengeObject != null){
+		// view.player.visible = true;
+		this.challengePlayerComponent = new PlayerSoundComponent(view.player);
+		this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
+		this.playersCount++;
+
+		this.listeners.challengeStart = this.challengePlayerComponent.on("start", this.onSoundStart, this);
+
+		this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
+	}
+
+	// Continue/Skip button
+	this.continueBtn = ContinueButton;
+	this.continueBtn.activate("skip");
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+};
+PageOpinion.prototype.onSoundStart = function(event) {
+	// If there is a player active, pause it
+	if(this.activePlayer != null){
+		if(event.target.id != this.activePlayer.id){
+			this.activePlayer.pause();
+		}
+	}
+
+	// Save activated player
+	this.activePlayer = event.target;
+};
+PageOpinion.prototype.onComplete = function(event){
+	this.completed++;
+	if(this.completed >= this.playersCount){
+		if(this.challengePlayerComponent !== undefined){
+			this.challengePlayerComponent.off('complete', this.listeners.challenge);
+		}
+		if(this.familyPlayerComponent !== undefined){
+			this.familyPlayerComponent.off('complete', this.listeners.family);
+		}
+
+		this.continueBtn.activate("next");
+	}
+};
+PageOpinion.prototype.start = function() {
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.view.portrait.gotoAndStop(frm);
+};
+PageOpinion.prototype.onContinue = function(event) {
+	this.continueBtn.off('click', this.listeners.continue);
+
+	// Stop sound if it still on
+	if(this.challengePlayerComponent !== undefined){
+		this.challengePlayerComponent.stop();
+	}
+
+	if(this.familyPlayerComponent !== undefined){
+		this.familyPlayerComponent.stop();
+	}
+
+	this.dispatchEvent(new createjs.Event('continue'));
+};
+PageOpinion.prototype.destroy = function() {
+	this.view = null;	
+
+	if(this.challengePlayer != null){
+		this.challengePlayer.destroy();
+		this.challengePlayer = null;
+	}
+	if(this.familyPlayerComponent != null){
+		this.familyPlayerComponent.destroy();
+		this.familyPlayerComponent = null;
+	}
+
+	this.activePlayer = null;
+};
+createjs.EventDispatcher.initialize(PageOpinion.prototype);
+var PageMap = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost("next");	
+};
+PageMap.prototype.start = function() {
+	var self = this;
+
+	// Allow tick
+	Tick.enable();
+	Tick.framerate(5);
+
+	// Checkboxes
+	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
+	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundby'});
+	var btn3 = new RadioButton(this.view.checkbox3, {value:'svendborg'});
+
+	// Group
+	this.group = new ButtonGroup();
+	this.group.add(btn1);
+	this.group.add(btn2);
+	this.group.add(btn3);
+
+	// Events
+	this.listeners.group = this.group.on("click", function(event){
+		// Save chosen "fattiggård"
+		PlayerStats.poorhouse = event.data.value;
+
+		// User may continue
+		self.continueBtn.activate('next');
+		self.continueBtn.on('click', function(e){
+			e.remove();
+			event.remove();
+
+			self.view.info1.off('click', self.listeners['info1']);
+			self.view.info2.off('click', self.listeners['info2']);
+			self.view.info3.off('click', self.listeners['info3']);
+
+			self.dispatchEvent(new createjs.Event('continue'));
+		});
+	}, self);
+
+
+	// Info popup
+	this.view.infopopup.visible = false;
+	this.infoButtons = [];
+	this.infoButtons.push(this.view.info1);
+	this.infoButtons.push(this.view.info2);
+	this.infoButtons.push(this.view.info3);
+	this.view.info1.id = 1;
+	this.view.info2.id = 2;
+	this.view.info3.id = 3;
+	// Info buttons events
+	this.listeners['info1'] = this.view.info1.on('click', function(event){
+		this.openInfo(event.target.id);
+	}, this);
+	this.listeners['info2'] = this.view.info2.on('click', function(event){
+		this.openInfo(event.target.id);
+	}, this);
+	this.listeners['info3'] = this.view.info3.on('click', function(event){
+		this.openInfo(event.target.id);
+	}, this);
+	// Close button	
+	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){
+		this.closeInfo();
+	}, this);
+};
+PageMap.prototype.openInfo = function(id) {
+	this.view.infopopup.gotoAndStop(id-1);
+	this.view.infopopup.x = 0;
+	this.view.infopopup.visible = true;
+	this.continueBtn.hide();
+};
+PageMap.prototype.closeInfo = function(id) {
+	this.view.infopopup.x = 1024;
+	this.view.infopopup.visible = false;
+	this.continueBtn.show();
+};
+PageMap.prototype.destroy = function() {
+	this.view = null;	
+};
+createjs.EventDispatcher.initialize(PageMap.prototype);
+var PageIntro = function(view, id){
+	'use strict';
+	//console.log("view.player:", view.player);
+	this.view = view;
+	this.id = id;
+	this.lib = null;
+	this.listeners = {};
+	this.playerComponent = new PlayerSliderComponent(view.player);
+	
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost("skip");
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
+};
+PageIntro.prototype.start = function() {
+	LoadJS.load(
+		'../assets/logic/slides/'+"slide_"+this.id+".js", 
+		Delegate.create(this.setup, this)
+	);
+	// Allow tick
+	Tick.enable();
+};
+PageIntro.prototype.setup = function() {
+	if(this.runonce != null)
+		return;
+
+	var self = this;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	try{
+		this.lib = slidelib;
+		this.playerComponent.on('ready', function(event){
+			event.remove();
+			// No tick
+			Tick.disable();
+			self.continueBtn.activate("skip");
+			// self.dispatchEvent(new createjs.Event('ready'));
+		});
+		this.playerComponent.preload("slide_"+this.id, this.lib);
+		this.lib = null;
+	}catch(err) {
+   		console.log(err);
+   	}
+};
+PageIntro.prototype.onContinue = function(event) {
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.listeners.continue = null;
+
+	// Stop Player
+	if(this.playerComponent !== undefined){
+		this.playerComponent.stop();
+	}
+
+	this.dispatchEvent(new createjs.Event('continue'));
+
+	this.destroy();
+};
+PageIntro.prototype.onComplete = function(event) {
+	this.playerComponent.off('complete', this.listeners.complete);	
+	this.listeners.complete = null;
+
+	// Set next button active
+	this.continueBtn.activate("next");
+};
+PageIntro.prototype.destroy = function() {
+	if(this.playerComponent != null){
+		this.playerComponent.destroy();	
+	}
+	this.playerComponent = null;
+	this.view = null;
+	this.lib = null;
+};
+createjs.EventDispatcher.initialize(PageIntro.prototype);
+var PageCard = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.continueBtn = ContinueButton;
+	this.continueBtn.activate("next");	
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+};
+PageCard.prototype.start = function() {
+	var frm;
+
+	// Set portrait an real name
+	frm = PlayerStats.challenge + PlayerStats.family;
+	this.view.portrait.gotoAndStop(frm);
+	this.view.realname.gotoAndStop(frm);
+
+	// Set nickname
+	frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
+	this.view.nickname.gotoAndStop(frm);
+
+	// Set challenge
+	frm = PlayerStats.challenge;
+	this.view.challenge.gotoAndStop(frm);	
+
+	// Set family, kids
+	frm = PlayerStats.family;
+	this.view.family.gotoAndStop(frm);
+	this.view.kids.gotoAndStop(frm);
+};
+PageCard.prototype.onContinue = function(event) {
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.dispatchEvent(new createjs.Event('continue'));
+};
+PageCard.prototype.destroy = function() {
+	this.view = null;	
+};
+createjs.EventDispatcher.initialize(PageCard.prototype);
 var Topbar = {
 	view: null,
 	soundController: null,
@@ -2680,6 +2947,12 @@ var Topbar = {
 	},
 	pointsUpdate: function(){
 		HUDController.update();
+	},
+	show: function(){
+		this.view.visible = true;
+	},
+	hide: function(){
+		this.view.visible = false;	
 	}
 }
 'use strict';
@@ -3046,7 +3319,8 @@ SoundService.properties = {
 };
 SoundService.matrix = {
 	effects: {
-		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 }
+		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', duration: null },
+		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3', duration: null }
 	},
 	'1.1.1' :{
 		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
@@ -3086,7 +3360,7 @@ SoundService.matrix = {
 	},
 	slides: {
 				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
-				'slide_1_0_1_svendborg': { src:SoundService.properties.basePath+'_101_ankomst.mp3', duration: 67.341 },
+				'slide_1_0_1_svendborg': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
 				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
 				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
 				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3', duration: 61.208 },
@@ -3214,6 +3488,20 @@ var PlayerStats = {
 		}
 	}
 }
+var Library = {
+	clearSlide: function(){
+		console.log('clearSlide');
+		slidelib = null;
+	},
+	clearGame: function(){
+		console.log('clearGame');
+		gamelib = null;
+	},
+	clearMain: function(){
+		console.log('clearMain');
+		mainlib = null;
+	},
+}
 var FlowData ={
 	
 }
@@ -3251,6 +3539,9 @@ var FlowManager = {
 		'use strict';
 		this.root = root;
 	},
+	clearLib: function(){
+		lib = null;
+	},
 	gotoPage: function(page){
 		'use strict';
 		if(this.currentPage !== null){
@@ -3261,150 +3552,73 @@ var FlowManager = {
 		this.root.gotoAndStop('character_build'); // TEST
 		switch(page){
 			case '0.0':
+				// Proluque
+
 				// Tick.disable();
+
+				var self = this;
 
 				// Go to start frame
 				this.root.gotoAndStop('start');
-				this.currentPage = new PageStart(this.root.pageStart);
+				this.currentPage = new FlowProloque(this.root.startpagecontainer);
 				this.currentPage.start(); 
 
+				Topbar.hide();
+
+				// Blocker
+				FlowProloque.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
 				// Button to next page
-				this.currentPage.on('continue', function(event){
+				FlowProloque.on('continue', function(event){
 					event.remove();
-					self.gotoPage('0.1');					
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('1.0');
 				}, this);				
 				// Tick.disable();	
 				
 			break;
-			case '0.1':
-				// Tick.enable();
-				this.root.gotoAndStop('character_build');				
-				this.root.page_intro.x = 0;				
-				this.currentPage = new PageIntro(this.root.page_intro, 'intro'); 
-				// this.currentPage.on('ready', function(event){
-				// 	event.remove();
-				// 	// Tick.disable();
-				// })
-				this.currentPage.start(); 
-
-				// Topbar
-				Topbar.go('intro');
-
-				// Button to next page
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					self.gotoPage('0.2');
-				}, this);				
-			break;
-			case '0.2':				
-				// Tick.enable();
-				// this.root.gotoAndStop('character');
-				this.root.page_intro.x = 1024;
-				this.root.page_character.x = 0;
-				this.currentPage = new FlowCharacter(this.root.page_character); // Id references to flow id '0.1'
-				this.currentPage.start(); 
-
+			case '1.0':	
+				// Poor House		
 				
-				// createjs.Tween.get(this.root.page_character)
-				// 	.to({x:0}, 300, createjs.Ease.linear);
-
-				// Topbar
-				Topbar.go('character');
-
-				// Button to next page
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					self.gotoPage('0.3');
-				}, this);
-				// Tick.disable();
-			break;
-			case '0.3':
-				Tick.framerate(15);
-				TweenUtil.to(this.root.page_character, {x:-1024}, 300, Delegate.create(function(){
-					Tick.framerate(8);
-				}, this));
-
-				this.currentPage = new PageCard(this.root.page_card); // Id references to flow id '0.1'
-				this.currentPage.start(); 
-
-				this.root.page_card.x = 0;
-				// createjs.Tween.get(this.root.page_card)
-				// 		.to({x:0}, 300, createjs.Ease.linear);
-
-				// Button to next page
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					self.gotoPage('0.4');
-				}, this);
-				// Tick.disable();
-			break;
-			case '0.4':
-				Tick.framerate(15);
-				TweenUtil.to(this.root.page_card, {x:-1024}, 300, Delegate.create(function(){
-					Tick.framerate(8);
-				}, this));		
-
-				this.currentPage = new PageOpinion(this.root.page_opinion); // Id references to flow id '0.1'
-				this.currentPage.start(); 
-
-				this.root.page_opinion.x = 0;
-
-				// createjs.Tween.get(this.root.page_opinion)
-				// 		.to({x:0}, 300, createjs.Ease.linear);
-
-				// Button to next page
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					self.gotoPage('0.5');
-				}, this);
-				// Tick.disable();
-			break;
-			case '0.5':
-				Tick.framerate(15);
-				TweenUtil.to(this.root.page_opinion, {x:-1024}, 300, Delegate.create(function(){
-					//Tick.framerate(8);
-				}, this));				
-
-				this.currentPage = new PageMap(this.root.page_map); // Id references to flow id '0.1'
-				this.currentPage.start(); 
-
-				this.root.page_map.x = 0;
-
-				// Button to next page
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					// From here it a spereate flow related to chosen poorhouse New page LOADS new content
-					self.gotoPage('1.0');
-				}, this);
-				// Tick.disable();
-			break;
-			case '1.0':				
-				this.root.page_map.x = -1024;
-
-				// Root frame
-				this.root.gotoAndStop('poorhouse');
+				this.root.gotoAndStop('start');
 
 				// Topbar
 				Topbar.go('game');
 
-				this.currentPage = new FlowPoorhouse(this.root.poorhouse_container); // Id references to flow id '0.1'
+				this.currentPage = null;
+				this.currentPage = new FlowPoorhouse(this.root.pagecontainer); // Id references to flow id '0.1'
 				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
 
 				// Button to next page/flow
 				this.currentPage.on('continue', function(event){
 					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
 					self.gotoPage('2.5');
 				}, this);
 				// Tick.disable();
 			break;
 			case '2.5':
+				// Germany 1.
+
 				// Root frame
 				this.root.gotoAndStop('germany');
 
 				// Topbar
 				Topbar.go('game');
 
-				this.currentPage = new FlowGermany1(this.root.germany_container); 
+				this.currentPage = new FlowGermany1(this.root.pagecontainer); 
 				this.currentPage.start(); 				
 				// Tick.disable();
 			break;
@@ -3448,12 +3662,12 @@ var ApplicationManager = {
   //        .to({alpha: 0}, 600, createjs.Ease.linear)
   //        .call(function(){
   //        	root.blocker_black.visible = false;
-  //        });
-         root.blocker_black.visible = false;
+  //        });         
+
 
 		// Go to start
-		FlowManager.gotoPage('0.0');
-		// FlowManager.gotoPage('0.5');
+		// FlowManager.gotoPage('0.0');
+		FlowManager.gotoPage('1.0');
 		// FlowManager.gotoPage('2.5');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
@@ -4174,44 +4388,6 @@ lib.properties = {
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../assets/images/main/_0_0Frontpage.jpg", id:"_0_0Frontpage"},
-		{src:"../assets/images/main/_0_1BG.jpg", id:"_0_1BG"},
-		{src:"../assets/images/main/_0_2BG.jpg", id:"_0_2BG"},
-		{src:"../assets/images/main/_0_3BG.jpg", id:"_0_3BG"},
-		{src:"../assets/images/main/_0_4BG.jpg", id:"_0_4BG"},
-		{src:"../assets/images/main/_0_5_1_close_bt.png", id:"_0_5_1_close_bt"},
-		{src:"../assets/images/main/_0_5_infobt.png", id:"_0_5_infobt"},
-		{src:"../assets/images/main/_0_5BG.jpg", id:"_0_5BG"},
-		{src:"../assets/images/main/_1_0BGhorsens.jpg", id:"_1_0BGhorsens"},
-		{src:"../assets/images/main/_1_0BGsundholm.jpg", id:"_1_0BGsundholm"},
-		{src:"../assets/images/main/_1_0BGsvendborg.jpg", id:"_1_0BGsvendborg"},
-		{src:"../assets/images/main/ADCloseUp.png", id:"ADCloseUp"},
-		{src:"../assets/images/main/AECloseUp.png", id:"AECloseUp"},
-		{src:"../assets/images/main/AFCloseUp.png", id:"AFCloseUp"},
-		{src:"../assets/images/main/BDCloseUp.png", id:"BDCloseUp"},
-		{src:"../assets/images/main/BECloseUp.png", id:"BECloseUp"},
-		{src:"../assets/images/main/BFCloseUp.png", id:"BFCloseUp"},
-		{src:"../assets/images/main/CDCloseUp.png", id:"CDCloseUp"},
-		{src:"../assets/images/main/CECloseUp.png", id:"CECloseUp"},
-		{src:"../assets/images/main/CFCloseUp.png", id:"CFCloseUp"},
-		{src:"../assets/images/main/CharacterCardChallenge0001.png", id:"CharacterCardChallenge0001"},
-		{src:"../assets/images/main/CharacterCardChallenge0002.png", id:"CharacterCardChallenge0002"},
-		{src:"../assets/images/main/CharacterCardChallenge0003.png", id:"CharacterCardChallenge0003"},
-		{src:"../assets/images/main/CharacterCardChildren0001.png", id:"CharacterCardChildren0001"},
-		{src:"../assets/images/main/CharacterCardChildren0002.png", id:"CharacterCardChildren0002"},
-		{src:"../assets/images/main/CharacterCardFamily0001.png", id:"CharacterCardFamily0001"},
-		{src:"../assets/images/main/CharacterCardFamily0002.png", id:"CharacterCardFamily0002"},
-		{src:"../assets/images/main/CharacterCardFamily0003.png", id:"CharacterCardFamily0003"},
-		{src:"../assets/images/main/CharacterCardlabelspng.png", id:"CharacterCardlabelspng"},
-		{src:"../assets/images/main/CharacterCardName0001.png", id:"CharacterCardName0001"},
-		{src:"../assets/images/main/CharacterCardName0002.png", id:"CharacterCardName0002"},
-		{src:"../assets/images/main/CharacterCardName0003.png", id:"CharacterCardName0003"},
-		{src:"../assets/images/main/CharacterCardName0004.png", id:"CharacterCardName0004"},
-		{src:"../assets/images/main/CharacterCardName0005.png", id:"CharacterCardName0005"},
-		{src:"../assets/images/main/CharacterCardName0006.png", id:"CharacterCardName0006"},
-		{src:"../assets/images/main/CharacterCardName0007.png", id:"CharacterCardName0007"},
-		{src:"../assets/images/main/CharacterCardName0008.png", id:"CharacterCardName0008"},
-		{src:"../assets/images/main/CharacterCardName0009.png", id:"CharacterCardName0009"},
 		{src:"../assets/images/main/CharacterCardNickame0001.png", id:"CharacterCardNickame0001"},
 		{src:"../assets/images/main/CharacterCardNickame0002.png", id:"CharacterCardNickame0002"},
 		{src:"../assets/images/main/CharacterCardNickame0003.png", id:"CharacterCardNickame0003"},
@@ -4239,26 +4415,7 @@ lib.properties = {
 		{src:"../assets/images/main/p7.png", id:"p7"},
 		{src:"../assets/images/main/p8.png", id:"p8"},
 		{src:"../assets/images/main/p9.png", id:"p9"},
-		{src:"../assets/images/main/Page04CharacterText0001.png", id:"Page04CharacterText0001"},
-		{src:"../assets/images/main/Page04CharacterText0002.png", id:"Page04CharacterText0002"},
-		{src:"../assets/images/main/Page04CharacterText0003.png", id:"Page04CharacterText0003"},
-		{src:"../assets/images/main/Page04CharacterText0004.png", id:"Page04CharacterText0004"},
-		{src:"../assets/images/main/Page04CharacterText0005.png", id:"Page04CharacterText0005"},
-		{src:"../assets/images/main/Page04CharacterText0006.png", id:"Page04CharacterText0006"},
-		{src:"../assets/images/main/Page04CharacterText0007.png", id:"Page04CharacterText0007"},
-		{src:"../assets/images/main/Page04CharacterText0008.png", id:"Page04CharacterText0008"},
-		{src:"../assets/images/main/Page04CharacterText0009.png", id:"Page04CharacterText0009"},
-		{src:"../assets/images/main/PersonCardAD.png", id:"PersonCardAD"},
-		{src:"../assets/images/main/PersonCardAE.png", id:"PersonCardAE"},
-		{src:"../assets/images/main/PersonCardAF.png", id:"PersonCardAF"},
-		{src:"../assets/images/main/PersonCardBD.png", id:"PersonCardBD"},
-		{src:"../assets/images/main/PersonCardBE.png", id:"PersonCardBE"},
-		{src:"../assets/images/main/PersonCardBF.png", id:"PersonCardBF"},
-		{src:"../assets/images/main/PersonCardCD.png", id:"PersonCardCD"},
-		{src:"../assets/images/main/PersonCardCE.png", id:"PersonCardCE"},
-		{src:"../assets/images/main/PersonCardCF.png", id:"PersonCardCF"},
 		{src:"../assets/images/main/PointBG.png", id:"PointBG"},
-		{src:"../assets/images/main/tekst_bg_sort.png", id:"tekst_bg_sort"},
 		{src:"../assets/images/main/TopBG.jpg", id:"TopBG"},
 		{src:"../assets/images/main/TopCard.png", id:"TopCard"}
 	]
@@ -4268,234 +4425,6 @@ lib.properties = {
 
 // symbols:
 
-
-
-(lib._0_0Frontpage = function() {
-	this.initialize(img._0_0Frontpage);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
-
-
-(lib._0_1BG = function() {
-	this.initialize(img._0_1BG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._0_2BG = function() {
-	this.initialize(img._0_2BG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._0_3BG = function() {
-	this.initialize(img._0_3BG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._0_4BG = function() {
-	this.initialize(img._0_4BG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._0_5_1_close_bt = function() {
-	this.initialize(img._0_5_1_close_bt);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,37,37);
-
-
-(lib._0_5_infobt = function() {
-	this.initialize(img._0_5_infobt);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,35,35);
-
-
-(lib._0_5BG = function() {
-	this.initialize(img._0_5BG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._1_0BGhorsens = function() {
-	this.initialize(img._1_0BGhorsens);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._1_0BGsundholm = function() {
-	this.initialize(img._1_0BGsundholm);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._1_0BGsvendborg = function() {
-	this.initialize(img._1_0BGsvendborg);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib.ADCloseUp = function() {
-	this.initialize(img.ADCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.AECloseUp = function() {
-	this.initialize(img.AECloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.AFCloseUp = function() {
-	this.initialize(img.AFCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.BDCloseUp = function() {
-	this.initialize(img.BDCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.BECloseUp = function() {
-	this.initialize(img.BECloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.BFCloseUp = function() {
-	this.initialize(img.BFCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.CDCloseUp = function() {
-	this.initialize(img.CDCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.CECloseUp = function() {
-	this.initialize(img.CECloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.CFCloseUp = function() {
-	this.initialize(img.CFCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.CharacterCardChallenge0001 = function() {
-	this.initialize(img.CharacterCardChallenge0001);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,195,34);
-
-
-(lib.CharacterCardChallenge0002 = function() {
-	this.initialize(img.CharacterCardChallenge0002);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,195,34);
-
-
-(lib.CharacterCardChallenge0003 = function() {
-	this.initialize(img.CharacterCardChallenge0003);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,195,34);
-
-
-(lib.CharacterCardChildren0001 = function() {
-	this.initialize(img.CharacterCardChildren0001);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,36,22);
-
-
-(lib.CharacterCardChildren0002 = function() {
-	this.initialize(img.CharacterCardChildren0002);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,36,22);
-
-
-(lib.CharacterCardFamily0001 = function() {
-	this.initialize(img.CharacterCardFamily0001);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,107,22);
-
-
-(lib.CharacterCardFamily0002 = function() {
-	this.initialize(img.CharacterCardFamily0002);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,107,22);
-
-
-(lib.CharacterCardFamily0003 = function() {
-	this.initialize(img.CharacterCardFamily0003);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,107,22);
-
-
-(lib.CharacterCardlabelspng = function() {
-	this.initialize(img.CharacterCardlabelspng);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,122,105);
-
-
-(lib.CharacterCardName0001 = function() {
-	this.initialize(img.CharacterCardName0001);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0002 = function() {
-	this.initialize(img.CharacterCardName0002);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0003 = function() {
-	this.initialize(img.CharacterCardName0003);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0004 = function() {
-	this.initialize(img.CharacterCardName0004);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0005 = function() {
-	this.initialize(img.CharacterCardName0005);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0006 = function() {
-	this.initialize(img.CharacterCardName0006);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0007 = function() {
-	this.initialize(img.CharacterCardName0007);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0008 = function() {
-	this.initialize(img.CharacterCardName0008);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0009 = function() {
-	this.initialize(img.CharacterCardName0009);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
 
 
 (lib.CharacterCardNickame0001 = function() {
@@ -4660,124 +4589,10 @@ p.nominalBounds = new cjs.Rectangle(0,0,6,26);
 p.nominalBounds = new cjs.Rectangle(0,0,6,26);
 
 
-(lib.Page04CharacterText0001 = function() {
-	this.initialize(img.Page04CharacterText0001);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,602,214);
-
-
-(lib.Page04CharacterText0002 = function() {
-	this.initialize(img.Page04CharacterText0002);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,602,214);
-
-
-(lib.Page04CharacterText0003 = function() {
-	this.initialize(img.Page04CharacterText0003);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,602,214);
-
-
-(lib.Page04CharacterText0004 = function() {
-	this.initialize(img.Page04CharacterText0004);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,602,214);
-
-
-(lib.Page04CharacterText0005 = function() {
-	this.initialize(img.Page04CharacterText0005);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,602,214);
-
-
-(lib.Page04CharacterText0006 = function() {
-	this.initialize(img.Page04CharacterText0006);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,602,214);
-
-
-(lib.Page04CharacterText0007 = function() {
-	this.initialize(img.Page04CharacterText0007);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,602,214);
-
-
-(lib.Page04CharacterText0008 = function() {
-	this.initialize(img.Page04CharacterText0008);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,602,214);
-
-
-(lib.Page04CharacterText0009 = function() {
-	this.initialize(img.Page04CharacterText0009);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,602,214);
-
-
-(lib.PersonCardAD = function() {
-	this.initialize(img.PersonCardAD);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,326,426);
-
-
-(lib.PersonCardAE = function() {
-	this.initialize(img.PersonCardAE);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,326,426);
-
-
-(lib.PersonCardAF = function() {
-	this.initialize(img.PersonCardAF);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,326,426);
-
-
-(lib.PersonCardBD = function() {
-	this.initialize(img.PersonCardBD);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,326,426);
-
-
-(lib.PersonCardBE = function() {
-	this.initialize(img.PersonCardBE);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,326,426);
-
-
-(lib.PersonCardBF = function() {
-	this.initialize(img.PersonCardBF);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,326,426);
-
-
-(lib.PersonCardCD = function() {
-	this.initialize(img.PersonCardCD);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,326,426);
-
-
-(lib.PersonCardCE = function() {
-	this.initialize(img.PersonCardCE);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,326,426);
-
-
-(lib.PersonCardCF = function() {
-	this.initialize(img.PersonCardCF);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,326,426);
-
-
 (lib.PointBG = function() {
 	this.initialize(img.PointBG);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,177,50);
-
-
-(lib.tekst_bg_sort = function() {
-	this.initialize(img.tekst_bg_sort);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 
 
 (lib.TopBG = function() {
@@ -4925,87 +4740,11 @@ p.nominalBounds = new cjs.Rectangle(0,0,165,108);
 p.nominalBounds = new cjs.Rectangle(0,0,177,50);
 
 
-(lib.ProgressionBar = function() {
+(lib.PageContainerEmpty = function() {
 	this.initialize();
 
-	// Layer 1
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#FFFFFF").s().p("Egl4AAxIAAhiMBLxAAAIAABig");
-	this.shape.setTransform(242.5,5);
-
-	this.addChild(this.shape);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,485,10);
-
-
-(lib.Playerlabels = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"AD":0,"AE":1,"AF":2,"BD":3,"BE":4,"BF":5,"CD":6,"CE":7,"CF":8});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(25));
-
-	// Layer 1
-	this.text = new cjs.Text("???", "37px 'BigNoodleTitling'", "#B9961D");
-	this.text.lineHeight = 39;
-	this.text.lineWidth = 459;
-
-	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Din voksne datter"},0).wait(1).to({text:"???"},0).wait(2).to({text:"Din voksne datter"},0).wait(1).to({text:"???"},0).wait(2).to({text:"Din voksne datter"},0).wait(1).to({text:"???"},0).wait(17));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,462.8,43.9);
-
-
-(lib.OpenionCloseups = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"AD":0,"AE":1,"AF":2,"BD":3,"BE":4,"BF":5,"CD":6,"CE":7,"CF":8});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(9));
-
-	// Content
-	this.instance = new lib.ADCloseUp();
-
-	this.instance_1 = new lib.AECloseUp();
-
-	this.instance_2 = new lib.AFCloseUp();
-
-	this.instance_3 = new lib.BDCloseUp();
-
-	this.instance_4 = new lib.BECloseUp();
-
-	this.instance_5 = new lib.BFCloseUp();
-
-	this.instance_6 = new lib.CDCloseUp();
-
-	this.instance_7 = new lib.CECloseUp();
-
-	this.instance_8 = new lib.CFCloseUp();
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).to({state:[{t:this.instance_4}]},1).to({state:[{t:this.instance_5}]},1).to({state:[{t:this.instance_6}]},1).to({state:[{t:this.instance_7}]},1).to({state:[{t:this.instance_8}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.InfoButton = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.instance = new lib._0_5_infobt();
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(4));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,35,35);
+p.nominalBounds = null;
 
 
 (lib.SkipButton = function(mode,startPosition,loop) {
@@ -5080,101 +4819,6 @@ p.nominalBounds = new cjs.Rectangle(15,15,64,64);
 p.nominalBounds = new cjs.Rectangle(0,0,94,94);
 
 
-(lib.Page04CharacterText = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"AD":0,"AE":1,"AF":2,"BD":3,"BE":4,"BF":5,"CD":6,"CE":7,"CF":8});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(9));
-
-	// Text png
-	this.instance = new lib.Page04CharacterText0001();
-	this.instance.setTransform(1.5,1.5);
-
-	this.instance_1 = new lib.Page04CharacterText0002();
-	this.instance_1.setTransform(1.5,1.5);
-
-	this.instance_2 = new lib.Page04CharacterText0003();
-	this.instance_2.setTransform(1.5,1.5);
-
-	this.instance_3 = new lib.Page04CharacterText0004();
-	this.instance_3.setTransform(1.5,1.5);
-
-	this.instance_4 = new lib.Page04CharacterText0005();
-	this.instance_4.setTransform(1.5,1.5);
-
-	this.instance_5 = new lib.Page04CharacterText0006();
-	this.instance_5.setTransform(1.5,1.5);
-
-	this.instance_6 = new lib.Page04CharacterText0007();
-	this.instance_6.setTransform(1.5,1.5);
-
-	this.instance_7 = new lib.Page04CharacterText0008();
-	this.instance_7.setTransform(1.5,1.5);
-
-	this.instance_8 = new lib.Page04CharacterText0009();
-	this.instance_8.setTransform(1.5,1.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).to({state:[{t:this.instance_4}]},1).to({state:[{t:this.instance_5}]},1).to({state:[{t:this.instance_6}]},1).to({state:[{t:this.instance_7}]},1).to({state:[{t:this.instance_8}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,603.5,262);
-
-
-(lib.CharacterIntro = function() {
-	this.initialize();
-
-	// Layer 2
-	this.text = new cjs.Text("Du bliver nu indlagt og indespærret på en\nfattiggård et sted i Danmark på et tidspunkt i\nåret 1940. Du stilles over for - og skal tage stilling til de samme dilemmaer som en række\nfattige og udsatte danskere stod over for under\n2. verdenskrig og dermed tage del i deres\nhistorie. Du skal vælge mellem fattiggård eller fjendeland.\n\nMen først skal du være med til at bestemme,\nhvem du er…", "24px 'Special Elite'", "#D9D1B4");
-	this.text.lineHeight = 26;
-	this.text.lineWidth = 594;
-	this.text.setTransform(212,132);
-
-	this.addChild(this.text);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,132,597.6,392.8);
-
-
-(lib.CharacterCardPortrait = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"AD":0,"AE":1,"AF":2,"BD":3,"BE":4,"BF":5,"CD":6,"CE":7,"CF":8});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(15));
-
-	// Layer 1
-	this.instance = new lib.PersonCardAD();
-
-	this.instance_1 = new lib.PersonCardAE();
-
-	this.instance_2 = new lib.PersonCardAF();
-
-	this.instance_3 = new lib.PersonCardBD();
-
-	this.instance_4 = new lib.PersonCardBE();
-
-	this.instance_5 = new lib.PersonCardBF();
-
-	this.instance_6 = new lib.PersonCardCD();
-
-	this.instance_7 = new lib.PersonCardCE();
-
-	this.instance_8 = new lib.PersonCardCF();
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).to({state:[{t:this.instance_4}]},1).to({state:[{t:this.instance_5}]},1).to({state:[{t:this.instance_6}]},1).to({state:[{t:this.instance_7}]},1).to({state:[{t:this.instance_8}]},1).wait(7));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,326,426);
-
-
 (lib.CharacterCardNickame = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{});
 
@@ -5211,187 +4855,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,326,426);
 p.nominalBounds = new cjs.Rectangle(3.5,0.6,212.3,28.1);
 
 
-(lib.CharacterCardName = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"AD":0,"AE":1,"AF":2,"BD":3,"BE":4,"BF":5,"CD":6,"CE":7,"CF":8});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(14));
-
-	// Nickname png
-	this.instance = new lib.CharacterCardName0001();
-	this.instance.setTransform(2,1.5);
-
-	this.instance_1 = new lib.CharacterCardName0002();
-	this.instance_1.setTransform(2,1.5);
-
-	this.instance_2 = new lib.CharacterCardName0003();
-	this.instance_2.setTransform(2,1.5);
-
-	this.instance_3 = new lib.CharacterCardName0004();
-	this.instance_3.setTransform(2,1.5);
-
-	this.instance_4 = new lib.CharacterCardName0005();
-	this.instance_4.setTransform(2,1.5);
-
-	this.instance_5 = new lib.CharacterCardName0006();
-	this.instance_5.setTransform(2,1.5);
-
-	this.instance_6 = new lib.CharacterCardName0007();
-	this.instance_6.setTransform(2,1.5);
-
-	this.instance_7 = new lib.CharacterCardName0008();
-	this.instance_7.setTransform(2,1.5);
-
-	this.instance_8 = new lib.CharacterCardName0009();
-	this.instance_8.setTransform(2,1.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).to({state:[{t:this.instance_4}]},1).to({state:[{t:this.instance_5}]},1).to({state:[{t:this.instance_6}]},1).to({state:[{t:this.instance_7}]},1).to({state:[{t:this.instance_8}]},1).to({state:[]},1).wait(5));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(2,1.5,188,19);
-
-
-(lib.CharacterCardFamily = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{D:0,E:1,F:2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
-
-	// Text png
-	this.instance = new lib.CharacterCardFamily0001();
-	this.instance.setTransform(2.9,2.6);
-
-	this.instance_1 = new lib.CharacterCardFamily0002();
-	this.instance_1.setTransform(2.9,2.6);
-
-	this.instance_2 = new lib.CharacterCardFamily0003();
-	this.instance_2.setTransform(2.9,2.6);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(2.9,2,107,22.6);
-
-
-(lib.CharacterCardChildren = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"D":0,"E":1,"F":2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
-
-	// Text png
-	this.instance = new lib.CharacterCardChildren0001();
-	this.instance.setTransform(2.3,2.4);
-
-	this.instance_1 = new lib.CharacterCardChildren0002();
-	this.instance_1.setTransform(2.3,2.4);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(2.3,2.1,36.1,22.5);
-
-
-(lib.CharacterCardChallenge = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{A:0,B:1,C:2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
-
-	// Text png
-	this.instance = new lib.CharacterCardChallenge0001();
-	this.instance.setTransform(-1.9,0.5);
-
-	this.instance_1 = new lib.CharacterCardChallenge0002();
-	this.instance_1.setTransform(-1.9,0.5);
-
-	this.instance_2 = new lib.CharacterCardChallenge0003();
-	this.instance_2.setTransform(-1.9,0.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(-2.3,0,195.5,34.5);
-
-
-(lib._00Frontpage = function() {
-	this.initialize();
-
-	// Layer 1
-	this.instance = new lib._0_0Frontpage();
-
-	this.addChild(this.instance);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
-
-
-(lib.EmptyContainerGrey = function() {
-	this.initialize();
-
-	// Layer 1
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#333333").s().p("EgtTAfkMAAAg/HMBamAAAMAAAA/Hg");
-	this.shape.setTransform(290,202);
-
-	this.addChild(this.shape);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,580,404);
-
-
-(lib.EmptyContainer = function() {
-	this.initialize();
-
-}).prototype = p = new cjs.Container();
-p.nominalBounds = null;
-
-
-(lib.CloseButton = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.instance = new lib._0_5_1_close_bt();
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(4));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,37,37);
-
-
-(lib.BlockerButton = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#555555").s().p("Aj5D6IAAnzIHzAAIAAHzg");
-	this.shape.setTransform(25,25);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(3).to({_off:false},0).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = null;
-
-
 (lib.BlockerBLACK = function() {
 	this.initialize();
 
@@ -5403,17 +4866,6 @@ p.nominalBounds = null;
 	this.addChild(this.shape);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,120,120);
-
-
-(lib.BlackTextBG = function() {
-	this.initialize();
-
-	// Layer 1
-	this.instance = new lib.tekst_bg_sort();
-
-	this.addChild(this.instance);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 
 
 (lib.PointsMood = function() {
@@ -5467,583 +4919,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,177,50);
 p.nominalBounds = new cjs.Rectangle(0,0,177,50);
 
 
-(lib.InfoPopup = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
-
-	// Close Button
-	this.closebutton = new lib.CloseButton();
-	this.closebutton.setTransform(995.5,28.5,1,1,0,0,0,18.5,18.5);
-	new cjs.ButtonHelper(this.closebutton, 0, 1, 2, false, new lib.CloseButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.closebutton).wait(3));
-
-	// Text
-	this.text = new cjs.Text("Horsens Forsørgelsesanstalt er en fattiganstalt med plads til i alt 74\npersoner, 52 mænd og 22 kvinder. Mænd og kvinder holdes adskilt. Horsens\nForsørgelsesanstalt består af en arbejdsafdeling en forsørgelsesafdeling\nog en sygeafdeling. Arbejdsdygtige individer, alkoholister og forsømmelige\nforsørgere bliver indlagt på arbejdsafdelingen. Der er mure langs anstaltens\ngårdarealer. Anstaltens chef er Forvalteren, det er ham, der bestemmer over\nde indlagte og har det overordnede ansvar for, at stedets regler bliver\noverholdt. Opsynsmændene er forvalterens forlængede arm. ", "28px 'BigNoodleTitling'", "#B9961D");
-	this.text.lineHeight = 30;
-	this.text.lineWidth = 724;
-	this.text.setTransform(219,135.3);
-
-	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Sundholm er en kæmpe stor fattiganstalt på Amager med plads til op mod\n750 indlagte. Mænd og kvinder holdes adskilt. Sundholm består af en\narbejdsanstalt, en forsørgelsesanstalt og en tvangsarbejdsanstalt. \nArbejdsdygtige individer bliver indlagt på arbejdsanstalten eller tvangs-\narbejdsanstalten, da man mener, at de selv bærer hovedansvaret for deres \nfattigdom. Rundt om Sundholm har man gravet en fire meter dyb voldgrav.\nPå kanten af voldgraven står et to meter højt pigtrådshegn. Pigtrådshegnet\ner ca. 1400 meter langt. Anstaltens chef er Forvalteren, det er ham, der\nbestemmer over de indlagte og har det overordnede ansvar for, at stedets\nregler bliver overholdt. Opsynsmændene er forvalterens forlængede arm. ",lineWidth:781},0).wait(1).to({text:"Svendborg Fattiggård er en anstalt med plads til 51 indlagte. Svendborg \nfattiggård indeholder en arbejdsafdeling, en forsørgelsesafdeling og en \nsygeafdeling. Mænd og kvinder holdes adskilt. Arbejdsdygtige individer \nbliver indlagt på arbejdsafdelingen, da man mener, at de er dovne og \narbejdssky, og derfor selv bærer hovedansvaret for deres fattigdom. \nLangs fattiggårdens bygninger er der høje mure med pigtråd på toppen. \nAnstaltens chef er Forvalteren, det er ham, der bestemmer over de indlagte \nog har det overordnede ansvar for, at stedets regler bliver overholdt.",lineWidth:724},0).wait(1));
-
-	// Text BG
-	this.instance = new lib.BlackTextBG("synched",0);
-	this.instance.setTransform(164,108,1.039,1,0,0,0,-0.4,0.1);
-	this.instance.alpha = 0.391;
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(1).to({scaleX:1.02,scaleY:1.11},0).wait(1).to({scaleX:1.01,scaleY:0.97},0).wait(1));
-
-	// BG
-	this.instance_1 = new lib._1_0BGhorsens();
-
-	this.instance_2 = new lib._1_0BGsundholm();
-
-	this.instance_3 = new lib._1_0BGsvendborg();
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance_1}]}).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib.CheckBoxsmall = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{inactive:0,active:9});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(20));
-
-	// Hitarea
-	this.instance = new lib.BlockerButton();
-	this.instance.setTransform(0,0,3.8,0.999);
-	new cjs.ButtonHelper(this.instance, 0, 1, 2, false, new lib.BlockerButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(20));
-
-	// Checked
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#FFFFFF").s().p("AhtBjQg0g6gWgQQADgLAIgJIAHgFQAQABAnAdIAsAfQAyhXA/g/QBAg9BJggQhWBYhFCGQghBFghBKQgggogogsg");
-	this.shape.setTransform(25.5,24.2);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(9).to({_off:false},0).wait(11));
-
-	// BG
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f().s("#F1EBDD").ss(3,2,0,3).p("AjvjvIHfAAIAAHfInfAAg");
-	this.shape_1.setTransform(24,24);
-
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f("#B9961D").s().p("AjvDvIAAneIHeAAIAAHeg");
-	this.shape_2.setTransform(24,24);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_1}]}).to({state:[{t:this.shape_2},{t:this.shape_1}]},9).wait(11));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,191.5,51.5);
-
-
-(lib.CheckBoxshort = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"inactive":0,"active":9});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(20));
-
-	// Hitarea
-	this.instance = new lib.BlockerButton();
-	this.instance.setTransform(0,0,5.9,1.2);
-	new cjs.ButtonHelper(this.instance, 0, 1, 2, false, new lib.BlockerButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(20));
-
-	// Checked
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#FFFFFF").s().p("Ah5BuQg7hAgXgTQADgLAJgKIAIgHQAQACAtAgIAwAjQA4hhBGhGQBHhEBRgjQhfBhhNCVQglBNgkBSQgkgrgsgyg");
-	this.shape.setTransform(30,30.9);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(9).to({_off:false},0).wait(11));
-
-	// BG
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f().s("#F1EBDD").ss(3,2,0,3).p("AkhkhIJDAAIAAJDIpDAAg");
-	this.shape_1.setTransform(29,29);
-
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f("#B9961D").s().p("AkhEhIAApCIJCAAIAAJCg");
-	this.shape_2.setTransform(29,29);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_1}]}).to({state:[{t:this.shape_2},{t:this.shape_1}]},9).wait(11));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,296.5,61.5);
-
-
-(lib.CheckBox = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"inactive":0,"active":9});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(20));
-
-	// Hitarea
-	this.instance = new lib.BlockerButton();
-	this.instance.setTransform(0,0,8.398,1.2);
-	new cjs.ButtonHelper(this.instance, 0, 1, 2, false, new lib.BlockerButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(20));
-
-	// Checked
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#FFFFFF").s().p("Ah5BuQg7hAgXgTQADgLAJgKIAIgHQAQACAtAgIAwAjQA4hhBGhGQBHhEBRgjQhfBhhNCVQglBNgkBSQgkgrgsgyg");
-	this.shape.setTransform(30,30.9);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(9).to({_off:false},0).wait(11));
-
-	// BG
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f().s("#F1EBDD").ss(3,2,0,3).p("AkhkhIJDAAIAAJDIpDAAg");
-	this.shape_1.setTransform(29,29);
-
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f("#B9961D").s().p("AkhEhIAApCIJCAAIAAJCg");
-	this.shape_2.setTransform(29,29);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_1}]}).to({state:[{t:this.shape_2},{t:this.shape_1}]},9).wait(11));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,421.4,61.5);
-
-
-(lib._05Map = function() {
-	this.initialize();
-
-	// Info Popup
-	this.infopopup = new lib.InfoPopup();
-	this.infopopup.setTransform(1024,0);
-
-	// Info Buttons
-	this.info3 = new lib.InfoButton();
-	this.info3.setTransform(672,433.5);
-	new cjs.ButtonHelper(this.info3, 0, 1, 2, false, new lib.InfoButton(), 3);
-
-	this.info2 = new lib.InfoButton();
-	this.info2.setTransform(843,342.5);
-	new cjs.ButtonHelper(this.info2, 0, 1, 2, false, new lib.InfoButton(), 3);
-
-	this.info1 = new lib.InfoButton();
-	this.info1.setTransform(578,306);
-	new cjs.ButtonHelper(this.info1, 0, 1, 2, false, new lib.InfoButton(), 3);
-
-	// Checkboxes
-	this.checkbox3 = new lib.CheckBoxsmall();
-	this.checkbox3.setTransform(481.6,425);
-
-	this.checkbox2 = new lib.CheckBoxsmall();
-	this.checkbox2.setTransform(660.5,333.8);
-
-	this.checkbox1 = new lib.CheckBoxsmall();
-	this.checkbox1.setTransform(415.4,298.8);
-
-	// Text
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#B9961D").s().p("AAML9QgnAAAAgtIAAivQAAguAnAAIAYAAQAtAAAAAuIAAAdIgjAAIAAgYQAAgJgEgFQgEgFgHAAIgJAAQgIAAgEAFQgEAFAAAJIAACjQAAAUAQAAIAYAAIAAhCIgTAAIAAggIA2AAIAACCgAhVL9IgXhsIgWAAIAABsIgjAAIAAkKIBFAAQApAAAAAuIAABBQAAAjgVAJIAZBvgAiCJzIAYAAQAIAAAEgFQAEgEAAgKIAAg6QAAgJgEgFQgEgFgIAAIgYAAgAkRL9QgVAAgLgLQgKgMAAgWIAAivQAAguAqAAIAiAAQAVAAALAMQALALAAAXIAACvQAAAWgLAMQgLALgVAAgAkYIjIAACqQAAAQAQAAIASAAQAOAAAAgQIAAiqQAAgIgEgEQgEgEgIAAIgQAAQgQAAAAAQgAnHL9IAAkKIA9AAQAYAAAMAMQALAMAAAYIAAAzQAAAXgZAFIAAACQAPAEAHAIQAHAHAAAMIAABCQAAAUgKAKQgKAKgUAAgAmjLdIAbAAQAOAAAAgMIAAg7QAAgTgWAAIgTAAgAmjJjIARAAQAKAAAFgFQAFgEAAgKIAAgqQAAgJgEgFQgEgFgIAAIgVAAgApWL9IAAkKIA+AAQAyAAAAAzIAACwQAAAUgKAJQgLAKgVAAgAoyLdIAbAAQAHAAADgDQAEgDAAgGIAAirQAAgJgEgFQgEgFgIAAIgZAAgAqaL9IAAg1Igmh5IAACuIgkAAIAAkKIAkAAIAmCAIAAiAIAjAAIAAEKgAtVL9IAAkKIBYAAIAAAgIg1AAIAABRIAvAAIAAAgIgvAAIAABZIA1AAIAAAggAu+L9IgrkKIAjAAIAdDLIAdjLIAjAAIgrEKgAw6L9QgrAAAAgxIAAgNIAkAAIAAAOQAAAQAQAAIAGAAQAOAAAAgQIAAgtQAAgIgDgCIg7gkQgFgEgDgGQgCgHAAgKIAAg2QAAguArAAIAWAAQAVAAALAMQALALAAAXIAAAaIgkAAIAAgYQAAgIgEgEQgEgEgIAAIgFAAQgIAAgEAEQgDAEAAAIIAAAsQAAAIADACIAJAHIAyAcQAEADADAFQADAFAAAOIAAA5QAAAtgrAAgAbaiUIAEiuIgbB+IgbAAIgbh+IAECuIgkAAIAAkKIAoAAIAhCcIAhicIAnAAIAAEKgAYFiUIAAkKIAjAAIAADqIAxAAIAAAggAWZiUQgVAAgLgLQgKgMAAgWIAAivQAAguAqAAIAiAAQAVAAALAMQALALAAAXIAACvQAAAWgLAMQgLALgVAAgAWSluIAACqQAAAQAQAAIASAAQAOAAAAgQIAAiqQAAgIgEgEQgEgEgIAAIgQAAQgQAAAAAQgAUsiUIAAh5IgsAAIAAB5IgkAAIAAkKIAkAAIAABxIAsAAIAAhxIAjAAIAAEKgARNiUIAAkKIA+AAQAyAAAAAzIAACwQAAAUgKAJQgLAKgVAAgARxi0IAbAAQAHAAADgDQAEgDAAgGIAAirQAAgJgEgFQgEgFgIAAIgZAAgAQJiUIAAg1Igmh5IAACuIgkAAIAAkKIAkAAIAmCAIAAiAIAjAAIAAEKgANWiUQgWAAgKgNQgLgNAAgZIAAjXIAjAAIAADYQAAAJAEAEQAEAFAIAAIAOAAQAIAAADgFQAEgEAAgJIAAjYIAjAAIAADXQAAAzgrAAgALNiUQgrAAAAgxIAAgNIAkAAIAAAOQAAAQAQAAIAGAAQAOAAAAgQIAAgtQAAgIgDgCIg7gkQgFgEgDgGQgCgHAAgKIAAg2QAAguArAAIAWAAQAVAAALAMQALALAAAXIAAAaIgkAAIAAgYQAAgIgEgEQgEgEgIAAIgFAAQgIAAgEAEQgDAEAAAIIAAAsQAAAIADACIAJAHIAyAcQAEADADAFQADAFAAAOIAAA5QAAAtgrAAgAudnyQgrAAAAgxIAAgNIAkAAIAAAOQAAAQAQAAIAGAAQAOAAAAgQIAAgtQAAgIgDgCIg7gkQgFgEgDgGQgCgHAAgKIAAg2QAAguArAAIAWAAQAVAAALAMQALALAAAXIAAAaIgkAAIAAgYQAAgIgEgEQgEgEgIAAIgFAAQgIAAgEAEQgDAEAAAIIAAAsQAAAIADACIAJAHIAyAcQAEADADAFQADAFAAAOIAAA5QAAAtgrAAgAwInyIAAg1Ignh5IAACuIgjAAIAAkKIAjAAIAnCAIAAiAIAjAAIAAEKgAzEnyIAAkKIBZAAIAAAgIg1AAIAABRIAvAAIAAAgIgvAAIAABZIA1AAIAAAggA0inyQgqAAAAgxIAAgNIAjAAIAAAOQAAAQAQAAIAGAAQAOAAAAgQIAAgtQAAgIgCgCIg8gkQgFgEgCgGQgCgHAAgKIAAg2QAAguAqAAIAWAAQAWAAAKAMQALALAAAXIAAAaIgkAAIAAgYQAAgIgDgEQgEgEgIAAIgGAAQgHAAgEAEQgEAEAAAIIAAAsQAAAIADACIAKAHIAxAcQAFADACAFQADAFAAAOIAAA5QAAAtgrAAgA2EnyIgXhsIgWAAIAABsIgjAAIAAkKIBFAAQApAAAAAuIAABBQAAAjgVAJIAZBvgA2xp8IAYAAQAIAAAEgFQAEgEAAgKIAAg6QAAgJgEgFQgEgFgIAAIgYAAgA5AnyQgVAAgLgLQgKgMAAgWIAAivQAAguAqAAIAiAAQAVAAALAMQALALAAAXIAACvQAAAWgLAMQgLALgVAAgA5HrMIAACqQAAAQAQAAIASAAQAOAAAAgQIAAiqQAAgIgEgEQgEgEgIAAIgQAAQgQAAAAAQgA6tnyIAAh5IgsAAIAAB5IgkAAIAAkKIAkAAIAABxIAsAAIAAhxIAjAAIAAEKg");
-	this.shape.setTransform(658.7,386.7);
-
-	this.text = new cjs.Text("Vælg hvor du starter", "48px 'Special Elite'", "#FFFFFF");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 777;
-	this.text.setTransform(210,38);
-
-	// BG
-	this.instance = new lib._0_5BG();
-
-	this.addChild(this.instance,this.text,this.shape,this.checkbox1,this.checkbox2,this.checkbox3,this.info1,this.info2,this.info3,this.infopopup);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,2048,540);
-
-
-(lib._03CardMain = function() {
-	this.initialize();
-
-	// Challenge
-	this.kids = new lib.CharacterCardChildren();
-	this.kids.setTransform(648.7,429.7,1,1,-3.5,0,0,2.6,1.6);
-
-	this.family = new lib.CharacterCardFamily();
-	this.family.setTransform(707.9,381.7,1,1,-3.5,0,0,3.1,2.9);
-
-	this.challenge = new lib.CharacterCardChallenge();
-	this.challenge.setTransform(707.9,334.5,1,1,-3.5);
-
-	// Name
-	this.realname = new lib.CharacterCardName();
-	this.realname.setTransform(553.6,148.6,1,1,-3.5,0,0,2.5,0.7);
-
-	this.nickname = new lib.CharacterCardNickame();
-	this.nickname.setTransform(556.1,179.1,1,1,-3.5,0,0,4,0.8);
-
-	// Portrait
-	this.portrait = new lib.CharacterCardPortrait();
-	this.portrait.setTransform(176.2,106.8);
-
-	// BG Text 
-	this.instance = new lib.CharacterCardlabelspng();
-	this.instance.setTransform(576.6,347,1,1,-3.5);
-
-	// BG
-	this.instance_1 = new lib._0_3BG();
-
-	this.addChild(this.instance_1,this.instance,this.portrait,this.nickname,this.realname,this.challenge,this.family,this.kids);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib.CharacterNickname = function() {
-	this.initialize();
-
-	// Checkboxes
-	this.checkbox6 = new lib.CheckBoxshort();
-	this.checkbox6.setTransform(540.7,443.7,1,1,0,0,0,29,29);
-
-	this.checkbox5 = new lib.CheckBoxshort();
-	this.checkbox5.setTransform(540.7,330.1,1,1,0,0,0,29,29);
-
-	this.checkbox4 = new lib.CheckBoxshort();
-	this.checkbox4.setTransform(540.7,217.3,1,1,0,0,0,29,29);
-
-	this.checkbox3 = new lib.CheckBoxshort();
-	this.checkbox3.setTransform(242.7,443.7,1,1,0,0,0,29,29);
-
-	this.checkbox2 = new lib.CheckBoxshort();
-	this.checkbox2.setTransform(242.7,330.1,1,1,0,0,0,29,29);
-
-	this.checkbox1 = new lib.CheckBoxshort();
-	this.checkbox1.setTransform(242.7,217.3,1,1,0,0,0,29,29);
-
-	// Text
-	this.text = new cjs.Text("paven", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 212;
-	this.text.setTransform(586,418.8);
-
-	this.text_1 = new cjs.Text("putte", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text_1.lineHeight = 50;
-	this.text_1.lineWidth = 212;
-	this.text_1.setTransform(586,303.6);
-
-	this.text_2 = new cjs.Text("nitteren", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text_2.lineHeight = 50;
-	this.text_2.lineWidth = 212;
-	this.text_2.setTransform(586,189.8);
-
-	this.text_3 = new cjs.Text("skæve", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text_3.lineHeight = 50;
-	this.text_3.lineWidth = 212;
-	this.text_3.setTransform(289,418.8);
-
-	this.text_4 = new cjs.Text("sutsko", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text_4.lineHeight = 50;
-	this.text_4.lineWidth = 212;
-	this.text_4.setTransform(289,303.6);
-
-	this.text_5 = new cjs.Text("stormkrogen", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text_5.lineHeight = 50;
-	this.text_5.lineWidth = 212;
-	this.text_5.setTransform(289,189.8);
-
-	this.text_6 = new cjs.Text("Vælg dit øgenavn", "48px 'Special Elite'", "#FFFFFF");
-	this.text_6.lineHeight = 50;
-	this.text_6.lineWidth = 584;
-	this.text_6.setTransform(208.4,91);
-
-	this.addChild(this.text_6,this.text_5,this.text_4,this.text_3,this.text_2,this.text_1,this.text,this.checkbox1,this.checkbox2,this.checkbox3,this.checkbox4,this.checkbox5,this.checkbox6);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(208.4,91,593.5,383.7);
-
-
-(lib.CharacterFamily = function() {
-	this.initialize();
-
-	// Checkboxes
-	this.checkbox3 = new lib.CheckBox();
-	this.checkbox3.setTransform(359.5,443.7,1,1,0,0,0,29,29);
-
-	this.checkbox2 = new lib.CheckBox();
-	this.checkbox2.setTransform(359.5,330.1,1,1,0,0,0,29,29);
-
-	this.checkbox1 = new lib.CheckBox();
-	this.checkbox1.setTransform(359.5,217.3,1,1,0,0,0,29,29);
-
-	// Text
-	this.text = new cjs.Text("ugift - ingen børn", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 329;
-	this.text.setTransform(405.8,418.8);
-
-	this.text_1 = new cjs.Text("fraskilt - med børn", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text_1.lineHeight = 50;
-	this.text_1.lineWidth = 337;
-	this.text_1.setTransform(405.8,303.6);
-
-	this.text_2 = new cjs.Text("gift - ingen børn", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text_2.lineHeight = 50;
-	this.text_2.lineWidth = 336;
-	this.text_2.setTransform(405.8,189.8);
-
-	this.text_3 = new cjs.Text("Vælg din civilstand", "48px 'Special Elite'", "#FFFFFF");
-	this.text_3.lineHeight = 50;
-	this.text_3.lineWidth = 584;
-	this.text_3.setTransform(208.4,91);
-
-	this.addChild(this.text_3,this.text_2,this.text_1,this.text,this.checkbox1,this.checkbox2,this.checkbox3);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(208.4,91,587.6,383.7);
-
-
-(lib.CharacterChallenge = function() {
-	this.initialize();
-
-	// Checkboxes
-	this.checkbox3 = new lib.CheckBox();
-	this.checkbox3.setTransform(359.5,443.7,1,1,0,0,0,29,29);
-
-	this.checkbox2 = new lib.CheckBox();
-	this.checkbox2.setTransform(359.5,330.1,1,1,0,0,0,29,29);
-
-	this.checkbox1 = new lib.CheckBox();
-	this.checkbox1.setTransform(359.5,217.3,1,1,0,0,0,29,29);
-
-	// Text
-	this.text = new cjs.Text("SVÆKKET", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 228;
-	this.text.setTransform(405.8,418.8);
-
-	this.text_1 = new cjs.Text("doven", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text_1.lineHeight = 50;
-	this.text_1.lineWidth = 228;
-	this.text_1.setTransform(405.8,303.6);
-
-	this.text_2 = new cjs.Text("Drikfældig", "48px 'BigNoodleTitling'", "#B9961D");
-	this.text_2.lineHeight = 50;
-	this.text_2.lineWidth = 228;
-	this.text_2.setTransform(405.8,189.8);
-
-	this.text_3 = new cjs.Text("Vælg din udfordring", "48px 'Special Elite'", "#FFFFFF");
-	this.text_3.lineHeight = 50;
-	this.text_3.lineWidth = 584;
-	this.text_3.setTransform(208.4,91);
-
-	this.addChild(this.text_3,this.text_2,this.text_1,this.text,this.checkbox1,this.checkbox2,this.checkbox3);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(208.4,91,587.6,383.7);
-
-
-(lib._02CharacterMain = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(28));
-
-	// Page 0.2.1 Intro
-	this.character_intro = new lib.CharacterIntro();
-
-	this.timeline.addTween(cjs.Tween.get(this.character_intro).wait(28));
-
-	// Page 0.2.2 Challenge
-	this.character_challenge = new lib.CharacterChallenge();
-	this.character_challenge.setTransform(0,-88.2,1,1,0,0,0,0,-91.2);
-
-	this.timeline.addTween(cjs.Tween.get(this.character_challenge).wait(28));
-
-	// Page 0.2.3 Family
-	this.character_family = new lib.CharacterFamily();
-	this.character_family.setTransform(0,3);
-
-	this.timeline.addTween(cjs.Tween.get(this.character_family).wait(28));
-
-	// Page 0.2.4 Nickname
-	this.character_nickname = new lib.CharacterNickname();
-	this.character_nickname.setTransform(0,3);
-
-	this.timeline.addTween(cjs.Tween.get(this.character_nickname).wait(28));
-
-	// BG
-	this.instance = new lib._0_2BG();
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(28));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib.ControllerButtonSTOP = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{out:0,over:1,click:2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(4));
-
-	// Hitarea
-	this.instance = new lib.BlockerButton();
-	this.instance.setTransform(0,0,0.68,0.68);
-	new cjs.ButtonHelper(this.instance, 0, 1, 2, false, new lib.BlockerButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(2).to({x:1,y:1},0).wait(2));
-
-	// Symbol
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#FFFFFF").s().p("AgLABIA+hDIA0AAIg+BCIA+BCIg2ABgAhlABIBAhDIAyAAIg8BCIA8BCIg0ABg");
-	this.shape.setTransform(17.3,17.8);
-
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#CCCCCC").s().p("AgLABIA+hDIA0AAIg+BCIA+BCIg2ABgAhlABIBAhDIAyAAIg8BCIA8BCIg0ABg");
-	this.shape_1.setTransform(17.3,17.8);
-
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f("#CCCCCC").s().p("AgLABIA9hDIA1AAIg+BCIA+BCIg2ABgAhlABIA/hDIAzAAIg8BCIA8BCIg0ABg");
-	this.shape_2.setTransform(18.3,18.8);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape}]}).to({state:[{t:this.shape_1}]},1).to({state:[{t:this.shape_2}]},1).wait(2));
-
-	// BG
-	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.f("#D1C8AA").s().p("AipCpIAAlRIFTAAIAAFRgAiLCMIEWAAIAAkWIkWAAg");
-	this.shape_3.setTransform(17,16.9);
-
-	this.shape_4 = new cjs.Shape();
-	this.shape_4.graphics.f("#D1C8AA").s().p("AipCpIAAlRIFTAAIAAFRgAiLCNIEXAAIAAkXIkXAAg");
-	this.shape_4.setTransform(18,17.9);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3}]}).to({state:[{t:this.shape_4}]},2).wait(2));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,34,34);
-
-
-(lib.ControllerButtonPLAY = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"out":0,"over":1,"click":2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(4));
-
-	// Hitarea
-	this.instance = new lib.BlockerButton();
-	this.instance.setTransform(0,0,0.68,0.68);
-	new cjs.ButtonHelper(this.instance, 0, 1, 2, false, new lib.BlockerButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(2).to({x:1,y:1},0).wait(2));
-
-	// Symbol
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#FFFFFF").s().p("AhHhgICPBgIiPBhg");
-	this.shape.setTransform(18.2,17.4);
-
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#CCCCCC").s().p("AhHhgICPBgIiPBhg");
-	this.shape_1.setTransform(18.2,17.4);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape}]}).to({state:[{t:this.shape_1,p:{x:18.2,y:17.4}}]},1).to({state:[{t:this.shape_1,p:{x:19.2,y:18.4}}]},1).wait(2));
-
-	// BG
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f("#D1C8AA").s().p("AipCpIAAlRIFTAAIAAFRgAiLCMIEWAAIAAkWIkWAAg");
-	this.shape_2.setTransform(17,16.9);
-
-	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.f("#D1C8AA").s().p("AipCpIAAlRIFTAAIAAFRgAiLCNIEXAAIAAkXIkXAAg");
-	this.shape_3.setTransform(18,17.9);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_2}]}).to({state:[{t:this.shape_3}]},2).wait(2));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,34,34);
-
-
-(lib.ControllerButtonPAUSE = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"out":0,"over":1,"click":2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(4));
-
-	// Hitarea
-	this.instance = new lib.BlockerButton();
-	this.instance.setTransform(0,0,0.68,0.68);
-	new cjs.ButtonHelper(this.instance, 0, 1, 2, false, new lib.BlockerButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(2).to({x:1,y:1},0).wait(2));
-
-	// Symbol
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#FFFFFF").s().p("AAYBkIAAjGIAzAAIAADGgAhKBkIAAjGIAzAAIAADGg");
-	this.shape.setTransform(17.5,17);
-
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#CCCCCC").s().p("AhHhgICPBgIiPBhg");
-	this.shape_1.setTransform(18.2,17.4);
-
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f("#CCCCCC").s().p("AAYBjIAAjFIAzAAIAADFgAhKBjIAAjFIAzAAIAADFg");
-	this.shape_2.setTransform(18.5,18);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape}]}).to({state:[{t:this.shape_1}]},1).to({state:[{t:this.shape_2}]},1).wait(2));
-
-	// BG
-	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.f("#D1C8AA").s().p("AipCpIAAlRIFTAAIAAFRgAiLCMIEWAAIAAkWIkWAAg");
-	this.shape_3.setTransform(17,16.9);
-
-	this.shape_4 = new cjs.Shape();
-	this.shape_4.graphics.f("#D1C8AA").s().p("AipCpIAAlRIFTAAIAAFRgAiLCNIEXAAIAAkXIkXAAg");
-	this.shape_4.setTransform(18,17.9);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3}]}).to({state:[{t:this.shape_4}]},2).wait(2));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,34,34);
-
-
 (lib.ContinueButton = function() {
 	this.initialize();
 
@@ -6078,122 +4953,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,96,96);
 	this.addChild(this.health,this.money,this.mood);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,357,97.4);
-
-
-(lib.PlayerSlides = function() {
-	this.initialize();
-
-	// Mask (mask)
-	var mask = new cjs.Shape();
-	mask._off = true;
-	mask.graphics.p("EgshAgWMAAAg/HMBanAAAMAAAA/Hg");
-	mask.setTransform(295,207);
-
-	// Slide
-	this.container = new lib.EmptyContainerGrey();
-	this.container.setTransform(10,10);
-
-	this.container.mask = mask;
-
-	// Progression Bar
-	this.progressionBar = new lib.ProgressionBar();
-	this.progressionBar.setTransform(101,436,1,1,0,0,0,0,5);
-
-	// Progression BG
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#2F2E19").s().p("EgmkABPIAAidMBNKAAAIAACdg");
-	this.shape.setTransform(343,436);
-
-	// Play
-	this.playBtn = new lib.ControllerButtonPLAY();
-	this.playBtn.setTransform(69,436.9,1,1,0,0,0,17,16.9);
-
-	// Pause
-	this.pauseBtn = new lib.ControllerButtonPAUSE();
-	this.pauseBtn.setTransform(52,420);
-
-	// Stop
-	this.stopBtn = new lib.ControllerButtonSTOP();
-	this.stopBtn.setTransform(28,436.9,1,1,0,0,0,17,16.9);
-
-	// Background
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#000000").s().p("Egu3Aj3MAAAhHtMBdvAAAMAAABHtg");
-	this.shape_1.setTransform(300,229.5);
-
-	this.addChild(this.shape_1,this.stopBtn,this.pauseBtn,this.playBtn,this.shape,this.progressionBar,this.container);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,600,459);
-
-
-(lib.PlayerAudio = function() {
-	this.initialize();
-
-	// Progression Bar
-	this.progressionBar = new lib.ProgressionBar();
-	this.progressionBar.setTransform(90,16,1,1,0,0,0,0,5);
-
-	// Progression BG
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#000000").s().p("EgmlABQIAAieMBNKAAAIAACeg");
-	this.shape.setTransform(332,16);
-
-	// Play
-	this.playBtn = new lib.ControllerButtonPLAY();
-	this.playBtn.setTransform(58,16.9,1,1,0,0,0,17,16.9);
-
-	// Pause
-	this.pauseBtn = new lib.ControllerButtonPAUSE();
-	this.pauseBtn.setTransform(41,0);
-
-	// Stop
-	this.stopBtn = new lib.ControllerButtonSTOP();
-	this.stopBtn.setTransform(17,16.9,1,1,0,0,0,17,16.9);
-
-	this.addChild(this.stopBtn,this.pauseBtn,this.playBtn,this.shape,this.progressionBar);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
-
-
-(lib._04OpinionMain = function() {
-	this.initialize();
-
-	// Text
-	this.playerlabel = new lib.Playerlabels();
-	this.playerlabel.setTransform(443.4,69,1,1,0,0,0,231.4,21.9);
-
-	this.charactertext = new lib.Page04CharacterText();
-	this.charactertext.setTransform(36,309.1,1,1,-3,0,0,-0.2,0.4);
-
-	// Players
-	this.player = new lib.PlayerAudio();
-	this.player.setTransform(212,98);
-
-	// Closeups
-	this.portrait = new lib.OpenionCloseups();
-	this.portrait.setTransform(822,261,1,1,0,0,0,201,279);
-
-	// BG
-	this.instance = new lib._0_4BG();
-
-	this.addChild(this.instance,this.portrait,this.player,this.charactertext,this.playerlabel);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,-18,1024,558);
-
-
-(lib._01IntroMain = function() {
-	this.initialize();
-
-	// Player
-	this.player = new lib.PlayerSlides();
-	this.player.setTransform(512,269.5,1,1,0,0,0,300,229.5);
-
-	// BG
-	this.instance = new lib._0_1BG();
-
-	this.addChild(this.instance,this.player);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
 (lib.TopBarMain = function(mode,startPosition,loop) {
@@ -6275,7 +5034,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,118);
 
 
 // stage content:
-(lib.FlashApp = function(mode,startPosition,loop) {
+(lib.Main = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{preload:4,start:10,character_build:19,poohouse:34,germany:44});
 
 	// timeline functions:
@@ -6297,7 +5056,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,118);
 	this.topbar.setTransform(512,54,1,1,0,0,0,512,54);
 	this.topbar._off = true;
 
-	this.timeline.addTween(cjs.Tween.get(this.topbar).wait(19).to({_off:false},0).wait(51));
+	this.timeline.addTween(cjs.Tween.get(this.topbar).wait(10).to({_off:false},0).wait(60));
 
 	// Continue
 	this.continueBtn = new lib.ContinueButton();
@@ -6306,74 +5065,26 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,118);
 
 	this.timeline.addTween(cjs.Tween.get(this.continueBtn).wait(10).to({_off:false},0).wait(60));
 
-	// 0.0 Start
-	this.pageStart = new lib._00Frontpage();
-	this.pageStart.setTransform(512,324,1,1,0,0,0,512,324);
-	this.pageStart._off = true;
+	// Container
+	this.startpagecontainer = new lib.PageContainerEmpty();
 
-	this.timeline.addTween(cjs.Tween.get(this.pageStart).wait(10).to({_off:false},0).to({_off:true},9).wait(51));
+	this.pagecontainer = new lib.PageContainerEmpty();
+	this.pagecontainer.setTransform(0,108);
 
-	// 0.1 Intro
-	this.page_intro = new lib._01IntroMain();
-	this.page_intro.setTransform(1024,108);
-	this.page_intro._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.page_intro).wait(10).to({_off:false},0).to({_off:true},24).wait(36));
-
-	// 0.2 Character
-	this.page_character = new lib._02CharacterMain();
-	this.page_character.setTransform(1023,108);
-	this.page_character._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.page_character).wait(10).to({_off:false},0).to({_off:true},24).wait(36));
-
-	// 0.3 Card
-	this.page_card = new lib._03CardMain();
-	this.page_card.setTransform(1024,108);
-	this.page_card._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.page_card).wait(10).to({_off:false},0).to({_off:true},24).wait(36));
-
-	// 0.4 Opinion
-	this.page_opinion = new lib._04OpinionMain();
-	this.page_opinion.setTransform(1024,108);
-	this.page_opinion._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.page_opinion).wait(10).to({_off:false},0).to({_off:true},24).wait(36));
-
-	// 0.5 Map
-	this.page_map = new lib._05Map();
-	this.page_map.setTransform(1024,108);
-	this.page_map._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.page_map).wait(10).to({_off:false},0).to({_off:true},24).wait(36));
-
-	// 1.0 Poor House Container
-	this.poorhouse_container = new lib.EmptyContainer();
-	this.poorhouse_container.setTransform(0,108);
-	this.poorhouse_container._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.poorhouse_container).wait(10).to({_off:false},0).to({_off:true},34).wait(26));
-
-	// 2.0 Germany Container
-	this.germany_container = new lib.EmptyContainer();
-	this.germany_container.setTransform(0,108);
-	this.germany_container._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.germany_container).wait(10).to({_off:false},0).wait(60));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.pagecontainer},{t:this.startpagecontainer}]}).wait(70));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(502,324,1044,768);
 
-})(lib = lib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
-var lib, images, createjs, ss;
+})(mainlib = mainlib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
+var mainlib, images, createjs, ss;
 (function () {
 	'use strict';
 	var app = angular.module('fattiggarden', ['ngRoute']);	
 
 	app.controller('MainController', function($scope, Device) {
 
-		$scope.lib = lib;
+		$scope.lib = mainlib;
 		$scope.images = images;
 		// $scope.exportRoot;
 		// $scope.canvas;
@@ -6386,35 +5097,56 @@ var lib, images, createjs, ss;
 				}
 			};
 			var onLoadComplete = function(evt){
-				setup();				
-				// Preloader.remove();
+				// Instantiate root object. Equivalent to root timeline
+				$scope.exportRoot = new $scope.lib.Main();
+
+				var stage = new createjs.Stage($scope.canvas);
+				stage.addChild($scope.exportRoot);
+
+				// Do cursor
+				stage.enableMouseOver(10);
+
+				// Scale canvas according to ratio
+				stage.scaleX = stage.scaleY = Device.ratio;
+				stage.update();
+
+				// Tik tak - ticker
+				Tick.init(stage, 15);
+				Tick.enable();		
+
+				console.log('stage.autoClear:', stage.autoClear);
+				
+				//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
+
+				// --------------------- Go start ->
+				ApplicationManager.start($scope.exportRoot);
 			};
 			Preloader.load($scope.lib.properties.manifest, onFileLoad, onLoadComplete, 'full');
 		}
 
-		function setup(){
-			// Instantiate root object. Equivalent to root timeline
-			$scope.exportRoot = new $scope.lib.FlashApp();
+		// function setup(){
+		// 	// Instantiate root object. Equivalent to root timeline
+		// 	$scope.exportRoot = new $scope.lib.FlashApp();
 
-			var stage = new createjs.Stage($scope.canvas);
-			stage.addChild($scope.exportRoot);
+		// 	var stage = new createjs.Stage($scope.canvas);
+		// 	stage.addChild($scope.exportRoot);
 
-			// Do cursor
-			stage.enableMouseOver(10);
+		// 	// Do cursor
+		// 	stage.enableMouseOver(10);
 
-			// Scale canvas according to ratio
-			stage.scaleX = stage.scaleY = Device.ratio;
-			stage.update();
+		// 	// Scale canvas according to ratio
+		// 	stage.scaleX = stage.scaleY = Device.ratio;
+		// 	stage.update();
 
-			// Tik tak			
-			Tick.init(stage, 15);
-			Tick.enable();		
+		// 	// Tik tak			
+		// 	Tick.init(stage, 15);
+		// 	Tick.enable();		
 			
-			//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
+		// 	//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
 
-			// --------------------- Go start ->
-			ApplicationManager.start($scope.exportRoot);
-		}
+		// 	// --------------------- Go start ->
+		// 	ApplicationManager.start($scope.exportRoot);
+		// }
 
 		init();
 	});
@@ -6472,8 +5204,8 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/js/FlashApp.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FlashApp</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="FlashApp.js"></script><script>var canvas, stage, exportRoot;\n' +
+  $templateCache.put('/fattiggarden/js/Main.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Main</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="Main.js"></script><script>var canvas, stage, exportRoot;\n' +
     '\n' +
     'function init() {\n' +
     '	canvas = document.getElementById("canvas");\n' +
@@ -6482,7 +5214,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(lib.properties.manifest);\n' +
+    '	loader.loadManifest(mainlib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -6490,14 +5222,14 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new lib.FlashApp();\n' +
+    '	exportRoot = new mainlib.Main();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '	stage.enableMouseOver();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(mainlib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="648" style="background-color:#000000"></canvas></body></html>');
 }]);
@@ -6536,7 +5268,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(germany1GameLib.properties.manifest);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -6544,16 +5276,54 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new germany1GameLib.germany_1();\n' +
+    '	exportRoot = new gamelib.germany_1();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '	stage.enableMouseOver();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(germany1GameLib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/proloque.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>proloque</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="proloque.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.proloque();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="648" style="background-color:#000000"></canvas></body></html>');
 }]);
 })();
 
@@ -6574,7 +5344,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(svendborgGameLib.properties.manifest);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -6582,14 +5352,14 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new svendborgGameLib.svendborg();\n' +
+    '	exportRoot = new gamelib.svendborg();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '	stage.enableMouseOver();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(svendborgGameLib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
 }]);
@@ -6612,7 +5382,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(lib.properties.manifest);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -6620,13 +5390,13 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new lib.slide_1_0_1_svendborg();\n' +
+    '	exportRoot = new slidelib.slide_1_0_1_svendborg();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
@@ -6649,7 +5419,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(lib.properties.manifest);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -6657,13 +5427,13 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new lib.slide_2_5();\n' +
+    '	exportRoot = new slidelib.slide_2_5();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
@@ -6686,7 +5456,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(lib.properties.manifest);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -6694,13 +5464,13 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new lib.slide_2_7_1_amory();\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_amory();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
@@ -6723,7 +5493,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(lib.properties.manifest);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -6731,13 +5501,13 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new lib.slide_2_7_1_butcher();\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_butcher();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
@@ -6760,7 +5530,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(lib.properties.manifest);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -6768,13 +5538,13 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new lib.slide_2_7_1_mine();\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_mine();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
@@ -6797,7 +5567,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(lib.properties.manifest);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -6805,13 +5575,13 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new lib.slide_home1A();\n' +
+    '	exportRoot = new slidelib.slide_home1A();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
@@ -6834,7 +5604,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(lib.properties.manifest);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -6842,13 +5612,13 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new lib.slide_home1B();\n' +
+    '	exportRoot = new slidelib.slide_home1B();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(lib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
@@ -6871,7 +5641,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(libSlideIntro.properties.manifest);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -6879,13 +5649,13 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new libSlideIntro.slide_intro();\n' +
+    '	exportRoot = new slidelib.slide_intro();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(libSlideIntro.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
