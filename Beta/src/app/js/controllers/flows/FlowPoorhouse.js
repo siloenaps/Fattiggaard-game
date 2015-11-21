@@ -4,10 +4,9 @@ var FlowPoorhouse = function(container){
 	this.id = null; 
 	this.view = null;	
 	this.lib = null;
-	this.slideLib = null;
 	this.playerComponent = null;
 	this.listeners = {};
-	this.trigger = '1.0.1'; // Default start pointer
+	this.trigger = '1.0.2'; // Default start pointer
 	// this.pagesTotal = 12;
 	this.currentPage = null;
 	this.currentBackground = null;
@@ -53,12 +52,8 @@ FlowPoorhouse.prototype.start = function(){
 
 	console.log('FlowPoorhouse:start');
 
-	// LoadJS.load(
-	// 	['../assets/logic/games/svendborg.js', '../assets/logic/slides/slide_intro.js'], 
-	// 	Delegate.create(this.setup, this)
-	// );
 	LoadJS.load(
-		['../assets/logic/games/svendborg.js', '../assets/logic/slides/slide_1_0_1_svendborg.js'], 
+		['../assets/logic/games/svendborg.js'], 
 		Delegate.create(this.setup, this)
 	);
 };
@@ -78,7 +73,7 @@ FlowPoorhouse.prototype.setup = function(){
 
 	// Setup flow
 	this.flow = new SubFlowController();
-	this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
+	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
 	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '2.4'); // TEST
 	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
 	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.5'); // TEST
@@ -90,19 +85,13 @@ FlowPoorhouse.prototype.setup = function(){
 	this.flow.addAction('1.3.2', Delegate.create(this.getout, this), '1.3.3');
 	this.flow.addAction('1.3.3', Delegate.create(this.playAdvice, this), '1.3.4');
 	this.flow.addAction('1.3.4', Delegate.create(this.playAdvice, this), '1.3.5');
-	// this.flow.addAction('1.3.5', Delegate.create(this.chooseWayOut, this), {'A':'1.6.1', 'B':'1.7', 'C':'1.9'}); 
 	this.flow.addAction('1.3.5', Delegate.create(this.chooseWayOut, this), {'A':'1.5.1', 'B':'2.1'}); 
 	this.flow.addAction('1.5.1', Delegate.create(this.drunk, this), '1.5.2');
 	this.flow.addAction('1.5.2', Delegate.create(this.points7, this), '1.6.1');
 	this.flow.addAction('1.6.1', Delegate.create(this.constable, this), '1.6.2');
 	this.flow.addAction('1.6.2', Delegate.create(this.report, this), '1.6.3');
 	this.flow.addAction('1.6.3', Delegate.create(this.points6, this), '1.8');	
-	// this.flow.addAction('1.7', Delegate.create(this.letterWrite, this), '1.7.1');
-	// this.flow.addAction('1.7.1', Delegate.create(this.points4, this), '1.7.2');
-	// this.flow.addAction('1.7.2', Delegate.create(this.letterAnswer, this), '1.7.3');
-	// this.flow.addAction('1.7.3', Delegate.create(this.points5, this), '1.8');
 	this.flow.addAction('1.8', Delegate.create(this.backToPoorhouse, this), '1.3.5');
-	// this.flow.addAction('1.9', Delegate.create(this.preRecruitment, this), '2.1');	// FIXME
 	this.flow.addAction('2.1', Delegate.create(this.recruimentOffice, this), '2.2.1');
 	this.flow.addAction('2.2.1', Delegate.create(this.jobInterviewPart1, this), '2.2.2');
 	this.flow.addAction('2.2.2', Delegate.create(this.chooseJobGermany, this), '2.2.3');
@@ -121,27 +110,20 @@ FlowPoorhouse.prototype.setup = function(){
 	console.log('FlowPoorhouse:setup', this.id);
 
 	this.lib = gamelib;
-	this.slideLib = slidelib;
 	switch(this.id){
 		case 'horsens':			
 			// this.lib = horsensGameLib;
 			Clss = this.lib.horsens;
-			// this.slideLib = horsensSlideLib;			
-			// introClss = this.slideLib.slide_horsens;
 			manifest = this.lib.properties.manifest;
 		break;
 		case 'sundby':
 			// this.lib = sundbyGameLib;
 			Clss = this.lib.sundby;
-			// this.slideLib = sundbySlideLib;			
-			// introClss = this.slideLib.slide_sundby;
 			manifest = this.lib.properties.manifest;
 		break;
 		case 'svendborg':	
 			
 			Clss = this.lib.svendborg;
-			// this.slideLib = svendborgSlideLib;
-			// this.slideLib = slidelib;			
 			manifest = this.lib.properties.manifest;
 
 		break;
@@ -150,10 +132,8 @@ FlowPoorhouse.prototype.setup = function(){
 	// Load files
 	var onFileLoad = function(event){
 		if (event.item.type === 'image') { 
-			// console.log(event.item.id, event.result);
 			images[event.item.id] = event.result; 
 		}
-		console.log('FlowPoorhouse:onFileLoad');
 	};
 	var onLoadComplete = function(event){
 		// Instantiate view
@@ -231,54 +211,58 @@ FlowPoorhouse.prototype.destroy = function() {
 	this.listeners = null;
 	this.flow = null;
 };
-FlowPoorhouse.prototype.intro = function(trigger){
-	'use strict';
+// FlowPoorhouse.prototype.intro = function(trigger){
+// 	'use strict';
 
 
-	// Next move
-	this.trigger = trigger;
+// 	// Next move
+// 	this.trigger = trigger;
 
-	var self = this;
+// 	var self = this;
 
-	// Set page view
-	this.currentPage = this.view.intro;
-	this.currentPage.x = 0;
+// 	// Set page view
+// 	this.currentPage = this.view.intro;
+// 	this.currentPage.x = 0;
 
-	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
+// 	// Set background
+// 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
 	
-	// Slide. Loading is self contained
-	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-	this.listeners.complete = self.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-		Tick.disable();
-	}, self);
-	this.playerComponent.on('ready', function(event){
-		event.remove();
-		// No tick
-		Tick.disable();
-		self.continueBtn.activate("skip");
-		// self.dispatchEvent(new createjs.Event('ready'));
-	});
-	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
-	// this.playerComponent.preload('slide_intro', this.slideLib);
+// 	// Slide. Loading is self contained
+// 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+// 	this.listeners.complete = self.playerComponent.on('complete', function(event){
+// 		self.continueBtn.activate('next');
+// 		Tick.disable();
+// 	}, self);
+// 	this.playerComponent.on('ready', function(event){
+// 		event.remove();
+// 		// No tick
+// 		Tick.disable();
+// 		self.continueBtn.activate("skip");
+// 		// self.dispatchEvent(new createjs.Event('ready'));
+// 	});
+// 	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
+// 	// this.playerComponent.preload('slide_intro', this.slideLib);
 	
-};
+// };
 FlowPoorhouse.prototype.points1 = function(trigger) {
 	'use strict';
 
 	// Next move
 	this.trigger = trigger;
 
+	// 	// Set background
+		this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
+
 	// Pages in/out
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.points1;
-	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		PlayerStats.append('mood', -1);
-		PlayerStats.append('health', 1);
-		Topbar.pointsUpdate();
-		Tick.disable();
-	}, this));
+	this.currentPage.x = 0;
+	// Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+	// 	PlayerStats.append('mood', -1);
+	// 	PlayerStats.append('health', 1);
+	// 	Topbar.pointsUpdate();
+	// 	Tick.disable();
+	// }, this));
 	
 	this.continueBtn.activate('next');
 };
@@ -372,7 +356,7 @@ FlowPoorhouse.prototype.work = function(trigger) {
 
 	// Get sound
 	var sound = SoundService.matrix.work[this.id][PlayerStats.job]; // "svendborg/A"	
-	this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
+	// this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
 	
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view['bg_1_2'+PlayerStats.job]);

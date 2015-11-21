@@ -539,6 +539,508 @@ ButtonCustom.prototype.destroy = function(){
 }
 
 createjs.EventDispatcher.initialize(ButtonCustom.prototype);
+var PageStart = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.continueBtn = ContinueButton;
+	this.continueBtn.activate("next");
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+};
+PageStart.prototype.start = function() {
+	Tick.disable();
+};
+PageStart.prototype.onContinue = function(event) {
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.dispatchEvent(new createjs.Event('continue'));
+};
+PageStart.prototype.destroy = function() {
+	this.view = null;	
+};
+createjs.EventDispatcher.initialize(PageStart.prototype);
+var PagePoorhouseIntro = function(container){
+	'use strict';
+	this.container = container;
+	this.id = null; 
+	this.view = null;	
+	this.lib = null;
+	this.slideLib = null;
+	this.playerComponent = null;
+	this.listeners = {};
+	this.trigger = '1.0.1'; // Default start pointer
+	// this.pagesTotal = 12;
+	this.currentPage = null;
+	this.currentBackground = null;
+	this.groups = {};
+
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost('skip');
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+};
+
+PagePoorhouseIntro.prototype.start = function(){
+	this.id = PlayerStats.poorhouse;
+	var gameFile;
+
+	console.log('PagePoorhouseIntro:start');
+
+	LoadJS.load(
+		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/slide_1_0_1_svendborg.js'], 
+		Delegate.create(this.setup, this)
+	);
+};
+PagePoorhouseIntro.prototype.setup = function(){
+	'use strict';
+	if(this.runonce != null)
+		return;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	// Tick
+	Tick.framerate(15);
+
+	var self = this;
+	var manifest, Clss;	
+
+	// Setup flow
+	this.flow = new SubFlowController();
+	this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
+	this.flow.addAction('1.0.2', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
+	this.id = 'svendborg';
+	console.log('PagePoorhouseIntro:setup', this.id);
+
+	this.lib = gamelib;
+	this.slideLib = slidelib;
+	Clss = this.lib.poorhouse_intro;
+	switch(this.id){
+		case 'horsens':			
+			// Clss = this.lib.horsens;
+			manifest = this.lib.properties.manifest;
+		break;
+		case 'sundby':
+			// this.lib = sundbyGameLib;
+			// Clss = this.lib.sundby;
+			manifest = this.lib.properties.manifest;
+		break;
+		case 'svendborg':				
+			// Clss = this.lib.svendborg;		
+			manifest = this.lib.properties.manifest;
+		break;
+	}
+	
+	// Load files
+	var onFileLoad = function(event){
+		if (event.item.type === 'image') { 
+			// console.log(event.item.id, event.result);
+			images[event.item.id] = event.result; 
+		}
+		console.log('PagePoorhouseIntro:onFileLoad');
+	};
+	var onLoadComplete = function(event){
+		// Instantiate view
+		self.view = new Clss();
+
+		//Add
+		self.container.addChild(self.view);
+
+		// Set start page
+		self.next();
+
+		console.log('PagePoorhouseIntro:onLoadComplete');
+		self.dispatchEvent(new createjs.Event('ready'));
+	};
+	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+};
+PagePoorhouseIntro.prototype.next = function(){
+	'use strict';
+	this.flow.next(this.trigger);	
+};
+PagePoorhouseIntro.prototype.onComplete = function(event) {
+	'use strict';
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+	}
+
+	// Set next button active
+	this.continueBtn.activate('next');	
+};
+PagePoorhouseIntro.prototype.onContinue = function(event) {
+	'use strict';
+	
+	console.log('PagePoorhouseIntro::onContinue');
+	
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
+
+	this.next();
+
+	// console.log('this.playerComponent:', this.playerComponent)
+};
+PagePoorhouseIntro.prototype.removeEvents = function() {
+	'use strict';
+	
+	// Remove events
+	this.continueBtn.off('click', this.listeners.continue);
+	this.listeners.continue = null;
+};
+PagePoorhouseIntro.prototype.destroy = function() {
+	'use strict';
+	
+	// Remove events
+	this.removeEvents();
+
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+		this.playerComponent.destroy();	
+		this.playerComponent = null;
+	}			
+	this.view = null;
+	this.lib = null;
+	this.currentPage = null;
+	this.listeners = null;
+	this.flow = null;
+};
+PagePoorhouseIntro.prototype.intro = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set page view
+	this.currentPage = this.view.intro;
+	this.currentPage.x = 0;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
+	
+	// Slide. Loading is self contained
+	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+	this.listeners.complete = self.playerComponent.on('complete', function(event){
+		self.continueBtn.activate('next');
+		Tick.disable();
+	}, self);
+	this.playerComponent.on('ready', function(event){
+		event.remove();
+		// No tick
+		Tick.disable();
+		self.continueBtn.activate("skip");
+		// self.dispatchEvent(new createjs.Event('ready'));
+	});
+	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
+	// this.playerComponent.preload('slide_intro', this.slideLib);
+	
+};
+createjs.EventDispatcher.initialize(PagePoorhouseIntro.prototype);
+
+
+
+var PageOpinion = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.activePlayer = null;
+
+	this.playersCount = 0;
+	this.completed = 0;
+
+	var key = PlayerStats.challenge + PlayerStats.family;
+
+	// Get sound
+	this.soundChallengeObject = SoundService.matrix.oppinion[key];
+
+	// Set Text
+	this.view.charactertext.gotoAndStop(key);
+	this.view.playerlabel.gotoAndStop(key);
+
+
+	// Player - Challenge
+	// view.player.visible = false;
+	if(this.soundChallengeObject != null){
+		// view.player.visible = true;
+		this.challengePlayerComponent = new PlayerSoundComponent(view.player);
+		this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
+		this.playersCount++;
+
+		this.listeners.challengeStart = this.challengePlayerComponent.on("start", this.onSoundStart, this);
+
+		this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
+	}
+
+	// Continue/Skip button
+	this.continueBtn = ContinueButton;
+	this.continueBtn.activate("skip");
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+};
+PageOpinion.prototype.onSoundStart = function(event) {
+	// If there is a player active, pause it
+	if(this.activePlayer != null){
+		if(event.target.id != this.activePlayer.id){
+			this.activePlayer.pause();
+		}
+	}
+
+	// Save activated player
+	this.activePlayer = event.target;
+};
+PageOpinion.prototype.onComplete = function(event){
+	this.completed++;
+	if(this.completed >= this.playersCount){
+		if(this.challengePlayerComponent !== undefined){
+			this.challengePlayerComponent.off('complete', this.listeners.challenge);
+		}
+		if(this.familyPlayerComponent !== undefined){
+			this.familyPlayerComponent.off('complete', this.listeners.family);
+		}
+
+		this.continueBtn.activate("next");
+	}
+};
+PageOpinion.prototype.start = function() {
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.view.portrait.gotoAndStop(frm);
+};
+PageOpinion.prototype.onContinue = function(event) {
+	this.continueBtn.off('click', this.listeners.continue);
+
+	// Stop sound if it still on
+	if(this.challengePlayerComponent !== undefined){
+		this.challengePlayerComponent.stop();
+	}
+
+	if(this.familyPlayerComponent !== undefined){
+		this.familyPlayerComponent.stop();
+	}
+
+	this.dispatchEvent(new createjs.Event('continue'));
+};
+PageOpinion.prototype.destroy = function() {
+	this.view = null;	
+
+	if(this.challengePlayer != null){
+		this.challengePlayer.destroy();
+		this.challengePlayer = null;
+	}
+	if(this.familyPlayerComponent != null){
+		this.familyPlayerComponent.destroy();
+		this.familyPlayerComponent = null;
+	}
+
+	this.activePlayer = null;
+};
+createjs.EventDispatcher.initialize(PageOpinion.prototype);
+var PageMap = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost("next");	
+};
+PageMap.prototype.start = function() {
+	var self = this;
+
+	// Allow tick
+	Tick.enable();
+	Tick.framerate(5);
+
+	// Checkboxes
+	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
+	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundby'});
+	var btn3 = new RadioButton(this.view.checkbox3, {value:'svendborg'});
+
+	// Group
+	this.group = new ButtonGroup();
+	this.group.add(btn1);
+	this.group.add(btn2);
+	this.group.add(btn3);
+
+	// Events
+	this.listeners.group = this.group.on("click", function(event){
+		// Save chosen "fattiggård"
+		PlayerStats.poorhouse = event.data.value;
+
+		// User may continue
+		self.continueBtn.activate('next');
+		self.continueBtn.on('click', function(e){
+			e.remove();
+			event.remove();
+
+			self.view.info1.off('click', self.listeners['info1']);
+			self.view.info2.off('click', self.listeners['info2']);
+			self.view.info3.off('click', self.listeners['info3']);
+
+			self.dispatchEvent(new createjs.Event('continue'));
+		});
+	}, self);
+
+
+	// Info popup
+	this.view.infopopup.visible = false;
+	this.infoButtons = [];
+	this.infoButtons.push(this.view.info1);
+	this.infoButtons.push(this.view.info2);
+	this.infoButtons.push(this.view.info3);
+	this.view.info1.id = 1;
+	this.view.info2.id = 2;
+	this.view.info3.id = 3;
+	// Info buttons events
+	this.listeners['info1'] = this.view.info1.on('click', function(event){
+		this.openInfo(event.target.id);
+	}, this);
+	this.listeners['info2'] = this.view.info2.on('click', function(event){
+		this.openInfo(event.target.id);
+	}, this);
+	this.listeners['info3'] = this.view.info3.on('click', function(event){
+		this.openInfo(event.target.id);
+	}, this);
+	// Close button	
+	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){
+		this.closeInfo();
+	}, this);
+};
+PageMap.prototype.openInfo = function(id) {
+	this.view.infopopup.gotoAndStop(id-1);
+	this.view.infopopup.x = 0;
+	this.view.infopopup.visible = true;
+	this.continueBtn.hide();
+};
+PageMap.prototype.closeInfo = function(id) {
+	this.view.infopopup.x = 1024;
+	this.view.infopopup.visible = false;
+	this.continueBtn.show();
+};
+PageMap.prototype.destroy = function() {
+	this.view = null;	
+};
+createjs.EventDispatcher.initialize(PageMap.prototype);
+var PageIntro = function(view, id){
+	'use strict';
+	//console.log("view.player:", view.player);
+	this.view = view;
+	this.id = id;
+	this.lib = null;
+	this.listeners = {};
+	this.playerComponent = new PlayerSliderComponent(view.player);
+	
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost("skip");
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
+};
+PageIntro.prototype.start = function() {
+	LoadJS.load(
+		'../assets/logic/slides/'+"slide_"+this.id+".js", 
+		Delegate.create(this.setup, this)
+	);
+	// Allow tick
+	Tick.enable();
+};
+PageIntro.prototype.setup = function() {
+	if(this.runonce != null)
+		return;
+
+	var self = this;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	try{
+		this.lib = slidelib;
+		this.playerComponent.on('ready', function(event){
+			event.remove();
+			// No tick
+			Tick.disable();
+			self.continueBtn.activate("skip");
+			// self.dispatchEvent(new createjs.Event('ready'));
+		});
+		this.playerComponent.preload("slide_"+this.id, this.lib);
+		this.lib = null;
+	}catch(err) {
+   		console.log(err);
+   	}
+};
+PageIntro.prototype.onContinue = function(event) {
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.listeners.continue = null;
+
+	// Stop Player
+	if(this.playerComponent !== undefined){
+		this.playerComponent.stop();
+	}
+
+	this.dispatchEvent(new createjs.Event('continue'));
+
+	this.destroy();
+};
+PageIntro.prototype.onComplete = function(event) {
+	this.playerComponent.off('complete', this.listeners.complete);	
+	this.listeners.complete = null;
+
+	// Set next button active
+	this.continueBtn.activate("next");
+};
+PageIntro.prototype.destroy = function() {
+	if(this.playerComponent != null){
+		this.playerComponent.destroy();	
+	}
+	this.playerComponent = null;
+	this.view = null;
+	this.lib = null;
+};
+createjs.EventDispatcher.initialize(PageIntro.prototype);
+var PageCard = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.continueBtn = ContinueButton;
+	this.continueBtn.activate("next");	
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+};
+PageCard.prototype.start = function() {
+	var frm;
+
+	// Set portrait an real name
+	frm = PlayerStats.challenge + PlayerStats.family;
+	this.view.portrait.gotoAndStop(frm);
+	this.view.realname.gotoAndStop(frm);
+
+	// Set nickname
+	frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
+	this.view.nickname.gotoAndStop(frm);
+
+	// Set challenge
+	frm = PlayerStats.challenge;
+	this.view.challenge.gotoAndStop(frm);	
+
+	// Set family, kids
+	frm = PlayerStats.family;
+	this.view.family.gotoAndStop(frm);
+	this.view.kids.gotoAndStop(frm);
+};
+PageCard.prototype.onContinue = function(event) {
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.dispatchEvent(new createjs.Event('continue'));
+};
+PageCard.prototype.destroy = function() {
+	this.view = null;	
+};
+createjs.EventDispatcher.initialize(PageCard.prototype);
 var SubFlowController = function(){
 	'use strict';
 
@@ -832,10 +1334,9 @@ var FlowPoorhouse = function(container){
 	this.id = null; 
 	this.view = null;	
 	this.lib = null;
-	this.slideLib = null;
 	this.playerComponent = null;
 	this.listeners = {};
-	this.trigger = '1.0.1'; // Default start pointer
+	this.trigger = '1.0.2'; // Default start pointer
 	// this.pagesTotal = 12;
 	this.currentPage = null;
 	this.currentBackground = null;
@@ -882,13 +1383,9 @@ FlowPoorhouse.prototype.start = function(){
 	console.log('FlowPoorhouse:start');
 
 	LoadJS.load(
-		['../assets/logic/games/svendborg.js', '../assets/logic/slides/slide_intro.js'], 
+		['../assets/logic/games/svendborg.js'], 
 		Delegate.create(this.setup, this)
 	);
-	// LoadJS.load(
-	// 	['../assets/logic/games/svendborg.js', '../assets/logic/slides/slide_1_0_1_svendborg.js'], 
-	// 	Delegate.create(this.setup, this)
-	// );
 };
 FlowPoorhouse.prototype.setup = function(){
 	'use strict';
@@ -906,7 +1403,7 @@ FlowPoorhouse.prototype.setup = function(){
 
 	// Setup flow
 	this.flow = new SubFlowController();
-	this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
+	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
 	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '2.4'); // TEST
 	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
 	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.5'); // TEST
@@ -918,19 +1415,13 @@ FlowPoorhouse.prototype.setup = function(){
 	this.flow.addAction('1.3.2', Delegate.create(this.getout, this), '1.3.3');
 	this.flow.addAction('1.3.3', Delegate.create(this.playAdvice, this), '1.3.4');
 	this.flow.addAction('1.3.4', Delegate.create(this.playAdvice, this), '1.3.5');
-	// this.flow.addAction('1.3.5', Delegate.create(this.chooseWayOut, this), {'A':'1.6.1', 'B':'1.7', 'C':'1.9'}); 
 	this.flow.addAction('1.3.5', Delegate.create(this.chooseWayOut, this), {'A':'1.5.1', 'B':'2.1'}); 
 	this.flow.addAction('1.5.1', Delegate.create(this.drunk, this), '1.5.2');
 	this.flow.addAction('1.5.2', Delegate.create(this.points7, this), '1.6.1');
 	this.flow.addAction('1.6.1', Delegate.create(this.constable, this), '1.6.2');
 	this.flow.addAction('1.6.2', Delegate.create(this.report, this), '1.6.3');
 	this.flow.addAction('1.6.3', Delegate.create(this.points6, this), '1.8');	
-	// this.flow.addAction('1.7', Delegate.create(this.letterWrite, this), '1.7.1');
-	// this.flow.addAction('1.7.1', Delegate.create(this.points4, this), '1.7.2');
-	// this.flow.addAction('1.7.2', Delegate.create(this.letterAnswer, this), '1.7.3');
-	// this.flow.addAction('1.7.3', Delegate.create(this.points5, this), '1.8');
 	this.flow.addAction('1.8', Delegate.create(this.backToPoorhouse, this), '1.3.5');
-	// this.flow.addAction('1.9', Delegate.create(this.preRecruitment, this), '2.1');	// FIXME
 	this.flow.addAction('2.1', Delegate.create(this.recruimentOffice, this), '2.2.1');
 	this.flow.addAction('2.2.1', Delegate.create(this.jobInterviewPart1, this), '2.2.2');
 	this.flow.addAction('2.2.2', Delegate.create(this.chooseJobGermany, this), '2.2.3');
@@ -949,27 +1440,20 @@ FlowPoorhouse.prototype.setup = function(){
 	console.log('FlowPoorhouse:setup', this.id);
 
 	this.lib = gamelib;
-	this.slideLib = slidelib;
 	switch(this.id){
 		case 'horsens':			
 			// this.lib = horsensGameLib;
 			Clss = this.lib.horsens;
-			// this.slideLib = horsensSlideLib;			
-			// introClss = this.slideLib.slide_horsens;
 			manifest = this.lib.properties.manifest;
 		break;
 		case 'sundby':
 			// this.lib = sundbyGameLib;
 			Clss = this.lib.sundby;
-			// this.slideLib = sundbySlideLib;			
-			// introClss = this.slideLib.slide_sundby;
 			manifest = this.lib.properties.manifest;
 		break;
 		case 'svendborg':	
 			
 			Clss = this.lib.svendborg;
-			// this.slideLib = svendborgSlideLib;
-			// this.slideLib = slidelib;			
 			manifest = this.lib.properties.manifest;
 
 		break;
@@ -978,10 +1462,8 @@ FlowPoorhouse.prototype.setup = function(){
 	// Load files
 	var onFileLoad = function(event){
 		if (event.item.type === 'image') { 
-			// console.log(event.item.id, event.result);
 			images[event.item.id] = event.result; 
 		}
-		console.log('FlowPoorhouse:onFileLoad');
 	};
 	var onLoadComplete = function(event){
 		// Instantiate view
@@ -1059,54 +1541,58 @@ FlowPoorhouse.prototype.destroy = function() {
 	this.listeners = null;
 	this.flow = null;
 };
-FlowPoorhouse.prototype.intro = function(trigger){
-	'use strict';
+// FlowPoorhouse.prototype.intro = function(trigger){
+// 	'use strict';
 
 
-	// Next move
-	this.trigger = trigger;
+// 	// Next move
+// 	this.trigger = trigger;
 
-	var self = this;
+// 	var self = this;
 
-	// Set page view
-	this.currentPage = this.view.intro;
-	this.currentPage.x = 0;
+// 	// Set page view
+// 	this.currentPage = this.view.intro;
+// 	this.currentPage.x = 0;
 
-	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
+// 	// Set background
+// 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
 	
-	// Slide. Loading is self contained
-	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-	this.listeners.complete = self.playerComponent.on('complete', function(event){
-		self.continueBtn.activate('next');
-		Tick.disable();
-	}, self);
-	this.playerComponent.on('ready', function(event){
-		event.remove();
-		// No tick
-		Tick.disable();
-		self.continueBtn.activate("skip");
-		// self.dispatchEvent(new createjs.Event('ready'));
-	});
-	// this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
-	this.playerComponent.preload('slide_intro', this.slideLib);
+// 	// Slide. Loading is self contained
+// 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+// 	this.listeners.complete = self.playerComponent.on('complete', function(event){
+// 		self.continueBtn.activate('next');
+// 		Tick.disable();
+// 	}, self);
+// 	this.playerComponent.on('ready', function(event){
+// 		event.remove();
+// 		// No tick
+// 		Tick.disable();
+// 		self.continueBtn.activate("skip");
+// 		// self.dispatchEvent(new createjs.Event('ready'));
+// 	});
+// 	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
+// 	// this.playerComponent.preload('slide_intro', this.slideLib);
 	
-};
+// };
 FlowPoorhouse.prototype.points1 = function(trigger) {
 	'use strict';
 
 	// Next move
 	this.trigger = trigger;
 
+	// 	// Set background
+		this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
+
 	// Pages in/out
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.points1;
-	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		PlayerStats.append('mood', -1);
-		PlayerStats.append('health', 1);
-		Topbar.pointsUpdate();
-		Tick.disable();
-	}, this));
+	this.currentPage.x = 0;
+	// Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+	// 	PlayerStats.append('mood', -1);
+	// 	PlayerStats.append('health', 1);
+	// 	Topbar.pointsUpdate();
+	// 	Tick.disable();
+	// }, this));
 	
 	this.continueBtn.activate('next');
 };
@@ -1200,7 +1686,7 @@ FlowPoorhouse.prototype.work = function(trigger) {
 
 	// Get sound
 	var sound = SoundService.matrix.work[this.id][PlayerStats.job]; // "svendborg/A"	
-	this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
+	// this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
 	
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view['bg_1_2'+PlayerStats.job]);
@@ -2609,317 +3095,6 @@ FlowCharacter.prototype.destroy = function() {
 	// createjs.Tween.removeTweens(event.target);
 };
 createjs.EventDispatcher.initialize(FlowCharacter.prototype);
-var PageStart = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("next");
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageStart.prototype.start = function() {
-	Tick.disable();
-};
-PageStart.prototype.onContinue = function(event) {
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageStart.prototype.destroy = function() {
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageStart.prototype);
-var PageOpinion = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.activePlayer = null;
-
-	this.playersCount = 0;
-	this.completed = 0;
-
-	var key = PlayerStats.challenge + PlayerStats.family;
-
-	// Get sound
-	this.soundChallengeObject = SoundService.matrix.oppinion[key];
-
-	// Set Text
-	this.view.charactertext.gotoAndStop(key);
-	this.view.playerlabel.gotoAndStop(key);
-
-
-	// Player - Challenge
-	// view.player.visible = false;
-	if(this.soundChallengeObject != null){
-		// view.player.visible = true;
-		this.challengePlayerComponent = new PlayerSoundComponent(view.player);
-		this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
-		this.playersCount++;
-
-		this.listeners.challengeStart = this.challengePlayerComponent.on("start", this.onSoundStart, this);
-
-		this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
-	}
-
-	// Continue/Skip button
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("skip");
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageOpinion.prototype.onSoundStart = function(event) {
-	// If there is a player active, pause it
-	if(this.activePlayer != null){
-		if(event.target.id != this.activePlayer.id){
-			this.activePlayer.pause();
-		}
-	}
-
-	// Save activated player
-	this.activePlayer = event.target;
-};
-PageOpinion.prototype.onComplete = function(event){
-	this.completed++;
-	if(this.completed >= this.playersCount){
-		if(this.challengePlayerComponent !== undefined){
-			this.challengePlayerComponent.off('complete', this.listeners.challenge);
-		}
-		if(this.familyPlayerComponent !== undefined){
-			this.familyPlayerComponent.off('complete', this.listeners.family);
-		}
-
-		this.continueBtn.activate("next");
-	}
-};
-PageOpinion.prototype.start = function() {
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.view.portrait.gotoAndStop(frm);
-};
-PageOpinion.prototype.onContinue = function(event) {
-	this.continueBtn.off('click', this.listeners.continue);
-
-	// Stop sound if it still on
-	if(this.challengePlayerComponent !== undefined){
-		this.challengePlayerComponent.stop();
-	}
-
-	if(this.familyPlayerComponent !== undefined){
-		this.familyPlayerComponent.stop();
-	}
-
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageOpinion.prototype.destroy = function() {
-	this.view = null;	
-
-	if(this.challengePlayer != null){
-		this.challengePlayer.destroy();
-		this.challengePlayer = null;
-	}
-	if(this.familyPlayerComponent != null){
-		this.familyPlayerComponent.destroy();
-		this.familyPlayerComponent = null;
-	}
-
-	this.activePlayer = null;
-};
-createjs.EventDispatcher.initialize(PageOpinion.prototype);
-var PageMap = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost("next");	
-};
-PageMap.prototype.start = function() {
-	var self = this;
-
-	// Allow tick
-	Tick.enable();
-	Tick.framerate(5);
-
-	// Checkboxes
-	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
-	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundby'});
-	var btn3 = new RadioButton(this.view.checkbox3, {value:'svendborg'});
-
-	// Group
-	this.group = new ButtonGroup();
-	this.group.add(btn1);
-	this.group.add(btn2);
-	this.group.add(btn3);
-
-	// Events
-	this.listeners.group = this.group.on("click", function(event){
-		// Save chosen "fattiggård"
-		PlayerStats.poorhouse = event.data.value;
-
-		// User may continue
-		self.continueBtn.activate('next');
-		self.continueBtn.on('click', function(e){
-			e.remove();
-			event.remove();
-
-			self.view.info1.off('click', self.listeners['info1']);
-			self.view.info2.off('click', self.listeners['info2']);
-			self.view.info3.off('click', self.listeners['info3']);
-
-			self.dispatchEvent(new createjs.Event('continue'));
-		});
-	}, self);
-
-
-	// Info popup
-	this.view.infopopup.visible = false;
-	this.infoButtons = [];
-	this.infoButtons.push(this.view.info1);
-	this.infoButtons.push(this.view.info2);
-	this.infoButtons.push(this.view.info3);
-	this.view.info1.id = 1;
-	this.view.info2.id = 2;
-	this.view.info3.id = 3;
-	// Info buttons events
-	this.listeners['info1'] = this.view.info1.on('click', function(event){
-		this.openInfo(event.target.id);
-	}, this);
-	this.listeners['info2'] = this.view.info2.on('click', function(event){
-		this.openInfo(event.target.id);
-	}, this);
-	this.listeners['info3'] = this.view.info3.on('click', function(event){
-		this.openInfo(event.target.id);
-	}, this);
-	// Close button	
-	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){
-		this.closeInfo();
-	}, this);
-};
-PageMap.prototype.openInfo = function(id) {
-	this.view.infopopup.gotoAndStop(id-1);
-	this.view.infopopup.x = 0;
-	this.view.infopopup.visible = true;
-	this.continueBtn.hide();
-};
-PageMap.prototype.closeInfo = function(id) {
-	this.view.infopopup.x = 1024;
-	this.view.infopopup.visible = false;
-	this.continueBtn.show();
-};
-PageMap.prototype.destroy = function() {
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageMap.prototype);
-var PageIntro = function(view, id){
-	'use strict';
-	//console.log("view.player:", view.player);
-	this.view = view;
-	this.id = id;
-	this.lib = null;
-	this.listeners = {};
-	this.playerComponent = new PlayerSliderComponent(view.player);
-	
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost("skip");
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
-};
-PageIntro.prototype.start = function() {
-	LoadJS.load(
-		'../assets/logic/slides/'+"slide_"+this.id+".js", 
-		Delegate.create(this.setup, this)
-	);
-	// Allow tick
-	Tick.enable();
-};
-PageIntro.prototype.setup = function() {
-	if(this.runonce != null)
-		return;
-
-	var self = this;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	try{
-		this.lib = slidelib;
-		this.playerComponent.on('ready', function(event){
-			event.remove();
-			// No tick
-			Tick.disable();
-			self.continueBtn.activate("skip");
-			// self.dispatchEvent(new createjs.Event('ready'));
-		});
-		this.playerComponent.preload("slide_"+this.id, this.lib);
-		this.lib = null;
-	}catch(err) {
-   		console.log(err);
-   	}
-};
-PageIntro.prototype.onContinue = function(event) {
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.listeners.continue = null;
-
-	// Stop Player
-	if(this.playerComponent !== undefined){
-		this.playerComponent.stop();
-	}
-
-	this.dispatchEvent(new createjs.Event('continue'));
-
-	this.destroy();
-};
-PageIntro.prototype.onComplete = function(event) {
-	this.playerComponent.off('complete', this.listeners.complete);	
-	this.listeners.complete = null;
-
-	// Set next button active
-	this.continueBtn.activate("next");
-};
-PageIntro.prototype.destroy = function() {
-	if(this.playerComponent != null){
-		this.playerComponent.destroy();	
-	}
-	this.playerComponent = null;
-	this.view = null;
-	this.lib = null;
-};
-createjs.EventDispatcher.initialize(PageIntro.prototype);
-var PageCard = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("next");	
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageCard.prototype.start = function() {
-	var frm;
-
-	// Set portrait an real name
-	frm = PlayerStats.challenge + PlayerStats.family;
-	this.view.portrait.gotoAndStop(frm);
-	this.view.realname.gotoAndStop(frm);
-
-	// Set nickname
-	frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
-	this.view.nickname.gotoAndStop(frm);
-
-	// Set challenge
-	frm = PlayerStats.challenge;
-	this.view.challenge.gotoAndStop(frm);	
-
-	// Set family, kids
-	frm = PlayerStats.family;
-	this.view.family.gotoAndStop(frm);
-	this.view.kids.gotoAndStop(frm);
-};
-PageCard.prototype.onContinue = function(event) {
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageCard.prototype.destroy = function() {
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageCard.prototype);
 var Topbar = {
 	view: null,
 	soundController: null,
@@ -3007,6 +3182,9 @@ var Transitions = {
 		
 	},
 	transInPosition: function(pageView, callback){
+		if(pageView === undefined)
+			return;
+
 		// New page in
 		pageView.alpha = 1;
 		pageView.x = 1024;
@@ -3019,6 +3197,9 @@ var Transitions = {
 			});
 	},
 	transOutPosition: function(pageView, callback){
+		if(pageView === undefined)
+			return;
+
 		// New page in
 		createjs.Tween.get(pageView)
 			.to({x:-1024}, 300, createjs.Ease.linear)
@@ -3029,6 +3210,9 @@ var Transitions = {
 			});
 	},
 	transInAlpha: function(pageView, callback){
+		if(pageView === undefined)
+			return;
+
 		// New page in
 		pageView.alpha = 0;
 		pageView.x = 0;
@@ -3041,6 +3225,9 @@ var Transitions = {
 			});
 	},
 	transOutAlpha: function(pageView, callback){
+		if(pageView === undefined)
+			return;
+		
 		// New page in
 		createjs.Tween.get(pageView)
 			.to({alpha:0}, 300, createjs.Ease.linear)
@@ -3149,25 +3336,7 @@ TextField.createBmp = function(id, text, fontsize, color){
 	return bmptxt;
 }
 var LoadJS = {
-	// load: function(url, delegate, location){
-	// 	'use strict';
-
-	// 	//url is URL of external file, code is the code
-	//     //to be called from the file, location is the location to 
-	//     //insert the <script> element
-
-	//     if(location == null)
-	//     	location = document.body;
-
-	//     var scriptTag = document.createElement('script');	    
-
-	//     scriptTag.onload = delegate;
-	//     scriptTag.onreadystatechange = delegate;
-
-	//     scriptTag.src = url;
-	//     location.appendChild(scriptTag);
-
-	// },
+	cache: [],
 	load: function(urls, delegate, location){
 		'use strict';
 		var urlList;
@@ -3190,6 +3359,15 @@ var LoadJS = {
 	    	location = document.body;
 
 	    for(var i=0; i<urlList.length; i++){
+	    	for(var b = 0; b<this.cache.length; b++){
+    			if(this.cache[b] === urlList[i]){
+    				return false;
+    			}
+    		}
+    		this.cache.push(urlList[i]);
+
+    		console.log(this.cache);
+
 		    var scriptTag = document.createElement('script');		    
 		    // console.log(urlList[i]);
 
@@ -3204,7 +3382,8 @@ var LoadJS = {
 		    	tracker[identifier1] = true;
 
 		    	// Through list of files requested to be loaded
-		    	for(var a=0; a<urlList.length; a++){
+		    	for(var a=0; a<urlList.length; a++){		    		
+
 		    		// Split the path of the file requsted to be loaded. Get the 2 last entries
 		    		var arr2 = urlList[a].split('/');
 		    		var identifier2 = arr2[arr2.length-2] +'/'+arr2[arr2.length-1];
@@ -3221,7 +3400,8 @@ var LoadJS = {
 		    };
 
 		    scriptTag.src = urlList[i];
-		    location.appendChild(scriptTag);			    
+		    location.appendChild(scriptTag);
+		    // location.removeChild(scriptTag);  
 	    }	    
 	}	
 };
@@ -3576,18 +3756,49 @@ var FlowManager = {
 					event.remove();
 					Library.clearSlide();
 					Library.clearGame();
-					self.gotoPage('1.0');
+					self.gotoPage('1.0.1');
 				}, this);				
 				// Tick.disable();	
 				
 			break;
-			case '1.0':	
-				// Poor House		
+			case '1.0.1':	
+				// Poor House Intro	
 				
 				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
 				Topbar.go('game');
+
+				this.currentPage = null;
+				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('1.0.2');
+				}, this);
+				// Tick.disable();
+			break;
+			case '1.0.2':	
+				// Poor House		
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');
+				
 
 				this.currentPage = null;
 				this.currentPage = new FlowPoorhouse(this.root.pagecontainer); // Id references to flow id '0.1'
@@ -3607,7 +3818,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('2.5');
 				}, this);
-				// Tick.disable();
+				Tick.disable();
 			break;
 			case '2.5':
 				// Germany 1.
@@ -3667,7 +3878,7 @@ var ApplicationManager = {
 
 		// Go to start
 		// FlowManager.gotoPage('0.0');
-		FlowManager.gotoPage('1.0');
+		FlowManager.gotoPage('1.0.1');
 		// FlowManager.gotoPage('2.5');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
@@ -4145,6 +4356,7 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 				self.container.remove(slide);
 				self.slide = null;
 			}
+			
 			// Create slider object and attach to container
 			self.slide = eval('new lib.'+slideId+'()');
 			
@@ -5277,6 +5489,44 @@ module.run(['$templateCache', function($templateCache) {
     '\n' +
     'function handleComplete(evt) {\n' +
     '	exportRoot = new gamelib.germany_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/poorhouse_intro.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>poorhouse_intro</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="poorhouse_intro.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.poorhouse_intro();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
