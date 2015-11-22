@@ -91,7 +91,7 @@ FlowPoorhouse.prototype.setup = function(){
 	this.flow.addAction('1.6.1', Delegate.create(this.constable, this), '1.6.2');
 	this.flow.addAction('1.6.2', Delegate.create(this.report, this), '1.6.3');
 	this.flow.addAction('1.6.3', Delegate.create(this.points6, this), '1.8');	
-	this.flow.addAction('1.8', Delegate.create(this.backToPoorhouse, this), '1.3.5');
+	this.flow.addAction('1.8', Delegate.create(this.backToPoorhouse, this), '2.1');
 	this.flow.addAction('2.1', Delegate.create(this.recruimentOffice, this), '2.2.1');
 	this.flow.addAction('2.2.1', Delegate.create(this.jobInterviewPart1, this), '2.2.2');
 	this.flow.addAction('2.2.2', Delegate.create(this.chooseJobGermany, this), '2.2.3');
@@ -172,7 +172,7 @@ FlowPoorhouse.prototype.onComplete = function(event) {
 FlowPoorhouse.prototype.onContinue = function(event) {
 	'use strict';
 	
-	console.log('FlowPoorhouse::onContinue');
+	// console.log('FlowPoorhouse::onContinue');
 	
 	// Stop player if any
 	if(this.playerComponent != null){
@@ -423,50 +423,19 @@ FlowPoorhouse.prototype.points3 = function(trigger) {
 };
 FlowPoorhouse.prototype.getout = function(trigger) {
 	'use strict';
+	var self = this;
+	var currentTrigger = this.trigger;
+
 	// Next move
 	this.trigger = trigger;
+
+	// Get sound
+	var sound = SoundService.matrix[currentTrigger];
+	console.log(sound);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.getout;
-	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
-	}, this));
-
-	// Set portrait
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.currentPage.portrait.gotoAndStop(frm);
-
-	this.continueBtn.activate('next');
-};
-FlowPoorhouse.prototype.playAdvice = function(trigger) {
-	'use strict';
-	var self = this;
-	var currentTrigger = this.trigger;
-	var sound;
-
-	// Next move
-	this.trigger = trigger;
-
-	// Pages in/out
-	var previousPage = this.currentPage;
-
-	// Set new page out
-	switch(currentTrigger){
-		case '1.3.3': // Inmate
-			this.currentPage = this.view.adviceinmate;	
-
-			// Get sound
-			sound = SoundService.matrix.advice[this.id]['inmate'];
-		break;
-		case '1.3.4': // Employee
-			this.currentPage = this.view.adviceemployee;
-
-			// Get sound
-			sound = SoundService.matrix.advice[this.id]['employee'];
-		break;
-	}	
-	
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
@@ -483,6 +452,51 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	this.continueBtn.activate('next');
+};
+FlowPoorhouse.prototype.playAdvice = function(trigger) {
+	'use strict';
+	var self = this;
+	var currentTrigger = this.trigger;
+	
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+
+	// Set new page out
+	switch(currentTrigger){
+		case '1.3.3': // Inmate
+			this.currentPage = this.view.adviceinmate;	
+		break;
+		case '1.3.4': // Employee
+			this.currentPage = this.view.adviceemployee;
+		break;
+	}	
+
+	// Get sound
+	var sound = SoundService.matrix[currentTrigger];
+	
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
 	// Portrait
 	this.currentPage.portrait.gotoAndStop(this.id);

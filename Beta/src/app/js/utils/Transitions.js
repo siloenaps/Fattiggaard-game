@@ -42,6 +42,7 @@ var Transitions = {
 			return;
 
 		// New page in
+		pageView.visible = true;
 		pageView.alpha = 1;
 		pageView.x = 1024;
 		createjs.Tween.get(pageView)
@@ -62,6 +63,7 @@ var Transitions = {
 			.call(function(){
 				if(callback !== undefined){
 					callback();
+					pageView.visible = false;
 				}
 			});
 	},
@@ -70,6 +72,7 @@ var Transitions = {
 			return;
 
 		// New page in
+		pageView.visible = true;
 		pageView.alpha = 0;
 		pageView.x = 0;
 		createjs.Tween.get(pageView)

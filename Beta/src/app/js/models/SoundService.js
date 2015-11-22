@@ -49,8 +49,6 @@ SoundService.matrix = {
 	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
 	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
 	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
-	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
-	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
 	jobinterview: {
 		'svendborg': { 
 			'part1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
@@ -60,12 +58,9 @@ SoundService.matrix = {
 	prerecruitment: {
 		'svendborg': { src:SoundService.properties.basePath+'prerecruitment_svendborg.mp3', duration: 1.078 }
 	},
-	advice: {
-		'svendborg': {
-			'employee': { src:SoundService.properties.basePath+'1.3.4_RaadIndlagt.mp3', duration: 41.987 }, 	// Employee
-			'inmate': { src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 }		// Fellow inmate
-		},
-	},
+	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
+	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
+	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },
 	work: {
 		'svendborg': {
 			'A': { src:SoundService.properties.basePath+'1.1.2a_slaa_skaerver.mp3', duration: 12.408 },
@@ -73,6 +68,14 @@ SoundService.matrix = {
 			'C': { src:SoundService.properties.basePath+'work_svendborg_C.mp3', duration: 1.815 }
 		},
 	},
+	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
+	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
+	'2.10.2': {
+		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3', duration: 52.881 },
+		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3', duration: 53.265 }
+	},
+	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
+	
 	slides: {
 				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
 				'slide_1_0_1_svendborg': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },

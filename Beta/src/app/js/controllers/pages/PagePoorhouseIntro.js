@@ -24,7 +24,7 @@ PagePoorhouseIntro.prototype.start = function(){
 	this.id = PlayerStats.poorhouse;
 	var gameFile;
 
-	console.log('PagePoorhouseIntro:start');
+	// console.log('PagePoorhouseIntro:start');
 
 	LoadJS.load(
 		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/slide_1_0_1_svendborg.js'], 
@@ -56,7 +56,7 @@ PagePoorhouseIntro.prototype.setup = function(){
 	);
 
 	this.id = 'svendborg';
-	console.log('PagePoorhouseIntro:setup', this.id);
+	// console.log('PagePoorhouseIntro:setup', this.id);
 
 	this.lib = gamelib;
 	this.slideLib = slidelib;
@@ -83,7 +83,7 @@ PagePoorhouseIntro.prototype.setup = function(){
 			// console.log(event.item.id, event.result);
 			images[event.item.id] = event.result; 
 		}
-		console.log('PagePoorhouseIntro:onFileLoad');
+		// console.log('PagePoorhouseIntro:onFileLoad');
 	};
 	var onLoadComplete = function(event){
 		// Instantiate view
@@ -95,7 +95,7 @@ PagePoorhouseIntro.prototype.setup = function(){
 		// Set start page
 		self.next();
 
-		console.log('PagePoorhouseIntro:onLoadComplete');
+		// console.log('PagePoorhouseIntro:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');

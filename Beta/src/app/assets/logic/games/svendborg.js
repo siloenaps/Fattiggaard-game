@@ -9,8 +9,8 @@ lib.properties = {
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../../../assets/images/pool/_112_letter.png", id:"_112_letter"},
-		{src:"../../../assets/images/pool/_112_letter_1.png", id:"_112_letter_1"},
+		{src:"../../../assets/images/pool/_112_letter_bg.png", id:"_112_letter_bg"},
+		{src:"../../../assets/images/pool/_112_letter_text.png", id:"_112_letter_text"},
 		{src:"../../../assets/images/pool/_161_arresteret.jpg", id:"_161_arresteret"},
 		{src:"../../../assets/images/pool/_162Policereporttext_small.png", id:"_162Policereporttext_small"},
 		{src:"../../../assets/images/pool/_1_0BGsvendborg.jpg", id:"_1_0BGsvendborg"},
@@ -28,6 +28,8 @@ lib.properties = {
 		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
 		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
 		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
+		{src:"../../../assets/images/pool/ansat_1.png", id:"ansat_1"},
+		{src:"../../../assets/images/pool/ansat_2.png", id:"ansat_2"},
 		{src:"../../../assets/images/pool/BDCloseUp.png", id:"BDCloseUp"},
 		{src:"../../../assets/images/pool/BECloseUp.png", id:"BECloseUp"},
 		{src:"../../../assets/images/pool/BFCloseUp.png", id:"BFCloseUp"},
@@ -63,16 +65,16 @@ lib.properties = {
 
 
 
-(lib._112_letter = function() {
-	this.initialize(img._112_letter);
+(lib._112_letter_bg = function() {
+	this.initialize(img._112_letter_bg);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,465,449);
 
 
-(lib._112_letter_1 = function() {
-	this.initialize(img._112_letter_1);
+(lib._112_letter_text = function() {
+	this.initialize(img._112_letter_text);
 }).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,352,341);
+p.nominalBounds = new cjs.Rectangle(0,0,415,318);
 
 
 (lib._161_arresteret = function() {
@@ -173,6 +175,18 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 (lib.AFCloseUp = function() {
 	this.initialize(img.AFCloseUp);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
+(lib.ansat_1 = function() {
+	this.initialize(img.ansat_1);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
+(lib.ansat_2 = function() {
+	this.initialize(img.ansat_2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
@@ -569,20 +583,25 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
 
-	// Layer 3
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#CC0000").s().p("Ak9EaQiEh1AAilQAAikCEh1QCEh2C5ABQC6gBCDB2QCEB1ABCkQgBCliEB1QiDB2i6AAQi5AAiEh2g");
-	this.shape.setTransform(330,480);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(2).to({_off:false},0).wait(1));
-
 	// Layer 1
-	this.instance = new lib.indsat_1();
+	this.instance = new lib.ansat_1();
 
-	this.instance_1 = new lib.indsat_2();
+	this.instance_1 = new lib.ansat_2();
 
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance}]},1).wait(1));
+	this.text = new cjs.Text("Mangler\nbillede", "24px 'Special Elite'");
+	this.text.lineHeight = 26;
+	this.text.lineWidth = 100;
+	this.text.setTransform(243,255.1);
+
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f().s("#CCCCCC").ss(1,1,1).p("Avn85IfPAAMAAAA5zI/PAAg");
+	this.shape.setTransform(299.5,374.5);
+
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f("#00CC33").s().p("Avmc6MAAAg5yIfOAAMAAAA5yg");
+	this.shape_1.setTransform(299.5,374.5);
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.shape_1},{t:this.shape},{t:this.text}]},1).wait(1));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
@@ -605,7 +624,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 	this.instance_1 = new lib.indsat_2();
 
 	this.instance_2 = new lib.indsat_3();
-	this.instance_2.setTransform(-138,105);
+	this.instance_2.setTransform(-8,105);
 
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
 
@@ -1447,24 +1466,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,34,34);
 p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
 
 
-(lib._132PageGetOut = function() {
-	this.initialize();
-
-	// Layer 1
-	this.text = new cjs.Text("Jeg har været indespærret her i et par måneder\nnu… da jeg kom, var jeg sulten og kold og\ndesperat efter at finde ly for den djævelske\nvinter, der hev og flåede i huden, og efter at\ntilfredsstille min knurrende mave… efter et\npar måneder her er jeg ikke længere sulten, jeg\nhar nogenlunde rent tøj og kan holde varmen…\nNu er jeg bare desperat efter at komme ud\nherfra… Jeg vil ud herfra, men hvordan..?   ", "24px 'Special Elite'", "#D9D1B4");
-	this.text.lineHeight = 26;
-	this.text.lineWidth = 594;
-	this.text.setTransform(212,132);
-
-	// Layer 2
-	this.portrait = new lib.OpenionCloseups();
-	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
-
-	this.addChild(this.portrait,this.text);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
-
-
 (lib.Letter2Dropdown1 = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{closed:0,open:4});
 
@@ -2071,15 +2072,20 @@ p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
 	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
 
 	// Text
+	this.text = new cjs.Text("", "48px 'SpecialElite-Regular'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 100;
+	this.text.setTransform(812,30.3);
+
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
 
-	this.text = new cjs.Text("<Drunk>", "48px 'Special Elite'", "#FFFFFF");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 800;
-	this.text.setTransform(210,38);
+	this.text_1 = new cjs.Text("Det bliver en festlig dag\nude i byen...", "48px 'Special Elite'", "#FFFFFF");
+	this.text_1.lineHeight = 50;
+	this.text_1.lineWidth = 799;
+	this.text_1.setTransform(210,38);
 
-	this.addChild(this.text,this.player,this.portrait);
+	this.addChild(this.text_1,this.player,this.text,this.portrait);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
@@ -2191,6 +2197,22 @@ p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
+(lib._132PageGetOut = function() {
+	this.initialize();
+
+	// Player
+	this.player = new lib.PlayerAudio();
+	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
+
+	// Layer 2
+	this.portrait = new lib.OpenionCloseups();
+	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
+
+	this.addChild(this.portrait,this.player);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
+
+
 (lib._121PageWork = function() {
 	this.initialize();
 
@@ -2244,11 +2266,11 @@ p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
 	this.text_3.setTransform(121,38);
 
 	// Text png
-	this.instance = new lib._112_letter_1();
-	this.instance.setTransform(671.4,128,1,1,11.5);
+	this.instance = new lib._112_letter_text();
+	this.instance.setTransform(603.5,102);
 
 	// Letter
-	this.instance_1 = new lib._112_letter();
+	this.instance_1 = new lib._112_letter_bg();
 	this.instance_1.setTransform(559,91);
 
 	this.addChild(this.instance_1,this.instance,this.text_3,this.text_2,this.text_1,this.text,this.checkbox1,this.checkbox2,this.checkbox3);

@@ -29,7 +29,7 @@ var LoadJS = {
     		}
     		this.cache.push(urlList[i]);
 
-    		console.log(this.cache);
+    		// console.log(this.cache);
 
 		    var scriptTag = document.createElement('script');		    
 		    // console.log(urlList[i]);

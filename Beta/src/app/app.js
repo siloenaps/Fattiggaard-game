@@ -34,7 +34,7 @@
 				Tick.init(stage, 15);
 				Tick.enable();		
 
-				console.log('stage.autoClear:', stage.autoClear);
+				// console.log('stage.autoClear:', stage.autoClear);
 				
 				//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
 
