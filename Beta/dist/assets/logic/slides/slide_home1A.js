@@ -9,16 +9,16 @@ lib.properties = {
 	fps: 24,
 	color: "#FFFFFF",
 	manifest: [
-		{src:"../../../assets/images/slides/home1A/Bitmap1.png", id:"Bitmap1"},
-		{src:"../../../assets/images/slides/home1A/krig1.jpg", id:"krig1"},
-		{src:"../../../assets/images/slides/home1A/krig10.jpg", id:"krig10"},
-		{src:"../../../assets/images/slides/home1A/krig11.jpg", id:"krig11"},
-		{src:"../../../assets/images/slides/home1A/krig12.jpg", id:"krig12"},
-		{src:"../../../assets/images/slides/home1A/krig13.jpg", id:"krig13"},
-		{src:"../../../assets/images/slides/home1A/krig14.jpg", id:"krig14"},
-		{src:"../../../assets/images/slides/home1A/krig15.jpg", id:"krig15"},
-		{src:"../../../assets/images/slides/home1A/krig3.jpg", id:"krig3"},
-		{src:"../../../assets/images/slides/home1A/krig5.jpg", id:"krig5"}
+		{src:"../../../assets/images/slides/Bitmap1.png", id:"Bitmap1"},
+		{src:"../../../assets/images/slides/krig1.jpg", id:"krig1"},
+		{src:"../../../assets/images/slides/krig10.jpg", id:"krig10"},
+		{src:"../../../assets/images/slides/krig11.jpg", id:"krig11"},
+		{src:"../../../assets/images/slides/krig12.jpg", id:"krig12"},
+		{src:"../../../assets/images/slides/krig13.jpg", id:"krig13"},
+		{src:"../../../assets/images/slides/krig14.jpg", id:"krig14"},
+		{src:"../../../assets/images/slides/krig15.jpg", id:"krig15"},
+		{src:"../../../assets/images/slides/krig3.jpg", id:"krig3"},
+		{src:"../../../assets/images/slides/krig5.jpg", id:"krig5"}
 	]
 };
 
@@ -131,5 +131,5 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(290,202,580,404);
 
-})(lib = lib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
-var lib, images, createjs, ss;
+})(slidelib = slidelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
+var slidelib, images, createjs, ss;

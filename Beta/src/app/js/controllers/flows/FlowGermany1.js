@@ -43,18 +43,20 @@ FlowGermany1.prototype.setup = function(){
 	this.flow.addAction('2.6.2', Delegate.create(this.points1, this), '2.7.1');
 	this.flow.addAction('2.7.1', Delegate.create(this.work, this), '2.7.2');
 	this.flow.addAction('2.7.2', Delegate.create(this.points2, this), '2.7.3');
-	this.flow.addAction('2.7.3', Delegate.create(this.points3, this), '2.8');
-	this.flow.addAction('2.8', Delegate.create(this.chooseSpending, this), '2.9.1');
-	this.flow.addAction('2.9.1', Delegate.create(this.spending, this), '2.9.2');
-	this.flow.addAction('2.9.2', Delegate.create(this.points4, this), '2.10.1');
-	this.flow.addAction('2.10.1', Delegate.create(this.whatNow, this), '2.11.1');
-	// this.flow.addAction('2.10.2', Delegate.create(this.chooseWhatNow, this), '2.11.1');
-	this.flow.addAction('2.11.1', Delegate.create(this.homeComming, this), '2.11.2');
-	this.flow.addAction('2.11.2', Delegate.create(this.points5, this), '3.0');
+	this.flow.addAction('2.7.3', Delegate.create(this.points3, this), '2.8.1');
+	this.flow.addAction('2.8.1', Delegate.create(this.getPaid, this), '2.8.2');
+	this.flow.addAction('2.8.2', Delegate.create(this.chooseSpending, this), '2.9.1');
+	this.flow.addAction('2.9.1', Delegate.create(this.points4, this), '2.9.2');
+	this.flow.addAction('2.9.2', Delegate.create(this.facts, this), '2.10.1');
+	this.flow.addAction('2.10.1', Delegate.create(this.chooseWhatNow, this), '2.10.2');
+	this.flow.addAction('2.10.2', Delegate.create(this.whatNow, this), '2.10.3');
+	this.flow.addAction('2.10.3', Delegate.create(this.points6, this), '2.11.1');
+	this.flow.addAction('2.11.1', Delegate.create(this.homeComming, this), '3.0');
+	// this.flow.addAction('2.11.2', Delegate.create(this.points5, this), '3.0');
 
 	try{
 		// Load files for flow	
-		this.lib = germany1GameLib;
+		this.lib = gamelib; //germany1GameLib;
 		var Clss = this.lib.germany_1;
 		var manifest = this.lib.properties.manifest;
 		var onFileLoad = function(event){
@@ -74,6 +76,8 @@ FlowGermany1.prototype.setup = function(){
 
 			// Set start page
 			self.flow.next(self.trigger);
+
+			self.dispatchEvent(new createjs.Event('ready'));
 		};
 		Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
 	}catch(err) {
@@ -141,7 +145,7 @@ FlowGermany1.prototype.traveling = function(trigger){
 	
 	// Slide. Loading is self contained
 	try{
-		this.slideLib = lib;	
+		this.slideLib = slidelib;	
 		this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 		this.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
@@ -263,7 +267,7 @@ FlowGermany1.prototype.work = function(trigger){
 				[slidePath], 
 				Delegate.create(function(){
 					// Slide. Loading is self contained
-					self.slideLib = lib;	
+					self.slideLib = slidelib;	
 					self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
 					self.listeners.complete = self.playerComponent.on('complete', function(event){
 						self.continueBtn.activate('next');
@@ -312,15 +316,54 @@ FlowGermany1.prototype.points3 = function(trigger) {
 
 	this.continueBtn.activate('next');
 };
+FlowGermany1.prototype.getPaid = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_8);
+
+	// Get sound
+	var sound = SoundService.matrix['2.8.1'];
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.getpaid;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	// Reuse player component var for sound
+	this.playerComponent = null;
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Next
+	this.continueBtn.ghost('skip');
+};
 FlowGermany1.prototype.chooseSpending = function(trigger) {
 	'use strict';
 	var self = this;
 
 	// Next move
 	this.trigger = trigger;
-
-	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_8);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -355,48 +398,22 @@ FlowGermany1.prototype.chooseSpending = function(trigger) {
 	// Desactivate continue button
 	this.continueBtn.ghost('next');
 };
-FlowGermany1.prototype.spending = function(trigger) {
-	'use strict';
-	var self = this;
-
-	// Next move
-	this.trigger = trigger;
-
-	// Get spending related assets
-	var bg, page;
-	try{
-		bg = this.view['bg_2_9'+PlayerStats.spending];
-		page = this.view['spending'+PlayerStats.spending];
-	}catch(err){
-		console.log(err);
-	}	
-
-	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
-
-	// Pages in/out
-	var previousPage = this.currentPage;
-	this.currentPage = page;
-	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-		Tick.disable();
-	}, this));
-
-
-	// Desactivate continue button
-	this.continueBtn.activate('next');
-};
 FlowGermany1.prototype.points4 = function(trigger) {
 	'use strict';
 	// Next move
 	this.trigger = trigger;
 
 	// Get spending related assets
-	var page;
+	var page, bg;
 	try{
+		bg = this.view['bg_2_9'+PlayerStats.spending];
 		page = this.view['points4'+PlayerStats.spending];
 	}catch(err){
 		console.log(err);
 	}	
+	
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -421,47 +438,25 @@ FlowGermany1.prototype.points4 = function(trigger) {
 
 	this.continueBtn.activate('next');
 };
-FlowGermany1.prototype.whatNow = function(trigger){
+FlowGermany1.prototype.facts = function(trigger) {
 	'use strict';
+	var self = this;
 
 	// Next move
 	this.trigger = trigger;
 
-	var self = this;
-
-	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_10);
-
-	// Get sound
-	var sound = SoundService.matrix['2.10.1'];
-
 	// Pages in/out
 	var previousPage = this.currentPage;
-	this.currentPage = this.view.whatnow;
-	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		// Sound Player
-		self.listeners.complete = self.playerComponent.on('complete', function(event){
-			self.continueBtn.activate('next');
-			Tick.disable();
-		}, self);
-		self.playerComponent.on('ready', function(event){
-			self.continueBtn.activate('skip');
-			Tick.disable();
-		}, self);
-		self.playerComponent.preload(sound.src, sound.duration);
+	this.currentPage = this.view.facts;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		Tick.disable();
 	}, this));
 
 
-	// Set portrait
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.currentPage.portrait.gotoAndStop(frm);
-
-	// Reuse player component var for sound
-	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-
-	// Next
-	this.continueBtn.ghost('skip');
+	// Desactivate continue button
+	this.continueBtn.activate('next');
 };
+
 FlowGermany1.prototype.chooseWhatNow = function(trigger) {
 	'use strict';
 	var self = this;
@@ -502,6 +497,75 @@ FlowGermany1.prototype.chooseWhatNow = function(trigger) {
 	// Desactivate continue button
 	this.continueBtn.ghost('next');
 };
+FlowGermany1.prototype.whatNow = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_10);
+
+	// Get sound
+	var sound = SoundService.matrix['2.10.2'][PlayerStats.whatnow];
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.whatnow;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Frame A, B
+	this.currentPage.gotoAndStop(PlayerStats.whatnow);
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Next
+	this.continueBtn.ghost('skip');
+};
+FlowGermany1.prototype.points6 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points6;
+	this.currentPage.gotoAndStop(PlayerStats.whatnow);
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		switch(PlayerStats.whatnow){
+			case 'A':
+				PlayerStats.append('money', 1);
+			break;
+			case 'B':
+				PlayerStats.append('money', -1);
+			break;
+		}			
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+console.log('points6', PlayerStats.whatnow, this.currentPage);
+	this.continueBtn.activate('next');
+};
 FlowGermany1.prototype.homeComming = function(trigger){
 	'use strict';
 
@@ -534,6 +598,10 @@ FlowGermany1.prototype.homeComming = function(trigger){
 
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Set portrait (NB. In background!)
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
 
 	// Ghost continue button
 	self.continueBtn.ghost('skip');

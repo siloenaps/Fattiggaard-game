@@ -20,7 +20,7 @@ function init() {
 	var loader = new createjs.LoadQueue(false);
 	loader.addEventListener("fileload", handleFileLoad);
 	loader.addEventListener("complete", handleComplete);
-	loader.loadManifest(lib.properties.manifest);
+	loader.loadManifest(slidelib.properties.manifest);
 }
 
 function handleFileLoad(evt) {
@@ -28,13 +28,13 @@ function handleFileLoad(evt) {
 }
 
 function handleComplete(evt) {
-	exportRoot = new lib.slide_2_7_1_mine();
+	exportRoot = new slidelib.slide_2_7_1_mine();
 
 	stage = new createjs.Stage(canvas);
 	stage.addChild(exportRoot);
 	stage.update();
 
-	createjs.Ticker.setFPS(lib.properties.fps);
+	createjs.Ticker.setFPS(slidelib.properties.fps);
 	createjs.Ticker.addEventListener("tick", stage);
 }
 </script>

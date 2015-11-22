@@ -5,6 +5,9 @@ var FlowManager = {
 		'use strict';
 		this.root = root;
 	},
+	clearLib: function(){
+		lib = null;
+	},
 	gotoPage: function(page){
 		'use strict';
 		if(this.currentPage !== null){
@@ -15,151 +18,113 @@ var FlowManager = {
 		this.root.gotoAndStop('character_build'); // TEST
 		switch(page){
 			case '0.0':
+				// Proluque
+
 				// Tick.disable();
+
+				var self = this;
 
 				// Go to start frame
 				this.root.gotoAndStop('start');
-				this.currentPage = new PageStart(this.root.pageStart);
+				this.currentPage = new FlowProloque(this.root.startpagecontainer);
 				this.currentPage.start(); 
 
+				Topbar.hide();
+
+				// Blocker
+				FlowProloque.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
 				// Button to next page
-				this.currentPage.on('continue', function(event){
+				FlowProloque.on('continue', function(event){
 					event.remove();
-					self.gotoPage('0.1');					
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('1.0.1');
 				}, this);				
 				// Tick.disable();	
 				
 			break;
-			case '0.1':
-				// Tick.enable();
-				this.root.gotoAndStop('character_build');				
-				this.root.page_intro.x = 0;				
-				this.currentPage = new PageIntro(this.root.page_intro, 'intro'); 
-				// this.currentPage.on('ready', function(event){
-				// 	event.remove();
-				// 	// Tick.disable();
-				// })
-				this.currentPage.start(); 
-
-				// Topbar
-				Topbar.go('intro');
-
-				// Button to next page
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					self.gotoPage('0.2');
-				}, this);				
-			break;
-			case '0.2':				
-				// Tick.enable();
-				// this.root.gotoAndStop('character');
-				this.root.page_intro.x = 1024;
-				this.root.page_character.x = 0;
-				this.currentPage = new FlowCharacter(this.root.page_character); // Id references to flow id '0.1'
-				this.currentPage.start(); 
-
+			case '1.0.1':	
+				// Poor House Intro	
 				
-				// createjs.Tween.get(this.root.page_character)
-				// 	.to({x:0}, 300, createjs.Ease.linear);
-
-				// Topbar
-				Topbar.go('character');
-
-				// Button to next page
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					self.gotoPage('0.3');
-				}, this);
-				// Tick.disable();
-			break;
-			case '0.3':
-				Tick.framerate(15);
-				TweenUtil.to(this.root.page_character, {x:-1024}, 300, Delegate.create(function(){
-					Tick.framerate(8);
-				}, this));
-
-				this.currentPage = new PageCard(this.root.page_card); // Id references to flow id '0.1'
-				this.currentPage.start(); 
-
-				this.root.page_card.x = 0;
-				// createjs.Tween.get(this.root.page_card)
-				// 		.to({x:0}, 300, createjs.Ease.linear);
-
-				// Button to next page
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					self.gotoPage('0.4');
-				}, this);
-				// Tick.disable();
-			break;
-			case '0.4':
-				Tick.framerate(15);
-				TweenUtil.to(this.root.page_card, {x:-1024}, 300, Delegate.create(function(){
-					Tick.framerate(8);
-				}, this));		
-
-				this.currentPage = new PageOpinion(this.root.page_opinion); // Id references to flow id '0.1'
-				this.currentPage.start(); 
-
-				this.root.page_opinion.x = 0;
-
-				// createjs.Tween.get(this.root.page_opinion)
-				// 		.to({x:0}, 300, createjs.Ease.linear);
-
-				// Button to next page
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					self.gotoPage('0.5');
-				}, this);
-				// Tick.disable();
-			break;
-			case '0.5':
-				Tick.framerate(15);
-				TweenUtil.to(this.root.page_opinion, {x:-1024}, 300, Delegate.create(function(){
-					//Tick.framerate(8);
-				}, this));				
-
-				this.currentPage = new PageMap(this.root.page_map); // Id references to flow id '0.1'
-				this.currentPage.start(); 
-
-				this.root.page_map.x = 0;
-
-				// Button to next page
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					// From here it a spereate flow related to chosen poorhouse New page LOADS new content
-					self.gotoPage('1.0');
-				}, this);
-				// Tick.disable();
-			break;
-			case '1.0':				
-				this.root.page_map.x = -1024;
-
-				// Root frame
-				this.root.gotoAndStop('poorhouse');
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
 				Topbar.go('game');
 
-				this.currentPage = new FlowPoorhouse(this.root.poorhouse_container); // Id references to flow id '0.1'
+				this.currentPage = null;
+				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
 				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
 
 				// Button to next page/flow
 				this.currentPage.on('continue', function(event){
 					event.remove();
-					self.gotoPage('2.5');
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('1.0.2');
 				}, this);
 				// Tick.disable();
 			break;
+			case '1.0.2':	
+				// Poor House		
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');
+				
+
+				this.currentPage = null;
+				this.currentPage = new FlowPoorhouse(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('2.5');
+				}, this);
+				Tick.disable();
+			break;
 			case '2.5':
+				// Germany 1.
+
 				// Root frame
 				this.root.gotoAndStop('germany');
+				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
 				Topbar.go('game');
 
-				this.currentPage = new FlowGermany1(this.root.germany_container); 
-				this.currentPage.start(); 				
+				this.currentPage = null;
+				this.currentPage = new FlowGermany1(this.root.pagecontainer); 
+				this.currentPage.start(); 		
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+		
 				// Tick.disable();
 			break;
 		}

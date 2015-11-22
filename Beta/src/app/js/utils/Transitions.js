@@ -38,7 +38,11 @@ var Transitions = {
 		
 	},
 	transInPosition: function(pageView, callback){
+		if(pageView === undefined)
+			return;
+
 		// New page in
+		pageView.visible = true;
 		pageView.alpha = 1;
 		pageView.x = 1024;
 		createjs.Tween.get(pageView)
@@ -50,17 +54,25 @@ var Transitions = {
 			});
 	},
 	transOutPosition: function(pageView, callback){
+		if(pageView === undefined)
+			return;
+
 		// New page in
 		createjs.Tween.get(pageView)
 			.to({x:-1024}, 300, createjs.Ease.linear)
 			.call(function(){
 				if(callback !== undefined){
 					callback();
+					pageView.visible = false;
 				}
 			});
 	},
 	transInAlpha: function(pageView, callback){
+		if(pageView === undefined)
+			return;
+
 		// New page in
+		pageView.visible = true;
 		pageView.alpha = 0;
 		pageView.x = 0;
 		createjs.Tween.get(pageView)
@@ -72,6 +84,9 @@ var Transitions = {
 			});
 	},
 	transOutAlpha: function(pageView, callback){
+		if(pageView === undefined)
+			return;
+		
 		// New page in
 		createjs.Tween.get(pageView)
 			.to({alpha:0}, 300, createjs.Ease.linear)

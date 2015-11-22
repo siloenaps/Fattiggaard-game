@@ -9,9 +9,9 @@ lib.properties = {
 	fps: 24,
 	color: "#FFFFFF",
 	manifest: [
-		{src:"../../../assets/images/slides/amory/weapon01.jpg", id:"weapon01"},
-		{src:"../../../assets/images/slides/amory/weapon02.jpg", id:"weapon02"},
-		{src:"../../../assets/images/slides/amory/weapon03.jpg", id:"weapon03"}
+		{src:"../../../assets/images/slides/weapon01.jpg", id:"weapon01"},
+		{src:"../../../assets/images/slides/weapon02.jpg", id:"weapon02"},
+		{src:"../../../assets/images/slides/weapon03.jpg", id:"weapon03"}
 	]
 };
 
@@ -63,5 +63,5 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(290,202,580,404);
 
-})(lib = lib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
-var lib, images, createjs, ss;
+})(slidelib = slidelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
+var slidelib, images, createjs, ss;
