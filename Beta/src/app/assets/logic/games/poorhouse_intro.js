@@ -275,7 +275,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,600,459);
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(26));
 
-	// 1.0.1 Intro
+	// Intro Player
 	this.intro = new lib._101PageIntro();
 	this.intro.setTransform(1024,0);
 
