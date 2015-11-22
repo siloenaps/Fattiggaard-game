@@ -9,69 +9,61 @@ lib.properties = {
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../../../assets/images/games/proloque/_0_0Frontpage.jpg", id:"_0_0Frontpage"},
-		{src:"../../../assets/images/games/proloque/_0_1BG.jpg", id:"_0_1BG"},
-		{src:"../../../assets/images/games/proloque/_0_2BG.jpg", id:"_0_2BG"},
-		{src:"../../../assets/images/games/proloque/_0_3BG.jpg", id:"_0_3BG"},
-		{src:"../../../assets/images/games/proloque/_0_4BG.jpg", id:"_0_4BG"},
-		{src:"../../../assets/images/games/proloque/_0_5_1_close_bt.png", id:"_0_5_1_close_bt"},
-		{src:"../../../assets/images/games/proloque/_0_5_infobt.png", id:"_0_5_infobt"},
-		{src:"../../../assets/images/games/proloque/_0_5BG.jpg", id:"_0_5BG"},
-		{src:"../../../assets/images/games/proloque/_1_0BGhorsens.jpg", id:"_1_0BGhorsens"},
-		{src:"../../../assets/images/games/proloque/_1_0BGsundholm.jpg", id:"_1_0BGsundholm"},
-		{src:"../../../assets/images/games/proloque/_1_0BGsvendborg.jpg", id:"_1_0BGsvendborg"},
-		{src:"../../../assets/images/games/proloque/ADCloseUp.png", id:"ADCloseUp"},
-		{src:"../../../assets/images/games/proloque/AECloseUp.png", id:"AECloseUp"},
-		{src:"../../../assets/images/games/proloque/AFCloseUp.png", id:"AFCloseUp"},
-		{src:"../../../assets/images/games/proloque/BDCloseUp.png", id:"BDCloseUp"},
-		{src:"../../../assets/images/games/proloque/BECloseUp.png", id:"BECloseUp"},
-		{src:"../../../assets/images/games/proloque/BFCloseUp.png", id:"BFCloseUp"},
-		{src:"../../../assets/images/games/proloque/CDCloseUp.png", id:"CDCloseUp"},
-		{src:"../../../assets/images/games/proloque/CECloseUp.png", id:"CECloseUp"},
-		{src:"../../../assets/images/games/proloque/CFCloseUp.png", id:"CFCloseUp"},
-		{src:"../../../assets/images/games/proloque/CharacterCardChallenge0001.png", id:"CharacterCardChallenge0001"},
-		{src:"../../../assets/images/games/proloque/CharacterCardChallenge0002.png", id:"CharacterCardChallenge0002"},
-		{src:"../../../assets/images/games/proloque/CharacterCardChallenge0003.png", id:"CharacterCardChallenge0003"},
-		{src:"../../../assets/images/games/proloque/CharacterCardChildren0001.png", id:"CharacterCardChildren0001"},
-		{src:"../../../assets/images/games/proloque/CharacterCardChildren0002.png", id:"CharacterCardChildren0002"},
-		{src:"../../../assets/images/games/proloque/CharacterCardFamily0001.png", id:"CharacterCardFamily0001"},
-		{src:"../../../assets/images/games/proloque/CharacterCardFamily0002.png", id:"CharacterCardFamily0002"},
-		{src:"../../../assets/images/games/proloque/CharacterCardFamily0003.png", id:"CharacterCardFamily0003"},
-		{src:"../../../assets/images/games/proloque/CharacterCardlabelspng.png", id:"CharacterCardlabelspng"},
-		{src:"../../../assets/images/games/proloque/CharacterCardName0001.png", id:"CharacterCardName0001"},
-		{src:"../../../assets/images/games/proloque/CharacterCardName0002.png", id:"CharacterCardName0002"},
-		{src:"../../../assets/images/games/proloque/CharacterCardName0003.png", id:"CharacterCardName0003"},
-		{src:"../../../assets/images/games/proloque/CharacterCardName0004.png", id:"CharacterCardName0004"},
-		{src:"../../../assets/images/games/proloque/CharacterCardName0005.png", id:"CharacterCardName0005"},
-		{src:"../../../assets/images/games/proloque/CharacterCardName0006.png", id:"CharacterCardName0006"},
-		{src:"../../../assets/images/games/proloque/CharacterCardName0007.png", id:"CharacterCardName0007"},
-		{src:"../../../assets/images/games/proloque/CharacterCardName0008.png", id:"CharacterCardName0008"},
-		{src:"../../../assets/images/games/proloque/CharacterCardName0009.png", id:"CharacterCardName0009"},
-		{src:"../../../assets/images/games/proloque/CharacterCardNickame0001.png", id:"CharacterCardNickame0001"},
-		{src:"../../../assets/images/games/proloque/CharacterCardNickame0002.png", id:"CharacterCardNickame0002"},
-		{src:"../../../assets/images/games/proloque/CharacterCardNickame0003.png", id:"CharacterCardNickame0003"},
-		{src:"../../../assets/images/games/proloque/CharacterCardNickame0004.png", id:"CharacterCardNickame0004"},
-		{src:"../../../assets/images/games/proloque/CharacterCardNickame0005.png", id:"CharacterCardNickame0005"},
-		{src:"../../../assets/images/games/proloque/CharacterCardNickame0006.png", id:"CharacterCardNickame0006"},
-		{src:"../../../assets/images/games/proloque/Page04CharacterText0001.png", id:"Page04CharacterText0001"},
-		{src:"../../../assets/images/games/proloque/Page04CharacterText0002.png", id:"Page04CharacterText0002"},
-		{src:"../../../assets/images/games/proloque/Page04CharacterText0003.png", id:"Page04CharacterText0003"},
-		{src:"../../../assets/images/games/proloque/Page04CharacterText0004.png", id:"Page04CharacterText0004"},
-		{src:"../../../assets/images/games/proloque/Page04CharacterText0005.png", id:"Page04CharacterText0005"},
-		{src:"../../../assets/images/games/proloque/Page04CharacterText0006.png", id:"Page04CharacterText0006"},
-		{src:"../../../assets/images/games/proloque/Page04CharacterText0007.png", id:"Page04CharacterText0007"},
-		{src:"../../../assets/images/games/proloque/Page04CharacterText0008.png", id:"Page04CharacterText0008"},
-		{src:"../../../assets/images/games/proloque/Page04CharacterText0009.png", id:"Page04CharacterText0009"},
-		{src:"../../../assets/images/games/proloque/PersonCardAD.png", id:"PersonCardAD"},
-		{src:"../../../assets/images/games/proloque/PersonCardAE.png", id:"PersonCardAE"},
-		{src:"../../../assets/images/games/proloque/PersonCardAF.png", id:"PersonCardAF"},
-		{src:"../../../assets/images/games/proloque/PersonCardBD.png", id:"PersonCardBD"},
-		{src:"../../../assets/images/games/proloque/PersonCardBE.png", id:"PersonCardBE"},
-		{src:"../../../assets/images/games/proloque/PersonCardBF.png", id:"PersonCardBF"},
-		{src:"../../../assets/images/games/proloque/PersonCardCD.png", id:"PersonCardCD"},
-		{src:"../../../assets/images/games/proloque/PersonCardCE.png", id:"PersonCardCE"},
-		{src:"../../../assets/images/games/proloque/PersonCardCF.png", id:"PersonCardCF"},
-		{src:"../../../assets/images/games/proloque/tekst_bg_sort.png", id:"tekst_bg_sort"}
+		{src:"../../../assets/images/pool/_0_0Frontpage.jpg", id:"_0_0Frontpage"},
+		{src:"../../../assets/images/pool/_0_1BG.jpg", id:"_0_1BG"},
+		{src:"../../../assets/images/pool/_0_2BG.jpg", id:"_0_2BG"},
+		{src:"../../../assets/images/pool/_0_3BG.jpg", id:"_0_3BG"},
+		{src:"../../../assets/images/pool/_0_4BG.jpg", id:"_0_4BG"},
+		{src:"../../../assets/images/pool/_0_5_1_close_bt.png", id:"_0_5_1_close_bt"},
+		{src:"../../../assets/images/pool/_0_5_infobt.png", id:"_0_5_infobt"},
+		{src:"../../../assets/images/pool/_0_5BG.jpg", id:"_0_5BG"},
+		{src:"../../../assets/images/pool/_1_0BGhorsens.jpg", id:"_1_0BGhorsens"},
+		{src:"../../../assets/images/pool/_1_0BGsundholm.jpg", id:"_1_0BGsundholm"},
+		{src:"../../../assets/images/pool/_1_0BGsvendborg.jpg", id:"_1_0BGsvendborg"},
+		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
+		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
+		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
+		{src:"../../../assets/images/pool/BDCloseUp.png", id:"BDCloseUp"},
+		{src:"../../../assets/images/pool/BECloseUp.png", id:"BECloseUp"},
+		{src:"../../../assets/images/pool/BFCloseUp.png", id:"BFCloseUp"},
+		{src:"../../../assets/images/pool/CDCloseUp.png", id:"CDCloseUp"},
+		{src:"../../../assets/images/pool/CECloseUp.png", id:"CECloseUp"},
+		{src:"../../../assets/images/pool/CFCloseUp.png", id:"CFCloseUp"},
+		{src:"../../../assets/images/pool/CharacterCardChallenge0001.png", id:"CharacterCardChallenge0001"},
+		{src:"../../../assets/images/pool/CharacterCardChallenge0002.png", id:"CharacterCardChallenge0002"},
+		{src:"../../../assets/images/pool/CharacterCardChallenge0003.png", id:"CharacterCardChallenge0003"},
+		{src:"../../../assets/images/pool/CharacterCardChildren0001.png", id:"CharacterCardChildren0001"},
+		{src:"../../../assets/images/pool/CharacterCardChildren0002.png", id:"CharacterCardChildren0002"},
+		{src:"../../../assets/images/pool/CharacterCardFamily0001.png", id:"CharacterCardFamily0001"},
+		{src:"../../../assets/images/pool/CharacterCardFamily0002.png", id:"CharacterCardFamily0002"},
+		{src:"../../../assets/images/pool/CharacterCardFamily0003.png", id:"CharacterCardFamily0003"},
+		{src:"../../../assets/images/pool/CharacterCardlabelspng.png", id:"CharacterCardlabelspng"},
+		{src:"../../../assets/images/pool/CharacterCardNames.png", id:"CharacterCardNames"},
+		{src:"../../../assets/images/pool/CharacterCardNickame0001.png", id:"CharacterCardNickame0001"},
+		{src:"../../../assets/images/pool/CharacterCardNickame0002.png", id:"CharacterCardNickame0002"},
+		{src:"../../../assets/images/pool/CharacterCardNickame0003.png", id:"CharacterCardNickame0003"},
+		{src:"../../../assets/images/pool/CharacterCardNickame0004.png", id:"CharacterCardNickame0004"},
+		{src:"../../../assets/images/pool/CharacterCardNickame0005.png", id:"CharacterCardNickame0005"},
+		{src:"../../../assets/images/pool/CharacterCardNickame0006.png", id:"CharacterCardNickame0006"},
+		{src:"../../../assets/images/pool/Page04CharacterText0001.png", id:"Page04CharacterText0001"},
+		{src:"../../../assets/images/pool/Page04CharacterText0002.png", id:"Page04CharacterText0002"},
+		{src:"../../../assets/images/pool/Page04CharacterText0003.png", id:"Page04CharacterText0003"},
+		{src:"../../../assets/images/pool/Page04CharacterText0004.png", id:"Page04CharacterText0004"},
+		{src:"../../../assets/images/pool/Page04CharacterText0005.png", id:"Page04CharacterText0005"},
+		{src:"../../../assets/images/pool/Page04CharacterText0006.png", id:"Page04CharacterText0006"},
+		{src:"../../../assets/images/pool/Page04CharacterText0007.png", id:"Page04CharacterText0007"},
+		{src:"../../../assets/images/pool/Page04CharacterText0008.png", id:"Page04CharacterText0008"},
+		{src:"../../../assets/images/pool/Page04CharacterText0009.png", id:"Page04CharacterText0009"},
+		{src:"../../../assets/images/pool/PersonCardAD.png", id:"PersonCardAD"},
+		{src:"../../../assets/images/pool/PersonCardAE.png", id:"PersonCardAE"},
+		{src:"../../../assets/images/pool/PersonCardAF.png", id:"PersonCardAF"},
+		{src:"../../../assets/images/pool/PersonCardBD.png", id:"PersonCardBD"},
+		{src:"../../../assets/images/pool/PersonCardBE.png", id:"PersonCardBE"},
+		{src:"../../../assets/images/pool/PersonCardBF.png", id:"PersonCardBF"},
+		{src:"../../../assets/images/pool/PersonCardCD.png", id:"PersonCardCD"},
+		{src:"../../../assets/images/pool/PersonCardCE.png", id:"PersonCardCE"},
+		{src:"../../../assets/images/pool/PersonCardCF.png", id:"PersonCardCF"},
+		{src:"../../../assets/images/pool/tekst_bg_sort.png", id:"tekst_bg_sort"}
 	]
 };
 
@@ -255,58 +247,10 @@ p.nominalBounds = new cjs.Rectangle(0,0,107,22);
 p.nominalBounds = new cjs.Rectangle(0,0,122,105);
 
 
-(lib.CharacterCardName0001 = function() {
-	this.initialize(img.CharacterCardName0001);
+(lib.CharacterCardNames = function() {
+	this.initialize(img.CharacterCardNames);
 }).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0002 = function() {
-	this.initialize(img.CharacterCardName0002);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0003 = function() {
-	this.initialize(img.CharacterCardName0003);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0004 = function() {
-	this.initialize(img.CharacterCardName0004);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0005 = function() {
-	this.initialize(img.CharacterCardName0005);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0006 = function() {
-	this.initialize(img.CharacterCardName0006);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0007 = function() {
-	this.initialize(img.CharacterCardName0007);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0008 = function() {
-	this.initialize(img.CharacterCardName0008);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.CharacterCardName0009 = function() {
-	this.initialize(img.CharacterCardName0009);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,188,19);
+p.nominalBounds = new cjs.Rectangle(0,0,1712,23);
 
 
 (lib.CharacterCardNickame0001 = function() {
@@ -684,38 +628,21 @@ p.nominalBounds = new cjs.Rectangle(3.5,0.6,212.3,28.1);
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(14));
 
-	// Nickname png
-	this.instance = new lib.CharacterCardName0001();
-	this.instance.setTransform(2,1.5);
+	// Mask (mask)
+	var mask = new cjs.Shape();
+	mask._off = true;
+	mask.graphics.p("Au5CVIAAkqIdzAAIAAEqg");
+	mask.setTransform(95.5,15);
 
-	this.instance_1 = new lib.CharacterCardName0002();
-	this.instance_1.setTransform(2,1.5);
+	// Nickname png sheet
+	this.instance = new lib.CharacterCardNames();
 
-	this.instance_2 = new lib.CharacterCardName0003();
-	this.instance_2.setTransform(2,1.5);
+	this.instance.mask = mask;
 
-	this.instance_3 = new lib.CharacterCardName0004();
-	this.instance_3.setTransform(2,1.5);
-
-	this.instance_4 = new lib.CharacterCardName0005();
-	this.instance_4.setTransform(2,1.5);
-
-	this.instance_5 = new lib.CharacterCardName0006();
-	this.instance_5.setTransform(2,1.5);
-
-	this.instance_6 = new lib.CharacterCardName0007();
-	this.instance_6.setTransform(2,1.5);
-
-	this.instance_7 = new lib.CharacterCardName0008();
-	this.instance_7.setTransform(2,1.5);
-
-	this.instance_8 = new lib.CharacterCardName0009();
-	this.instance_8.setTransform(2,1.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).to({state:[{t:this.instance_4}]},1).to({state:[{t:this.instance_5}]},1).to({state:[{t:this.instance_6}]},1).to({state:[{t:this.instance_7}]},1).to({state:[{t:this.instance_8}]},1).to({state:[]},1).wait(5));
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(1).to({x:-190},0).wait(1).to({x:-380},0).wait(1).to({x:-570},0).wait(1).to({x:-760},0).wait(1).to({x:-950},0).wait(1).to({x:-1140},0).wait(1).to({x:-1330},0).wait(1).to({x:-1520},0).to({_off:true},1).wait(5));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(2,1.5,188,19);
+p.nominalBounds = new cjs.Rectangle(0,0,191,23);
 
 
 (lib.CharacterCardFamily = function(mode,startPosition,loop) {
@@ -1115,7 +1042,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,2048,540);
 
 	this.addChild(this.instance_1,this.instance,this.portrait,this.nickname,this.realname,this.challenge,this.family,this.kids);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+p.nominalBounds = new cjs.Rectangle(0,0,2261.3,540);
 
 
 (lib.CharacterNickname = function() {
@@ -1570,6 +1497,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(60));
 
+	// Actions
+	this.instance = new lib.CharacterCardName();
+	this.instance.setTransform(2027,324,1,1,0,0,0,856,11.5);
+
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(60));
+
 	// 0.0 Start
 	this.pageStart = new lib._00Frontpage();
 	this.pageStart.setTransform(512,324,1,1,0,0,0,512,324);
@@ -1619,7 +1552,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.timeline.addTween(cjs.Tween.get(this.germany_container).wait(60));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(512,324,3072,648);
+p.nominalBounds = new cjs.Rectangle(512,324,3285.3,648);
 
 })(gamelib = gamelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var gamelib, images, createjs, ss;

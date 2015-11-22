@@ -74,6 +74,8 @@ FlowGermany1.prototype.setup = function(){
 
 			// Set start page
 			self.flow.next(self.trigger);
+
+			self.dispatchEvent(new createjs.Event('ready'));
 		};
 		Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
 	}catch(err) {
@@ -141,7 +143,7 @@ FlowGermany1.prototype.traveling = function(trigger){
 	
 	// Slide. Loading is self contained
 	try{
-		this.slideLib = lib;	
+		this.slideLib = slidelib;	
 		this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 		this.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
@@ -263,7 +265,7 @@ FlowGermany1.prototype.work = function(trigger){
 				[slidePath], 
 				Delegate.create(function(){
 					// Slide. Loading is self contained
-					self.slideLib = lib;	
+					self.slideLib = slidelib;	
 					self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
 					self.listeners.complete = self.playerComponent.on('complete', function(event){
 						self.continueBtn.activate('next');

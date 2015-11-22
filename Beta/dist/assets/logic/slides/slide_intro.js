@@ -9,20 +9,20 @@ lib.properties = {
 	fps: 24,
 	color: "#FFFFFF",
 	manifest: [
-		{src:"../../../assets/images/slides/intro/_1940_01.jpg", id:"_1940_01"},
-		{src:"../../../assets/images/slides/intro/Intro_1.jpg", id:"Intro_1"},
-		{src:"../../../assets/images/slides/intro/Intro_11.jpg", id:"Intro_11"},
-		{src:"../../../assets/images/slides/intro/Intro_12.jpg", id:"Intro_12"},
-		{src:"../../../assets/images/slides/intro/Intro_13.jpg", id:"Intro_13"},
-		{src:"../../../assets/images/slides/intro/Intro_14.jpg", id:"Intro_14"},
-		{src:"../../../assets/images/slides/intro/Intro_15.jpg", id:"Intro_15"},
-		{src:"../../../assets/images/slides/intro/Intro_16.jpg", id:"Intro_16"},
-		{src:"../../../assets/images/slides/intro/Intro_17.jpg", id:"Intro_17"},
-		{src:"../../../assets/images/slides/intro/Intro_2.jpg", id:"Intro_2"},
-		{src:"../../../assets/images/slides/intro/Intro_4.jpg", id:"Intro_4"},
-		{src:"../../../assets/images/slides/intro/Intro_7.jpg", id:"Intro_7"},
-		{src:"../../../assets/images/slides/intro/Intro_8.jpg", id:"Intro_8"},
-		{src:"../../../assets/images/slides/intro/Intro_9.jpg", id:"Intro_9"}
+		{src:"../../../assets/images/slides/_1940_01.jpg", id:"_1940_01"},
+		{src:"../../../assets/images/slides/Intro_1.jpg", id:"Intro_1"},
+		{src:"../../../assets/images/slides/Intro_11.jpg", id:"Intro_11"},
+		{src:"../../../assets/images/slides/Intro_12.jpg", id:"Intro_12"},
+		{src:"../../../assets/images/slides/Intro_13.jpg", id:"Intro_13"},
+		{src:"../../../assets/images/slides/Intro_14.jpg", id:"Intro_14"},
+		{src:"../../../assets/images/slides/Intro_15.jpg", id:"Intro_15"},
+		{src:"../../../assets/images/slides/Intro_16.jpg", id:"Intro_16"},
+		{src:"../../../assets/images/slides/Intro_17.jpg", id:"Intro_17"},
+		{src:"../../../assets/images/slides/Intro_2.jpg", id:"Intro_2"},
+		{src:"../../../assets/images/slides/Intro_4.jpg", id:"Intro_4"},
+		{src:"../../../assets/images/slides/Intro_7.jpg", id:"Intro_7"},
+		{src:"../../../assets/images/slides/Intro_8.jpg", id:"Intro_8"},
+		{src:"../../../assets/images/slides/Intro_9.jpg", id:"Intro_9"}
 	]
 };
 

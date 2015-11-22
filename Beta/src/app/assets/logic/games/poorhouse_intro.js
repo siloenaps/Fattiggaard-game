@@ -9,7 +9,7 @@ lib.properties = {
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../../../assets/images/games/poorhouse_intro/_1_0BGsvendborg.jpg", id:"_1_0BGsvendborg"}
+		{src:"../../../assets/images/pool/_1_0BGsvendborg.jpg", id:"_1_0BGsvendborg"}
 	]
 };
 

@@ -9,13 +9,13 @@ lib.properties = {
 	fps: 24,
 	color: "#FFFFFF",
 	manifest: [
-		{src:"../../../assets/images/slides/germany1/train01.jpg", id:"train01"},
-		{src:"../../../assets/images/slides/germany1/train05.jpg", id:"train05"},
-		{src:"../../../assets/images/slides/germany1/train06.jpg", id:"train06"},
-		{src:"../../../assets/images/slides/germany1/train07.jpg", id:"train07"},
-		{src:"../../../assets/images/slides/germany1/train08.jpg", id:"train08"},
-		{src:"../../../assets/images/slides/germany1/train09.jpg", id:"train09"},
-		{src:"../../../assets/images/slides/germany1/train10.jpg", id:"train10"}
+		{src:"../../../assets/images/slides/train01.jpg", id:"train01"},
+		{src:"../../../assets/images/slides/train05.jpg", id:"train05"},
+		{src:"../../../assets/images/slides/train06.jpg", id:"train06"},
+		{src:"../../../assets/images/slides/train07.jpg", id:"train07"},
+		{src:"../../../assets/images/slides/train08.jpg", id:"train08"},
+		{src:"../../../assets/images/slides/train09.jpg", id:"train09"},
+		{src:"../../../assets/images/slides/train10.jpg", id:"train10"}
 	]
 };
 

@@ -9,9 +9,9 @@ lib.properties = {
 	fps: 24,
 	color: "#FFFFFF",
 	manifest: [
-		{src:"../../../assets/images/slides/amory/weapon01.jpg", id:"weapon01"},
-		{src:"../../../assets/images/slides/amory/weapon02.jpg", id:"weapon02"},
-		{src:"../../../assets/images/slides/amory/weapon03.jpg", id:"weapon03"}
+		{src:"../../../assets/images/slides/weapon01.jpg", id:"weapon01"},
+		{src:"../../../assets/images/slides/weapon02.jpg", id:"weapon02"},
+		{src:"../../../assets/images/slides/weapon03.jpg", id:"weapon03"}
 	]
 };
 

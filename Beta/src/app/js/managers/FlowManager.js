@@ -117,7 +117,14 @@ var FlowManager = {
 
 				this.currentPage = null;
 				this.currentPage = new FlowGermany1(this.root.pagecontainer); 
-				this.currentPage.start(); 				
+				this.currentPage.start(); 		
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+		
 				// Tick.disable();
 			break;
 		}

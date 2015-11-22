@@ -9,18 +9,18 @@ lib.properties = {
 	fps: 24,
 	color: "#FFFFFF",
 	manifest: [
-		{src:"../../../assets/images/slides/svendborg/arbejde.jpg", id:"arbejde"},
-		{src:"../../../assets/images/slides/svendborg/BAD.jpg", id:"BAD"},
-		{src:"../../../assets/images/slides/svendborg/baenk.jpg", id:"baenk"},
-		{src:"../../../assets/images/slides/svendborg/Bitmap2.png", id:"Bitmap2"},
-		{src:"../../../assets/images/slides/svendborg/fattiggard.jpg", id:"fattiggard"},
-		{src:"../../../assets/images/slides/svendborg/fattighjalp.jpg", id:"fattighjalp"},
-		{src:"../../../assets/images/slides/svendborg/Intro_8.jpg", id:"Intro_8"},
-		{src:"../../../assets/images/slides/svendborg/reglement.jpg", id:"reglement"},
-		{src:"../../../assets/images/slides/svendborg/sne.jpg", id:"sne"},
-		{src:"../../../assets/images/slides/svendborg/toj.jpg", id:"toj"},
-		{src:"../../../assets/images/slides/svendborg/vindue.jpg", id:"vindue"},
-		{src:"../../../assets/images/slides/svendborg/vindue2.jpg", id:"vindue2"}
+		{src:"../../../assets/images/slides/arbejde.jpg", id:"arbejde"},
+		{src:"../../../assets/images/slides/BAD.jpg", id:"BAD"},
+		{src:"../../../assets/images/slides/baenk.jpg", id:"baenk"},
+		{src:"../../../assets/images/slides/Bitmap2dør.png", id:"Bitmap2dør"},
+		{src:"../../../assets/images/slides/fattiggard.jpg", id:"fattiggard"},
+		{src:"../../../assets/images/slides/fattighjalp.jpg", id:"fattighjalp"},
+		{src:"../../../assets/images/slides/Intro_8.jpg", id:"Intro_8"},
+		{src:"../../../assets/images/slides/reglement.jpg", id:"reglement"},
+		{src:"../../../assets/images/slides/sne.jpg", id:"sne"},
+		{src:"../../../assets/images/slides/toj.jpg", id:"toj"},
+		{src:"../../../assets/images/slides/vindue.jpg", id:"vindue"},
+		{src:"../../../assets/images/slides/vindue2.jpg", id:"vindue2"}
 	]
 };
 
@@ -48,8 +48,8 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 
 
-(lib.Bitmap2 = function() {
-	this.initialize(img.Bitmap2);
+(lib.Bitmap2dør = function() {
+	this.initialize(img.Bitmap2dør);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,580,405);
 
@@ -115,7 +115,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(1617));
 
 	// Layer 2
-	this.instance = new lib.Bitmap2();
+	this.instance = new lib.Bitmap2dør();
 
 	this.instance_1 = new lib.Intro_8();
 

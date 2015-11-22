@@ -9,15 +9,15 @@ lib.properties = {
 	fps: 24,
 	color: "#FFFFFF",
 	manifest: [
-		{src:"../../../assets/images/slides/butcher/kneipe.jpg", id:"kneipe"},
-		{src:"../../../assets/images/slides/butcher/slaughter01.jpg", id:"slaughter01"},
-		{src:"../../../assets/images/slides/butcher/slaughter02.jpg", id:"slaughter02"},
-		{src:"../../../assets/images/slides/butcher/slaughter04.jpg", id:"slaughter04"},
-		{src:"../../../assets/images/slides/butcher/slaughter05.jpg", id:"slaughter05"},
-		{src:"../../../assets/images/slides/butcher/slaughter06.jpg", id:"slaughter06"},
-		{src:"../../../assets/images/slides/butcher/slaughter07.jpg", id:"slaughter07"},
-		{src:"../../../assets/images/slides/butcher/slaughter08.jpg", id:"slaughter08"},
-		{src:"../../../assets/images/slides/butcher/slaughter09.jpg", id:"slaughter09"}
+		{src:"../../../assets/images/slides/kneipe.jpg", id:"kneipe"},
+		{src:"../../../assets/images/slides/slaughter01.jpg", id:"slaughter01"},
+		{src:"../../../assets/images/slides/slaughter02.jpg", id:"slaughter02"},
+		{src:"../../../assets/images/slides/slaughter04.jpg", id:"slaughter04"},
+		{src:"../../../assets/images/slides/slaughter05.jpg", id:"slaughter05"},
+		{src:"../../../assets/images/slides/slaughter06.jpg", id:"slaughter06"},
+		{src:"../../../assets/images/slides/slaughter07.jpg", id:"slaughter07"},
+		{src:"../../../assets/images/slides/slaughter08.jpg", id:"slaughter08"},
+		{src:"../../../assets/images/slides/slaughter09.jpg", id:"slaughter09"}
 	]
 };
 
