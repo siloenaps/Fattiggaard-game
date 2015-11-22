@@ -2054,7 +2054,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
 
-	this.text = new cjs.Text("<Constable>", "48px 'Special Elite'", "#FFFFFF");
+	this.text = new cjs.Text("Indtil ordensmagten dukker op", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
 	this.text.lineWidth = 800;
 	this.text.setTransform(210,38);

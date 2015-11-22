@@ -11,6 +11,7 @@ var PagePoorhouseIntro = function(container){
 	this.currentPage = null;
 	this.currentBackground = null;
 	this.groups = {};
+	// this.portrait = null;
 
 	this.continueBtn = ContinueButton;
 	this.continueBtn.ghost('skip');
@@ -18,7 +19,9 @@ var PagePoorhouseIntro = function(container){
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 };
-
+PagePoorhouseIntro.prototype.setPortrait = function(image){
+	this.portrait = image;
+}
 PagePoorhouseIntro.prototype.start = function(flowId, slideName){
 	this.id = PlayerStats.poorhouse;
 	this.flowId = flowId;
@@ -78,10 +81,16 @@ PagePoorhouseIntro.prototype.setup = function(){
 	}
 
 	try{
+		// Background image
 		this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';
 		manifest.push({src: this.bgImage.src, id: this.bgImage.id});
+
+		// // Portrait
+		// if(this.portrait !== null){
+		// 	manifest.push({src: this.portrait.src, id: this.portrait.id});
+		// }
 	}catch(err){
-		console.log(PlayerStats.poorhouse ,this.bgImage);
+		console.log(PlayerStats.poorhouse, this.bgImage);
 		console.log(err);
 	}	
 	
@@ -176,9 +185,15 @@ PagePoorhouseIntro.prototype.intro = function(trigger){
 	// Set background
 	this.view.bg_container.x = 0;
 
-	// var bitmap = images['_bg_1_0_1svendborg'];
+	// Background
 	var bitmap = new createjs.Bitmap(this.bgImage.src);	
 	this.view.bg_container.addChild(bitmap);
+
+	// // Portrait
+	// if(this.portrait !== null){
+	// 	bitmap = new createjs.Bitmap(this.portrait.src);	
+	// 	this.view.portrait.addChild(bitmap);
+	// }
 	
 	// Slide. Loading is self contained
 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);

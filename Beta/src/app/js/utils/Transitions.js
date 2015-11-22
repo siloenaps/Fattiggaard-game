@@ -4,7 +4,7 @@ var Transitions = {
 		var left = 2;
 		var checkDone = function(left){
 			if(left == 0){
-				if(delegate !== undefined){
+				if(delegate !== null){
 					delegate();
 				}
 			}
@@ -38,7 +38,7 @@ var Transitions = {
 		
 	},
 	transInPosition: function(pageView, callback){
-		if(pageView === undefined)
+		if(pageView === null)
 			return;
 
 		// New page in
@@ -54,7 +54,7 @@ var Transitions = {
 			});
 	},
 	transOutPosition: function(pageView, callback){
-		if(pageView === undefined)
+		if(pageView === null)
 			return;
 
 		// New page in

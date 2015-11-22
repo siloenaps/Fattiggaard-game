@@ -281,6 +281,11 @@ p.nominalBounds = new cjs.Rectangle(212,40,600,459);
 
 	this.timeline.addTween(cjs.Tween.get(this.intro).wait(26));
 
+	// Portrait
+	this.portrait = new lib.BackgroundContainer();
+
+	this.timeline.addTween(cjs.Tween.get(this.portrait).wait(26));
+
 	// BG Container
 	this.bg_container = new lib.BackgroundContainer();
 

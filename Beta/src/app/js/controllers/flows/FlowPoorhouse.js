@@ -307,8 +307,6 @@ FlowPoorhouse.prototype.chooseJob = function(trigger) {
 	'use strict';
 	var self = this;
 
-	console.log('chooseJob');
-
 	// Next move
 	this.trigger = trigger;
 
@@ -672,45 +670,6 @@ FlowPoorhouse.prototype.points6 = function(trigger) {
 	this.continueBtn.activate('next');
 };
 
-FlowPoorhouse.prototype.letterWrite = function(trigger) {
-	'use strict';
-	var self = this;
-
-	self.trigger = trigger;
-
-	// Change background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_7);
-
-	// Pages in/out
-	var previousPage = this.currentPage;
-	this.currentPage = this.view.letterwrite;
-	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
-	}, this));
-
-	// Dropdowns
-	var dropdown1 = new Dropdown(this.currentPage.dropdown_A);
-	var dropdown2 = new Dropdown(this.currentPage.dropdown_B);
-	var dropdown3 = new Dropdown(this.currentPage.dropdown_C);
-
-	// Close dropdowns when entering the fullscreen button ... whcih willl happen every toe you leave a dropdown
-	var fullscreenButton = this.currentPage.fullscreenButton;
-	var screenListener = fullscreenButton.on('mouseover', function(){
-		dropdown1.setActive(false);
-		dropdown2.setActive(false);
-		dropdown3.setActive(false);
-	});
-
-	// Name
-	var frm = PlayerStats.challenge + PlayerStats.family;
-   	this.view.realname.gotoAndStop(frm);
-
-   	// Special conitnue event event listener
-   	this.continueBtn.on('click', function(event){
-   		event.remove();
-   		fullscreenButton.off('click', screenListener);
-   	});
-};
 FlowPoorhouse.prototype.points4 = function(trigger) {
 	'use strict';
 	// Next move
@@ -727,22 +686,6 @@ FlowPoorhouse.prototype.points4 = function(trigger) {
 			PlayerStats.append('mood', 1);
 			Topbar.pointsUpdate();
 		});
-
-	this.continueBtn.activate('next');
-};
-FlowPoorhouse.prototype.letterAnswer = function(trigger) {
-	'use strict';
-	// Next move
-	this.trigger = trigger;
-
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
-	this.currentPage = this.view.letteranswer;
-
-	// New page in
-	Transitions.transInAlpha(this.currentPage);
 
 	this.continueBtn.activate('next');
 };

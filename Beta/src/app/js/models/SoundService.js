@@ -63,9 +63,9 @@ SoundService.matrix = {
 	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },
 	work: {
 		'svendborg': {
-			'A': { src:SoundService.properties.basePath+'1.1.2a_slaa_skaerver.mp3', duration: 12.408 },
-			'B': { src:SoundService.properties.basePath+'work_svendborg_B.mp3', duration: 1.078 },
-			'C': { src:SoundService.properties.basePath+'work_svendborg_C.mp3', duration: 1.815 }
+			'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
+			'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+			'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
 		},
 	},
 	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
@@ -98,7 +98,11 @@ SoundService.matrix = {
 			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
 			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
 			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 }
-		}
+		},
+	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3', duration: 54.282 },
+	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3', duration: 15.531 },
+	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3', duration: 13.543 },
+	'3.7.1': { label:'w3ork over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3', duration: 30.561 },
 	// challenge: {
 	// 			// 'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
 	// 			// 'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
