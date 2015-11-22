@@ -52,7 +52,13 @@ FlowGermany1.prototype.setup = function(){
 	this.flow.addAction('2.10.2', Delegate.create(this.whatNow, this), '2.10.3');
 	this.flow.addAction('2.10.3', Delegate.create(this.points6, this), '2.11.1');
 	this.flow.addAction('2.11.1', Delegate.create(this.homeComming, this), '3.0');
-	// this.flow.addAction('2.11.2', Delegate.create(this.points5, this), '3.0');
+	this.flow.addAction('3.0', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
 
 	try{
 		// Load files for flow	
@@ -637,5 +643,48 @@ FlowGermany1.prototype.points5 = function(trigger) {
 
 	// Next
 	this.continueBtn.activate('next');
+};
+FlowGermany1.prototype.intermezzo = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set page view
+	this.currentPage = this.view.intermezzo;
+	this.currentPage.x = 0;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_5);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.choosewhatnow;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
+
+	
+	// Slide. Loading is self contained
+	try{
+		this.slideLib = slidelib;	
+		this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+		this.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		this.playerComponent.on('ready', function(event){
+			event.remove();
+			// No tick
+			Tick.disable();
+			self.continueBtn.activate("skip");
+		});
+		this.playerComponent.preload('slide_2_5', this.slideLib);
+	}catch(err){
+		console.log(err);
+	}
+	this.continueBtn.activate('skip');
 };
 createjs.EventDispatcher.initialize(FlowGermany1.prototype);

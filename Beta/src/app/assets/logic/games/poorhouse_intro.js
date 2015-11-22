@@ -8,21 +8,13 @@ lib.properties = {
 	height: 540,
 	fps: 24,
 	color: "#000000",
-	manifest: [
-		{src:"../../../assets/images/pool/_1_0BGsvendborg.jpg", id:"_1_0BGsvendborg"}
-	]
+	manifest: []
 };
 
 
 
 // symbols:
 
-
-
-(lib._1_0BGsvendborg = function() {
-	this.initialize(img._1_0BGsvendborg);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
 (lib.ProgressionBar = function() {
@@ -66,15 +58,11 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 p.nominalBounds = null;
 
 
-(lib.Background1_0 = function() {
+(lib.BackgroundContainer = function() {
 	this.initialize();
 
-	// Layer 1
-	this.instance = new lib._1_0BGsvendborg();
-
-	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+p.nominalBounds = null;
 
 
 (lib.ControllerButtonSTOP = function(mode,startPosition,loop) {
@@ -293,13 +281,13 @@ p.nominalBounds = new cjs.Rectangle(212,40,600,459);
 
 	this.timeline.addTween(cjs.Tween.get(this.intro).wait(26));
 
-	// 1.0
-	this.bg_1_0 = new lib.Background1_0();
+	// BG Container
+	this.bg_container = new lib.BackgroundContainer();
 
-	this.timeline.addTween(cjs.Tween.get(this.bg_1_0).wait(26));
+	this.timeline.addTween(cjs.Tween.get(this.bg_container).wait(26));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(512,270,1836,540);
+p.nominalBounds = new cjs.Rectangle(1748,310,600,459);
 
 })(gamelib = gamelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var gamelib, images, createjs, ss;

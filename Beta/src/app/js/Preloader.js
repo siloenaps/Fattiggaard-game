@@ -4,6 +4,13 @@ var Preloader = {
 
 
 	load: function(manifest, handleFileLoad, handleComplete, clss){
+		
+		// If nothing to load exit 
+		if(manifest.length === 0){
+			handleComplete(null);
+			return;
+		}
+
 		var self = this;
 
 		if(clss == null)

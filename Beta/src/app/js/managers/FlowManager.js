@@ -58,7 +58,7 @@ var FlowManager = {
 
 				this.currentPage = null;
 				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
-				this.currentPage.start(); 				
+				this.currentPage.start('1.0.1', 'slide_1_0_1');
 
 				// Blocker
 				this.currentPage.on('ready', function(event){
@@ -124,8 +124,58 @@ var FlowManager = {
 					event.remove();					
 					self.root.blocker_black.visible = false;
 				}, this);
-		
-				// Tick.disable();
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('3.0');
+				}, this);
+				Tick.disable();
+			break;
+			case '3.0':	
+				// Poor House 2. time
+
+				// Get id for next poorhouse
+				var newId;
+				var list = ['horsens', 'sundholm', 'svendborg'];
+				list = list.shuffle();
+				for(var i=0; i<list.length; i++){
+					if(list[i] !== PlayerStats.poorhouse){
+						PlayerStats.poorhouse = list[i];
+						break;
+					}
+				}
+
+				// test
+				// PlayerStats.poorhouse = 'svendborg';
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');
+
+				this.currentPage = null;
+				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start('3.0', 'slide_3_0');	
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('3.1');
+				}, this);
+
+
 			break;
 		}
 	},

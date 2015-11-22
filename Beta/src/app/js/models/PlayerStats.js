@@ -2,7 +2,7 @@ var PlayerStats = {
 	challenge: 'B',			// Default test value
 	family: 'D',			// Default test value
 	nickname: null,
-	poorhouse: null,
+	poorhouse: 'svendborg', // Test 
 	mood: 2,
 	health: 4,
 	money: 3,

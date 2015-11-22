@@ -53,7 +53,7 @@ FlowPoorhouse.prototype.start = function(){
 	console.log('FlowPoorhouse:start');
 
 	LoadJS.load(
-		['../assets/logic/games/svendborg.js'], 
+		['../assets/logic/games/'+this.id+'.js'], 
 		Delegate.create(this.setup, this)
 	);
 };
@@ -116,9 +116,9 @@ FlowPoorhouse.prototype.setup = function(){
 			Clss = this.lib.horsens;
 			manifest = this.lib.properties.manifest;
 		break;
-		case 'sundby':
+		case 'sundholm':
 			// this.lib = sundbyGameLib;
-			Clss = this.lib.sundby;
+			Clss = this.lib.sundholm;
 			manifest = this.lib.properties.manifest;
 		break;
 		case 'svendborg':	
