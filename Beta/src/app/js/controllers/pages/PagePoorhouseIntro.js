@@ -81,6 +81,7 @@ PagePoorhouseIntro.prototype.setup = function(){
 		this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';
 		manifest.push({src: this.bgImage.src, id: this.bgImage.id});
 	}catch(err){
+		console.log(PlayerStats.poorhouse ,this.bgImage);
 		console.log(err);
 	}	
 	
