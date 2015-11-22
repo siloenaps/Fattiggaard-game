@@ -52,6 +52,16 @@ ButtonGroup.prototype.disable = function(){
 		btn.disable();
 	}
 };
+ButtonGroup.prototype.disableByValue = function(value){
+	'use strict';
+	for(var i=0; i<this.buttonList.length; i++){
+		var btn = this.buttonList[i];
+		if(btn.getValue() === value){
+			btn.ghost();
+			return;
+		}		
+	}
+};
 ButtonGroup.prototype.getButtonByValue = function(value){
 	'use strict';
 	for(var i=0; i<this.buttonList.length; i++){

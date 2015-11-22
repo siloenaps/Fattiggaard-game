@@ -26,6 +26,9 @@ var CheckboxGroup = {
 				self.delegate({clicked: self.clickedCounter, value: event.data.value});
 		});
 	},
+	disableCheckbox: function(value){
+		this.group.disableByValue(value);
+	},
 	clear: function(){
 		'use strict';
 		// Clean eventual previous events and delegates

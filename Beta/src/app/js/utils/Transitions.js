@@ -38,7 +38,7 @@ var Transitions = {
 		
 	},
 	transInPosition: function(pageView, callback){
-		if(pageView === null)
+		if(pageView === null || pageView === undefined)
 			return;
 
 		// New page in
@@ -54,7 +54,7 @@ var Transitions = {
 			});
 	},
 	transOutPosition: function(pageView, callback){
-		if(pageView === null)
+		if(pageView === null || pageView === undefined)
 			return;
 
 		// New page in
@@ -68,7 +68,7 @@ var Transitions = {
 			});
 	},
 	transInAlpha: function(pageView, callback){
-		if(pageView === undefined)
+		if(pageView === null || pageView === undefined)
 			return;
 
 		// New page in
@@ -84,7 +84,7 @@ var Transitions = {
 			});
 	},
 	transOutAlpha: function(pageView, callback){
-		if(pageView === undefined)
+		if(pageView === null || pageView === undefined)
 			return;
 		
 		// New page in

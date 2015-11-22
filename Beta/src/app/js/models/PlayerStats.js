@@ -9,7 +9,7 @@ var PlayerStats = {
 	job: null,
 	advice: null,
 	wayout: null,
-	job_germany: ['A', 'A'], // Default test values
+	job_germany: ['B', 'A'], // Default test values
 	spending: null,
 	whatnow: null,
 	pointsDiff: {mood: 0, health: 0, money: 0},

@@ -45,6 +45,13 @@ RadioButton.prototype.getValue = function(){
 RadioButton.prototype.disable = function(){
 	'use strict';
 	this.enabled = false;
+	this.view.mouseEnabled = false;
+};
+RadioButton.prototype.ghost = function(){
+	'use strict';
+	this.enabled = false;
+	this.view.alpha = 0.2;
+	this.view.mouseEnabled = false;
 	// this.mouseEnabled = false;
 };
 RadioButton.prototype.setActive = function(state){
@@ -72,8 +79,11 @@ RadioButton.prototype.onClick = function(event){
 };
 RadioButton.prototype.onOver = function(event){
 	'use strict';
+
 	if(!this.enabled){
 		return;
+	// }else{
+	// 	Cursor.out();
 	}
 
 	// Rollover cursor

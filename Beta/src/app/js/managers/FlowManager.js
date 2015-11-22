@@ -177,7 +177,7 @@ var FlowManager = {
 				// Poor House 2.	
 
 				// TEST
-				PlayerStats.poorhouse = 'svendborg';
+				// PlayerStats.poorhouse = 'svendborg';
 				
 				this.root.gotoAndStop('start');
 				this.root.pagecontainer.removeAllChildren();
@@ -201,7 +201,35 @@ var FlowManager = {
 					event.remove();
 					Library.clearSlide();
 					Library.clearGame();
-					self.gotoPage('2.5');
+					self.gotoPage('4.0');
+				}, this);
+				Tick.disable();
+			break;
+			case '4.0':	
+				// Germany 2.	
+
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');				
+
+				this.currentPage = null;
+				this.currentPage = new FlowGermany2(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('4.10');
 				}, this);
 				Tick.disable();
 			break;

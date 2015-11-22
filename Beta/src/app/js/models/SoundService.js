@@ -85,7 +85,8 @@ SoundService.matrix = {
 				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3', duration: 48.573 },
 				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3', duration: 48.573 },
 				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 },
-				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3', duration: 69.641 },				
+				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3', duration: 69.641 },
+				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
 				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
 			},
 	oppinion: { // 0.4
