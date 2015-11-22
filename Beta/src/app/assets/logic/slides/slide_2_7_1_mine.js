@@ -9,10 +9,10 @@ lib.properties = {
 	fps: 24,
 	color: "#FFFFFF",
 	manifest: [
-		{src:"../../../assets/images/slides/mine/mine01.jpg", id:"mine01"},
-		{src:"../../../assets/images/slides/mine/mine02.jpg", id:"mine02"},
-		{src:"../../../assets/images/slides/mine/mine03.jpg", id:"mine03"},
-		{src:"../../../assets/images/slides/mine/mine04.jpg", id:"mine04"}
+		{src:"../../../assets/images/slides/mine01.jpg", id:"mine01"},
+		{src:"../../../assets/images/slides/mine02.jpg", id:"mine02"},
+		{src:"../../../assets/images/slides/mine03.jpg", id:"mine03"},
+		{src:"../../../assets/images/slides/mine04.jpg", id:"mine04"}
 	]
 };
 
@@ -72,5 +72,5 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(290,202,580,404);
 
-})(lib = lib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
-var lib, images, createjs, ss;
+})(slidelib = slidelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
+var slidelib, images, createjs, ss;

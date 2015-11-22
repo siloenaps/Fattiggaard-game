@@ -32,7 +32,7 @@ PageIntro.prototype.setup = function() {
 	this.runonce = true;
 
 	try{
-		this.lib = libSlideIntro;
+		this.lib = slidelib;
 		this.playerComponent.on('ready', function(event){
 			event.remove();
 			// No tick
@@ -56,6 +56,8 @@ PageIntro.prototype.onContinue = function(event) {
 	}
 
 	this.dispatchEvent(new createjs.Event('continue'));
+
+	this.destroy();
 };
 PageIntro.prototype.onComplete = function(event) {
 	this.playerComponent.off('complete', this.listeners.complete);	
@@ -65,8 +67,11 @@ PageIntro.prototype.onComplete = function(event) {
 	this.continueBtn.activate("next");
 };
 PageIntro.prototype.destroy = function() {
-	this.playerComponent.destroy();	
+	if(this.playerComponent != null){
+		this.playerComponent.destroy();	
+	}
 	this.playerComponent = null;
 	this.view = null;
+	this.lib = null;
 };
 createjs.EventDispatcher.initialize(PageIntro.prototype);

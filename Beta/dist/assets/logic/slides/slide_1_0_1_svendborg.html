@@ -20,7 +20,7 @@ function init() {
 	var loader = new createjs.LoadQueue(false);
 	loader.addEventListener("fileload", handleFileLoad);
 	loader.addEventListener("complete", handleComplete);
-	loader.loadManifest(lib.properties.manifest);
+	loader.loadManifest(slidelib.properties.manifest);
 }
 
 function handleFileLoad(evt) {
@@ -28,13 +28,13 @@ function handleFileLoad(evt) {
 }
 
 function handleComplete(evt) {
-	exportRoot = new lib.slide_1_0_1_svendborg();
+	exportRoot = new slidelib.slide_1_0_1_svendborg();
 
 	stage = new createjs.Stage(canvas);
 	stage.addChild(exportRoot);
 	stage.update();
 
-	createjs.Ticker.setFPS(lib.properties.fps);
+	createjs.Ticker.setFPS(slidelib.properties.fps);
 	createjs.Ticker.addEventListener("tick", stage);
 }
 </script>

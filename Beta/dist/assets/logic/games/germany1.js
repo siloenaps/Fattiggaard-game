@@ -9,30 +9,30 @@ lib.properties = {
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../../../assets/images/games/germany/_27BGGermany1JobA.jpg", id:"_27BGGermany1JobA"},
-		{src:"../../../assets/images/games/germany/_27BGGermany1JobB.jpg", id:"_27BGGermany1JobB"},
-		{src:"../../../assets/images/games/germany/_27BGGermany1JobC.jpg", id:"_27BGGermany1JobC"},
-		{src:"../../../assets/images/games/germany/_29BGGermany1SpendingA.jpg", id:"_29BGGermany1SpendingA"},
-		{src:"../../../assets/images/games/germany/_29BGGermany1SpendingB.jpg", id:"_29BGGermany1SpendingB"},
-		{src:"../../../assets/images/games/germany/_29BGGermany1SpendingC.jpg", id:"_29BGGermany1SpendingC"},
-		{src:"../../../assets/images/games/germany/_2_10BG.jpg", id:"_2_10BG"},
-		{src:"../../../assets/images/games/germany/_2_11BG.jpg", id:"_2_11BG"},
-		{src:"../../../assets/images/games/germany/_2_5BG.jpg", id:"_2_5BG"},
-		{src:"../../../assets/images/games/germany/_2_6BG.jpg", id:"_2_6BG"},
-		{src:"../../../assets/images/games/germany/_2_8BG.jpg", id:"_2_8BG"},
-		{src:"../../../assets/images/games/germany/ADCloseUp.png", id:"ADCloseUp"},
-		{src:"../../../assets/images/games/germany/AECloseUp.png", id:"AECloseUp"},
-		{src:"../../../assets/images/games/germany/AFCloseUp.png", id:"AFCloseUp"},
-		{src:"../../../assets/images/games/germany/BDCloseUp.png", id:"BDCloseUp"},
-		{src:"../../../assets/images/games/germany/BECloseUp.png", id:"BECloseUp"},
-		{src:"../../../assets/images/games/germany/BFCloseUp.png", id:"BFCloseUp"},
-		{src:"../../../assets/images/games/germany/CDCloseUp.png", id:"CDCloseUp"},
-		{src:"../../../assets/images/games/germany/CECloseUp.png", id:"CECloseUp"},
-		{src:"../../../assets/images/games/germany/CFCloseUp.png", id:"CFCloseUp"},
-		{src:"../../../assets/images/games/germany/PointDobbeltBG.png", id:"PointDobbeltBG"},
-		{src:"../../../assets/images/games/germany/PointEnkeltBG.png", id:"PointEnkeltBG"},
-		{src:"../../../assets/images/games/germany/PointNegativ.png", id:"PointNegativ"},
-		{src:"../../../assets/images/games/germany/PointPositiv.png", id:"PointPositiv"}
+		{src:"../../../assets/images/pool/_27BGGermany1JobA.jpg", id:"_27BGGermany1JobA"},
+		{src:"../../../assets/images/pool/_27BGGermany1JobB.jpg", id:"_27BGGermany1JobB"},
+		{src:"../../../assets/images/pool/_27BGGermany1JobC.jpg", id:"_27BGGermany1JobC"},
+		{src:"../../../assets/images/pool/_29BGGermany1SpendingA.jpg", id:"_29BGGermany1SpendingA"},
+		{src:"../../../assets/images/pool/_29BGGermany1SpendingB.jpg", id:"_29BGGermany1SpendingB"},
+		{src:"../../../assets/images/pool/_29BGGermany1SpendingC.jpg", id:"_29BGGermany1SpendingC"},
+		{src:"../../../assets/images/pool/_2_10BG.jpg", id:"_2_10BG"},
+		{src:"../../../assets/images/pool/_2_11BG.jpg", id:"_2_11BG"},
+		{src:"../../../assets/images/pool/_2_5BG.jpg", id:"_2_5BG"},
+		{src:"../../../assets/images/pool/_2_6BG.jpg", id:"_2_6BG"},
+		{src:"../../../assets/images/pool/_2_8BG.jpg", id:"_2_8BG"},
+		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
+		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
+		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
+		{src:"../../../assets/images/pool/BDCloseUp.png", id:"BDCloseUp"},
+		{src:"../../../assets/images/pool/BECloseUp.png", id:"BECloseUp"},
+		{src:"../../../assets/images/pool/BFCloseUp.png", id:"BFCloseUp"},
+		{src:"../../../assets/images/pool/CDCloseUp.png", id:"CDCloseUp"},
+		{src:"../../../assets/images/pool/CECloseUp.png", id:"CECloseUp"},
+		{src:"../../../assets/images/pool/CFCloseUp.png", id:"CFCloseUp"},
+		{src:"../../../assets/images/pool/PointDobbeltBG.png", id:"PointDobbeltBG"},
+		{src:"../../../assets/images/pool/PointEnkeltBG.png", id:"PointEnkeltBG"},
+		{src:"../../../assets/images/pool/PointNegativ.png", id:"PointNegativ"},
+		{src:"../../../assets/images/pool/PointPositiv.png", id:"PointPositiv"}
 	]
 };
 
@@ -1301,5 +1301,5 @@ p.nominalBounds = new cjs.Rectangle(212,40,600,459);
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(1536,252,1024,558);
 
-})(germany1GameLib = germany1GameLib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
-var germany1GameLib, images, createjs, ss;
+})(gamelib = gamelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
+var gamelib, images, createjs, ss;

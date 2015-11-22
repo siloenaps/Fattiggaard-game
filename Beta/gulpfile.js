@@ -135,7 +135,7 @@ gulp.task('notimages', function () {
 */
 gulp.task('images', function() {
     return gulp.src('./src/app/assets/images/**/*.*')
-    .pipe(imagemin({ progressive: true }))
+    .pipe(imagemin({ progressive: true , optimizationLevel: 5}))
     .pipe(gulp.dest('./dist/assets/images'));
 });
 

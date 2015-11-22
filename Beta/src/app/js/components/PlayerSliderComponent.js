@@ -54,6 +54,7 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 				self.container.remove(slide);
 				self.slide = null;
 			}
+			
 			// Create slider object and attach to container
 			self.slide = eval('new lib.'+slideId+'()');
 			

@@ -1,23 +1,5 @@
 var LoadJS = {
-	// load: function(url, delegate, location){
-	// 	'use strict';
-
-	// 	//url is URL of external file, code is the code
-	//     //to be called from the file, location is the location to 
-	//     //insert the <script> element
-
-	//     if(location == null)
-	//     	location = document.body;
-
-	//     var scriptTag = document.createElement('script');	    
-
-	//     scriptTag.onload = delegate;
-	//     scriptTag.onreadystatechange = delegate;
-
-	//     scriptTag.src = url;
-	//     location.appendChild(scriptTag);
-
-	// },
+	cache: [],
 	load: function(urls, delegate, location){
 		'use strict';
 		var urlList;
@@ -40,6 +22,15 @@ var LoadJS = {
 	    	location = document.body;
 
 	    for(var i=0; i<urlList.length; i++){
+	    	for(var b = 0; b<this.cache.length; b++){
+    			if(this.cache[b] === urlList[i]){
+    				return false;
+    			}
+    		}
+    		this.cache.push(urlList[i]);
+
+    		console.log(this.cache);
+
 		    var scriptTag = document.createElement('script');		    
 		    // console.log(urlList[i]);
 
@@ -54,7 +45,8 @@ var LoadJS = {
 		    	tracker[identifier1] = true;
 
 		    	// Through list of files requested to be loaded
-		    	for(var a=0; a<urlList.length; a++){
+		    	for(var a=0; a<urlList.length; a++){		    		
+
 		    		// Split the path of the file requsted to be loaded. Get the 2 last entries
 		    		var arr2 = urlList[a].split('/');
 		    		var identifier2 = arr2[arr2.length-2] +'/'+arr2[arr2.length-1];
@@ -71,7 +63,8 @@ var LoadJS = {
 		    };
 
 		    scriptTag.src = urlList[i];
-		    location.appendChild(scriptTag);			    
+		    location.appendChild(scriptTag);
+		    // location.removeChild(scriptTag);  
 	    }	    
 	}	
 };

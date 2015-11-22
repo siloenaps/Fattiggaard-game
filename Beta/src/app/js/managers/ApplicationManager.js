@@ -27,12 +27,12 @@ var ApplicationManager = {
   //        .to({alpha: 0}, 600, createjs.Ease.linear)
   //        .call(function(){
   //        	root.blocker_black.visible = false;
-  //        });
-         root.blocker_black.visible = false;
+  //        });         
+
 
 		// Go to start
-		// FlowManager.gotoPage('0.0');
-		FlowManager.gotoPage('0.5');
+		FlowManager.gotoPage('0.0');
+		// FlowManager.gotoPage('1.0.1');
 		// FlowManager.gotoPage('2.5');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
