@@ -45,6 +45,13 @@ RadioButton.prototype.getValue = function(){
 RadioButton.prototype.disable = function(){
 	'use strict';
 	this.enabled = false;
+	this.view.mouseEnabled = false;
+};
+RadioButton.prototype.ghost = function(){
+	'use strict';
+	this.enabled = false;
+	this.view.alpha = 0.2;
+	this.view.mouseEnabled = false;
 	// this.mouseEnabled = false;
 };
 RadioButton.prototype.setActive = function(state){
@@ -72,8 +79,11 @@ RadioButton.prototype.onClick = function(event){
 };
 RadioButton.prototype.onOver = function(event){
 	'use strict';
+
 	if(!this.enabled){
 		return;
+	// }else{
+	// 	Cursor.out();
 	}
 
 	// Rollover cursor
@@ -369,6 +379,9 @@ var CheckboxGroup = {
 				self.delegate({clicked: self.clickedCounter, value: event.data.value});
 		});
 	},
+	disableCheckbox: function(value){
+		this.group.disableByValue(value);
+	},
 	clear: function(){
 		'use strict';
 		// Clean eventual previous events and delegates
@@ -434,6 +447,16 @@ ButtonGroup.prototype.disable = function(){
 	for(var i=0; i<this.buttonList.length; i++){
 		var btn = this.buttonList[i];
 		btn.disable();
+	}
+};
+ButtonGroup.prototype.disableByValue = function(value){
+	'use strict';
+	for(var i=0; i<this.buttonList.length; i++){
+		var btn = this.buttonList[i];
+		if(btn.getValue() === value){
+			btn.ghost();
+			return;
+		}		
 	}
 };
 ButtonGroup.prototype.getButtonByValue = function(value){
@@ -567,11 +590,11 @@ var PagePoorhouseIntro = function(container){
 	this.slideLib = null;
 	this.playerComponent = null;
 	this.listeners = {};
-	this.trigger = '1.0.1'; // Default start pointer
-	// this.pagesTotal = 12;
+	this.trigger = 'start'; 
 	this.currentPage = null;
 	this.currentBackground = null;
 	this.groups = {};
+	// this.portrait = null;
 
 	this.continueBtn = ContinueButton;
 	this.continueBtn.ghost('skip');
@@ -579,15 +602,20 @@ var PagePoorhouseIntro = function(container){
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 };
-
-PagePoorhouseIntro.prototype.start = function(){
+PagePoorhouseIntro.prototype.setPortrait = function(image){
+	this.portrait = image;
+}
+PagePoorhouseIntro.prototype.start = function(flowId, slideName){
 	this.id = PlayerStats.poorhouse;
+	this.flowId = flowId;
+	this.slideName = slideName;
+
 	var gameFile;
 
-	console.log('PagePoorhouseIntro:start');
+	// console.log('PagePoorhouseIntro:start', slideName+'.js');
 
 	LoadJS.load(
-		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/slide_1_0_1_svendborg.js'], 
+		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
 		Delegate.create(this.setup, this)
 	);
 };
@@ -607,16 +635,13 @@ PagePoorhouseIntro.prototype.setup = function(){
 
 	// Setup flow
 	this.flow = new SubFlowController();
-	this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
-	this.flow.addAction('1.0.2', Delegate.create(
+	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
+	this.flow.addAction('end', Delegate.create(
 		function(){
 			self.removeEvents();
 			self.dispatchEvent(new createjs.Event('continue'));
 		}, this)
 	);
-
-	this.id = 'svendborg';
-	console.log('PagePoorhouseIntro:setup', this.id);
 
 	this.lib = gamelib;
 	this.slideLib = slidelib;
@@ -625,8 +650,9 @@ PagePoorhouseIntro.prototype.setup = function(){
 		case 'horsens':			
 			// Clss = this.lib.horsens;
 			manifest = this.lib.properties.manifest;
+
 		break;
-		case 'sundby':
+		case 'sundholm':
 			// this.lib = sundbyGameLib;
 			// Clss = this.lib.sundby;
 			manifest = this.lib.properties.manifest;
@@ -636,14 +662,27 @@ PagePoorhouseIntro.prototype.setup = function(){
 			manifest = this.lib.properties.manifest;
 		break;
 	}
+
+	try{
+		// Background image
+		this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';
+		manifest.push({src: this.bgImage.src, id: this.bgImage.id});
+
+		// // Portrait
+		// if(this.portrait !== null){
+		// 	manifest.push({src: this.portrait.src, id: this.portrait.id});
+		// }
+	}catch(err){
+		console.log(PlayerStats.poorhouse, this.bgImage);
+		console.log(err);
+	}	
 	
 	// Load files
 	var onFileLoad = function(event){
 		if (event.item.type === 'image') { 
-			// console.log(event.item.id, event.result);
+			console.log(event.item.id, event.result);
 			images[event.item.id] = event.result; 
 		}
-		console.log('PagePoorhouseIntro:onFileLoad');
 	};
 	var onLoadComplete = function(event){
 		// Instantiate view
@@ -655,10 +694,11 @@ PagePoorhouseIntro.prototype.setup = function(){
 		// Set start page
 		self.next();
 
-		console.log('PagePoorhouseIntro:onLoadComplete');
+		// console.log('PagePoorhouseIntro:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+	console.log('manifest:', manifest);
 };
 PagePoorhouseIntro.prototype.next = function(){
 	'use strict';
@@ -726,7 +766,17 @@ PagePoorhouseIntro.prototype.intro = function(trigger){
 	this.currentPage.x = 0;
 
 	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
+	this.view.bg_container.x = 0;
+
+	// Background
+	var bitmap = new createjs.Bitmap(this.bgImage.src);	
+	this.view.bg_container.addChild(bitmap);
+
+	// // Portrait
+	// if(this.portrait !== null){
+	// 	bitmap = new createjs.Bitmap(this.portrait.src);	
+	// 	this.view.portrait.addChild(bitmap);
+	// }
 	
 	// Slide. Loading is self contained
 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
@@ -741,8 +791,8 @@ PagePoorhouseIntro.prototype.intro = function(trigger){
 		self.continueBtn.activate("skip");
 		// self.dispatchEvent(new createjs.Event('ready'));
 	});
-	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
-	// this.playerComponent.preload('slide_intro', this.slideLib);
+	console.log(this.slideLib)
+	this.playerComponent.preload(this.slideName, this.slideLib);
 	
 };
 createjs.EventDispatcher.initialize(PagePoorhouseIntro.prototype);
@@ -1328,6 +1378,601 @@ var FlowProloque = function(container){
 	};	
 }
 createjs.EventDispatcher.initialize(FlowProloque);
+var FlowPoorhouseSecond = function(container, id){
+	'use strict';
+	this.container = container;
+	this.id = id; 
+	this.view = null;	
+	this.lib = null;
+	this.playerComponent = null;
+	this.listeners = {};
+	this.trigger = '3.1'; // Default start pointer
+	this.currentPage = null;
+	this.currentBackground = null;
+	this.groups = {};
+
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost('skip');
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+};
+FlowPoorhouseSecond.prototype.soundEffectPlay = function(sound){
+	// Sound effect
+	if(this.soundEffect != null){
+		this.soundEffect.destroy();
+		this.soundEffect = null;
+	}
+
+	try{
+		// var sound = SoundService.matrix.effects.typewriter;
+		this.soundEffect = new SoundEffect(sound.src, sound.duration, true);	
+		this.soundEffect.volume(.6);
+		this.soundEffect.play();
+	}catch(err){
+		console.log(err);
+	}
+	
+};
+FlowPoorhouseSecond.prototype.soundEffectStop = function(sound){
+	// Sound effect
+	if(this.soundEffect != null){
+		this.soundEffect.stop();
+		this.soundEffect.destroy();
+		this.soundEffect = null;
+	}
+};
+FlowPoorhouseSecond.prototype.start = function(){
+	this.id = PlayerStats.poorhouse;
+	var gameFile;
+
+	console.log('FlowPoorhouseSecond:start');
+
+	LoadJS.load(
+		['../assets/logic/games/'+this.id+'_second.js'], 
+		Delegate.create(this.setup, this)
+	);
+};
+FlowPoorhouseSecond.prototype.setup = function(){
+	'use strict';
+	if(this.runonce != null)
+		return;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	// Tick
+	Tick.framerate(15);
+
+	var self = this;
+	var manifest, Clss;	
+
+	// Setup flow
+	this.flow = new SubFlowController();
+	this.flow.addAction('3.1', Delegate.create(this.chooseJob, this), '3.2.1');
+	this.flow.addAction('3.2.1', Delegate.create(this.work, this), '3.2.2');
+	this.flow.addAction('3.2.2', Delegate.create(this.points1, this), '3.3');
+	this.flow.addAction('3.3', Delegate.create(this.getout, this), '3.4.1');
+	this.flow.addAction('3.4.1', Delegate.create(this.playAdvice, this), '3.4.2');
+	this.flow.addAction('3.4.2', Delegate.create(this.playAdvice, this), '3.5');
+	this.flow.addAction('3.5', Delegate.create(this.chooseWayOut, this), {'A':'3.6.1', 'B':'3.8'});
+	this.flow.addAction('3.6.1', Delegate.create(this.farmWork, this), '3.6.2');
+	this.flow.addAction('3.6.2', Delegate.create(this.points2, this), '3.7.1');
+	this.flow.addAction('3.7.1', Delegate.create(this.farmworkEnded, this), '3.7.2');
+	this.flow.addAction('3.7.2', Delegate.create(this.points3, this), '4.0');
+	this.flow.addAction('3.8', Delegate.create(this.letterWrite, this), '3.9');
+	this.flow.addAction('3.9', Delegate.create(this.letterAnswer, this), '3.10');
+	this.flow.addAction('3.10', Delegate.create(this.points4, this), '4.0');
+	this.flow.addAction('4.0', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
+	//this.id = 'svendborg';
+	console.log('FlowPoorhouseSecond:setup', this.id);
+
+	this.lib = gamelib;
+	switch(this.id){
+		case 'horsens':			
+			// this.lib = horsensGameLib;
+			Clss = this.lib.horsens_second;
+			manifest = this.lib.properties.manifest;
+		break;
+		case 'sundholm':
+			// this.lib = sundbyGameLib;
+			Clss = this.lib.sundholm_second;
+			manifest = this.lib.properties.manifest;
+		break;
+		case 'svendborg':	
+			
+			Clss = this.lib.svendborg_second;
+			manifest = this.lib.properties.manifest;
+
+		break;
+	}
+	
+	// Load files
+	var onFileLoad = function(event){
+		if (event.item.type === 'image') { 
+			images[event.item.id] = event.result; 
+		}
+	};
+	var onLoadComplete = function(event){
+		// Instantiate view
+		self.view = new Clss();
+
+		//Add
+		self.container.addChild(self.view);
+
+		// Set start page
+		self.next();
+
+		console.log('FlowPoorhouseSecond:onLoadComplete');
+		self.dispatchEvent(new createjs.Event('ready'));
+	};
+	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+};
+FlowPoorhouseSecond.prototype.next = function(){
+	'use strict';
+
+	this.flow.next(this.trigger);	
+};
+FlowPoorhouseSecond.prototype.onComplete = function(event) {
+	'use strict';
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+	}
+
+	// Set next button active
+	this.continueBtn.activate('next');	
+};
+FlowPoorhouseSecond.prototype.onContinue = function(event) {
+	'use strict';
+	
+	// console.log('FlowPoorhouseSecond::onContinue');
+	
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
+
+	// Sound effect - stop
+	this.soundEffectStop();
+
+	this.next();
+
+	// console.log('this.playerComponent:', this.playerComponent)
+};
+FlowPoorhouseSecond.prototype.removeEvents = function() {
+	'use strict';
+	
+	// Remove events
+	this.continueBtn.off('click', this.listeners.continue);
+	this.listeners.continue = null;
+};
+FlowPoorhouseSecond.prototype.destroy = function() {
+	'use strict';
+	
+	// Remove events
+	this.removeEvents();
+
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+		this.playerComponent.destroy();	
+		this.playerComponent = null;
+	}			
+	this.view = null;
+	this.lib = null;
+	this.currentPage = null;
+	this.listeners = null;
+	this.flow = null;
+};
+
+
+// Pages ------------------------------------------------------------------------------------------------
+
+FlowPoorhouseSecond.prototype.chooseJob = function(trigger) {
+	'use strict';
+	var self = this;
+
+	console.log('chooseJob');
+
+	// Next move
+	this.trigger = trigger;
+
+	// Change background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_1);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.choosework;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
+
+	// Desactivate continue button
+	this.continueBtn.ghost('next');
+
+	// Checkboxes
+	CheckboxGroup.setup(
+		[this.currentPage.checkbox1, this.currentPage.checkbox2, this.currentPage.checkbox3],
+		['A', 'B', 'C'],
+		Delegate.create(function(vo){
+			// Save chosen 'job'
+			PlayerStats.job = vo.value;
+
+			// Only first time a checkbox is clicked
+			if(vo.clicked === 1){
+				// User may continue
+				self.continueBtn.activate('next');
+				// Add listener to continue button
+				self.listeners.continueClick = self.continueBtn.on('click', function(event){
+					event.remove();
+					// Clear checkboxes
+					CheckboxGroup.clear();
+				});
+			}
+		}, this)
+	);
+};
+FlowPoorhouseSecond.prototype.work = function(trigger) {
+	'use strict';
+
+	var self = this;
+
+	// Next move
+	this.trigger = trigger;
+
+	this.continueBtn.activate('skip');
+
+	// Get sound
+	var sound = SoundService.matrix.work[this.id][PlayerStats.job]; // "svendborg/A"	
+	// this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
+	
+	// Change background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view['bg_3_2_1'+PlayerStats.job]);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.work;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Tick.disable();
+
+		// Sound	
+		self.listeners.complete = this.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+
+	}, this));
+
+	// Reuse player component var for sound
+	self.playerComponent = new PlayerSoundComponent(self.currentPage.player);
+
+	// Nxt button
+	self.continueBtn.ghost('skip');
+};
+FlowPoorhouseSecond.prototype.points1 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points1;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('money', 1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+
+	this.continueBtn.activate('next');
+};
+FlowPoorhouseSecond.prototype.getout = function(trigger) {
+	'use strict';
+	var self = this;
+	var currentTrigger = this.trigger;
+
+	// Next move
+	this.trigger = trigger;
+
+	// Change background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_3);
+
+	// Get sound
+	var sound = SoundService.matrix[currentTrigger];
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.getout;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	this.continueBtn.activate('next');
+};
+FlowPoorhouseSecond.prototype.playAdvice = function(trigger) {
+	'use strict';
+	var self = this;
+	var currentTrigger = this.trigger;
+	
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+
+	// Set new page out
+	switch(currentTrigger){
+		case '3.4.1': // Employee
+			this.currentPage = this.view.adviceemployee;
+		break;
+		case '3.4.2': // Inmate
+			this.currentPage = this.view.adviceinmate;	
+		break;		
+	}	
+
+	// Get sound
+	var sound = SoundService.matrix[currentTrigger];
+	
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Portrait
+	this.currentPage.portrait.gotoAndStop(this.id);
+
+	// Next button
+	this.continueBtn.ghost('skip');
+};
+FlowPoorhouseSecond.prototype.chooseWayOut = function(triggers) {
+	'use strict';
+	var self = this;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.choosewayout;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
+
+	// Desactivate continue button
+	this.continueBtn.ghost('next');
+
+	// Checkboxes
+	CheckboxGroup.setup(
+		[this.currentPage.checkbox1, this.currentPage.checkbox2],
+		['A', 'B'],
+		Delegate.create(function(vo){
+
+		// Save chosen 'way out'
+		PlayerStats.wayout = vo.value;
+		self.trigger = triggers[PlayerStats.wayout]; // Set trigger due to choice!!
+
+			// Only first time a checkbox is clicked
+			if(vo.clicked === 1){
+				// User may continue
+				self.continueBtn.activate('next');
+				// Add listener to continue button
+				self.listeners.continueClick = self.continueBtn.on('click', function(event){
+					event.remove();
+					// Clear checkboxes
+					CheckboxGroup.clear();
+				});
+			}
+		}, this)
+	);
+};
+FlowPoorhouseSecond.prototype.farmWork = function(trigger) {
+	'use strict';
+	var self = this;
+	var currentTrigger = this.trigger;
+
+	// Next move
+	this.trigger = trigger;
+
+	// Change background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_6);
+
+	// Get sound
+	var sound = SoundService.matrix[currentTrigger];
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.farmwork;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.disable();
+	}, this));
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	this.continueBtn.activate('next');
+};
+FlowPoorhouseSecond.prototype.points2 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points2;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('money', 1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+
+	this.continueBtn.activate('next');
+};
+FlowPoorhouseSecond.prototype.farmworkEnded = function(trigger) {
+	'use strict';
+	var self = this;
+	var currentTrigger = this.trigger;
+
+	// Next move
+	this.trigger = trigger;
+
+	// Get sound
+	var sound = SoundService.matrix[currentTrigger];
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.workended;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	this.continueBtn.activate('next');
+};
+FlowPoorhouseSecond.prototype.points3 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points3;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('money', -1);
+		PlayerStats.append('mood', -1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+
+	this.continueBtn.activate('next');
+};
+FlowPoorhouseSecond.prototype.letterWrite = function(trigger) {
+	'use strict';
+	var self = this;
+
+	self.trigger = trigger;
+
+	// Change background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_8);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.letterwrite;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
+
+	// Dropdowns
+	var dropdown1 = new Dropdown(this.currentPage.dropdown_A);
+	var dropdown2 = new Dropdown(this.currentPage.dropdown_B);
+	var dropdown3 = new Dropdown(this.currentPage.dropdown_C);
+
+	// Close dropdowns when entering the fullscreen button ... whcih willl happen every toe you leave a dropdown
+	var fullscreenButton = this.currentPage.fullscreenButton;
+	var screenListener = fullscreenButton.on('mouseover', function(){
+		dropdown1.setActive(false);
+		dropdown2.setActive(false);
+		dropdown3.setActive(false);
+	});
+
+	// Name
+	var frm = PlayerStats.challenge + PlayerStats.family;
+   	this.view.realname.gotoAndStop(frm);
+
+   	// Special conitnue event event listener
+   	this.continueBtn.on('click', function(event){
+   		event.remove();
+   		fullscreenButton.off('click', screenListener);
+   	});
+};
+FlowPoorhouseSecond.prototype.letterAnswer = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+	// Previous page out
+	Transitions.transOutPosition(this.currentPage);
+
+	// Set new page out
+	this.currentPage = this.view.letteranswer;
+
+	// New page in
+	Transitions.transInAlpha(this.currentPage);
+
+	this.continueBtn.activate('next');
+};
+FlowPoorhouseSecond.prototype.points4 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points3;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('mood', -1);
+		PlayerStats.append('money', -1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+
+	this.continueBtn.activate('next');
+};
+
+createjs.EventDispatcher.initialize(FlowPoorhouseSecond.prototype);
+
+
+
 var FlowPoorhouse = function(container){
 	'use strict';
 	this.container = container;
@@ -1383,7 +2028,7 @@ FlowPoorhouse.prototype.start = function(){
 	console.log('FlowPoorhouse:start');
 
 	LoadJS.load(
-		['../assets/logic/games/svendborg.js'], 
+		['../assets/logic/games/'+this.id+'.js'], 
 		Delegate.create(this.setup, this)
 	);
 };
@@ -1421,7 +2066,7 @@ FlowPoorhouse.prototype.setup = function(){
 	this.flow.addAction('1.6.1', Delegate.create(this.constable, this), '1.6.2');
 	this.flow.addAction('1.6.2', Delegate.create(this.report, this), '1.6.3');
 	this.flow.addAction('1.6.3', Delegate.create(this.points6, this), '1.8');	
-	this.flow.addAction('1.8', Delegate.create(this.backToPoorhouse, this), '1.3.5');
+	this.flow.addAction('1.8', Delegate.create(this.backToPoorhouse, this), '2.1');
 	this.flow.addAction('2.1', Delegate.create(this.recruimentOffice, this), '2.2.1');
 	this.flow.addAction('2.2.1', Delegate.create(this.jobInterviewPart1, this), '2.2.2');
 	this.flow.addAction('2.2.2', Delegate.create(this.chooseJobGermany, this), '2.2.3');
@@ -1446,9 +2091,9 @@ FlowPoorhouse.prototype.setup = function(){
 			Clss = this.lib.horsens;
 			manifest = this.lib.properties.manifest;
 		break;
-		case 'sundby':
+		case 'sundholm':
 			// this.lib = sundbyGameLib;
-			Clss = this.lib.sundby;
+			Clss = this.lib.sundholm;
 			manifest = this.lib.properties.manifest;
 		break;
 		case 'svendborg':	
@@ -1502,7 +2147,7 @@ FlowPoorhouse.prototype.onComplete = function(event) {
 FlowPoorhouse.prototype.onContinue = function(event) {
 	'use strict';
 	
-	console.log('FlowPoorhouse::onContinue');
+	// console.log('FlowPoorhouse::onContinue');
 	
 	// Stop player if any
 	if(this.playerComponent != null){
@@ -1637,8 +2282,6 @@ FlowPoorhouse.prototype.chooseJob = function(trigger) {
 	'use strict';
 	var self = this;
 
-	console.log('chooseJob');
-
 	// Next move
 	this.trigger = trigger;
 
@@ -1753,50 +2396,19 @@ FlowPoorhouse.prototype.points3 = function(trigger) {
 };
 FlowPoorhouse.prototype.getout = function(trigger) {
 	'use strict';
+	var self = this;
+	var currentTrigger = this.trigger;
+
 	// Next move
 	this.trigger = trigger;
+
+	// Get sound
+	var sound = SoundService.matrix[currentTrigger];
+	console.log(sound);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.getout;
-	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
-	}, this));
-
-	// Set portrait
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.currentPage.portrait.gotoAndStop(frm);
-
-	this.continueBtn.activate('next');
-};
-FlowPoorhouse.prototype.playAdvice = function(trigger) {
-	'use strict';
-	var self = this;
-	var currentTrigger = this.trigger;
-	var sound;
-
-	// Next move
-	this.trigger = trigger;
-
-	// Pages in/out
-	var previousPage = this.currentPage;
-
-	// Set new page out
-	switch(currentTrigger){
-		case '1.3.3': // Inmate
-			this.currentPage = this.view.adviceinmate;	
-
-			// Get sound
-			sound = SoundService.matrix.advice[this.id]['inmate'];
-		break;
-		case '1.3.4': // Employee
-			this.currentPage = this.view.adviceemployee;
-
-			// Get sound
-			sound = SoundService.matrix.advice[this.id]['employee'];
-		break;
-	}	
-	
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
@@ -1813,6 +2425,51 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	this.continueBtn.activate('next');
+};
+FlowPoorhouse.prototype.playAdvice = function(trigger) {
+	'use strict';
+	var self = this;
+	var currentTrigger = this.trigger;
+	
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+
+	// Set new page out
+	switch(currentTrigger){
+		case '1.3.3': // Inmate
+			this.currentPage = this.view.adviceinmate;	
+		break;
+		case '1.3.4': // Employee
+			this.currentPage = this.view.adviceemployee;
+		break;
+	}	
+
+	// Get sound
+	var sound = SoundService.matrix[currentTrigger];
+	
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
 	// Portrait
 	this.currentPage.portrait.gotoAndStop(this.id);
@@ -1988,45 +2645,6 @@ FlowPoorhouse.prototype.points6 = function(trigger) {
 	this.continueBtn.activate('next');
 };
 
-FlowPoorhouse.prototype.letterWrite = function(trigger) {
-	'use strict';
-	var self = this;
-
-	self.trigger = trigger;
-
-	// Change background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_7);
-
-	// Pages in/out
-	var previousPage = this.currentPage;
-	this.currentPage = this.view.letterwrite;
-	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
-	}, this));
-
-	// Dropdowns
-	var dropdown1 = new Dropdown(this.currentPage.dropdown_A);
-	var dropdown2 = new Dropdown(this.currentPage.dropdown_B);
-	var dropdown3 = new Dropdown(this.currentPage.dropdown_C);
-
-	// Close dropdowns when entering the fullscreen button ... whcih willl happen every toe you leave a dropdown
-	var fullscreenButton = this.currentPage.fullscreenButton;
-	var screenListener = fullscreenButton.on('mouseover', function(){
-		dropdown1.setActive(false);
-		dropdown2.setActive(false);
-		dropdown3.setActive(false);
-	});
-
-	// Name
-	var frm = PlayerStats.challenge + PlayerStats.family;
-   	this.view.realname.gotoAndStop(frm);
-
-   	// Special conitnue event event listener
-   	this.continueBtn.on('click', function(event){
-   		event.remove();
-   		fullscreenButton.off('click', screenListener);
-   	});
-};
 FlowPoorhouse.prototype.points4 = function(trigger) {
 	'use strict';
 	// Next move
@@ -2043,22 +2661,6 @@ FlowPoorhouse.prototype.points4 = function(trigger) {
 			PlayerStats.append('mood', 1);
 			Topbar.pointsUpdate();
 		});
-
-	this.continueBtn.activate('next');
-};
-FlowPoorhouse.prototype.letterAnswer = function(trigger) {
-	'use strict';
-	// Next move
-	this.trigger = trigger;
-
-	// Previous page out
-	Transitions.transOutPosition(this.currentPage);
-
-	// Set new page out
-	this.currentPage = this.view.letteranswer;
-
-	// New page in
-	Transitions.transInAlpha(this.currentPage);
 
 	this.continueBtn.activate('next');
 };
@@ -2321,6 +2923,258 @@ createjs.EventDispatcher.initialize(FlowPoorhouse.prototype);
 
 
 
+var FlowGermany2 = function(container){
+	this.container = container;
+	this.id = null; 
+	this.view = null;	
+	this.lib = null;
+	this.slideLib = null;
+	this.playerComponent = null;
+	this.listeners = {};
+	this.trigger = '4.0'; // Default start pointer
+	this.currentPage = null;
+	this.currentBackground = null;
+	this.groups = {};
+
+	this.continueBtn = ContinueButton;
+	this.continueBtn.activate('next');
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+}
+
+FlowGermany2.prototype.start = function(){
+	LoadJS.load(
+		['../assets/logic/games/germany2.js'], 
+		Delegate.create(this.setup, this)
+	);
+}
+FlowGermany2.prototype.setup = function(){
+	'use strict';
+	if(this.runonce != null)
+		return;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	var self = this;
+	this.id = 'germany2';
+
+	// Setup flow
+	this.flow = new SubFlowController();
+	this.flow.addAction('4.0', Delegate.create(this.chooseJobGermany, this), '4.1');
+	this.flow.addAction('4.1', Delegate.create(this.recruitementLetter, this), '4.2');
+	this.flow.addAction('4.2', Delegate.create(this.points1, this), '4.3');
+	this.flow.addAction('4.3', Delegate.create(this.traveling, this), '4.4');
+	this.flow.addAction('1113.0', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
+
+	try{
+		// Load files for flow	
+		this.lib = gamelib; //germany1GameLib;
+		var Clss = this.lib.germany_2;
+		var manifest = this.lib.properties.manifest;
+		var onFileLoad = function(event){
+			if (event.item.type === 'image') { 
+				// console.log('result:', event.item.id, event.result);
+				images[event.item.id] = event.result; 
+			}
+		};
+		var onLoadComplete = function(event){
+			// console.log('onLoadComplete');
+
+			// Instantiate view
+			self.view = new Clss();
+
+			//Add
+			self.container.addChild(self.view);
+
+			// Set start page
+			self.flow.next(self.trigger);
+
+			self.dispatchEvent(new createjs.Event('ready'));
+		};
+		Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+	}catch(err) {
+   		console.log(err);
+   	}
+};
+FlowGermany2.prototype.onContinue = function(event) {
+	'use strict';
+	console.log('FlowGermany2::onContinue');	
+
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
+
+	// Must be set after stopping player
+	this.flow.next(this.trigger);
+};
+FlowGermany2.prototype.removeEvents = function() {
+	'use strict';
+	
+	// Remove events
+	this.continueBtn.off('click', this.listeners.continue);
+	this.listeners.continue = null;
+};
+FlowGermany2.prototype.destroy = function() {
+	'use strict';
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+		this.playerComponent.destroy();	
+		this.playerComponent = null;
+	}			
+	this.view = null;
+	this.lib = null;
+	this.currentPage = null;
+	this.listeners = null;
+	this.flow = null;
+};
+
+
+// Pages ------------------------------------------------------------------------
+
+FlowGermany2.prototype.chooseJobGermany = function(trigger){
+	var self = this;
+
+	this.trigger = trigger;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_0);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.choosejob;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
+
+	// Next in flow
+	this.continueBtn.ghost('next');
+
+	// Checkboxes
+	CheckboxGroup.setup(
+		[this.currentPage.checkboxA, this.currentPage.checkboxB, this.currentPage.checkboxC],
+		['A', 'B', 'C'],
+		Delegate.create(function(vo){
+
+		// Save chosen 'second job in Germany'
+		PlayerStats.job_germany[1] = vo.value;
+
+			// Only first time a checkbox is clicked
+			if(vo.clicked === 1){
+				// User may continue
+				self.continueBtn.activate('next');
+				// Add listener to continue button
+				self.listeners.continueClick = self.continueBtn.on('click', function(event){
+					event.remove();
+					// Clear checkboxes
+					CheckboxGroup.clear();
+				});
+			}
+		}, this)
+	);
+
+	// Disable checkbox
+	CheckboxGroup.disableCheckbox(PlayerStats.job_germany[0]);
+	this.currentPage['cbText'+PlayerStats.job_germany[0]].alpha = .2;
+};
+FlowGermany2.prototype.recruitementLetter = function(trigger){
+	this.trigger = trigger;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_1);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.recruitementletter;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
+
+	// Dropdowns
+	var dropdown1 = new Dropdown(this.currentPage.dropdown);
+	
+	// Close dropdowns when entering the fullscreen button ... whih will happen every time you leave a dropdown
+	var fullscreenButton = this.currentPage.fullscreenButton;
+	var screenListener = fullscreenButton.on('mouseover', function(){
+		dropdown1.setActive(false);
+	});
+
+	// Set name
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	console.log('frm:', frm);
+   	this.currentPage.realname.gotoAndStop(frm);
+
+	// Next button
+	this.continueBtn.activate('next');
+};
+FlowGermany2.prototype.points1 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points1;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		PlayerStats.append('money', 1);
+		PlayerStats.append('mood', 1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+
+	this.continueBtn.activate('next');
+};
+FlowGermany2.prototype.traveling = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_3);
+	
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.traveling;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		try{
+			// Load slide
+			LoadJS.load(
+				['../assets/logic/slides/slide_4_3.js'], 
+				Delegate.create(function(){
+					// Slide. Loading is self contained
+					self.slideLib = slidelib;	
+					self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
+					self.listeners.complete = self.playerComponent.on('complete', function(event){
+						self.continueBtn.activate('next');
+					}, self);
+					self.playerComponent.preload('slide_4_3', self.slideLib);
+					self.continueBtn.activate('skip');
+				}, self)
+			);
+		}catch(err){
+			console.log(err);
+		}
+	}, this));
+
+	// Ghost continue button
+	self.continueBtn.ghost('skip');
+};
+
+
+
+createjs.EventDispatcher.initialize(FlowGermany2.prototype);
 var FlowGermany1 = function(container){
 	this.container = container;
 	this.id = null; 
@@ -2366,14 +3220,22 @@ FlowGermany1.prototype.setup = function(){
 	this.flow.addAction('2.6.2', Delegate.create(this.points1, this), '2.7.1');
 	this.flow.addAction('2.7.1', Delegate.create(this.work, this), '2.7.2');
 	this.flow.addAction('2.7.2', Delegate.create(this.points2, this), '2.7.3');
-	this.flow.addAction('2.7.3', Delegate.create(this.points3, this), '2.8');
-	this.flow.addAction('2.8', Delegate.create(this.chooseSpending, this), '2.9.1');
-	this.flow.addAction('2.9.1', Delegate.create(this.spending, this), '2.9.2');
-	this.flow.addAction('2.9.2', Delegate.create(this.points4, this), '2.10.1');
-	this.flow.addAction('2.10.1', Delegate.create(this.whatNow, this), '2.11.1');
-	// this.flow.addAction('2.10.2', Delegate.create(this.chooseWhatNow, this), '2.11.1');
-	this.flow.addAction('2.11.1', Delegate.create(this.homeComming, this), '2.11.2');
-	this.flow.addAction('2.11.2', Delegate.create(this.points5, this), '3.0');
+	this.flow.addAction('2.7.3', Delegate.create(this.points3, this), '2.8.1');
+	this.flow.addAction('2.8.1', Delegate.create(this.getPaid, this), '2.8.2');
+	this.flow.addAction('2.8.2', Delegate.create(this.chooseSpending, this), '2.9.1');
+	this.flow.addAction('2.9.1', Delegate.create(this.points4, this), '2.9.2');
+	this.flow.addAction('2.9.2', Delegate.create(this.facts, this), '2.10.1');
+	this.flow.addAction('2.10.1', Delegate.create(this.chooseWhatNow, this), '2.10.2');
+	this.flow.addAction('2.10.2', Delegate.create(this.whatNow, this), '2.10.3');
+	this.flow.addAction('2.10.3', Delegate.create(this.points6, this), '2.11.1');
+	this.flow.addAction('2.11.1', Delegate.create(this.homeComming, this), '3.0');
+	this.flow.addAction('3.0', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
 
 	try{
 		// Load files for flow	
@@ -2637,15 +3499,54 @@ FlowGermany1.prototype.points3 = function(trigger) {
 
 	this.continueBtn.activate('next');
 };
+FlowGermany1.prototype.getPaid = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_8);
+
+	// Get sound
+	var sound = SoundService.matrix['2.8.1'];
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.getpaid;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	// Reuse player component var for sound
+	this.playerComponent = null;
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Next
+	this.continueBtn.ghost('skip');
+};
 FlowGermany1.prototype.chooseSpending = function(trigger) {
 	'use strict';
 	var self = this;
 
 	// Next move
 	this.trigger = trigger;
-
-	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_8);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -2680,48 +3581,22 @@ FlowGermany1.prototype.chooseSpending = function(trigger) {
 	// Desactivate continue button
 	this.continueBtn.ghost('next');
 };
-FlowGermany1.prototype.spending = function(trigger) {
-	'use strict';
-	var self = this;
-
-	// Next move
-	this.trigger = trigger;
-
-	// Get spending related assets
-	var bg, page;
-	try{
-		bg = this.view['bg_2_9'+PlayerStats.spending];
-		page = this.view['spending'+PlayerStats.spending];
-	}catch(err){
-		console.log(err);
-	}	
-
-	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
-
-	// Pages in/out
-	var previousPage = this.currentPage;
-	this.currentPage = page;
-	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-		Tick.disable();
-	}, this));
-
-
-	// Desactivate continue button
-	this.continueBtn.activate('next');
-};
 FlowGermany1.prototype.points4 = function(trigger) {
 	'use strict';
 	// Next move
 	this.trigger = trigger;
 
 	// Get spending related assets
-	var page;
+	var page, bg;
 	try{
+		bg = this.view['bg_2_9'+PlayerStats.spending];
 		page = this.view['points4'+PlayerStats.spending];
 	}catch(err){
 		console.log(err);
 	}	
+	
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -2746,47 +3621,25 @@ FlowGermany1.prototype.points4 = function(trigger) {
 
 	this.continueBtn.activate('next');
 };
-FlowGermany1.prototype.whatNow = function(trigger){
+FlowGermany1.prototype.facts = function(trigger) {
 	'use strict';
+	var self = this;
 
 	// Next move
 	this.trigger = trigger;
 
-	var self = this;
-
-	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_10);
-
-	// Get sound
-	var sound = SoundService.matrix['2.10.1'];
-
 	// Pages in/out
 	var previousPage = this.currentPage;
-	this.currentPage = this.view.whatnow;
-	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		// Sound Player
-		self.listeners.complete = self.playerComponent.on('complete', function(event){
-			self.continueBtn.activate('next');
-			Tick.disable();
-		}, self);
-		self.playerComponent.on('ready', function(event){
-			self.continueBtn.activate('skip');
-			Tick.disable();
-		}, self);
-		self.playerComponent.preload(sound.src, sound.duration);
+	this.currentPage = this.view.facts;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		Tick.disable();
 	}, this));
 
 
-	// Set portrait
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.currentPage.portrait.gotoAndStop(frm);
-
-	// Reuse player component var for sound
-	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
-
-	// Next
-	this.continueBtn.ghost('skip');
+	// Desactivate continue button
+	this.continueBtn.activate('next');
 };
+
 FlowGermany1.prototype.chooseWhatNow = function(trigger) {
 	'use strict';
 	var self = this;
@@ -2827,6 +3680,75 @@ FlowGermany1.prototype.chooseWhatNow = function(trigger) {
 	// Desactivate continue button
 	this.continueBtn.ghost('next');
 };
+FlowGermany1.prototype.whatNow = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_10);
+
+	// Get sound
+	var sound = SoundService.matrix['2.10.2'][PlayerStats.whatnow];
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.whatnow;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Frame A, B
+	this.currentPage.gotoAndStop(PlayerStats.whatnow);
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Next
+	this.continueBtn.ghost('skip');
+};
+FlowGermany1.prototype.points6 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points6;
+	this.currentPage.gotoAndStop(PlayerStats.whatnow);
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		switch(PlayerStats.whatnow){
+			case 'A':
+				PlayerStats.append('money', 1);
+			break;
+			case 'B':
+				PlayerStats.append('money', -1);
+			break;
+		}			
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+console.log('points6', PlayerStats.whatnow, this.currentPage);
+	this.continueBtn.activate('next');
+};
 FlowGermany1.prototype.homeComming = function(trigger){
 	'use strict';
 
@@ -2859,6 +3781,10 @@ FlowGermany1.prototype.homeComming = function(trigger){
 
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Set portrait (NB. In background!)
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
 
 	// Ghost continue button
 	self.continueBtn.ghost('skip');
@@ -2894,6 +3820,49 @@ FlowGermany1.prototype.points5 = function(trigger) {
 
 	// Next
 	this.continueBtn.activate('next');
+};
+FlowGermany1.prototype.intermezzo = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set page view
+	this.currentPage = this.view.intermezzo;
+	this.currentPage.x = 0;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_5);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.choosewhatnow;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
+
+	
+	// Slide. Loading is self contained
+	try{
+		this.slideLib = slidelib;	
+		this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+		this.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		this.playerComponent.on('ready', function(event){
+			event.remove();
+			// No tick
+			Tick.disable();
+			self.continueBtn.activate("skip");
+		});
+		this.playerComponent.preload('slide_2_5', this.slideLib);
+	}catch(err){
+		console.log(err);
+	}
+	this.continueBtn.activate('skip');
 };
 createjs.EventDispatcher.initialize(FlowGermany1.prototype);
 var FlowCharacter = function(view){
@@ -3097,41 +4066,6 @@ FlowCharacter.prototype.destroy = function() {
 	// createjs.Tween.removeTweens(event.target);
 };
 createjs.EventDispatcher.initialize(FlowCharacter.prototype);
-var Topbar = {
-	view: null,
-	soundController: null,
-	init: function(view){
-		this.view = view;		
-	},
-	go: function(frm){
-		// console.log(this.view);
-		// this.view.label_intro.x = 564 + 300;
-		// createjs.Tween.get(this.view.label_intro)
-		// 	.to({x:564}, 300, createjs.Ease.backIn);
-
-
-		this.view.gotoAndStop(frm);
-
-		// Setup for game related to user's choices
-		if(frm === 'game'){
-			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
-
-			// Points
-			HUDController.init(this.view.hud);
-		}
-	},
-	pointsUpdate: function(){
-		HUDController.update();
-	},
-	show: function(){
-		this.view.visible = true;
-	},
-	hide: function(){
-		this.view.visible = false;	
-	}
-}
 'use strict';
 var TweenUtil = {
 	to: function(element, options, delay, delegate){
@@ -3150,7 +4084,7 @@ var Transitions = {
 		var left = 2;
 		var checkDone = function(left){
 			if(left == 0){
-				if(delegate !== undefined){
+				if(delegate !== null){
 					delegate();
 				}
 			}
@@ -3184,10 +4118,11 @@ var Transitions = {
 		
 	},
 	transInPosition: function(pageView, callback){
-		if(pageView === undefined)
+		if(pageView === null || pageView === undefined)
 			return;
 
 		// New page in
+		pageView.visible = true;
 		pageView.alpha = 1;
 		pageView.x = 1024;
 		createjs.Tween.get(pageView)
@@ -3199,7 +4134,7 @@ var Transitions = {
 			});
 	},
 	transOutPosition: function(pageView, callback){
-		if(pageView === undefined)
+		if(pageView === null || pageView === undefined)
 			return;
 
 		// New page in
@@ -3208,14 +4143,16 @@ var Transitions = {
 			.call(function(){
 				if(callback !== undefined){
 					callback();
+					pageView.visible = false;
 				}
 			});
 	},
 	transInAlpha: function(pageView, callback){
-		if(pageView === undefined)
+		if(pageView === null || pageView === undefined)
 			return;
 
 		// New page in
+		pageView.visible = true;
 		pageView.alpha = 0;
 		pageView.x = 0;
 		createjs.Tween.get(pageView)
@@ -3227,7 +4164,7 @@ var Transitions = {
 			});
 	},
 	transOutAlpha: function(pageView, callback){
-		if(pageView === undefined)
+		if(pageView === null || pageView === undefined)
 			return;
 		
 		// New page in
@@ -3337,6 +4274,15 @@ TextField.createBmp = function(id, text, fontsize, color){
 		bmptxt.setColor(color);
 	return bmptxt;
 }
+// Math
+Math.range = function(min, max){
+	'use strict';
+	return Math.random() * (max - min) + min;
+}
+Math.rangeInt = function(min, max){
+	'use strict';
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 var LoadJS = {
 	cache: [],
 	load: function(urls, delegate, location){
@@ -3368,7 +4314,7 @@ var LoadJS = {
     		}
     		this.cache.push(urlList[i]);
 
-    		console.log(this.cache);
+    		// console.log(this.cache);
 
 		    var scriptTag = document.createElement('script');		    
 		    // console.log(urlList[i]);
@@ -3465,6 +4411,56 @@ var Delegate = {
 	    }
 	}
 };
+// Array
+// Shuffle array and indicate correct index
+Array.prototype.shuffle = function(index){
+	var correctAnswer = this[index];
+    for(var j, x, i = this.length; i; j = Math.floor(Math.random() * i), x = this[--i], this[i] = this[j], this[j] = x)
+    
+    // Find correct answer's index in array
+    for(var a=0; a<this.length; a++){
+    	if(correctAnswer == this[a]){
+    		this.correct = a;
+    		break;
+    	}	    
+    }
+    return this;
+}
+var Topbar = {
+	view: null,
+	soundController: null,
+	init: function(view){
+		this.view = view;		
+	},
+	go: function(frm){
+		// console.log(this.view);
+		// this.view.label_intro.x = 564 + 300;
+		// createjs.Tween.get(this.view.label_intro)
+		// 	.to({x:564}, 300, createjs.Ease.backIn);
+
+
+		this.view.gotoAndStop(frm);
+
+		// Setup for game related to user's choices
+		if(frm === 'game'){
+			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
+
+			// Points
+			HUDController.init(this.view.hud);
+		}
+	},
+	pointsUpdate: function(){
+		HUDController.update();
+	},
+	show: function(){
+		this.view.visible = true;
+	},
+	hide: function(){
+		this.view.visible = false;	
+	}
+}
 var SoundService = function(){
 	'use strict';
 }
@@ -3516,8 +4512,6 @@ SoundService.matrix = {
 	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
 	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
 	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
-	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
-	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
 	jobinterview: {
 		'svendborg': { 
 			'part1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
@@ -3527,28 +4521,35 @@ SoundService.matrix = {
 	prerecruitment: {
 		'svendborg': { src:SoundService.properties.basePath+'prerecruitment_svendborg.mp3', duration: 1.078 }
 	},
-	advice: {
-		'svendborg': {
-			'employee': { src:SoundService.properties.basePath+'1.3.4_RaadIndlagt.mp3', duration: 41.987 }, 	// Employee
-			'inmate': { src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 }		// Fellow inmate
-		},
-	},
+	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
+	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
+	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },
 	work: {
 		'svendborg': {
-			'A': { src:SoundService.properties.basePath+'1.1.2a_slaa_skaerver.mp3', duration: 12.408 },
-			'B': { src:SoundService.properties.basePath+'work_svendborg_B.mp3', duration: 1.078 },
-			'C': { src:SoundService.properties.basePath+'work_svendborg_C.mp3', duration: 1.815 }
+			'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
+			'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+			'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
 		},
 	},
+	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
+	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
+	'2.10.2': {
+		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3', duration: 52.881 },
+		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3', duration: 53.265 }
+	},
+	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
+	
 	slides: {
 				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
-				'slide_1_0_1_svendborg': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
+				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
 				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
 				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
 				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3', duration: 61.208 },
 				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3', duration: 48.573 },
 				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3', duration: 48.573 },
-				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 }
+				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 },
+				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3', duration: 69.641 },
+				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
 				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
 			},
 	oppinion: { // 0.4
@@ -3561,7 +4562,11 @@ SoundService.matrix = {
 			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
 			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
 			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 }
-		}
+		},
+	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3', duration: 54.282 },
+	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3', duration: 15.531 },
+	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3', duration: 13.543 },
+	'3.7.1': { label:'w3ork over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3', duration: 30.561 },
 	// challenge: {
 	// 			// 'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
 	// 			// 'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
@@ -3591,14 +4596,14 @@ var PlayerStats = {
 	challenge: 'B',			// Default test value
 	family: 'D',			// Default test value
 	nickname: null,
-	poorhouse: null,
+	poorhouse: 'svendborg', // Test 
 	mood: 2,
 	health: 4,
 	money: 3,
 	job: null,
 	advice: null,
 	wayout: null,
-	job_germany: ['A', 'A'], // Default test values
+	job_germany: ['B', 'A'], // Default test values
 	spending: null,
 	whatnow: null,
 	pointsDiff: {mood: 0, health: 0, money: 0},
@@ -3683,6 +4688,35 @@ var Library = {
 		console.log('clearMain');
 		mainlib = null;
 	},
+}
+var ImageService = function(){
+	'use strict';
+}
+ImageService.properties = {
+	basePath: 'assets/images/pool/',
+};
+ImageService.matrix = {
+	portrait:{
+		'AD': { id: 'ADCloseUp', label:'background', src:ImageService.properties.basePath+'ADCloseUp.png'},
+		'AE': { id: 'AECloseUp', label:'background', src:ImageService.properties.basePath+'AECloseUp.png'},
+		'AF': { id: 'AFCloseUp', label:'background', src:ImageService.properties.basePath+'AFCloseUp.png'},
+		'BD': { id: 'BDCloseUp', label:'background', src:ImageService.properties.basePath+'BDCloseUp.png'},
+		'BE': { id: 'BECloseUp', label:'background', src:ImageService.properties.basePath+'BECloseUp.png'},
+		'BF': { id: 'BFCloseUp', label:'background', src:ImageService.properties.basePath+'BFCloseUp.png'},
+		'CD': { id: 'CDCloseUp', label:'background', src:ImageService.properties.basePath+'CDCloseUp.png'},
+		'CE': { id: 'CECloseUp', label:'background', src:ImageService.properties.basePath+'CECloseUp.png'},
+		'CF': { id: 'CFCloseUp', label:'background', src:ImageService.properties.basePath+'CFCloseUp.png'}
+	},
+	'1.0.1': {
+		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
+		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
+		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
+	},
+	'3.0': {
+		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
+		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
+		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
+	}
 }
 var FlowData ={
 	
@@ -3774,7 +4808,7 @@ var FlowManager = {
 
 				this.currentPage = null;
 				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
-				this.currentPage.start(); 				
+				this.currentPage.start('1.0.1', 'slide_1_0_1');
 
 				// Blocker
 				this.currentPage.on('ready', function(event){
@@ -3840,8 +4874,114 @@ var FlowManager = {
 					event.remove();					
 					self.root.blocker_black.visible = false;
 				}, this);
-		
-				// Tick.disable();
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('3.0');
+				}, this);
+				Tick.disable();
+			break;
+			case '3.0':	
+				// Poor House 2. time
+
+				// Get id for next poorhouse
+				var newId;
+				var list = ['horsens', 'sundholm', 'svendborg'];
+				list = list.shuffle();
+				for(var i=0; i<list.length; i++){
+					if(list[i] !== PlayerStats.poorhouse){
+						PlayerStats.poorhouse = list[i];
+						break;
+					}
+				}
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');
+
+				this.currentPage = null;
+				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
+				// this.currentPage.setPortrait(ImageService.matrix.portrait['AD']);
+				this.currentPage.start('3.0', 'slide_3_0');	
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('3.1');
+				}, this);
+			break;
+			case '3.1':	
+				// Poor House 2.	
+
+				// TEST
+				// PlayerStats.poorhouse = 'svendborg';
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');				
+
+				this.currentPage = null;
+				this.currentPage = new FlowPoorhouseSecond(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('4.0');
+				}, this);
+				Tick.disable();
+			break;
+			case '4.0':	
+				// Germany 2.	
+
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');				
+
+				this.currentPage = null;
+				this.currentPage = new FlowGermany2(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('4.10');
+				}, this);
+				Tick.disable();
 			break;
 		}
 	},
@@ -3887,9 +5027,11 @@ var ApplicationManager = {
 
 
 		// Go to start
-		FlowManager.gotoPage('0.0');
+		// FlowManager.gotoPage('0.0');
 		// FlowManager.gotoPage('1.0.1');
 		// FlowManager.gotoPage('2.5');
+		// FlowManager.gotoPage('3.1');
+		FlowManager.gotoPage('4.0');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},
@@ -4543,6 +5685,13 @@ var Preloader = {
 
 
 	load: function(manifest, handleFileLoad, handleComplete, clss){
+		
+		// If nothing to load exit 
+		if(manifest.length === 0){
+			handleComplete(null);
+			return;
+		}
+
 		var self = this;
 
 		if(clss == null)
@@ -5336,7 +6485,7 @@ var mainlib, images, createjs, ss;
 				Tick.init(stage, 15);
 				Tick.enable();		
 
-				console.log('stage.autoClear:', stage.autoClear);
+				// console.log('stage.autoClear:', stage.autoClear);
 				
 				//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
 
@@ -5464,6 +6613,22 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/fonts/BigNoodle/big_noodle_titling-demo.html',
+    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="specimen_files/easytabs.js" type="text/javascript" charset="utf-8"></script><link rel="stylesheet" href="specimen_files/specimen_stylesheet.css" type="text/css" charset="utf-8"><link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8"><style type="text/css">body{\n' +
+    '				font-family: \'bignoodletitlingregular\';\n' +
+    '							}</style><title>BigNoodleTitling Regular Specimen</title><script type="text/javascript">$(document).ready(function() {\n' +
+    '			$(\'#container\').easyTabs({defaultContent:1});\n' +
+    '		});</script></head><body><div id="container"><div id="header">BigNoodleTitling Regular</div><ul class="tabs"><li><a href="#specimen">Specimen</a></li><li><a href="#layout">Sample Layout</a></li><li><a href="#glyphs">Glyphs &amp; Languages</a></li><li><a href="#installing">Installing Webfonts</a></li></ul><div id="main_content"><div id="specimen"><div class="section"><div class="grid12 firstcol"><div class="huge">AaBb</div></div></div><div class="section"><div class="glyph_range">A&#x200B;B&#x200b;C&#x200b;D&#x200b;E&#x200b;F&#x200b;G&#x200b;H&#x200b;I&#x200b;J&#x200b;K&#x200b;L&#x200b;M&#x200b;N&#x200b;O&#x200b;P&#x200b;Q&#x200b;R&#x200b;S&#x200b;T&#x200b;U&#x200b;V&#x200b;W&#x200b;X&#x200b;Y&#x200b;Z&#x200b;a&#x200b;b&#x200b;c&#x200b;d&#x200b;e&#x200b;f&#x200b;g&#x200b;h&#x200b;i&#x200b;j&#x200b;k&#x200b;l&#x200b;m&#x200b;n&#x200b;o&#x200b;p&#x200b;q&#x200b;r&#x200b;s&#x200b;t&#x200b;u&#x200b;v&#x200b;w&#x200b;x&#x200b;y&#x200b;z&#x200b;1&#x200b;2&#x200b;3&#x200b;4&#x200b;5&#x200b;6&#x200b;7&#x200b;8&#x200b;9&#x200b;0&#x200b;&amp;&#x200b;.&#x200b;,&#x200b;?&#x200b;!&#x200b;&#64;&#x200b;(&#x200b;)&#x200b;#&#x200b;$&#x200b;%&#x200b;*&#x200b;+&#x200b;-&#x200b;=&#x200b;:&#x200b;;</div></div><div class="section"><div class="grid12 firstcol"><table class="sample_table"><tr><td>10</td><td class="size10">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>11</td><td class="size11">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>12</td><td class="size12">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>13</td><td class="size13">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>14</td><td class="size14">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>16</td><td class="size16">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>18</td><td class="size18">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>20</td><td class="size20">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>24</td><td class="size24">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>30</td><td class="size30">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>36</td><td class="size36">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>48</td><td class="size48">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>60</td><td class="size60">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>72</td><td class="size72">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>90</td><td class="size90">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr></table></div></div><div class="section" id="bodycomparison"><div id="xheight"><div class="fontbody">&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;body</div><div class="arialbody">body</div><div class="verdanabody">body</div><div class="georgiabody">body</div></div><div class="fontbody" style="z-index:1">body<span>BigNoodleTitling Regular</span></div><div class="arialbody" style="z-index:1">body<span>Arial</span></div><div class="verdanabody" style="z-index:1">body<span>Verdana</span></div><div class="georgiabody" style="z-index:1">body<span>Georgia</span></div></div><div class="section psample psample_row1" id=""><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row2" id=""><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row4" id=""><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row1 fullreverse"><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample psample_row2 fullreverse"><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row4" id="" style="border-bottom: 20px #000 solid"><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div></div><div id="layout"><div class="section"><div class="grid12 firstcol"><h1>Lorem Ipsum Dolor</h1><h2>Etiam porta sem malesuada magna mollis euismod</h2><p class="byline">By <a href="#link">Aenean Lacinia</a></p></div></div><div class="section"><div class="grid8 firstcol"><p class="large">Donec sed odio dui. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><h3>Pellentesque ornare sem</h3><p>Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas faucibus mollis interdum. Donec ullamcorper nulla non metus auctor fringilla. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam id dolor id nibh ultricies vehicula ut id elit.</p><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p><p>Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Aenean lacinia bibendum nulla sed consectetur.</p><p>Nullam quis risus eget urna mollis ornare vel eu leo. Nullam quis risus eget urna mollis ornare vel eu leo. Maecenas sed diam eget risus varius blandit sit amet non magna. Donec ullamcorper nulla non metus auctor fringilla.</p><h3>Cras mattis consectetur</h3><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Aenean lacinia bibendum nulla sed consectetur. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum.</p><p>Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna mollis ornare vel eu leo. Cras mattis consectetur purus sit amet fermentum.</p></div><div class="grid4 sidebar"><div class="box reverse"><p class="last">Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div><p class="caption">Maecenas sed diam eget risus varius.</p><p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Vestibulum id ligula porta felis euismod semper. Sed posuere consectetur est at lobortis. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Aenean lacinia bibendum nulla sed consectetur. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Aenean lacinia bibendum nulla sed consectetur. Nullam quis risus eget urna mollis ornare vel eu leo.</p><p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec ullamcorper nulla non metus auctor fringilla. Maecenas faucibus mollis interdum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p></div></div></div><div id="glyphs"><div class="section"><div class="grid12 firstcol"><h1>Language Support</h1><p>The subset of BigNoodleTitling Regular in this kit supports the following languages:<br></p><h1>Glyph Chart</h1><p>The subset of BigNoodleTitling Regular in this kit includes all the glyphs listed below. Unicode entities are included above each glyph to help you insert individual characters into your layout.</p><div id="glyph_chart"><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#33;</p>&#33;</div><div><p>&amp;#34;</p>&#34;</div><div><p>&amp;#35;</p>&#35;</div><div><p>&amp;#36;</p>&#36;</div><div><p>&amp;#37;</p>&#37;</div><div><p>&amp;#38;</p>&#38;</div><div><p>&amp;#39;</p>&#39;</div><div><p>&amp;#40;</p>&#40;</div><div><p>&amp;#41;</p>&#41;</div><div><p>&amp;#42;</p>&#42;</div><div><p>&amp;#43;</p>&#43;</div><div><p>&amp;#44;</p>&#44;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#46;</p>&#46;</div><div><p>&amp;#47;</p>&#47;</div><div><p>&amp;#48;</p>&#48;</div><div><p>&amp;#49;</p>&#49;</div><div><p>&amp;#50;</p>&#50;</div><div><p>&amp;#51;</p>&#51;</div><div><p>&amp;#52;</p>&#52;</div><div><p>&amp;#53;</p>&#53;</div><div><p>&amp;#54;</p>&#54;</div><div><p>&amp;#55;</p>&#55;</div><div><p>&amp;#56;</p>&#56;</div><div><p>&amp;#57;</p>&#57;</div><div><p>&amp;#58;</p>&#58;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#60;</p>&#60;</div><div><p>&amp;#61;</p>&#61;</div><div><p>&amp;#62;</p>&#62;</div><div><p>&amp;#63;</p>&#63;</div><div><p>&amp;#64;</p>&#64;</div><div><p>&amp;#65;</p>&#65;</div><div><p>&amp;#66;</p>&#66;</div><div><p>&amp;#67;</p>&#67;</div><div><p>&amp;#68;</p>&#68;</div><div><p>&amp;#69;</p>&#69;</div><div><p>&amp;#70;</p>&#70;</div><div><p>&amp;#71;</p>&#71;</div><div><p>&amp;#72;</p>&#72;</div><div><p>&amp;#73;</p>&#73;</div><div><p>&amp;#74;</p>&#74;</div><div><p>&amp;#75;</p>&#75;</div><div><p>&amp;#76;</p>&#76;</div><div><p>&amp;#77;</p>&#77;</div><div><p>&amp;#78;</p>&#78;</div><div><p>&amp;#79;</p>&#79;</div><div><p>&amp;#80;</p>&#80;</div><div><p>&amp;#81;</p>&#81;</div><div><p>&amp;#82;</p>&#82;</div><div><p>&amp;#83;</p>&#83;</div><div><p>&amp;#84;</p>&#84;</div><div><p>&amp;#85;</p>&#85;</div><div><p>&amp;#86;</p>&#86;</div><div><p>&amp;#87;</p>&#87;</div><div><p>&amp;#88;</p>&#88;</div><div><p>&amp;#89;</p>&#89;</div><div><p>&amp;#90;</p>&#90;</div><div><p>&amp;#91;</p>&#91;</div><div><p>&amp;#92;</p>&#92;</div><div><p>&amp;#93;</p>&#93;</div><div><p>&amp;#95;</p>&#95;</div><div><p>&amp;#96;</p>&#96;</div><div><p>&amp;#123;</p>&#123;</div><div><p>&amp;#124;</p>&#124;</div><div><p>&amp;#125;</p>&#125;</div><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#161;</p>&#161;</div><div><p>&amp;#162;</p>&#162;</div><div><p>&amp;#163;</p>&#163;</div><div><p>&amp;#165;</p>&#165;</div><div><p>&amp;#166;</p>&#166;</div><div><p>&amp;#167;</p>&#167;</div><div><p>&amp;#168;</p>&#168;</div><div><p>&amp;#169;</p>&#169;</div><div><p>&amp;#170;</p>&#170;</div><div><p>&amp;#171;</p>&#171;</div><div><p>&amp;#172;</p>&#172;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#174;</p>&#174;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#176;</p>&#176;</div><div><p>&amp;#178;</p>&#178;</div><div><p>&amp;#179;</p>&#179;</div><div><p>&amp;#180;</p>&#180;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#182;</p>&#182;</div><div><p>&amp;#184;</p>&#184;</div><div><p>&amp;#185;</p>&#185;</div><div><p>&amp;#186;</p>&#186;</div><div><p>&amp;#187;</p>&#187;</div><div><p>&amp;#188;</p>&#188;</div><div><p>&amp;#189;</p>&#189;</div><div><p>&amp;#190;</p>&#190;</div><div><p>&amp;#191;</p>&#191;</div><div><p>&amp;#198;</p>&#198;</div><div><p>&amp;#215;</p>&#215;</div><div><p>&amp;#216;</p>&#216;</div><div><p>&amp;#222;</p>&#222;</div><div><p>&amp;#223;</p>&#223;</div><div><p>&amp;#247;</p>&#247;</div><div><p>&amp;#321;</p>&#321;</div><div><p>&amp;#338;</p>&#338;</div><div><p>&amp;#402;</p>&#402;</div><div><p>&amp;#710;</p>&#710;</div><div><p>&amp;#711;</p>&#711;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#728;</p>&#728;</div><div><p>&amp;#729;</p>&#729;</div><div><p>&amp;#730;</p>&#730;</div><div><p>&amp;#731;</p>&#731;</div><div><p>&amp;#732;</p>&#732;</div><div><p>&amp;#733;</p>&#733;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#8211;</p>&#8211;</div><div><p>&amp;#8212;</p>&#8212;</div><div><p>&amp;#8216;</p>&#8216;</div><div><p>&amp;#8217;</p>&#8217;</div><div><p>&amp;#8220;</p>&#8220;</div><div><p>&amp;#8221;</p>&#8221;</div><div><p>&amp;#8224;</p>&#8224;</div><div><p>&amp;#8225;</p>&#8225;</div><div><p>&amp;#8226;</p>&#8226;</div><div><p>&amp;#8240;</p>&#8240;</div><div><p>&amp;#8249;</p>&#8249;</div><div><p>&amp;#8250;</p>&#8250;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#8364;</p>&#8364;</div><div><p>&amp;#8482;</p>&#8482;</div><div><p>&amp;#8722;</p>&#8722;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#64257;</p>&#64257;</div><div><p>&amp;#64258;</p>&#64258;</div></div></div></div></div><div id="specs"></div><div id="installing"><div class="section"><div class="grid7 firstcol"><h1>Installing Webfonts</h1><p>Webfonts are supported by all major browser platforms but not all in the same way. There are currently four different font formats that must be included in order to target all browsers. This includes TTF, WOFF, EOT and SVG.</p><h2>1. Upload your webfonts</h2><p>You must upload your webfont kit to your website. They should be in or near the same directory as your CSS files.</p><h2>2. Include the webfont stylesheet</h2><p>A special CSS @font-face declaration helps the various browsers select the appropriate font it needs without causing you a bunch of headaches. Learn more about this syntax by reading the <a href="http://www.fontspring.com/blog/further-hardening-of-the-bulletproof-syntax">Fontspring blog post</a> about it. The code for it is as follows:</p><code>@font-face{ font-family: \'MyWebFont\'; src: url(\'WebFont.eot\'); src: url(\'WebFont.eot?#iefix\') format(\'embedded-opentype\'), url(\'WebFont.woff\') format(\'woff\'), url(\'WebFont.ttf\') format(\'truetype\'), url(\'WebFont.svg#webfont\') format(\'svg\'); }</code><p>We\'ve already gone ahead and generated the code for you. All you have to do is link to the stylesheet in your HTML, like this:</p><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;stylesheet.css&quot; type=&quot;text/css&quot; charset=&quot;utf-8&quot; /&gt;</code><h2>3. Modify your own stylesheet</h2><p>To take advantage of your new fonts, you must tell your stylesheet to use them. Look at the original @font-face declaration above and find the property called "font-family." The name linked there will be what you use to reference the font. Prepend that webfont name to the font stack in the "font-family" property, inside the selector you want to change. For example:</p><code>p { font-family: \'WebFont\', Arial, sans-serif; }</code><h2>4. Test</h2><p>Getting webfonts to work cross-browser <em>can</em> be tricky. Use the information in the sidebar to help you if you find that fonts aren\'t loading in a particular browser.</p></div><div class="grid5 sidebar"><div class="box"><h2>Troubleshooting<br>Font-Face Problems</h2><p>Having trouble getting your webfonts to load in your new website? Here are some tips to sort out what might be the problem.</p><h3>Fonts not showing in any browser</h3><p>This sounds like you need to work on the plumbing. You either did not upload the fonts to the correct directory, or you did not link the fonts properly in the CSS. If you\'ve confirmed that all this is correct and you still have a problem, take a look at your .htaccess file and see if requests are getting intercepted.</p><h3>Fonts not loading in iPhone or iPad</h3><p>The most common problem here is that you are serving the fonts from an IIS server. IIS refuses to serve files that have unknown MIME types. If that is the case, you must set the MIME type for SVG to "image/svg+xml" in the server settings. Follow these instructions from Microsoft if you need help.</p><h3>Fonts not loading in Firefox</h3><p>The primary reason for this failure? You are still using a version Firefox older than 3.5. So upgrade already! If that isn\'t it, then you are very likely serving fonts from a different domain. Firefox requires that all font assets be served from the same domain. Lastly it is possible that you need to add WOFF to your list of MIME types (if you are serving via IIS.)</p><h3>Fonts not loading in IE</h3><p>Are you looking at Internet Explorer on an actual Windows machine or are you cheating by using a service like Adobe BrowserLab? Many of these screenshot services do not render @font-face for IE. Best to test it on a real machine.</p><h3>Fonts not loading in IE9</h3><p>IE9, like Firefox, requires that fonts be served from the same domain as the website. Make sure that is the case.</p></div></div></div></div></div><div id="footer"><p>&copy;2010-2011 Font Squirrel. All rights reserved.</p></div></div></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/fattiggarden/assets/logic/games/germany1.html',
     '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>germany1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="germany1.js"></script><script>var canvas, stage, exportRoot;\n' +
     '\n' +
@@ -5502,8 +6667,8 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/poorhouse_intro.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>poorhouse_intro</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="poorhouse_intro.js"></script><script>var canvas, stage, exportRoot;\n' +
+  $templateCache.put('/fattiggarden/assets/logic/games/germany2.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>germany2</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="germany2.js"></script><script>var canvas, stage, exportRoot;\n' +
     '\n' +
     'function init() {\n' +
     '	canvas = document.getElementById("canvas");\n' +
@@ -5520,6 +6685,31 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.germany_2();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/poorhouse_intro.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>poorhouse_intro</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="poorhouse_intro.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
     '	exportRoot = new gamelib.poorhouse_intro();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
@@ -5616,12 +6806,34 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/fonts/BigNoodle/big_noodle_titling-demo.html',
-    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="specimen_files/easytabs.js" type="text/javascript" charset="utf-8"></script><link rel="stylesheet" href="specimen_files/specimen_stylesheet.css" type="text/css" charset="utf-8"><link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8"><style type="text/css">body{\n' +
-    '				font-family: \'bignoodletitlingregular\';\n' +
-    '							}</style><title>BigNoodleTitling Regular Specimen</title><script type="text/javascript">$(document).ready(function() {\n' +
-    '			$(\'#container\').easyTabs({defaultContent:1});\n' +
-    '		});</script></head><body><div id="container"><div id="header">BigNoodleTitling Regular</div><ul class="tabs"><li><a href="#specimen">Specimen</a></li><li><a href="#layout">Sample Layout</a></li><li><a href="#glyphs">Glyphs &amp; Languages</a></li><li><a href="#installing">Installing Webfonts</a></li></ul><div id="main_content"><div id="specimen"><div class="section"><div class="grid12 firstcol"><div class="huge">AaBb</div></div></div><div class="section"><div class="glyph_range">A&#x200B;B&#x200b;C&#x200b;D&#x200b;E&#x200b;F&#x200b;G&#x200b;H&#x200b;I&#x200b;J&#x200b;K&#x200b;L&#x200b;M&#x200b;N&#x200b;O&#x200b;P&#x200b;Q&#x200b;R&#x200b;S&#x200b;T&#x200b;U&#x200b;V&#x200b;W&#x200b;X&#x200b;Y&#x200b;Z&#x200b;a&#x200b;b&#x200b;c&#x200b;d&#x200b;e&#x200b;f&#x200b;g&#x200b;h&#x200b;i&#x200b;j&#x200b;k&#x200b;l&#x200b;m&#x200b;n&#x200b;o&#x200b;p&#x200b;q&#x200b;r&#x200b;s&#x200b;t&#x200b;u&#x200b;v&#x200b;w&#x200b;x&#x200b;y&#x200b;z&#x200b;1&#x200b;2&#x200b;3&#x200b;4&#x200b;5&#x200b;6&#x200b;7&#x200b;8&#x200b;9&#x200b;0&#x200b;&amp;&#x200b;.&#x200b;,&#x200b;?&#x200b;!&#x200b;&#64;&#x200b;(&#x200b;)&#x200b;#&#x200b;$&#x200b;%&#x200b;*&#x200b;+&#x200b;-&#x200b;=&#x200b;:&#x200b;;</div></div><div class="section"><div class="grid12 firstcol"><table class="sample_table"><tr><td>10</td><td class="size10">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>11</td><td class="size11">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>12</td><td class="size12">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>13</td><td class="size13">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>14</td><td class="size14">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>16</td><td class="size16">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>18</td><td class="size18">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>20</td><td class="size20">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>24</td><td class="size24">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>30</td><td class="size30">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>36</td><td class="size36">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>48</td><td class="size48">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>60</td><td class="size60">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>72</td><td class="size72">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>90</td><td class="size90">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr></table></div></div><div class="section" id="bodycomparison"><div id="xheight"><div class="fontbody">&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;body</div><div class="arialbody">body</div><div class="verdanabody">body</div><div class="georgiabody">body</div></div><div class="fontbody" style="z-index:1">body<span>BigNoodleTitling Regular</span></div><div class="arialbody" style="z-index:1">body<span>Arial</span></div><div class="verdanabody" style="z-index:1">body<span>Verdana</span></div><div class="georgiabody" style="z-index:1">body<span>Georgia</span></div></div><div class="section psample psample_row1" id=""><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row2" id=""><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row4" id=""><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row1 fullreverse"><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample psample_row2 fullreverse"><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row4" id="" style="border-bottom: 20px #000 solid"><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div></div><div id="layout"><div class="section"><div class="grid12 firstcol"><h1>Lorem Ipsum Dolor</h1><h2>Etiam porta sem malesuada magna mollis euismod</h2><p class="byline">By <a href="#link">Aenean Lacinia</a></p></div></div><div class="section"><div class="grid8 firstcol"><p class="large">Donec sed odio dui. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><h3>Pellentesque ornare sem</h3><p>Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas faucibus mollis interdum. Donec ullamcorper nulla non metus auctor fringilla. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam id dolor id nibh ultricies vehicula ut id elit.</p><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p><p>Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Aenean lacinia bibendum nulla sed consectetur.</p><p>Nullam quis risus eget urna mollis ornare vel eu leo. Nullam quis risus eget urna mollis ornare vel eu leo. Maecenas sed diam eget risus varius blandit sit amet non magna. Donec ullamcorper nulla non metus auctor fringilla.</p><h3>Cras mattis consectetur</h3><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Aenean lacinia bibendum nulla sed consectetur. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum.</p><p>Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna mollis ornare vel eu leo. Cras mattis consectetur purus sit amet fermentum.</p></div><div class="grid4 sidebar"><div class="box reverse"><p class="last">Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div><p class="caption">Maecenas sed diam eget risus varius.</p><p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Vestibulum id ligula porta felis euismod semper. Sed posuere consectetur est at lobortis. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Aenean lacinia bibendum nulla sed consectetur. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Aenean lacinia bibendum nulla sed consectetur. Nullam quis risus eget urna mollis ornare vel eu leo.</p><p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec ullamcorper nulla non metus auctor fringilla. Maecenas faucibus mollis interdum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p></div></div></div><div id="glyphs"><div class="section"><div class="grid12 firstcol"><h1>Language Support</h1><p>The subset of BigNoodleTitling Regular in this kit supports the following languages:<br></p><h1>Glyph Chart</h1><p>The subset of BigNoodleTitling Regular in this kit includes all the glyphs listed below. Unicode entities are included above each glyph to help you insert individual characters into your layout.</p><div id="glyph_chart"><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#33;</p>&#33;</div><div><p>&amp;#34;</p>&#34;</div><div><p>&amp;#35;</p>&#35;</div><div><p>&amp;#36;</p>&#36;</div><div><p>&amp;#37;</p>&#37;</div><div><p>&amp;#38;</p>&#38;</div><div><p>&amp;#39;</p>&#39;</div><div><p>&amp;#40;</p>&#40;</div><div><p>&amp;#41;</p>&#41;</div><div><p>&amp;#42;</p>&#42;</div><div><p>&amp;#43;</p>&#43;</div><div><p>&amp;#44;</p>&#44;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#46;</p>&#46;</div><div><p>&amp;#47;</p>&#47;</div><div><p>&amp;#48;</p>&#48;</div><div><p>&amp;#49;</p>&#49;</div><div><p>&amp;#50;</p>&#50;</div><div><p>&amp;#51;</p>&#51;</div><div><p>&amp;#52;</p>&#52;</div><div><p>&amp;#53;</p>&#53;</div><div><p>&amp;#54;</p>&#54;</div><div><p>&amp;#55;</p>&#55;</div><div><p>&amp;#56;</p>&#56;</div><div><p>&amp;#57;</p>&#57;</div><div><p>&amp;#58;</p>&#58;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#60;</p>&#60;</div><div><p>&amp;#61;</p>&#61;</div><div><p>&amp;#62;</p>&#62;</div><div><p>&amp;#63;</p>&#63;</div><div><p>&amp;#64;</p>&#64;</div><div><p>&amp;#65;</p>&#65;</div><div><p>&amp;#66;</p>&#66;</div><div><p>&amp;#67;</p>&#67;</div><div><p>&amp;#68;</p>&#68;</div><div><p>&amp;#69;</p>&#69;</div><div><p>&amp;#70;</p>&#70;</div><div><p>&amp;#71;</p>&#71;</div><div><p>&amp;#72;</p>&#72;</div><div><p>&amp;#73;</p>&#73;</div><div><p>&amp;#74;</p>&#74;</div><div><p>&amp;#75;</p>&#75;</div><div><p>&amp;#76;</p>&#76;</div><div><p>&amp;#77;</p>&#77;</div><div><p>&amp;#78;</p>&#78;</div><div><p>&amp;#79;</p>&#79;</div><div><p>&amp;#80;</p>&#80;</div><div><p>&amp;#81;</p>&#81;</div><div><p>&amp;#82;</p>&#82;</div><div><p>&amp;#83;</p>&#83;</div><div><p>&amp;#84;</p>&#84;</div><div><p>&amp;#85;</p>&#85;</div><div><p>&amp;#86;</p>&#86;</div><div><p>&amp;#87;</p>&#87;</div><div><p>&amp;#88;</p>&#88;</div><div><p>&amp;#89;</p>&#89;</div><div><p>&amp;#90;</p>&#90;</div><div><p>&amp;#91;</p>&#91;</div><div><p>&amp;#92;</p>&#92;</div><div><p>&amp;#93;</p>&#93;</div><div><p>&amp;#95;</p>&#95;</div><div><p>&amp;#96;</p>&#96;</div><div><p>&amp;#123;</p>&#123;</div><div><p>&amp;#124;</p>&#124;</div><div><p>&amp;#125;</p>&#125;</div><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#161;</p>&#161;</div><div><p>&amp;#162;</p>&#162;</div><div><p>&amp;#163;</p>&#163;</div><div><p>&amp;#165;</p>&#165;</div><div><p>&amp;#166;</p>&#166;</div><div><p>&amp;#167;</p>&#167;</div><div><p>&amp;#168;</p>&#168;</div><div><p>&amp;#169;</p>&#169;</div><div><p>&amp;#170;</p>&#170;</div><div><p>&amp;#171;</p>&#171;</div><div><p>&amp;#172;</p>&#172;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#174;</p>&#174;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#176;</p>&#176;</div><div><p>&amp;#178;</p>&#178;</div><div><p>&amp;#179;</p>&#179;</div><div><p>&amp;#180;</p>&#180;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#182;</p>&#182;</div><div><p>&amp;#184;</p>&#184;</div><div><p>&amp;#185;</p>&#185;</div><div><p>&amp;#186;</p>&#186;</div><div><p>&amp;#187;</p>&#187;</div><div><p>&amp;#188;</p>&#188;</div><div><p>&amp;#189;</p>&#189;</div><div><p>&amp;#190;</p>&#190;</div><div><p>&amp;#191;</p>&#191;</div><div><p>&amp;#198;</p>&#198;</div><div><p>&amp;#215;</p>&#215;</div><div><p>&amp;#216;</p>&#216;</div><div><p>&amp;#222;</p>&#222;</div><div><p>&amp;#223;</p>&#223;</div><div><p>&amp;#247;</p>&#247;</div><div><p>&amp;#321;</p>&#321;</div><div><p>&amp;#338;</p>&#338;</div><div><p>&amp;#402;</p>&#402;</div><div><p>&amp;#710;</p>&#710;</div><div><p>&amp;#711;</p>&#711;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#728;</p>&#728;</div><div><p>&amp;#729;</p>&#729;</div><div><p>&amp;#730;</p>&#730;</div><div><p>&amp;#731;</p>&#731;</div><div><p>&amp;#732;</p>&#732;</div><div><p>&amp;#733;</p>&#733;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#8211;</p>&#8211;</div><div><p>&amp;#8212;</p>&#8212;</div><div><p>&amp;#8216;</p>&#8216;</div><div><p>&amp;#8217;</p>&#8217;</div><div><p>&amp;#8220;</p>&#8220;</div><div><p>&amp;#8221;</p>&#8221;</div><div><p>&amp;#8224;</p>&#8224;</div><div><p>&amp;#8225;</p>&#8225;</div><div><p>&amp;#8226;</p>&#8226;</div><div><p>&amp;#8240;</p>&#8240;</div><div><p>&amp;#8249;</p>&#8249;</div><div><p>&amp;#8250;</p>&#8250;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#8364;</p>&#8364;</div><div><p>&amp;#8482;</p>&#8482;</div><div><p>&amp;#8722;</p>&#8722;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#64257;</p>&#64257;</div><div><p>&amp;#64258;</p>&#64258;</div></div></div></div></div><div id="specs"></div><div id="installing"><div class="section"><div class="grid7 firstcol"><h1>Installing Webfonts</h1><p>Webfonts are supported by all major browser platforms but not all in the same way. There are currently four different font formats that must be included in order to target all browsers. This includes TTF, WOFF, EOT and SVG.</p><h2>1. Upload your webfonts</h2><p>You must upload your webfont kit to your website. They should be in or near the same directory as your CSS files.</p><h2>2. Include the webfont stylesheet</h2><p>A special CSS @font-face declaration helps the various browsers select the appropriate font it needs without causing you a bunch of headaches. Learn more about this syntax by reading the <a href="http://www.fontspring.com/blog/further-hardening-of-the-bulletproof-syntax">Fontspring blog post</a> about it. The code for it is as follows:</p><code>@font-face{ font-family: \'MyWebFont\'; src: url(\'WebFont.eot\'); src: url(\'WebFont.eot?#iefix\') format(\'embedded-opentype\'), url(\'WebFont.woff\') format(\'woff\'), url(\'WebFont.ttf\') format(\'truetype\'), url(\'WebFont.svg#webfont\') format(\'svg\'); }</code><p>We\'ve already gone ahead and generated the code for you. All you have to do is link to the stylesheet in your HTML, like this:</p><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;stylesheet.css&quot; type=&quot;text/css&quot; charset=&quot;utf-8&quot; /&gt;</code><h2>3. Modify your own stylesheet</h2><p>To take advantage of your new fonts, you must tell your stylesheet to use them. Look at the original @font-face declaration above and find the property called "font-family." The name linked there will be what you use to reference the font. Prepend that webfont name to the font stack in the "font-family" property, inside the selector you want to change. For example:</p><code>p { font-family: \'WebFont\', Arial, sans-serif; }</code><h2>4. Test</h2><p>Getting webfonts to work cross-browser <em>can</em> be tricky. Use the information in the sidebar to help you if you find that fonts aren\'t loading in a particular browser.</p></div><div class="grid5 sidebar"><div class="box"><h2>Troubleshooting<br>Font-Face Problems</h2><p>Having trouble getting your webfonts to load in your new website? Here are some tips to sort out what might be the problem.</p><h3>Fonts not showing in any browser</h3><p>This sounds like you need to work on the plumbing. You either did not upload the fonts to the correct directory, or you did not link the fonts properly in the CSS. If you\'ve confirmed that all this is correct and you still have a problem, take a look at your .htaccess file and see if requests are getting intercepted.</p><h3>Fonts not loading in iPhone or iPad</h3><p>The most common problem here is that you are serving the fonts from an IIS server. IIS refuses to serve files that have unknown MIME types. If that is the case, you must set the MIME type for SVG to "image/svg+xml" in the server settings. Follow these instructions from Microsoft if you need help.</p><h3>Fonts not loading in Firefox</h3><p>The primary reason for this failure? You are still using a version Firefox older than 3.5. So upgrade already! If that isn\'t it, then you are very likely serving fonts from a different domain. Firefox requires that all font assets be served from the same domain. Lastly it is possible that you need to add WOFF to your list of MIME types (if you are serving via IIS.)</p><h3>Fonts not loading in IE</h3><p>Are you looking at Internet Explorer on an actual Windows machine or are you cheating by using a service like Adobe BrowserLab? Many of these screenshot services do not render @font-face for IE. Best to test it on a real machine.</p><h3>Fonts not loading in IE9</h3><p>IE9, like Firefox, requires that fonts be served from the same domain as the website. Make sure that is the case.</p></div></div></div></div></div><div id="footer"><p>&copy;2010-2011 Font Squirrel. All rights reserved.</p></div></div></body></html>');
+  $templateCache.put('/fattiggarden/assets/logic/games/svendborg_second.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>svendborg_second</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="svendborg_second.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.svendborg_second();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
 }]);
 })();
 
@@ -5632,8 +6844,8 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_1_0_1_svendborg.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_1_0_1_svendborg</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_1_0_1_svendborg.js"></script><script>var canvas, stage, exportRoot;\n' +
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_1_0_1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_1_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_1_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
     '\n' +
     'function init() {\n' +
     '	canvas = document.getElementById("canvas");\n' +
@@ -5650,7 +6862,7 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_1_0_1_svendborg();\n' +
+    '	exportRoot = new slidelib.slide_1_0_1();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
@@ -5799,6 +7011,80 @@ module.run(['$templateCache', function($templateCache) {
     '\n' +
     'function handleComplete(evt) {\n' +
     '	exportRoot = new slidelib.slide_2_7_1_mine();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_3_0.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_3_0</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_3_0.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_3_0();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_4_3.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_4_3</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_4_3.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_4_3();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
