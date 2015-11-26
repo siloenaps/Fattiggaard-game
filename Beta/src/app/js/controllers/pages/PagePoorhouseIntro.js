@@ -30,6 +30,7 @@ PagePoorhouseIntro.prototype.start = function(flowId, slideName){
 	var gameFile;
 
 	// console.log('PagePoorhouseIntro:start', slideName+'.js');
+	console.log('PagePoorhouseIntro', this.runonce, slideName+'.js');
 
 	LoadJS.load(
 		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
@@ -38,6 +39,8 @@ PagePoorhouseIntro.prototype.start = function(flowId, slideName){
 };
 PagePoorhouseIntro.prototype.setup = function(){
 	'use strict';
+	console.log('PagePoorhouseIntro', this.runonce);
+
 	if(this.runonce != null)
 		return;
 

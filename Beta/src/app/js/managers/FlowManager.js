@@ -147,6 +147,9 @@ var FlowManager = {
 						break;
 					}
 				}
+
+				// TEST
+				PlayerStats.poorhouse = 'svendborg';
 				
 				this.root.gotoAndStop('start');
 				this.root.pagecontainer.removeAllChildren();

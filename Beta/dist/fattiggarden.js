@@ -613,6 +613,7 @@ PagePoorhouseIntro.prototype.start = function(flowId, slideName){
 	var gameFile;
 
 	// console.log('PagePoorhouseIntro:start', slideName+'.js');
+	console.log('PagePoorhouseIntro', this.runonce, slideName+'.js');
 
 	LoadJS.load(
 		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
@@ -621,6 +622,8 @@ PagePoorhouseIntro.prototype.start = function(flowId, slideName){
 };
 PagePoorhouseIntro.prototype.setup = function(){
 	'use strict';
+	console.log('PagePoorhouseIntro', this.runonce);
+
 	if(this.runonce != null)
 		return;
 
@@ -4287,7 +4290,8 @@ var LoadJS = {
 	cache: [],
 	load: function(urls, delegate, location){
 		'use strict';
-		var urlList;
+		var urlList = [];
+		var tmpList = [];
 		
 		//url is URL of external file, code is the code
 	    //to be called from the file, location is the location to 
@@ -4297,24 +4301,39 @@ var LoadJS = {
 	    var tracker = {};
 
 	    if(typeof urls === 'string'){
-	    	urlList = urls.split(',');
+	    	tmpList = urls.split(',');
 	    }else{
-	    	urlList = urls;
+	    	tmpList = urls;
 	    }
 
+	    // Through list of files requested to be loaded
+    	for(var k=0; k<tmpList.length; k++){	
+    		var may = true;
+			for(var b = 0; b<this.cache.length; b++){
+				if(this.cache[b] === tmpList[k]){
+					may == false;
+					break;
+				}				
+			}
+			if(may){
+				urlList.push(tmpList[k]);
+			}
+    	}
+    	console.log('LoadJS:', this.cache, ', ', urlList);
 
 	    if(location == null)
 	    	location = document.body;
 
 	    for(var i=0; i<urlList.length; i++){
-	    	for(var b = 0; b<this.cache.length; b++){
-    			if(this.cache[b] === urlList[i]){
-    				return false;
-    			}
-    		}
-    		this.cache.push(urlList[i]);
+	    	// for(var b = 0; b<this.cache.length; b++){
+    		// 	if(this.cache[b] === urlList[i]){
+    		// 		return false;
+    		// 	}
+    		// }
+    		// this.cache.push(urlList[i]);
 
     		// console.log(this.cache);
+    		this.cache.push(urlList[i]);
 
 		    var scriptTag = document.createElement('script');		    
 		    // console.log(urlList[i]);
@@ -4339,6 +4358,8 @@ var LoadJS = {
 		    		// Check if the file requested to be loaded match the one of those loaded
 		    		// If one is still not loaded then leave
 					if(tracker[identifier2] !== true){
+						console.log('LoadJS:onload', urlList[a]);
+						// this.cache.push(urlList[a]);
 						return false;
 					}
 		    	}
@@ -4897,6 +4918,9 @@ var FlowManager = {
 						break;
 					}
 				}
+
+				// TEST
+				PlayerStats.poorhouse = 'svendborg';
 				
 				this.root.gotoAndStop('start');
 				this.root.pagecontainer.removeAllChildren();
@@ -5027,11 +5051,11 @@ var ApplicationManager = {
 
 
 		// Go to start
-		// FlowManager.gotoPage('0.0');
+		FlowManager.gotoPage('0.0');
 		// FlowManager.gotoPage('1.0.1');
 		// FlowManager.gotoPage('2.5');
 		// FlowManager.gotoPage('3.1');
-		FlowManager.gotoPage('4.0');
+		// FlowManager.gotoPage('4.0');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},
