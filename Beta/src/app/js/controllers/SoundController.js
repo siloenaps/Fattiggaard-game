@@ -40,6 +40,9 @@ SoundController.prototype = {
 	self: this,
 	complete: false,
 
+	getState: function(){
+		return this.sndObj.state;
+	},
 	load: function(){
 		'use strict';
 		// Firefox does not invoke the audio load function?! 
@@ -58,6 +61,7 @@ SoundController.prototype = {
 		'use strict';
 		this.sndObj.play();
 		this.paused = false;
+		this.sndObj.state = 'play';
 		this.complete = false;
 	},
 	stop: function() {
@@ -65,12 +69,14 @@ SoundController.prototype = {
 		this.sndObj.pause();
 		this.sndObj.currentTime = 0;
 		this.paused = false;
+		this.sndObj.state = 'stop';
 	},
 	pause: function() {
 		'use strict';
 		this.currentSndPosition = this.sndObj.currentTime;
 		this.sndObj.pause();
 		this.paused = true;
+		this.sndObj.state = 'pause';
 	},
 	resume: function() {
 		'use strict';
@@ -83,10 +89,12 @@ SoundController.prototype = {
 	},
 	isComplete: function(){
 		'use strict';
+		this.state = 'stop';
 		return this.complete;
 	},
 	destroy: function(){
 		'use strict';
+		this.state = 'stop';
 		this.sndObj = null;
 		this.duration = null;
 	}

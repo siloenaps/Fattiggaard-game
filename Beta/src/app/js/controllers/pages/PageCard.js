@@ -7,6 +7,7 @@ var PageCard = function(view){
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
 };
 PageCard.prototype.start = function() {
+	'use strict';
 	var frm;
 
 	// Set portrait an real name
@@ -28,10 +29,12 @@ PageCard.prototype.start = function() {
 	this.view.kids.gotoAndStop(frm);
 };
 PageCard.prototype.onContinue = function(event) {
+	'use strict';
 	this.continueBtn.off('click', this.listeners.continue);	
 	this.dispatchEvent(new createjs.Event('continue'));
 };
 PageCard.prototype.destroy = function() {
+	'use strict';
 	this.view = null;	
 };
 createjs.EventDispatcher.initialize(PageCard.prototype);

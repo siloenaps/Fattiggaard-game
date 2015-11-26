@@ -67,6 +67,7 @@ ButtonCustom.prototype.onOut = function(event){
 	Cursor.out();
 };
 ButtonCustom.prototype.destroy = function(){
+	'use strict';
 	this.view = null;
 }
 

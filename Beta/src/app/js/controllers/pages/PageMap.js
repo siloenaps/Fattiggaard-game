@@ -6,6 +6,7 @@ var PageMap = function(view){
 	this.continueBtn.ghost("next");	
 };
 PageMap.prototype.start = function() {
+	'use strict';
 	var self = this;
 
 	// Allow tick
@@ -68,17 +69,20 @@ PageMap.prototype.start = function() {
 	}, this);
 };
 PageMap.prototype.openInfo = function(id) {
+	'use strict';
 	this.view.infopopup.gotoAndStop(id-1);
 	this.view.infopopup.x = 0;
 	this.view.infopopup.visible = true;
 	this.continueBtn.hide();
 };
 PageMap.prototype.closeInfo = function(id) {
+	'use strict';
 	this.view.infopopup.x = 1024;
 	this.view.infopopup.visible = false;
 	this.continueBtn.show();
 };
 PageMap.prototype.destroy = function() {
+	'use strict';
 	this.view = null;	
 };
 createjs.EventDispatcher.initialize(PageMap.prototype);

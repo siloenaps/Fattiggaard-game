@@ -4,6 +4,7 @@ var Preloader = {
 
 
 	load: function(manifest, handleFileLoad, handleComplete, clss){
+		'use strict';
 		
 		// If nothing to load exit 
 		if(manifest.length === 0){
@@ -36,6 +37,7 @@ var Preloader = {
 		loader.loadManifest(manifest);
 	},
 	add: function(clss){
+		'use strict';
 		// console.log('preloader:', clss);
 		$('body').append(
 			'<div id="preloader" class="'+clss+'"><div><div></div>'
@@ -64,6 +66,7 @@ var Preloader = {
 
 
 	remove: function(){
+		'use strict';
 		$('#'+this.id).remove();
 	}
 };

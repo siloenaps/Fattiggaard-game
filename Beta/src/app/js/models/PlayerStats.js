@@ -15,10 +15,12 @@ var PlayerStats = {
 	pointsDiff: {mood: 0, health: 0, money: 0},
 
 	resetDiff: function(){
+		'use strict';
 		this.pointsDiff = {mood: 0, health: 0, money: 0};
 	},
 
 	isAPlusPoint: function(){
+		'use strict';
 		for(var key in this.pointsDiff){
 			if(this.pointsDiff[key] > 0){
 				return true;
@@ -27,6 +29,7 @@ var PlayerStats = {
 	},
 
 	isAMinusPoint: function(){
+		'use strict';
 		for(var key in this.pointsDiff){
 			if(this.pointsDiff[key] < 0){
 				return true;
@@ -34,7 +37,8 @@ var PlayerStats = {
 		}
 	},
 
-	set: function(type, val){	
+	set: function(type, val){
+		'use strict';
 		// Reset diff
 		this.pointsDiff[type] = 0;
 
@@ -57,7 +61,8 @@ var PlayerStats = {
 			}
 		}
 	},
-	append: function(type, val){		
+	append: function(type, val){	
+		'use strict';	
 		// Reset diff
 		this.pointsDiff[type] = 0;
 		

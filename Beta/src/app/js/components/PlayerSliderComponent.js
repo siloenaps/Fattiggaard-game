@@ -1,15 +1,21 @@
-var PlayerSliderComponent = function(view){
+var PlayerSliderComponent = function(view, soundOffset){
 	'use strict';
 	this.view = view;
+	this.soundOffset = soundOffset;
 	this.container = view.container;
 	this.slideId = null;
 	this.slide = null;
 	this.paused = false;
+	this.state = null;
 	this.duration = 0;
-	this.listeners = {tick:null, play:null, pause:null, stop:null};
+	this.listeners = {tick:null, play:null, pause:null, stop:null, auto:null};
 	this.playBtn = new ButtonCustom(view.playBtn);
 	this.pauseBtn = new ButtonCustom(view.pauseBtn);
 	this.stopBtn = new ButtonCustom(view.stopBtn);
+
+	if(this.soundOffset === null || this.soundOffset === undefined){
+		this.soundOffset = 0;
+	}
 
 	// Initial visibility of play/pause/stop
 	this.playBtn.setActive(false);
@@ -123,25 +129,35 @@ PlayerSliderComponent.prototype.loop = function(){
 	}else{
 		var sndIsComplete = this.soundController.isComplete();				
 		if(!sndIsComplete){
-			//// console.log(sndProgression, ':', progression);
 
 			// Calculate in which frame the timeline shold be related to soudn progression
-			var desiredFrame = Math.round(this.duration * sndProgression);			
+			var desiredFrame = Math.round(this.duration * sndProgression) + this.offset;			
 
 			// Just a fail safe making sure that we do NOT play a frame already shown
 			if(desiredFrame > this.previousFrame){
 				this.slide.gotoAndPlay(desiredFrame);
 				this.previousFrame = desiredFrame;
 			}
+			
+			// Sound
+			if(this.soundOffset > 0){
+				if(this.soundController.state !== 'play'){
+					if(this.slide.currentFrame >= this.soundOffset){						
+						this.listeners.auto = this.dispatchEvent(new createjs.Event('autoplay'));
+					}
+				}				
+			}
 		}
 	}
 
 	// Progression bar
-	this.progressionBar.scaleX = sndProgression;
+	// this.progressionBar.scaleX = sndProgression;
+	this.progressionBar.scaleX = this.progress()
 };
 PlayerSliderComponent.prototype.play = function(){
 	'use strict';
 	// console.log('play');
+	var self = this;
 
 	this.previousFrame = 0;
 
@@ -149,18 +165,41 @@ PlayerSliderComponent.prototype.play = function(){
 	this.pauseBtn.visible(true);
 	this.playBtn.visible(false);
 
+	// Sound
+	// Sound starts at frame 0
+	if(this.soundOffset === 0){
+		this.soundController.play();		
+
+	// Sound starts later than frame 0
+	}else{
+		// Current frame is after sound start frame
+		if(this.slide.currentFrame >= this.soundOffset){
+			this.soundController.play();
+
+		// Current frame is before sound start frame
+		}else{
+			// Listen for an event dispatch 
+			this.on('autoplay', function(event){
+				event.remove();
+				this.listeners.auto = null;
+				self.soundController.play();
+			}, this);
+		}		
+	}
+	
 	// Timeline
-	this.slide.play();
 	this.addLoopEvent('tick');
+	this.slide.play();
 
 	// Sound
-	this.soundController.play();
+	// this.soundController.play();
 
 	// Set this last
 	this.paused = false;
+	this.state = 'play';
 
 	// Tick
-	Tick.enable();
+	Tick.enable();	
 };
 PlayerSliderComponent.prototype.pause = function(){
 	'use strict';
@@ -175,6 +214,7 @@ PlayerSliderComponent.prototype.pause = function(){
 	this.playBtn.visible(true);
 
 	this.paused = true;
+	this.state = 'pause';
 
 	// Pause timeline
 	this.slide.stop();
@@ -187,8 +227,13 @@ PlayerSliderComponent.prototype.pause = function(){
 };
 PlayerSliderComponent.prototype.stop = function(){
 	'use strict';
+	Tick.enable();
 
 	// console.log('stop');
+
+
+	// Progression bar
+	this.progressionBar.scaleX = 0;
 
 	// Remove tick
 	this.removeLoopEvent();
@@ -200,11 +245,10 @@ PlayerSliderComponent.prototype.stop = function(){
 	this.pauseBtn.visible(false);
 	this.playBtn.visible(true);
 
-	// Progression bar
-	this.progressionBar.scaleX = 0;
-
 	// Sound
 	this.soundController.stop();
+
+	this.state = 'stop';
 
 	// Tick
 	Tick.disable(100);

@@ -15,6 +15,7 @@ var PageIntro = function(view, id){
 	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
 };
 PageIntro.prototype.start = function() {
+	'use strict';
 	LoadJS.load(
 		'../assets/logic/slides/'+"slide_"+this.id+".js", 
 		Delegate.create(this.setup, this)
@@ -23,6 +24,7 @@ PageIntro.prototype.start = function() {
 	Tick.enable();
 };
 PageIntro.prototype.setup = function() {
+	'use strict';
 	if(this.runonce != null)
 		return;
 
@@ -47,6 +49,7 @@ PageIntro.prototype.setup = function() {
    	}
 };
 PageIntro.prototype.onContinue = function(event) {
+	'use strict';
 	this.continueBtn.off('click', this.listeners.continue);	
 	this.listeners.continue = null;
 
@@ -60,6 +63,7 @@ PageIntro.prototype.onContinue = function(event) {
 	this.destroy();
 };
 PageIntro.prototype.onComplete = function(event) {
+	'use strict';
 	this.playerComponent.off('complete', this.listeners.complete);	
 	this.listeners.complete = null;
 
@@ -67,6 +71,7 @@ PageIntro.prototype.onComplete = function(event) {
 	this.continueBtn.activate("next");
 };
 PageIntro.prototype.destroy = function() {
+	'use strict';
 	if(this.playerComponent != null){
 		this.playerComponent.destroy();	
 	}

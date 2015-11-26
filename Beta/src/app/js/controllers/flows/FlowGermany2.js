@@ -230,7 +230,7 @@ FlowGermany2.prototype.traveling = function(trigger){
 				Delegate.create(function(){
 					// Slide. Loading is self contained
 					self.slideLib = slidelib;	
-					self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
+					self.playerComponent = new PlayerSliderComponent(self.currentPage.player, 13); // Added delay of sound start (frame 14)
 					self.listeners.complete = self.playerComponent.on('complete', function(event){
 						self.continueBtn.activate('next');
 					}, self);

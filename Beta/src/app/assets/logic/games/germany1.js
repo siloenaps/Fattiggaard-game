@@ -1116,13 +1116,19 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,149,1,1,0,0,0,289.5,17);
 
+	// Layer 2
+	this.text = new cjs.Text("Hjemme igen…", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 800;
+	this.text.setTransform(210,38);
+
 	// Character
 	this.portrait = new lib.OpenionCloseups();
 	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
 
-	this.addChild(this.portrait,this.player);
+	this.addChild(this.portrait,this.text,this.player);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 (lib._2102PageWhatNow = function(mode,startPosition,loop) {

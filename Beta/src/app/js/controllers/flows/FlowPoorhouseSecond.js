@@ -578,10 +578,9 @@ FlowPoorhouseSecond.prototype.points4 = function(trigger) {
 
 	// Pages in/out
 	var previousPage = this.currentPage;
-	this.currentPage = this.view.points3;
+	this.currentPage = this.view.points4;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('mood', -1);
-		PlayerStats.append('money', -1);
 		Topbar.pointsUpdate();
 		Tick.disable();
 	}, this));

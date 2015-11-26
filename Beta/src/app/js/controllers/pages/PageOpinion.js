@@ -36,6 +36,7 @@ var PageOpinion = function(view){
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
 };
 PageOpinion.prototype.onSoundStart = function(event) {
+	'use strict';
 	// If there is a player active, pause it
 	if(this.activePlayer != null){
 		if(event.target.id != this.activePlayer.id){
@@ -47,6 +48,7 @@ PageOpinion.prototype.onSoundStart = function(event) {
 	this.activePlayer = event.target;
 };
 PageOpinion.prototype.onComplete = function(event){
+	'use strict';
 	this.completed++;
 	if(this.completed >= this.playersCount){
 		if(this.challengePlayerComponent !== undefined){
@@ -60,10 +62,12 @@ PageOpinion.prototype.onComplete = function(event){
 	}
 };
 PageOpinion.prototype.start = function() {
+	'use strict';
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.view.portrait.gotoAndStop(frm);
 };
 PageOpinion.prototype.onContinue = function(event) {
+	'use strict';
 	this.continueBtn.off('click', this.listeners.continue);
 
 	// Stop sound if it still on
@@ -78,6 +82,7 @@ PageOpinion.prototype.onContinue = function(event) {
 	this.dispatchEvent(new createjs.Event('continue'));
 };
 PageOpinion.prototype.destroy = function() {
+	'use strict';
 	this.view = null;	
 
 	if(this.challengePlayer != null){
