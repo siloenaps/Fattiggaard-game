@@ -10,6 +10,7 @@
 		// $scope.canvas;
 
 		function init(){
+			// Device.ratio = 1;
 			// Load files
 			var onFileLoad = function(evt){		
 				if (evt.item.type === 'image') { 
@@ -75,7 +76,8 @@
 		function link(scope){	
 			// Create base canvas
 			// Device.ratio = 1;
-			scope.canvas = Canvas.create(1024, 648, Device.ratio);	
+			// scope.canvas = Canvas.create(1024, 648, Device.ratio);
+			scope.canvas = Canvas.create(1024, 648, Device.ratio);
 			scope.canvas.style.background = '#000';
 			document.body.appendChild(scope.canvas);	
 		}

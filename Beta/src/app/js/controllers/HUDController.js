@@ -12,6 +12,7 @@ var HUDController = {
 		this.view.money.points.gotoAndStop(PlayerStats.money-1);
 
 		var delay = 0;
+		console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
 		for(var key in PlayerStats.pointsDiff){
 			if(PlayerStats.pointsDiff[key] > 0){
 				setTimeout(function(){ 

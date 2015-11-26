@@ -1527,9 +1527,9 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 	this.text.lineWidth = 620;
 	this.text.setTransform(522.8,20.1);
 
-	this.text_1 = new cjs.Text("Til det                                       sociale Udvalg\n\nUndertegnede                                       tilladelse til\nat dimittere, grundet daarlig behandling, fra\ndele af personalet paa fattiggaarden.\nOpsynsmanden lod mig i Lørdags høre, at jeg laa\nSvendborg kommune til byrde. Jeg arbejder hver\nDag fra kl. 8. morgen til kl. 17. aften for Kost og\nLogi og 50 øre om dagen. Han faar Kost og Logi og\nen stor Løn, og han bestiller ikke stort andet end\nat gaa med Hænderne dybt begravet til Albuerne i\nBukselommerne, og ser paa, at vi andre arbejder.\nHvem af os to, ham eller jeg, synes De ligger\nKommunen mest til Byrde?", "24px 'Special Elite'");
+	this.text_1 = new cjs.Text("Til det                                       sociale Udvalg\n\nUndertegnede                                       tilladelse til\nat dimittere, grundet daarlig behandling, fra\ndele af personalet. Opsynsmanden lod mig i\nLørdags høre, at jeg laa Kommunen til byrde. \nJeg arbejder hver Dag fra kl. 8. morgen til kl. 17.\naften for Kost og Logi og 50 øre om dagen.\nHan faar Kost og Logi og en stor Løn, og hanbestiller ikke stort andet end at gaa med Hænderne dybt begravet til Albuerne i Bukselommerne, og ser paa, \nat vi andre arbejder. Hvem af os to, ham eller jeg, \nsynes De ligger Kommunen mest til Byrde? Såfremt, \njeg får tilladelse til at dimittere, har jeg tænkt mig\nat søge arbejde i Tyskland.", "24px 'Special Elite'");
 	this.text_1.lineHeight = 26;
-	this.text_1.lineWidth = 619;
+	this.text_1.lineWidth = 684;
 	this.text_1.setTransform(213,59);
 
 	// Letter BG
