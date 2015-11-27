@@ -10,7 +10,7 @@ PageCard.prototype.start = function() {
 	'use strict';
 	var frm;
 
-	// Set portrait an real name
+	// Set portrait a real name
 	frm = PlayerStats.challenge + PlayerStats.family;
 	this.view.portrait.gotoAndStop(frm);
 	this.view.realname.gotoAndStop(frm);

@@ -18,7 +18,7 @@ var FlowEpilogue = function(container){
 
 			this.id = 'epilogue';//PlayerStats.poorhouse;
 
-			// console.log('FlowEpilogue:start', this.container);
+			// // console.log('FlowEpilogue:start', this.container);
 
 			LoadJS.load(
 				['../assets/logic/games/epilogue.js'], 
@@ -26,7 +26,7 @@ var FlowEpilogue = function(container){
 			);
 		},
 		next: function(){
-			console.log('next: ', this.flow);
+			// console.log('next: ', this.flow);
 			this.flow.next(this.trigger);
 			
 		},
@@ -42,7 +42,7 @@ var FlowEpilogue = function(container){
 
 			// Setup flow
 			this.flow = new SubFlowController();
-			console.log('setup: ', this.flow);
+			// console.log('setup: ', this.flow);
 			this.flow.addAction('4.11', 
 				Delegate.create(
 					Flow.statsSplit, this), {
@@ -70,12 +70,12 @@ var FlowEpilogue = function(container){
 				var manifest = this.lib.properties.manifest;
 				var onFileLoad = function(event){
 					if (event.item.type === 'image') { 
-						// console.log('result:', event.item.id, event.result);
+						// // console.log('result:', event.item.id, event.result);
 						images[event.item.id] = event.result; 
 					}
 				};
 				var onLoadComplete = function(event){
-					// console.log('onLoadComplete');
+					// // console.log('onLoadComplete');
 
 					// Instantiate view
 					self.view = new Clss();
@@ -90,12 +90,12 @@ var FlowEpilogue = function(container){
 				};
 				Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
 			}catch(err) {
-		   		console.log(err);
+		   		// console.log(err);
 		   	}
 		},
 		onContinue: function(event) {
 			'use strict';
-			console.log('FlowEpilogue::onContinue');	
+			// console.log('FlowEpilogue::onContinue');	
 
 			// Stop player if any
 			if(this.playerComponent != null){
@@ -105,6 +105,13 @@ var FlowEpilogue = function(container){
 			// Must be set after stopping player
 			this.next();
 		},		
+		removeEvents: function() {
+			'use strict';
+			
+			// Remove events
+			this.continueBtn.off('click', this.listeners.continue);
+			this.listeners.continue = null;
+		},
 		restart: function(){
 			'use strict';
 			this.currentPage = null;
@@ -141,8 +148,8 @@ var FlowEpilogue = function(container){
 			// Pages in/out
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.compensation;
-			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				//console.log(self.playerComponent)
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+				//// console.log(self.playerComponent)
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
@@ -183,7 +190,7 @@ var FlowEpilogue = function(container){
 			// Pages in/out
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.compensation;
-			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
@@ -225,7 +232,7 @@ var FlowEpilogue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.runaway;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-				//console.log(self.playerComponent)
+				//// console.log(self.playerComponent)
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
@@ -267,7 +274,7 @@ var FlowEpilogue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.hippopotimus;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-				//console.log(self.playerComponent)
+				//// console.log(self.playerComponent)
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');

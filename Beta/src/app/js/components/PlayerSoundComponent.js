@@ -6,7 +6,7 @@ var PlayerSoundComponent = function(view){
 	PlayerSoundComponent.counter++;
 	this.id = PlayerSoundComponent.counter;
 
-	console.log('PlayerSoundComponent');
+	// console.log('PlayerSoundComponent');
 
 	this.view = view;
 	this.paused = false;
@@ -38,7 +38,7 @@ PlayerSoundComponent.prototype.preload = function(src, duration){
 	'use strict';
 	var self = this;
 
-	console.log('PlayerSoundComponent.preload');
+	// console.log('PlayerSoundComponent.preload');
 
 	// Safety net
 	this.removeLoopEvent();

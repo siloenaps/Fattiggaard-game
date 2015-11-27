@@ -45,6 +45,11 @@ var SubFlowController = function(){
 		onContinue: function(event) {
 			'use strict';
 			this.next();
+		},
+		destroy: function(){
+			this.actions.triggers = null;
+			this.actions.delegate = null;
+			this.actions = null;
 		}
 	};
 };

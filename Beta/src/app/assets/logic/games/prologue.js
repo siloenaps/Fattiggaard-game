@@ -9,7 +9,6 @@ lib.properties = {
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../../../assets/images/pool/_0_0Frontpage.jpg", id:"_0_0Frontpage"},
 		{src:"../../../assets/images/pool/_0_1BG.jpg", id:"_0_1BG"},
 		{src:"../../../assets/images/pool/_0_2BG.jpg", id:"_0_2BG"},
 		{src:"../../../assets/images/pool/_0_3BG.jpg", id:"_0_3BG"},
@@ -71,12 +70,6 @@ lib.properties = {
 
 // symbols:
 
-
-
-(lib._0_0Frontpage = function() {
-	this.initialize(img._0_0Frontpage);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
 
 
 (lib._0_1BG = function() {
@@ -722,17 +715,6 @@ p.nominalBounds = new cjs.Rectangle(2.3,2.1,36.1,22.5);
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(-2.3,0,195.5,34.5);
-
-
-(lib._00Frontpage = function() {
-	this.initialize();
-
-	// Layer 1
-	this.instance = new lib._0_0Frontpage();
-
-	this.addChild(this.instance);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
 
 
 (lib.EmptyContainerGrey = function() {
@@ -1500,12 +1482,6 @@ if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{sta
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(60));
 
-	// 0.0 Start
-	this.pageStart = new lib._00Frontpage();
-	this.pageStart.setTransform(512,324,1,1,0,0,0,512,324);
-
-	this.timeline.addTween(cjs.Tween.get(this.pageStart).to({_off:true},9).wait(51));
-
 	// 0.1 Intro
 	this.page_intro = new lib._01IntroMain();
 	this.page_intro.setTransform(1024,108);
@@ -1521,7 +1497,6 @@ if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{sta
 	// 0.3 Card
 	this.page_card = new lib._03CardMain();
 	this.page_card.setTransform(1024,108);
-	this.page_card.cache(-2,-2,2265,544);
 
 	this.timeline.addTween(cjs.Tween.get(this.page_card).to({_off:true},24).wait(36));
 

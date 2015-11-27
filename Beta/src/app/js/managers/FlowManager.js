@@ -18,9 +18,41 @@ var FlowManager = {
 		this.root.gotoAndStop('character_build'); // TEST
 		switch(page){
 			case '0.0':
+				// Tick.disable();
+				var self = this;
+				// Go to start frame
+				this.root.gotoAndStop('frontpage');
+				this.currentPage = new PageStart(this.root.startpagecontainer);
+				this.currentPage.start(); 
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					try{
+						Library.clearSlide();	
+					}catch(err){
+						console.log(err);
+					}
+					try{
+						Library.clearGame();
+					}catch(err){
+						console.log(err);
+					}					
+					self.gotoPage('0.1');
+				}, this);	
+				
+			break;
+			case '0.1':
 				// Proluque
 
 				// Tick.disable();
+				console.log('0.1')
 
 				var self = this;
 

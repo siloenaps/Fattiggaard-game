@@ -33,7 +33,7 @@ var FlowProloque = function(container){
 
 			// Load files
 			this.lib = gamelib;
-			var Clss = this.lib.proloque;		
+			var Clss = this.lib.prologue;		
 			var manifest = this.lib.properties.manifest;
 
 			var onFileLoad = function(event){
@@ -50,7 +50,7 @@ var FlowProloque = function(container){
 				self.container.addChild(self.view);
 
 				// Set start page
-				self.next('0.0');
+				self.next('0.1');
 
 				// Ready
 				FlowProloque.dispatchEvent(new createjs.Event('ready'));
@@ -68,22 +68,22 @@ var FlowProloque = function(container){
 			var self = this;
 			// this.view.gotoAndStop('character_build'); // TEST
 			switch(page){
-				case '0.0':
-					// Tick.disable();
+				// case '0.0':
+				// 	// Tick.disable();
 
-					// Go to start frame
-					this.view.gotoAndStop('start');
-					this.currentPage = new PageStart(this.view.pageStart);
-					this.currentPage.start(); 
+				// 	// Go to start frame
+				// 	this.view.gotoAndStop('start');
+				// 	this.currentPage = new PageStart(this.view.pageStart);
+				// 	this.currentPage.start(); 
 
-					// Button to next page
-					this.currentPage.on('continue', function(event){
-						event.remove();
-						self.next('0.1');					
-					}, this);				
-					// Tick.disable();	
+				// 	// Button to next page
+				// 	this.currentPage.on('continue', function(event){
+				// 		event.remove();
+				// 		self.next('0.1');					
+				// 	}, this);				
+				// 	// Tick.disable();	
 					
-				break;
+				// break;
 				case '0.1':
 					// Tick.enable();
 					this.view.gotoAndStop('character_build');				

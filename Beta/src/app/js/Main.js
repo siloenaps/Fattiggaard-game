@@ -656,7 +656,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,118);
 
 // stage content:
 (lib.Main = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{preload:4,start:10,character_build:19,poohouse:34,germany:44});
+	this.initialize(mode,startPosition,loop,{preload:4,frontpage:14,start:24,character_build:33,poohouse:48,germany:58});
 
 	// timeline functions:
 	this.frame_0 = function() {
@@ -664,27 +664,27 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,118);
 	}
 
 	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(70));
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(84));
 
 	// Blocker
 	this.blocker_black = new lib.BlockerBLACK();
 	this.blocker_black.setTransform(-10,0,8.7,6.4);
 
-	this.timeline.addTween(cjs.Tween.get(this.blocker_black).wait(70));
+	this.timeline.addTween(cjs.Tween.get(this.blocker_black).wait(84));
 
 	// Top Bar
 	this.topbar = new lib.TopBarMain();
 	this.topbar.setTransform(512,54,1,1,0,0,0,512,54);
 	this.topbar._off = true;
 
-	this.timeline.addTween(cjs.Tween.get(this.topbar).wait(10).to({_off:false},0).wait(60));
+	this.timeline.addTween(cjs.Tween.get(this.topbar).wait(24).to({_off:false},0).wait(60));
 
 	// Continue
 	this.continueBtn = new lib.ContinueButton();
 	this.continueBtn.setTransform(951,579.4,1,1,0,0,0,48,48);
 	this.continueBtn._off = true;
 
-	this.timeline.addTween(cjs.Tween.get(this.continueBtn).wait(10).to({_off:false},0).wait(60));
+	this.timeline.addTween(cjs.Tween.get(this.continueBtn).wait(14).to({_off:false},0).wait(70));
 
 	// Container
 	this.startpagecontainer = new lib.PageContainerEmpty();
@@ -692,7 +692,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,118);
 	this.pagecontainer = new lib.PageContainerEmpty();
 	this.pagecontainer.setTransform(0,108);
 
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.pagecontainer},{t:this.startpagecontainer}]}).wait(70));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.pagecontainer},{t:this.startpagecontainer}]}).wait(84));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(502,324,1044,768);

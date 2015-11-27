@@ -31,7 +31,7 @@ var LoadJS = {
 				urlList.push(tmpList[k]);
 			}
     	}
-    	console.log('LoadJS:', this.cache, ', ', urlList);
+    	// console.log('LoadJS:', this.cache, ', ', urlList);
 
 	    if(location == null)
 	    	location = document.body;
@@ -70,7 +70,7 @@ var LoadJS = {
 		    		// Check if the file requested to be loaded match the one of those loaded
 		    		// If one is still not loaded then leave
 					if(tracker[identifier2] !== true){
-						console.log('LoadJS:onload', urlList[a]);
+						// console.log('LoadJS:onload', urlList[a]);
 						// this.cache.push(urlList[a]);
 						return false;
 					}

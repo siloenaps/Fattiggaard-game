@@ -10,11 +10,14 @@ var Tick = {
 		enabled = false;
 	},
 	framerate: function(framerate){
+		console.log('framerate', framerate);
 		createjs.Ticker.framerate = framerate;
 	},
 	enable: function(){		
 		if(enabled)
 			return false;
+
+		console.log('enable');
 
 		createjs.Ticker.removeEventListener('tick', self.stage); // Handbreak. Remove handler before setting again
 		createjs.Ticker.addEventListener('tick', this.stage);
@@ -24,6 +27,7 @@ var Tick = {
 		enabled = true;
 	},
 	disable: function(delay){		
+		console.log('disable');
 		if(delay === undefined){
 			delay = this.defaultDelay;
 		}

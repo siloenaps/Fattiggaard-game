@@ -39,7 +39,7 @@ PagePoorhouseIntro.prototype.start = function(flowId, slideName){
 };
 PagePoorhouseIntro.prototype.setup = function(){
 	'use strict';
-	console.log('PagePoorhouseIntro', this.runonce);
+	console.log('PagePoorhouseIntro::setup:runonce', this.runonce);
 
 	if(this.runonce != null)
 		return;
@@ -63,6 +63,7 @@ PagePoorhouseIntro.prototype.setup = function(){
 		}, this)
 	);
 
+	console.log('PagePoorhouseIntro::setup:id', this.id);
 	this.lib = gamelib;
 	this.slideLib = slidelib;
 	Clss = this.lib.poorhouse_intro;
@@ -114,7 +115,7 @@ PagePoorhouseIntro.prototype.setup = function(){
 		// Set start page
 		self.next();
 
-		// console.log('PagePoorhouseIntro:onLoadComplete');
+		console.log('PagePoorhouseIntro:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
@@ -201,15 +202,17 @@ PagePoorhouseIntro.prototype.intro = function(trigger){
 	// Slide. Loading is self contained
 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 	this.listeners.complete = self.playerComponent.on('complete', function(event){
+		console.log('PagePoorhouseIntro::complete');
 		self.continueBtn.activate('next');
 		Tick.disable();
 	}, self);
 	this.playerComponent.on('ready', function(event){
-		event.remove();
-		// No tick
-		Tick.disable();
+		event.remove();		
 		self.continueBtn.activate("skip");
 		// self.dispatchEvent(new createjs.Event('ready'));
+		console.log('PagePoorhouseIntro::ready');
+		// No tick
+		Tick.disable();
 	});
 	console.log(this.slideLib)
 	this.playerComponent.preload(this.slideName, this.slideLib);

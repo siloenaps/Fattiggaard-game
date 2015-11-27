@@ -110,7 +110,7 @@ FlowGermany2.prototype.next = function(){
 },
 FlowGermany2.prototype.onContinue = function(event) {
 	'use strict';
-	console.log('FlowGermany2::onContinue');	
+	// console.log('FlowGermany2::onContinue');	
 
 	// Stop player if any
 	if(this.playerComponent != null){
