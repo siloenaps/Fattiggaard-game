@@ -14,6 +14,7 @@ var PlayerStats = {
 	whatnow: null,
 	nazi: null,
 	pointsDiff: {mood: 0, health: 0, money: 0},
+	bomb: false,
 
 	resetDiff: function(){
 		'use strict';

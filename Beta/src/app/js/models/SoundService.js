@@ -117,6 +117,9 @@ SoundService.matrix = {
 	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4_sygdom.mp3', duration: 44.285 },
 	'4.10.7': { label:'illness', src:SoundService.properties.basePath+'4.10.7_pavejhjem.mp3', duration: 51.754 },
 	'4.11.1': { label:'compensation', src:SoundService.properties.basePath+'4.11.1.mp3', duration: 80 },
+	'4.11.2': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
+	'4.11.3': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
+	'4.11.4': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
 	
 	
 	

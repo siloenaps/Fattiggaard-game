@@ -12,6 +12,7 @@ lib.properties = {
 		{src:"../../../assets/images/pool/_4_11_1BG.jpg", id:"_4_11_1BG"},
 		{src:"../../../assets/images/pool/_4_11_2BG.jpg", id:"_4_11_2BG"},
 		{src:"../../../assets/images/pool/_4_11_3BG.jpg", id:"_4_11_3BG"},
+		{src:"../../../assets/images/pool/_4_11_4BG.jpg", id:"_4_11_4BG"},
 		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
 		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
 		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
@@ -44,6 +45,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 (lib._4_11_3BG = function() {
 	this.initialize(img._4_11_3BG);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._4_11_4BG = function() {
+	this.initialize(img._4_11_4BG);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -164,6 +171,17 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = null;
+
+
+(lib.Background4114 = function() {
+	this.initialize();
+
+	// Layer 1
+	this.instance = new lib._4_11_4BG();
+
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
 (lib.Background4113 = function() {
@@ -368,6 +386,38 @@ p.nominalBounds = new cjs.Rectangle(0,0,34,34);
 p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 
 
+(lib._4113PageRunAway = function() {
+	this.initialize();
+
+	// Player
+	this.player = new lib.PlayerAudio();
+	this.player.setTransform(501.5,149,1,1,0,0,0,289.5,17);
+
+	// Character
+	this.portrait = new lib.OpenionCloseups();
+	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
+
+	this.addChild(this.portrait,this.player);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
+
+
+(lib._4112PageIllness = function() {
+	this.initialize();
+
+	// Player
+	this.player = new lib.PlayerAudio();
+	this.player.setTransform(501.5,149,1,1,0,0,0,289.5,17);
+
+	// Character
+	this.portrait = new lib.OpenionCloseups();
+	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
+
+	this.addChild(this.portrait,this.player);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
+
+
 (lib._4111PageCompensation = function() {
 	this.initialize();
 
@@ -396,11 +446,35 @@ p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(26));
 
+	// 4.11.4 Hippopotimus
+	this.hippopotimus = new lib._4112PageIllness();
+	this.hippopotimus.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.hippopotimus).wait(26));
+
+	// 4.11.3 Run Away?
+	this.runaway = new lib._4113PageRunAway();
+	this.runaway.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.runaway).wait(26));
+
+	// 4.11.2 Illness
+	this.illness = new lib._4112PageIllness();
+	this.illness.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.illness).wait(26));
+
 	// 4.11.1 Compensation
 	this.compensation = new lib._4111PageCompensation();
 	this.compensation.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.compensation).wait(26));
+
+	// 4.11.4
+	this.bg_4_11_4 = new lib.Background4114();
+	this.bg_4_11_4.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_4_11_4).wait(26));
 
 	// 4.11.3
 	this.bg_4_11_3 = new lib.Background4113();

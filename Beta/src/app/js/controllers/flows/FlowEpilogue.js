@@ -4,12 +4,17 @@ var FlowEpilogue = function(container){
 		currentPage:null,
 		container: container,
 		view: null,
-		trigger: '4.11.1', // Default start pointer
+		trigger: '4.11', // Default start pointer
 		continueBtn: ContinueButton,
 		listeners: {},
 		start: function(){
 			'use strict';
+
+			// Dispatcher
 			createjs.EventDispatcher.initialize(this);
+
+			// Events
+			this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 
 			this.id = 'epilogue';//PlayerStats.poorhouse;
 
@@ -20,20 +25,38 @@ var FlowEpilogue = function(container){
 				Delegate.create(this.setup, this)
 			);
 		},
+		next: function(){
+			console.log('next: ', this.flow);
+			this.flow.next(this.trigger);
+			
+		},
 		setup: function(){
 			'use strict';
 			if(this.runonce != null)
 				return;
 
+			var self = this;
+
 			// Setup may run ONLY once
 			this.runonce = true;
 
-			var self = this;
-
 			// Setup flow
 			this.flow = new SubFlowController();
-			this.flow.addAction('4.11.1', Delegate.create(this.compensation, this), '4.11.2');
-			this.flow.addAction('1113.0', Delegate.create(
+			console.log('setup: ', this.flow);
+			this.flow.addAction('4.11', 
+				Delegate.create(
+					Flow.statsSplit, this), {
+												type: 'bool',
+												threshold:false, 
+												value: PlayerStats.bomb,
+												triggers:['4.11.1', '4.11.2'], 
+												callback: Delegate.create(this.next, this)
+											}
+								);
+			this.flow.addAction('4.11.2', Delegate.create(this.illness, this), '4.11.3');
+			this.flow.addAction('4.11.3', Delegate.create(this.runAway, this), '4.11.4');
+			this.flow.addAction('4.11.4', Delegate.create(this.hippopotimus, this), 'end');
+			this.flow.addAction('end', Delegate.create(
 				function(){
 					self.removeEvents();
 					self.dispatchEvent(new createjs.Event('continue'));
@@ -70,7 +93,18 @@ var FlowEpilogue = function(container){
 		   		console.log(err);
 		   	}
 		},
-		
+		onContinue: function(event) {
+			'use strict';
+			console.log('FlowEpilogue::onContinue');	
+
+			// Stop player if any
+			if(this.playerComponent != null){
+				this.playerComponent.stop();
+			}
+
+			// Must be set after stopping player
+			this.next();
+		},		
 		restart: function(){
 			'use strict';
 			this.currentPage = null;
@@ -108,6 +142,131 @@ var FlowEpilogue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.compensation;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+				//console.log(self.playerComponent)
+				// Sound Player
+				self.listeners.complete = self.playerComponent.on('complete', function(event){
+					self.continueBtn.activate('next');
+					Tick.disable();
+				}, self);
+				self.playerComponent.on('ready', function(event){
+					self.continueBtn.activate('skip');
+					Tick.disable();
+				}, self);
+				self.playerComponent.preload(sound.src, sound.duration);
+			}, this));
+
+			// Set portrait
+			var frm = PlayerStats.challenge + PlayerStats.family;
+			this.currentPage.portrait.gotoAndStop(frm);
+
+			// Reuse player component var for sound
+			this.playerComponent = null;
+			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+			// Next
+			this.continueBtn.ghost('skip');
+		},
+		illness: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_11_2);
+
+			// Get sound
+			var sound = SoundService.matrix['4.11.2'];
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.compensation;
+			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+				// Sound Player
+				self.listeners.complete = self.playerComponent.on('complete', function(event){
+					self.continueBtn.activate('next');
+					Tick.disable();
+				}, self);
+				self.playerComponent.on('ready', function(event){
+					self.continueBtn.activate('skip');
+					Tick.disable();
+				}, self);
+				self.playerComponent.preload(sound.src, sound.duration);
+			}, this));
+
+			// Set portrait
+			var frm = PlayerStats.challenge + PlayerStats.family;
+			this.currentPage.portrait.gotoAndStop(frm);
+
+			// Reuse player component var for sound
+			this.playerComponent = null;
+			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+			// Next
+			this.continueBtn.ghost('skip');
+		},
+		runAway: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_11_3);
+
+			// Get sound
+			var sound = SoundService.matrix['4.11.3'];
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.runaway;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+				//console.log(self.playerComponent)
+				// Sound Player
+				self.listeners.complete = self.playerComponent.on('complete', function(event){
+					self.continueBtn.activate('next');
+					Tick.disable();
+				}, self);
+				self.playerComponent.on('ready', function(event){
+					self.continueBtn.activate('skip');
+					Tick.disable();
+				}, self);
+				self.playerComponent.preload(sound.src, sound.duration);
+			}, this));
+
+			// Set portrait
+			var frm = PlayerStats.challenge + PlayerStats.family;
+			this.currentPage.portrait.gotoAndStop(frm);
+
+			// Reuse player component var for sound
+			this.playerComponent = null;
+			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+			// Next
+			this.continueBtn.ghost('skip');
+		},
+		hippopotimus: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_11_4);
+
+			// Get sound
+			var sound = SoundService.matrix['4.11.4'];
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.hippopotimus;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 				//console.log(self.playerComponent)
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){

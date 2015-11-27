@@ -49,14 +49,24 @@ FlowGermany2.prototype.setup = function(){
 	this.flow.addAction('4.6.3', Delegate.create(this.points4, this), '4.7_split');
 	this.flow.addAction('4.7', Delegate.create(this.warProgresses, this), '4.10.1');
 	this.flow.addAction('4.7_split', Delegate.create(this.statsSplit, this), {type: 'health', threshold:4, triggers:['4.10.4', '4.10.1']});
+	this.flow.addAction('4.11', 
+				Delegate.create(
+					Flow.statsSplit, this), {
+												type: 'health',
+												threshold:4, 
+												value: PlayerStats.health,
+												triggers:['4.10.4', '4.10.1'], 
+												callback: Delegate.create(this.next, this)
+											}
+								);
 	this.flow.addAction('4.10.1', Delegate.create(this.theBomb, this), '4.10.2');
 	this.flow.addAction('4.10.2', Delegate.create(this.choose1, this), '4.10.3');
 	this.flow.addAction('4.10.3', Delegate.create(this.points5, this), '4.10.7');
 	this.flow.addAction('4.10.4', Delegate.create(this.illness, this), '4.10.5');
 	this.flow.addAction('4.10.5', Delegate.create(this.choose2, this), '4.10.6');
 	this.flow.addAction('4.10.6', Delegate.create(this.points6, this), '4.10.7');
-	this.flow.addAction('4.10.7', Delegate.create(this.goingHome, this), '4.11.1');
-	this.flow.addAction('1113.0', Delegate.create(
+	this.flow.addAction('4.10.7', Delegate.create(this.goingHome, this), '4.11');
+	this.flow.addAction('4.11', Delegate.create(
 		function(){
 			self.removeEvents();
 			self.dispatchEvent(new createjs.Event('continue'));
@@ -94,7 +104,10 @@ FlowGermany2.prototype.setup = function(){
    		console.log(err);
    	}
 };
-
+FlowGermany2.prototype.next = function(){
+	this.flow.next(this.trigger);
+	
+},
 FlowGermany2.prototype.onContinue = function(event) {
 	'use strict';
 	console.log('FlowGermany2::onContinue');	
@@ -105,7 +118,7 @@ FlowGermany2.prototype.onContinue = function(event) {
 	}
 
 	// Must be set after stopping player
-	this.flow.next(this.trigger);
+	this.next();
 };
 FlowGermany2.prototype.removeEvents = function() {
 	'use strict';
@@ -138,7 +151,7 @@ FlowGermany2.prototype.statsSplit = function(vo) {
 	}else{
 		this.trigger = vo.triggers[1];
 	}
-	this.flow.next(this.trigger);
+	this.next();
 }
 
 // Pages ------------------------------------------------------------------------
@@ -514,6 +527,9 @@ FlowGermany2.prototype.theBomb = function(trigger){
 
 	var self = this;
 
+	// Got the bomb
+	PlayerStats.bomb = true;
+
 	// Set background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_10_1);
 
@@ -611,7 +627,7 @@ FlowGermany2.prototype.choose1 = function(trigger) {
 		Delegate.create(function(vo){
 
 			// Choice
-			PlayerStats['4.10.2'] = vo.value;
+			PlayerStats.choiceEndGermany = vo.value;
 
 			// Only first time a checkbox is clicked
 			if(vo.clicked === 1){
@@ -634,7 +650,7 @@ FlowGermany2.prototype.points5 = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
-	var previousChoice = PlayerStats['4.10.2'];
+	var previousChoice = PlayerStats.choiceEndGermany;
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -678,7 +694,7 @@ FlowGermany2.prototype.choose2 = function(trigger) {
 		Delegate.create(function(vo){
 
 			// Choice
-			PlayerStats['4.10.5'] = vo.value;
+			PlayerStats.choiceEndGermany = vo.value;
 
 			// Only first time a checkbox is clicked
 			if(vo.clicked === 1){
@@ -701,7 +717,7 @@ FlowGermany2.prototype.points6 = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
-	var previousChoice = PlayerStats['4.10.5'];
+	var previousChoice = PlayerStats.choiceEndGermany;
 
 	// Pages in/out
 	var previousPage = this.currentPage;
