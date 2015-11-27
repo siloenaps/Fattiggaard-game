@@ -116,6 +116,8 @@ SoundService.matrix = {
 	'4.10.1': { label:'dansk front', src:SoundService.properties.basePath+'4.10.1_bombe.mp3', duration: 45.637 },
 	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4_sygdom.mp3', duration: 44.285 },
 	'4.10.7': { label:'illness', src:SoundService.properties.basePath+'4.10.7_pavejhjem.mp3', duration: 51.754 },
+	'4.11.1': { label:'compensation', src:SoundService.properties.basePath+'4.11.1.mp3', duration: 80 },
+	
 	
 	
 	

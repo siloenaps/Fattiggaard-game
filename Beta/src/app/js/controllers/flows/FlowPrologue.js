@@ -8,12 +8,12 @@ var FlowProloque = function(container){
 		// },
 		start: function(){
 			'use strict';
-			this.id = 'proloque';//PlayerStats.poorhouse;
+			this.id = 'prologue';//PlayerStats.poorhouse;
 
 			// console.log('FlowProloque:start', this.view);
 
 			LoadJS.load(
-				['../assets/logic/games/proloque.js'], 
+				['../assets/logic/games/prologue.js'], 
 				Delegate.create(this.setup, this)
 			);
 		},

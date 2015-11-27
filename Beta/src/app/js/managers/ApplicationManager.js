@@ -35,7 +35,7 @@ var ApplicationManager = {
 		// FlowManager.gotoPage('1.0.1');
 		// FlowManager.gotoPage('2.5');
 		// FlowManager.gotoPage('3.1');
-		FlowManager.gotoPage('4.0');
+		FlowManager.gotoPage('4.11');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},

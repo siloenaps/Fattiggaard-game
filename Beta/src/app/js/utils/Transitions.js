@@ -1,8 +1,14 @@
 var Transitions = {
 	inOut: function(inObj, outObj, delegate){
 		// For checking done of in/out tween
-		var left = 2;
+		var left = 0;
+		
+		//console.log(outObj.element)
+		(inObj.element !== null) ? left++ : console.log('inObj::none');
+		(outObj.element !== null) ? left++ : console.log('outObj::none');
+
 		var checkDone = function(left){
+			// console.log('checkDone', left)
 			if(left == 0){
 				if(delegate !== null){
 					delegate();
@@ -98,7 +104,7 @@ var Transitions = {
 	},
 	changeBackground: function(oldView, newView){
 		try{
-			if(oldView !== null){
+			if(oldView !== null && oldView !== undefined){
 				oldView.x = 1024;
 				oldView.visible = false;
 			}
