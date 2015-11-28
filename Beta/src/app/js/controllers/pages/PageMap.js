@@ -70,7 +70,7 @@ PageMap.prototype.start = function() {
 };
 PageMap.prototype.openInfo = function(id) {
 	'use strict';
-	this.view.infopopup.gotoAndStop(id-1);
+	this.view.infopopup.gotoAndStop(id);
 	this.view.infopopup.x = 0;
 	this.view.infopopup.visible = true;
 	this.continueBtn.hide();
