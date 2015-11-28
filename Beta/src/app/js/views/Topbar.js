@@ -2,7 +2,7 @@ var Topbar = {
 	view: null,
 	soundController: null,
 	init: function(view){
-		if(view === undefined){
+		if(view === undefined || view === null){
 			throw new Error("'view' is undefined");
 		}
 		this.view = view;		
@@ -13,7 +13,7 @@ var Topbar = {
 		// createjs.Tween.get(this.view.label_intro)
 		// 	.to({x:564}, 300, createjs.Ease.backIn);
 
-
+console.log(this.view)
 		this.view.gotoAndStop(frm);
 
 		// Setup for game related to user's choices

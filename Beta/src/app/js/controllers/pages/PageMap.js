@@ -50,18 +50,18 @@ PageMap.prototype.start = function() {
 	this.infoButtons.push(this.view.info1);
 	this.infoButtons.push(this.view.info2);
 	this.infoButtons.push(this.view.info3);
-	this.view.info1.id = 1;
-	this.view.info2.id = 2;
-	this.view.info3.id = 3;
+	this.view.info1.id = 0;
+	this.view.info2.id = 1;
+	this.view.info3.id = 2;
 	// Info buttons events
 	this.listeners['info1'] = this.view.info1.on('click', function(event){
-		this.openInfo(event.target.id);
+		self.openInfo(event.target.id);
 	}, this);
 	this.listeners['info2'] = this.view.info2.on('click', function(event){
-		this.openInfo(event.target.id);
+		self.openInfo(event.target.id);
 	}, this);
 	this.listeners['info3'] = this.view.info3.on('click', function(event){
-		this.openInfo(event.target.id);
+		self.openInfo(event.target.id);
 	}, this);
 	// Close button	
 	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){

@@ -5,7 +5,7 @@ var p; // shortcut to reference prototypes
 // library properties:
 lib.properties = {
 	width: 1024,
-	height: 648,
+	height: 540,
 	fps: 24,
 	color: "#000000",
 	manifest: [
@@ -730,13 +730,6 @@ p.nominalBounds = new cjs.Rectangle(-2.3,0,195.5,34.5);
 p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 
 
-(lib.EmptyContainer = function() {
-	this.initialize();
-
-}).prototype = p = new cjs.Container();
-p.nominalBounds = null;
-
-
 (lib.CloseButton = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{});
 
@@ -776,7 +769,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 
 
 (lib.InfoPopup = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
+if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{});
 
 	// timeline functions:
 	this.frame_0 = function() {
@@ -796,10 +789,10 @@ p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 	// Text
 	this.text = new cjs.Text("Horsens Forsørgelsesanstalt er en fattiganstalt med plads til i alt 74\npersoner, 52 mænd og 22 kvinder. Mænd og kvinder holdes adskilt. Horsens\nForsørgelsesanstalt består af en arbejdsafdeling en forsørgelsesafdeling\nog en sygeafdeling. Arbejdsdygtige individer, alkoholister og forsømmelige\nforsørgere bliver indlagt på arbejdsafdelingen. Der er mure langs anstaltens\ngårdarealer. Anstaltens chef er Forvalteren, det er ham, der bestemmer over\nde indlagte og har det overordnede ansvar for, at stedets regler bliver\noverholdt. Opsynsmændene er forvalterens forlængede arm. ", "28px 'BigNoodleTitling'", "#B9961D");
 	this.text.lineHeight = 30;
-	this.text.lineWidth = 724;
+	this.text.lineWidth = 822;
 	this.text.setTransform(219,135.3);
 
-	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Sundholm er en kæmpe stor fattiganstalt på Amager med plads til op mod\n750 indlagte. Mænd og kvinder holdes adskilt. Sundholm består af en\narbejdsanstalt, en forsørgelsesanstalt og en tvangsarbejdsanstalt. \nArbejdsdygtige individer bliver indlagt på arbejdsanstalten eller tvangs-\narbejdsanstalten, da man mener, at de selv bærer hovedansvaret for deres \nfattigdom. Rundt om Sundholm har man gravet en fire meter dyb voldgrav.\nPå kanten af voldgraven står et to meter højt pigtrådshegn. Pigtrådshegnet\ner ca. 1400 meter langt. Anstaltens chef er Forvalteren, det er ham, der\nbestemmer over de indlagte og har det overordnede ansvar for, at stedets\nregler bliver overholdt. Opsynsmændene er forvalterens forlængede arm. ",lineWidth:781},0).wait(1).to({text:"Svendborg Fattiggård er en anstalt med plads til 51 indlagte. Svendborg \nfattiggård indeholder en arbejdsafdeling, en forsørgelsesafdeling og en \nsygeafdeling. Mænd og kvinder holdes adskilt. Arbejdsdygtige individer \nbliver indlagt på arbejdsafdelingen, da man mener, at de er dovne og \narbejdssky, og derfor selv bærer hovedansvaret for deres fattigdom. \nLangs fattiggårdens bygninger er der høje mure med pigtråd på toppen. \nAnstaltens chef er Forvalteren, det er ham, der bestemmer over de indlagte \nog har det overordnede ansvar for, at stedets regler bliver overholdt.",lineWidth:724},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Sundholm er en kæmpe stor fattiganstalt på Amager med plads til op mod\n750 indlagte. Mænd og kvinder holdes adskilt. Sundholm består af en\narbejdsanstalt, en forsørgelsesanstalt og en tvangsarbejdsanstalt. \nArbejdsdygtige individer bliver indlagt på arbejdsanstalten eller tvangs-\narbejdsanstalten, da man mener, at de selv bærer hovedansvaret for deres \nfattigdom. Rundt om Sundholm har man gravet en fire meter dyb voldgrav.\nPå kanten af voldgraven står et to meter højt pigtrådshegn. Pigtrådshegnet\ner ca. 1400 meter langt. Anstaltens chef er Forvalteren, det er ham, der\nbestemmer over de indlagte og har det overordnede ansvar for, at stedets\nregler bliver overholdt. Opsynsmændene er forvalterens forlængede arm. ",lineWidth:898},0).wait(1).to({text:"Svendborg Fattiggård er en anstalt med plads til 51 indlagte. Svendborg \nfattiggård indeholder en arbejdsafdeling, en forsørgelsesafdeling og en \nsygeafdeling. Mænd og kvinder holdes adskilt. Arbejdsdygtige individer \nbliver indlagt på arbejdsafdelingen, da man mener, at de er dovne og \narbejdssky, og derfor selv bærer hovedansvaret for deres fattigdom. \nLangs fattiggårdens bygninger er der høje mure med pigtråd på toppen. \nAnstaltens chef er Forvalteren, det er ham, der bestemmer over de indlagte \nog har det overordnede ansvar for, at stedets regler bliver overholdt.",lineWidth:908},0).wait(1));
 
 	// Text BG
 	this.instance = new lib.BlackTextBG("synched",0);
@@ -818,7 +811,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance_1}]}).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).wait(1));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+p.nominalBounds = new cjs.Rectangle(0,0,1045,540);
 
 
 (lib.CheckBoxsmall = function(mode,startPosition,loop) {
@@ -950,7 +943,6 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,421.4,61.5);
 	// Info Popup
 	this.infopopup = new lib.InfoPopup();
 	this.infopopup.setTransform(1024,0);
-	this.infopopup.cache(-2,-2,1028,544);
 
 	// Info Buttons
 	this.info3 = new lib.InfoButton();
@@ -990,7 +982,7 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,421.4,61.5);
 
 	this.addChild(this.instance,this.text,this.shape,this.checkbox1,this.checkbox2,this.checkbox3,this.info1,this.info2,this.info3,this.infopopup);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,2048,540);
+p.nominalBounds = new cjs.Rectangle(0,0,2069,540);
 
 
 (lib._03CardMain = function() {
@@ -1472,7 +1464,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 // stage content:
 (lib.prologue = function(mode,startPosition,loop) {
-if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{start:0,character_build:9,poohouse:24,germany:34});
+if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{start:0,character_build:9});
 
 	// timeline functions:
 	this.frame_0 = function() {
@@ -1480,52 +1472,40 @@ if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{sta
 	}
 
 	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(60));
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(24));
 
 	// 0.1 Intro
 	this.page_intro = new lib._01IntroMain();
-	this.page_intro.setTransform(1024,108);
+	this.page_intro.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.page_intro).to({_off:true},24).wait(36));
+	this.timeline.addTween(cjs.Tween.get(this.page_intro).wait(24));
 
 	// 0.2 Character
 	this.page_character = new lib._02CharacterMain();
-	this.page_character.setTransform(1023,108);
+	this.page_character.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.page_character).to({_off:true},24).wait(36));
+	this.timeline.addTween(cjs.Tween.get(this.page_character).wait(24));
 
 	// 0.3 Card
 	this.page_card = new lib._03CardMain();
-	this.page_card.setTransform(1024,108);
+	this.page_card.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.page_card).to({_off:true},24).wait(36));
+	this.timeline.addTween(cjs.Tween.get(this.page_card).wait(24));
 
 	// 0.4 Opinion
 	this.page_opinion = new lib._04OpinionMain();
-	this.page_opinion.setTransform(1024,108);
+	this.page_opinion.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.page_opinion).to({_off:true},24).wait(36));
+	this.timeline.addTween(cjs.Tween.get(this.page_opinion).wait(24));
 
 	// 0.5 Map
 	this.page_map = new lib._05Map();
-	this.page_map.setTransform(1024,108);
+	this.page_map.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.page_map).to({_off:true},24).wait(36));
-
-	// 1.0 Poor House Container
-	this.poorhouse_container = new lib.EmptyContainer();
-	this.poorhouse_container.setTransform(0,108);
-
-	this.timeline.addTween(cjs.Tween.get(this.poorhouse_container).to({_off:true},34).wait(26));
-
-	// 2.0 Germany Container
-	this.germany_container = new lib.EmptyContainer();
-	this.germany_container.setTransform(0,108);
-
-	this.timeline.addTween(cjs.Tween.get(this.germany_container).wait(60));
+	this.timeline.addTween(cjs.Tween.get(this.page_map).wait(24));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(512,324,3285.3,648);
+p.nominalBounds = new cjs.Rectangle(1536,252,2261.3,558);
 
 })(gamelib = gamelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var gamelib, images, createjs, ss;

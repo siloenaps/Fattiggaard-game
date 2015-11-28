@@ -24,7 +24,7 @@
 				try{
 					var stage = new createjs.Stage($scope.canvas);
 					stage.addChild($scope.exportRoot);
-
+					
 					// Do cursor
 					stage.enableMouseOver(10);
 

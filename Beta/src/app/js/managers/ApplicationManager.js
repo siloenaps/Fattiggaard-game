@@ -25,15 +25,12 @@ var ApplicationManager = {
 		}		
 
 		// Init page manager
-		FlowManager.init(root);
-
-		// Topbar
 		try{
-			Topbar.init(root.topbar);
+			FlowManager.init(root);
 		}catch(err){
 			console.log(err);
 		}
-		
+			
 
 		// Fade black blocker out
 		// createjs.Tween.get(root.blocker_black)
@@ -45,10 +42,6 @@ var ApplicationManager = {
 
 		// Go to start
 		FlowManager.gotoPage('0.0');
-		// FlowManager.gotoPage('1.0.1');
-		// FlowManager.gotoPage('2.5');
-		// FlowManager.gotoPage('3.0');
-		// FlowManager.gotoPage('4.0');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},

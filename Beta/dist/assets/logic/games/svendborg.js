@@ -30,6 +30,7 @@ lib.properties = {
 		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
 		{src:"../../../assets/images/pool/ansat_1.png", id:"ansat_1"},
 		{src:"../../../assets/images/pool/ansat_2.png", id:"ansat_2"},
+		{src:"../../../assets/images/pool/ansat_3.png", id:"ansat_3"},
 		{src:"../../../assets/images/pool/BDCloseUp.png", id:"BDCloseUp"},
 		{src:"../../../assets/images/pool/BECloseUp.png", id:"BECloseUp"},
 		{src:"../../../assets/images/pool/BFCloseUp.png", id:"BFCloseUp"},
@@ -187,6 +188,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 (lib.ansat_2 = function() {
 	this.initialize(img.ansat_2);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
+(lib.ansat_3 = function() {
+	this.initialize(img.ansat_3);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
@@ -588,20 +595,9 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 
 	this.instance_1 = new lib.ansat_2();
 
-	this.text = new cjs.Text("Mangler\nbillede", "24px 'Special Elite'");
-	this.text.lineHeight = 26;
-	this.text.lineWidth = 100;
-	this.text.setTransform(243,255.1);
+	this.instance_2 = new lib.ansat_3();
 
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f().s("#CCCCCC").ss(1,1,1).p("Avn85IfPAAMAAAA5zI/PAAg");
-	this.shape.setTransform(299.5,374.5);
-
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#00CC33").s().p("Avmc6MAAAg5yIfOAAMAAAA5yg");
-	this.shape_1.setTransform(299.5,374.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.shape_1},{t:this.shape},{t:this.text}]},1).wait(1));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);

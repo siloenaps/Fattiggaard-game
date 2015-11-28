@@ -1,8 +1,12 @@
 var FlowManager = {
 	currentPage:null,
 	root: null,
+	topbar: null,
 	init: function(root){
 		'use strict';
+		if(root === undefined && root === null){
+			throw new Error("'root' is", root);
+		}
 		this.root = root;
 	},
 	clearLib: function(){
@@ -18,55 +22,52 @@ var FlowManager = {
 		// this.root.gotoAndStop('character_build'); // TEST
 		switch(page){
 			case '0.0':
-				// Tick.disable();
-				var self = this;
 				this.root.gotoAndStop('frontpage');	
-				// Go to start frame
-				try{
-					this.currentPage = new PageStart(this.root.startpagecontainer);
-					this.currentPage.start(); 
+				this.root.blocker_black.visible = false;
 
-					// Blocker
-					this.currentPage.on('ready', function(event){
-						event.remove();					
-						self.root.blocker_black.visible = false;
-					}, this);
+				ContinueButton.on('click', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					Preloader.load(lib.properties.manifest, onFileLoad, onLoadComplete, 'full', true);
+				}, this);
+				ContinueButton.activate('next');
 
-					// Button to next page
-					this.currentPage.on('continue', function(event){
-						event.remove();
-						try{
-							Library.clearSlide();	
-						}catch(err){
-							console.log(err);
-						}
-						try{
-							Library.clearGame();
-						}catch(err){
-							console.log(err);
-						}					
-						self.gotoPage('0.1');
-					}, this);	
-				}catch(err){
-					console.log(err);
-				}
-				
+				var onFileLoad = function(event){
+					if (event.item.type === 'image') { 
+						images[event.item.id] = event.result; 
+					}
+				};
+				var onLoadComplete = function(event){
+					// Instantiate view
+					self.topbar = new lib.TopbarView();
+
+					//Add
+					self.root.topbarcontainer.addChild(self.topbar);
+
+					// To intro
+					self.gotoPage('0.1');
+					// self.gotoPage('1.0.1'); // TEST
+				};	
 				
 			break;
 			case '0.1':
 				// Proluque
+				// Topbar
+				try{
+					Topbar.init(this.topbar.mainClip);
+					Topbar.hide();
+				}catch(err){
+					console.log(err);
+				}
 
 				// Tick.disable();
-				console.log('0.1')
-
 				var self = this;
 
 				// Go to start frame
 				this.root.gotoAndStop('start');
-				this.currentPage = new FlowProloque(this.root.startpagecontainer);
+				this.currentPage = new FlowProloque(this.root.pagecontainer);
 				this.currentPage.start(); 
-
-				Topbar.hide();
 
 				// Blocker
 				FlowProloque.on('ready', function(event){

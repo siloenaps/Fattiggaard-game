@@ -61,38 +61,20 @@ var FlowProloque = function(container){
 		},
 		next: function(page){
 			'use strict';
+			console.log('next:',page);
 			if(this.currentPage !== null){
 				this.currentPage.destroy();
 				this.currentPage = null;
 			}
 			var self = this;
 			// this.view.gotoAndStop('character_build'); // TEST
-			switch(page){
-				// case '0.0':
-				// 	// Tick.disable();
-
-				// 	// Go to start frame
-				// 	this.view.gotoAndStop('start');
-				// 	this.currentPage = new PageStart(this.view.pageStart);
-				// 	this.currentPage.start(); 
-
-				// 	// Button to next page
-				// 	this.currentPage.on('continue', function(event){
-				// 		event.remove();
-				// 		self.next('0.1');					
-				// 	}, this);				
-				// 	// Tick.disable();	
-					
+			switch(page){					
 				// break;
 				case '0.1':
 					// Tick.enable();
 					this.view.gotoAndStop('character_build');				
 					this.view.page_intro.x = 0;				
 					this.currentPage = new PageIntro(this.view.page_intro, 'intro'); 
-					// this.currentPage.on('ready', function(event){
-					// 	event.remove();
-					// 	// Tick.disable();
-					// })
 					this.currentPage.start(); 
 
 					// Topbar

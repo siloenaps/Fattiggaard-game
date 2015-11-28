@@ -260,6 +260,11 @@ var Cursor = {
 };
 var ContinueButton = {
 	init: function(view){
+		'use strict';
+		if(view === undefined){
+			throw new Error("'view' is undefined");
+		}
+
 		this.type = null;
 
 		// Safety belt
@@ -287,6 +292,7 @@ var ContinueButton = {
 		this.listners.next = this.nextBtnInstance.on('click', this.onClick, this);
 	},
 	activate: function(type){
+		'use strict';
 		this.type = type;
 		switch(type){
 			case 'next':
@@ -301,6 +307,7 @@ var ContinueButton = {
 		}
 	},
 	ghost: function(type){
+		'use strict';
 		this.type = type;
 		switch(type){
 			case 'next':
@@ -314,6 +321,7 @@ var ContinueButton = {
 		}
 	},
 	hide: function(){
+		'use strict';
 		switch(this.type){
 			case 'next':
 				this.nextBtnInstance.visible(false);
@@ -324,6 +332,7 @@ var ContinueButton = {
 		}
 	},
 	show: function(){
+		'use strict';
 		switch(this.type){
 			case 'next':
 				this.nextBtnInstance.visible(true);
@@ -334,10 +343,12 @@ var ContinueButton = {
 		}
 	},
 	onClick: function(event){
+		'use strict';
 		var e = new createjs.Event('click');
  		this.dispatchEvent(e);
 	},
 	destroy: function(){
+		'use strict';
 		if(this.listners !== undefined){
 			if(this.listners.skip != null){
 				this.skipBtnInstance.off('click', this.listners.skip);
@@ -558,29 +569,11 @@ ButtonCustom.prototype.onOut = function(event){
 	Cursor.out();
 };
 ButtonCustom.prototype.destroy = function(){
+	'use strict';
 	this.view = null;
 }
 
 createjs.EventDispatcher.initialize(ButtonCustom.prototype);
-var PageStart = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("next");
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageStart.prototype.start = function() {
-	Tick.disable();
-};
-PageStart.prototype.onContinue = function(event) {
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageStart.prototype.destroy = function() {
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageStart.prototype);
 var PagePoorhouseIntro = function(container){
 	'use strict';
 	this.container = container;
@@ -622,7 +615,7 @@ PagePoorhouseIntro.prototype.start = function(flowId, slideName){
 };
 PagePoorhouseIntro.prototype.setup = function(){
 	'use strict';
-	console.log('PagePoorhouseIntro', this.runonce);
+	console.log('PagePoorhouseIntro::setup:runonce', this.runonce);
 
 	if(this.runonce != null)
 		return;
@@ -646,6 +639,7 @@ PagePoorhouseIntro.prototype.setup = function(){
 		}, this)
 	);
 
+	console.log('PagePoorhouseIntro::setup:id', this.id);
 	this.lib = gamelib;
 	this.slideLib = slidelib;
 	Clss = this.lib.poorhouse_intro;
@@ -697,7 +691,7 @@ PagePoorhouseIntro.prototype.setup = function(){
 		// Set start page
 		self.next();
 
-		// console.log('PagePoorhouseIntro:onLoadComplete');
+		console.log('PagePoorhouseIntro:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
@@ -784,15 +778,17 @@ PagePoorhouseIntro.prototype.intro = function(trigger){
 	// Slide. Loading is self contained
 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 	this.listeners.complete = self.playerComponent.on('complete', function(event){
+		console.log('PagePoorhouseIntro::complete');
 		self.continueBtn.activate('next');
 		Tick.disable();
 	}, self);
 	this.playerComponent.on('ready', function(event){
-		event.remove();
-		// No tick
-		Tick.disable();
+		event.remove();		
 		self.continueBtn.activate("skip");
 		// self.dispatchEvent(new createjs.Event('ready'));
+		console.log('PagePoorhouseIntro::ready');
+		// No tick
+		Tick.disable();
 	});
 	console.log(this.slideLib)
 	this.playerComponent.preload(this.slideName, this.slideLib);
@@ -840,6 +836,7 @@ var PageOpinion = function(view){
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
 };
 PageOpinion.prototype.onSoundStart = function(event) {
+	'use strict';
 	// If there is a player active, pause it
 	if(this.activePlayer != null){
 		if(event.target.id != this.activePlayer.id){
@@ -851,6 +848,7 @@ PageOpinion.prototype.onSoundStart = function(event) {
 	this.activePlayer = event.target;
 };
 PageOpinion.prototype.onComplete = function(event){
+	'use strict';
 	this.completed++;
 	if(this.completed >= this.playersCount){
 		if(this.challengePlayerComponent !== undefined){
@@ -864,10 +862,12 @@ PageOpinion.prototype.onComplete = function(event){
 	}
 };
 PageOpinion.prototype.start = function() {
+	'use strict';
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.view.portrait.gotoAndStop(frm);
 };
 PageOpinion.prototype.onContinue = function(event) {
+	'use strict';
 	this.continueBtn.off('click', this.listeners.continue);
 
 	// Stop sound if it still on
@@ -882,6 +882,7 @@ PageOpinion.prototype.onContinue = function(event) {
 	this.dispatchEvent(new createjs.Event('continue'));
 };
 PageOpinion.prototype.destroy = function() {
+	'use strict';
 	this.view = null;	
 
 	if(this.challengePlayer != null){
@@ -904,6 +905,7 @@ var PageMap = function(view){
 	this.continueBtn.ghost("next");	
 };
 PageMap.prototype.start = function() {
+	'use strict';
 	var self = this;
 
 	// Allow tick
@@ -966,17 +968,20 @@ PageMap.prototype.start = function() {
 	}, this);
 };
 PageMap.prototype.openInfo = function(id) {
+	'use strict';
 	this.view.infopopup.gotoAndStop(id-1);
 	this.view.infopopup.x = 0;
 	this.view.infopopup.visible = true;
 	this.continueBtn.hide();
 };
 PageMap.prototype.closeInfo = function(id) {
+	'use strict';
 	this.view.infopopup.x = 1024;
 	this.view.infopopup.visible = false;
 	this.continueBtn.show();
 };
 PageMap.prototype.destroy = function() {
+	'use strict';
 	this.view = null;	
 };
 createjs.EventDispatcher.initialize(PageMap.prototype);
@@ -997,6 +1002,7 @@ var PageIntro = function(view, id){
 	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
 };
 PageIntro.prototype.start = function() {
+	'use strict';
 	LoadJS.load(
 		'../assets/logic/slides/'+"slide_"+this.id+".js", 
 		Delegate.create(this.setup, this)
@@ -1005,6 +1011,7 @@ PageIntro.prototype.start = function() {
 	Tick.enable();
 };
 PageIntro.prototype.setup = function() {
+	'use strict';
 	if(this.runonce != null)
 		return;
 
@@ -1029,6 +1036,7 @@ PageIntro.prototype.setup = function() {
    	}
 };
 PageIntro.prototype.onContinue = function(event) {
+	'use strict';
 	this.continueBtn.off('click', this.listeners.continue);	
 	this.listeners.continue = null;
 
@@ -1042,6 +1050,7 @@ PageIntro.prototype.onContinue = function(event) {
 	this.destroy();
 };
 PageIntro.prototype.onComplete = function(event) {
+	'use strict';
 	this.playerComponent.off('complete', this.listeners.complete);	
 	this.listeners.complete = null;
 
@@ -1049,6 +1058,7 @@ PageIntro.prototype.onComplete = function(event) {
 	this.continueBtn.activate("next");
 };
 PageIntro.prototype.destroy = function() {
+	'use strict';
 	if(this.playerComponent != null){
 		this.playerComponent.destroy();	
 	}
@@ -1066,9 +1076,11 @@ var PageCard = function(view){
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
 };
 PageCard.prototype.start = function() {
+	'use strict';
 	var frm;
 
-	// Set portrait an real name
+
+	// Set portrait a real name
 	frm = PlayerStats.challenge + PlayerStats.family;
 	this.view.portrait.gotoAndStop(frm);
 	this.view.realname.gotoAndStop(frm);
@@ -1087,10 +1099,12 @@ PageCard.prototype.start = function() {
 	this.view.kids.gotoAndStop(frm);
 };
 PageCard.prototype.onContinue = function(event) {
+	'use strict';
 	this.continueBtn.off('click', this.listeners.continue);	
 	this.dispatchEvent(new createjs.Event('continue'));
 };
 PageCard.prototype.destroy = function() {
+	'use strict';
 	this.view = null;	
 };
 createjs.EventDispatcher.initialize(PageCard.prototype);
@@ -1141,6 +1155,11 @@ var SubFlowController = function(){
 		onContinue: function(event) {
 			'use strict';
 			this.next();
+		},
+		destroy: function(){
+			this.actions.triggers = null;
+			this.actions.delegate = null;
+			this.actions = null;
 		}
 	};
 };
@@ -1154,12 +1173,12 @@ var FlowProloque = function(container){
 		// },
 		start: function(){
 			'use strict';
-			this.id = 'proloque';//PlayerStats.poorhouse;
+			this.id = 'prologue';//PlayerStats.poorhouse;
 
 			// console.log('FlowProloque:start', this.view);
 
 			LoadJS.load(
-				['../assets/logic/games/proloque.js'], 
+				['../assets/logic/games/prologue.js'], 
 				Delegate.create(this.setup, this)
 			);
 		},
@@ -1179,7 +1198,7 @@ var FlowProloque = function(container){
 
 			// Load files
 			this.lib = gamelib;
-			var Clss = this.lib.proloque;		
+			var Clss = this.lib.prologue;		
 			var manifest = this.lib.properties.manifest;
 
 			var onFileLoad = function(event){
@@ -1196,7 +1215,7 @@ var FlowProloque = function(container){
 				self.container.addChild(self.view);
 
 				// Set start page
-				self.next('0.0');
+				self.next('0.1');
 
 				// Ready
 				FlowProloque.dispatchEvent(new createjs.Event('ready'));
@@ -1207,38 +1226,20 @@ var FlowProloque = function(container){
 		},
 		next: function(page){
 			'use strict';
+			console.log('next:',page);
 			if(this.currentPage !== null){
 				this.currentPage.destroy();
 				this.currentPage = null;
 			}
 			var self = this;
 			// this.view.gotoAndStop('character_build'); // TEST
-			switch(page){
-				case '0.0':
-					// Tick.disable();
-
-					// Go to start frame
-					this.view.gotoAndStop('start');
-					this.currentPage = new PageStart(this.view.pageStart);
-					this.currentPage.start(); 
-
-					// Button to next page
-					this.currentPage.on('continue', function(event){
-						event.remove();
-						self.next('0.1');					
-					}, this);				
-					// Tick.disable();	
-					
-				break;
+			switch(page){					
+				// break;
 				case '0.1':
 					// Tick.enable();
 					this.view.gotoAndStop('character_build');				
 					this.view.page_intro.x = 0;				
 					this.currentPage = new PageIntro(this.view.page_intro, 'intro'); 
-					// this.currentPage.on('ready', function(event){
-					// 	event.remove();
-					// 	// Tick.disable();
-					// })
 					this.currentPage.start(); 
 
 					// Topbar
@@ -1961,10 +1962,9 @@ FlowPoorhouseSecond.prototype.points4 = function(trigger) {
 
 	// Pages in/out
 	var previousPage = this.currentPage;
-	this.currentPage = this.view.points3;
+	this.currentPage = this.view.points4;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('mood', -1);
-		PlayerStats.append('money', -1);
 		Topbar.pointsUpdate();
 		Tick.disable();
 	}, this));
@@ -2968,8 +2968,33 @@ FlowGermany2.prototype.setup = function(){
 	this.flow.addAction('4.0', Delegate.create(this.chooseJobGermany, this), '4.1');
 	this.flow.addAction('4.1', Delegate.create(this.recruitementLetter, this), '4.2');
 	this.flow.addAction('4.2', Delegate.create(this.points1, this), '4.3');
-	this.flow.addAction('4.3', Delegate.create(this.traveling, this), '4.4');
-	this.flow.addAction('1113.0', Delegate.create(
+	this.flow.addAction('4.3', Delegate.create(this.traveling, this), '4.5.1');
+	this.flow.addAction('4.5.1', Delegate.create(this.work, this), '4.5.2');
+	this.flow.addAction('4.5.2', Delegate.create(this.points2, this), '4.5.3');
+	this.flow.addAction('4.5.3', Delegate.create(this.points3, this), '4.6.1');
+	this.flow.addAction('4.6.1', Delegate.create(this.danskFront, this), '4.6.2');
+	this.flow.addAction('4.6.2', Delegate.create(this.chooseParticipation, this), '4.6.3');
+	this.flow.addAction('4.6.3', Delegate.create(this.points4, this), '4.7_split');
+	this.flow.addAction('4.7', Delegate.create(this.warProgresses, this), '4.10.1');
+	this.flow.addAction('4.7_split', Delegate.create(this.statsSplit, this), {type: 'health', threshold:4, triggers:['4.10.4', '4.10.1']});
+	this.flow.addAction('4.11', 
+				Delegate.create(
+					Flow.statsSplit, this), {
+												type: 'health',
+												threshold:4, 
+												value: PlayerStats.health,
+												triggers:['4.10.4', '4.10.1'], 
+												callback: Delegate.create(this.next, this)
+											}
+								);
+	this.flow.addAction('4.10.1', Delegate.create(this.theBomb, this), '4.10.2');
+	this.flow.addAction('4.10.2', Delegate.create(this.choose1, this), '4.10.3');
+	this.flow.addAction('4.10.3', Delegate.create(this.points5, this), '4.10.7');
+	this.flow.addAction('4.10.4', Delegate.create(this.illness, this), '4.10.5');
+	this.flow.addAction('4.10.5', Delegate.create(this.choose2, this), '4.10.6');
+	this.flow.addAction('4.10.6', Delegate.create(this.points6, this), '4.10.7');
+	this.flow.addAction('4.10.7', Delegate.create(this.goingHome, this), '4.11');
+	this.flow.addAction('4.11', Delegate.create(
 		function(){
 			self.removeEvents();
 			self.dispatchEvent(new createjs.Event('continue'));
@@ -3007,9 +3032,13 @@ FlowGermany2.prototype.setup = function(){
    		console.log(err);
    	}
 };
+FlowGermany2.prototype.next = function(){
+	this.flow.next(this.trigger);
+	
+},
 FlowGermany2.prototype.onContinue = function(event) {
 	'use strict';
-	console.log('FlowGermany2::onContinue');	
+	// console.log('FlowGermany2::onContinue');	
 
 	// Stop player if any
 	if(this.playerComponent != null){
@@ -3017,7 +3046,7 @@ FlowGermany2.prototype.onContinue = function(event) {
 	}
 
 	// Must be set after stopping player
-	this.flow.next(this.trigger);
+	this.next();
 };
 FlowGermany2.prototype.removeEvents = function() {
 	'use strict';
@@ -3042,7 +3071,19 @@ FlowGermany2.prototype.destroy = function() {
 };
 
 
+// Util
+FlowGermany2.prototype.statsSplit = function(vo) {
+	var value = PlayerStats[vo.type];
+	if(value <= vo.threshold){
+		this.trigger = vo.triggers[0];
+	}else{
+		this.trigger = vo.triggers[1];
+	}
+	this.next();
+}
+
 // Pages ------------------------------------------------------------------------
+
 
 FlowGermany2.prototype.chooseJobGermany = function(trigger){
 	var self = this;
@@ -3158,7 +3199,7 @@ FlowGermany2.prototype.traveling = function(trigger){
 				Delegate.create(function(){
 					// Slide. Loading is self contained
 					self.slideLib = slidelib;	
-					self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
+					self.playerComponent = new PlayerSliderComponent(self.currentPage.player, 13); // Added delay of sound start (frame 14)
 					self.listeners.complete = self.playerComponent.on('complete', function(event){
 						self.continueBtn.activate('next');
 					}, self);
@@ -3174,9 +3215,498 @@ FlowGermany2.prototype.traveling = function(trigger){
 	// Ghost continue button
 	self.continueBtn.ghost('skip');
 };
+FlowGermany2.prototype.work = function(trigger){
+	'use strict';
 
+	// Next move
+	this.trigger = trigger;
 
+	var self = this;
 
+	// Get work related assets
+	var bg, slidePath, slideName;
+	try{
+		bg = this.view.bg_4_5_1; // Index 0 is job choice for the first time in Germany [A,B,C]
+		bg.gotoAndStop(PlayerStats.job_germany[1]);
+
+		// Get path to slide script
+		var combi = PlayerStats.job_germany[0]+PlayerStats.job_germany[1];
+		slideName = 'slide_4_5_1_' + combi; // E.g. slide_4_5_1_AC
+		slidePath = '../assets/logic/slides/'+slideName+'.js';
+	}catch(err){
+		console.log(err);
+	}	
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.work;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		try{
+			// Load slide
+			LoadJS.load(
+				[slidePath], 
+				Delegate.create(function(){
+					// Slide. Loading is self contained
+					self.slideLib = slidelib;	
+					self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
+					self.listeners.complete = self.playerComponent.on('complete', function(event){
+						self.continueBtn.activate('next');
+					}, self);
+					self.playerComponent.preload(slideName, self.slideLib);
+					self.continueBtn.activate('skip');
+				}, self)
+			);
+		}catch(err){
+			console.log(err);
+		}
+	}, this));
+
+	// Ghost continue button
+	self.continueBtn.ghost('skip');
+};
+FlowGermany2.prototype.points2 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+	// Set background
+	var bg = this.view.bg_4_5_2; // Index 0 is job choice for the first time in Germany [A,B,C]
+	bg.gotoAndStop(PlayerStats.job_germany[1]);	
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points2;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		PlayerStats.append('money', 2);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+
+	this.continueBtn.activate('next');
+};
+FlowGermany2.prototype.points3 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points3;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		PlayerStats.append('money', -1);
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+
+	this.continueBtn.activate('next');
+};
+FlowGermany2.prototype.danskFront = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_6);
+
+	// Get sound
+	var sound = SoundService.matrix['4.6.1'];
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.danskfront;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	// Reuse player component var for sound
+	this.playerComponent = null;
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Next
+	this.continueBtn.ghost('skip');
+};
+FlowGermany2.prototype.chooseParticipation = function(trigger) {
+	'use strict';
+	var self = this;
+
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.chooseparticipation;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
+
+		// Checkboxes
+	CheckboxGroup.setup(
+		[this.currentPage.checkbox1, this.currentPage.checkbox2],
+		['A', 'B'],
+		Delegate.create(function(vo){
+
+			// Save chosen 'advice'
+			PlayerStats.nazi = vo.value;
+
+			// Only first time a checkbox is clicked
+			if(vo.clicked === 1){
+				// User may continue
+				self.continueBtn.activate('next');
+				// Add listener to continue button
+				self.listeners.continueClick = self.continueBtn.on('click', function(event){
+					event.remove();
+					// Clear checkboxes
+					CheckboxGroup.clear();
+				});
+			}
+		}, this)
+	);
+
+	this.continueBtn.ghost('next');
+};
+FlowGermany2.prototype.points4 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points4;
+	this.currentPage.gotoAndStop(PlayerStats.nazi);
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		switch(PlayerStats.nazi){
+			case 'A':
+				PlayerStats.append('mood', -1);
+			break;
+			case 'B':
+				PlayerStats.append('mood', 1);
+			break;
+		}
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+
+	this.continueBtn.activate('next');
+};
+FlowGermany2.prototype.warProgresses = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Get path to slide script
+	var slideName = 'slide_4_7';
+	var slidePath = '../assets/logic/slides/'+slideName+'.js';
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.warprogresses;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		try{
+			// Load slide
+			LoadJS.load(
+				[slidePath], 
+				Delegate.create(function(){
+					// Slide. Loading is self contained
+					self.slideLib = slidelib;	
+					self.playerComponent = new PlayerSliderComponent(self.currentPage.player);
+					self.listeners.complete = self.playerComponent.on('complete', function(event){
+						self.continueBtn.activate('next');
+					}, self);
+					self.playerComponent.preload(slideName, self.slideLib);
+					self.continueBtn.activate('skip');
+				}, self)
+			);
+		}catch(err){
+			console.log(err);
+		}
+	}, this));
+
+	// Ghost continue button
+	self.continueBtn.ghost('skip');
+};
+FlowGermany2.prototype.theBomb = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Got the bomb
+	PlayerStats.bomb = true;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_10_1);
+
+	// Get sound
+	var sound = SoundService.matrix['4.10.1'];
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.thebomb;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	// Reuse player component var for sound
+	this.playerComponent = null;
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Next
+	this.continueBtn.ghost('skip');
+};
+FlowGermany2.prototype.illness = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_10_4);
+
+	// Get sound
+	var sound = SoundService.matrix['4.10.4'];
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.illness;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	// Reuse player component var for sound
+	this.playerComponent = null;
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Next
+	this.continueBtn.ghost('skip');
+};
+FlowGermany2.prototype.choose1 = function(trigger) {
+	'use strict';
+	var self = this;
+
+	var currentTrigger = this.trigger;
+
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.choose1;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
+
+		// Checkboxes
+	CheckboxGroup.setup(
+		[this.currentPage.checkbox1, this.currentPage.checkbox2],
+		['A', 'B'],
+		Delegate.create(function(vo){
+
+			// Choice
+			PlayerStats.choiceEndGermany = vo.value;
+
+			// Only first time a checkbox is clicked
+			if(vo.clicked === 1){
+				// User may continue
+				self.continueBtn.activate('next');
+				// Add listener to continue button
+				self.listeners.continueClick = self.continueBtn.on('click', function(event){
+					event.remove();
+					// Clear checkboxes
+					CheckboxGroup.clear();
+				});
+			}
+		}, this)
+	);
+
+	this.continueBtn.ghost('next');
+};
+FlowGermany2.prototype.points5 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+	var previousChoice = PlayerStats.choiceEndGermany;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points5;
+	this.currentPage.gotoAndStop(previousChoice);
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		switch(previousChoice){
+			case 'A':
+				PlayerStats.append('money', -1);
+			break;
+			case 'B':
+				PlayerStats.append('money', 1);
+			break;
+		}
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+
+	this.continueBtn.activate('next');
+};
+FlowGermany2.prototype.choose2 = function(trigger) {
+	'use strict';
+	var self = this;
+
+	var currentTrigger = this.trigger;
+
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.choose1;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(5);
+	}, this));
+
+		// Checkboxes
+	CheckboxGroup.setup(
+		[this.currentPage.checkbox1, this.currentPage.checkbox2],
+		['A', 'B'],
+		Delegate.create(function(vo){
+
+			// Choice
+			PlayerStats.choiceEndGermany = vo.value;
+
+			// Only first time a checkbox is clicked
+			if(vo.clicked === 1){
+				// User may continue
+				self.continueBtn.activate('next');
+				// Add listener to continue button
+				self.listeners.continueClick = self.continueBtn.on('click', function(event){
+					event.remove();
+					// Clear checkboxes
+					CheckboxGroup.clear();
+				});
+			}
+		}, this)
+	);
+
+	this.continueBtn.ghost('next');
+};
+FlowGermany2.prototype.points6 = function(trigger) {
+	'use strict';
+	// Next move
+	this.trigger = trigger;
+
+	var previousChoice = PlayerStats.choiceEndGermany;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.points5;
+	this.currentPage.gotoAndStop(previousChoice);
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+		switch(previousChoice){
+			case 'A':
+				PlayerStats.append('money', -1);
+			break;
+			case 'B':
+				PlayerStats.append('money', 1);
+			break;
+		}
+		Topbar.pointsUpdate();
+		Tick.disable();
+	}, this));
+
+	this.continueBtn.activate('next');
+};
+FlowGermany2.prototype.goingHome = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_10_7);
+
+	// Get sound
+	var sound = SoundService.matrix['4.10.7'];
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.goinghome;
+	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		// Sound Player
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
+	}, this));
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
+	// Reuse player component var for sound
+	this.playerComponent = null;
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Next
+	this.continueBtn.ghost('skip');
+};
 createjs.EventDispatcher.initialize(FlowGermany2.prototype);
 var FlowGermany1 = function(container){
 	this.container = container;
@@ -3868,6 +4398,310 @@ FlowGermany1.prototype.intermezzo = function(trigger){
 	this.continueBtn.activate('skip');
 };
 createjs.EventDispatcher.initialize(FlowGermany1.prototype);
+var FlowEpilogue = function(container){
+
+	return{
+		currentPage:null,
+		container: container,
+		view: null,
+		trigger: '4.11', // Default start pointer
+		continueBtn: ContinueButton,
+		listeners: {},
+		start: function(){
+			'use strict';
+
+			// Dispatcher
+			createjs.EventDispatcher.initialize(this);
+
+			// Events
+			this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+
+			this.id = 'epilogue';//PlayerStats.poorhouse;
+
+			// // console.log('FlowEpilogue:start', this.container);
+
+			LoadJS.load(
+				['../assets/logic/games/epilogue.js'], 
+				Delegate.create(this.setup, this)
+			);
+		},
+		next: function(){
+			// console.log('next: ', this.flow);
+			this.flow.next(this.trigger);
+			
+		},
+		setup: function(){
+			'use strict';
+			if(this.runonce != null)
+				return;
+
+			var self = this;
+
+			// Setup may run ONLY once
+			this.runonce = true;
+
+			// Setup flow
+			this.flow = new SubFlowController();
+			// console.log('setup: ', this.flow);
+			this.flow.addAction('4.11', 
+				Delegate.create(
+					Flow.statsSplit, this), {
+												type: 'bool',
+												threshold:false, 
+												value: PlayerStats.bomb,
+												triggers:['4.11.1', '4.11.2'], 
+												callback: Delegate.create(this.next, this)
+											}
+								);
+			this.flow.addAction('4.11.2', Delegate.create(this.illness, this), '4.11.3');
+			this.flow.addAction('4.11.3', Delegate.create(this.runAway, this), '4.11.4');
+			this.flow.addAction('4.11.4', Delegate.create(this.hippopotimus, this), 'end');
+			this.flow.addAction('end', Delegate.create(
+				function(){
+					self.removeEvents();
+					self.dispatchEvent(new createjs.Event('continue'));
+				}, this)
+			);
+
+			try{
+				// Load files for flow	
+				this.lib = gamelib; //germany1GameLib;
+				var Clss = this.lib.epilogue;
+				var manifest = this.lib.properties.manifest;
+				var onFileLoad = function(event){
+					if (event.item.type === 'image') { 
+						// // console.log('result:', event.item.id, event.result);
+						images[event.item.id] = event.result; 
+					}
+				};
+				var onLoadComplete = function(event){
+					// // console.log('onLoadComplete');
+
+					// Instantiate view
+					self.view = new Clss();
+
+					//Add
+					self.container.addChild(self.view);
+
+					// Set start page
+					self.flow.next(self.trigger);
+
+					self.dispatchEvent(new createjs.Event('ready'));
+				};
+				Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+			}catch(err) {
+		   		// console.log(err);
+		   	}
+		},
+		onContinue: function(event) {
+			'use strict';
+			// console.log('FlowEpilogue::onContinue');	
+
+			// Stop player if any
+			if(this.playerComponent != null){
+				this.playerComponent.stop();
+			}
+
+			// Must be set after stopping player
+			this.next();
+		},		
+		removeEvents: function() {
+			'use strict';
+			
+			// Remove events
+			this.continueBtn.off('click', this.listeners.continue);
+			this.listeners.continue = null;
+		},
+		restart: function(){
+			'use strict';
+			this.currentPage = null;
+		},
+		destroy: function(){
+			'use strict';
+			this.currentPage = null;
+			this.flow.destroy();
+			this.flow = null;
+			this.container = null;
+			this.currentBackground = null;
+			this.trigger = null;
+			this.view = null;
+			if(this.playerComponent != null)
+				this.playerComponent.destroy();
+			this.playerComponent = null;
+		},
+
+		// Pages --------------------------------------------------------------------------------------------------------
+		compensation: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_11_1);
+
+			// Get sound
+			var sound = SoundService.matrix['4.11.1'];
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.compensation;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+				//// console.log(self.playerComponent)
+				// Sound Player
+				self.listeners.complete = self.playerComponent.on('complete', function(event){
+					self.continueBtn.activate('next');
+					Tick.disable();
+				}, self);
+				self.playerComponent.on('ready', function(event){
+					self.continueBtn.activate('skip');
+					Tick.disable();
+				}, self);
+				self.playerComponent.preload(sound.src, sound.duration);
+			}, this));
+
+			// Set portrait
+			var frm = PlayerStats.challenge + PlayerStats.family;
+			this.currentPage.portrait.gotoAndStop(frm);
+
+			// Reuse player component var for sound
+			this.playerComponent = null;
+			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+			// Next
+			this.continueBtn.ghost('skip');
+		},
+		illness: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_11_2);
+
+			// Get sound
+			var sound = SoundService.matrix['4.11.2'];
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.compensation;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+				// Sound Player
+				self.listeners.complete = self.playerComponent.on('complete', function(event){
+					self.continueBtn.activate('next');
+					Tick.disable();
+				}, self);
+				self.playerComponent.on('ready', function(event){
+					self.continueBtn.activate('skip');
+					Tick.disable();
+				}, self);
+				self.playerComponent.preload(sound.src, sound.duration);
+			}, this));
+
+			// Set portrait
+			var frm = PlayerStats.challenge + PlayerStats.family;
+			this.currentPage.portrait.gotoAndStop(frm);
+
+			// Reuse player component var for sound
+			this.playerComponent = null;
+			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+			// Next
+			this.continueBtn.ghost('skip');
+		},
+		runAway: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_11_3);
+
+			// Get sound
+			var sound = SoundService.matrix['4.11.3'];
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.runaway;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+				//// console.log(self.playerComponent)
+				// Sound Player
+				self.listeners.complete = self.playerComponent.on('complete', function(event){
+					self.continueBtn.activate('next');
+					Tick.disable();
+				}, self);
+				self.playerComponent.on('ready', function(event){
+					self.continueBtn.activate('skip');
+					Tick.disable();
+				}, self);
+				self.playerComponent.preload(sound.src, sound.duration);
+			}, this));
+
+			// Set portrait
+			var frm = PlayerStats.challenge + PlayerStats.family;
+			this.currentPage.portrait.gotoAndStop(frm);
+
+			// Reuse player component var for sound
+			this.playerComponent = null;
+			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+			// Next
+			this.continueBtn.ghost('skip');
+		},
+		hippopotimus: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_11_4);
+
+			// Get sound
+			var sound = SoundService.matrix['4.11.4'];
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.hippopotimus;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+				//// console.log(self.playerComponent)
+				// Sound Player
+				self.listeners.complete = self.playerComponent.on('complete', function(event){
+					self.continueBtn.activate('next');
+					Tick.disable();
+				}, self);
+				self.playerComponent.on('ready', function(event){
+					self.continueBtn.activate('skip');
+					Tick.disable();
+				}, self);
+				self.playerComponent.preload(sound.src, sound.duration);
+			}, this));
+
+			// Set portrait
+			var frm = PlayerStats.challenge + PlayerStats.family;
+			this.currentPage.portrait.gotoAndStop(frm);
+
+			// Reuse player component var for sound
+			this.playerComponent = null;
+			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+			// Next
+			this.continueBtn.ghost('skip');
+		},
+
+
+	};	
+}
 var FlowCharacter = function(view){
 	'use strict';
 	//console.log("view.player:", view.player);
@@ -4069,1709 +4903,6 @@ FlowCharacter.prototype.destroy = function() {
 	// createjs.Tween.removeTweens(event.target);
 };
 createjs.EventDispatcher.initialize(FlowCharacter.prototype);
-'use strict';
-var TweenUtil = {
-	to: function(element, options, delay, delegate){
-		createjs.Tween.get(element)
-			.to(options, delay, createjs.Ease.linear)
-			.call(function(){
-				if(delegate !== undefined){
-					delegate();
-				}
-			})
-	}
-}
-var Transitions = {
-	inOut: function(inObj, outObj, delegate){
-		// For checking done of in/out tween
-		var left = 2;
-		var checkDone = function(left){
-			if(left == 0){
-				if(delegate !== null){
-					delegate();
-				}
-			}
-		}
-		// Previous page out
-		switch(outObj.prop){
-			case 'pos': 
-				this.transOutPosition(outObj.element, function(){
-					checkDone(--left);
-				});
-			break;
-			case 'alpha': 
-				this.transOutAlpha(outObj.element, function(){
-					checkDone(--left);
-				});
-			break;
-		}
-		// New page in
-		switch(inObj.prop){
-			case 'pos': 
-				this.transInPosition(inObj.element, function(){
-					checkDone(--left);
-				});
-			break;
-			case 'alpha': 
-				this.transInAlpha(inObj.element, function(){
-					checkDone(--left);
-				});
-			break;
-		}
-		
-	},
-	transInPosition: function(pageView, callback){
-		if(pageView === null || pageView === undefined)
-			return;
-
-		// New page in
-		pageView.visible = true;
-		pageView.alpha = 1;
-		pageView.x = 1024;
-		createjs.Tween.get(pageView)
-			.to({x:0}, 300, createjs.Ease.linear)
-			.call(function(){
-				if(callback !== undefined){
-					callback();
-				}
-			});
-	},
-	transOutPosition: function(pageView, callback){
-		if(pageView === null || pageView === undefined)
-			return;
-
-		// New page in
-		createjs.Tween.get(pageView)
-			.to({x:-1024}, 300, createjs.Ease.linear)
-			.call(function(){
-				if(callback !== undefined){
-					callback();
-					pageView.visible = false;
-				}
-			});
-	},
-	transInAlpha: function(pageView, callback){
-		if(pageView === null || pageView === undefined)
-			return;
-
-		// New page in
-		pageView.visible = true;
-		pageView.alpha = 0;
-		pageView.x = 0;
-		createjs.Tween.get(pageView)
-			.to({alpha:1}, 300, createjs.Ease.linear)
-			.call(function(){
-				if(callback !== undefined){
-					callback();
-				}
-			});
-	},
-	transOutAlpha: function(pageView, callback){
-		if(pageView === null || pageView === undefined)
-			return;
-		
-		// New page in
-		createjs.Tween.get(pageView)
-			.to({alpha:0}, 300, createjs.Ease.linear)
-			.call(function(){
-				if(callback !== undefined){
-					callback();
-				}
-			});
-	},
-	changeBackground: function(oldView, newView){
-		try{
-			if(oldView !== null){
-				oldView.x = 1024;
-				oldView.visible = false;
-			}
-		}catch(err) {
-			console.log(err);
-		}
-		try{
-			newView.x = 0;
-			newView.visible = true;
-		}catch(err) {
-			console.log(err);
-		}
-		return newView;
-	}
-}
-var Tick = {
-	defaultDelay: 100,
-	stage: null,
-	enabled: false,
-	debug: false,
-	init: function(stage, framerate){
-		this.stage = stage;
-		// createjs.Ticker.setFPS(framerate);
-		this.framerate(framerate);
-		enabled = false;
-	},
-	framerate: function(framerate){
-		createjs.Ticker.framerate = framerate;
-	},
-	enable: function(){		
-		if(enabled)
-			return false;
-
-		createjs.Ticker.removeEventListener('tick', self.stage); // Handbreak. Remove handler before setting again
-		createjs.Ticker.addEventListener('tick', this.stage);
-		if(this.debug){
-			createjs.Ticker.addEventListener('tick', this.foo);
-		}
-		enabled = true;
-	},
-	disable: function(delay){		
-		if(delay === undefined){
-			delay = this.defaultDelay;
-		}
-
-		var self = this;
-		setTimeout(function(){
-			// Hand break. Hdnles enable/disable conflicts due tp timer
-			if(enabled)
-				return false;
-
-			createjs.Ticker.removeEventListener('tick', self.stage);
-
-			if(self.debug){
-				createjs.Ticker.removeEventListener('tick', self.foo);
-			}
-		}, delay);
-
-		enabled = false;
-	},
-	resume: function(){
-		createjs.Ticker.paused = false;
-	},
-	pause: function(){
-		createjs.Ticker.paused = true;
-	},
-	foo: function(event){
-		console.log(createjs.Ticker.framerate);
-		// console.log(event.paused,
-	 //         createjs.Ticker.getTime(false),
-	 //         createjs.Ticker.getTime(true));
-	}
-}
-var TextField = function(){
-
-} 
-TextField.create = function(type, text, fontsize, color, fontface, fontWeight){
-
-	if(!fontWeight)
-	 var fontWeight = '';
-
-	var tf = new createjs.Text();
-	// tf.lineWidth = 490;
-
-	tf.font = fontWeight+fontsize+'px '+fontface;
-	tf.color = color;
-	tf.text = text;
-	return tf;
-}
-TextField.createBmp = function(id, text, fontsize, color){
-	var bmptxt = Font.create(id, fontsize, text);
-	if(color)
-		bmptxt.setColor(color);
-	return bmptxt;
-}
-// Math
-Math.range = function(min, max){
-	'use strict';
-	return Math.random() * (max - min) + min;
-}
-Math.rangeInt = function(min, max){
-	'use strict';
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-var LoadJS = {
-	cache: [],
-	load: function(urls, delegate, location){
-		'use strict';
-		var urlList = [];
-		var tmpList = [];
-		
-		//url is URL of external file, code is the code
-	    //to be called from the file, location is the location to 
-	    //insert the <script> element
-
-	    var counter = 0;
-	    var tracker = {};
-
-	    if(typeof urls === 'string'){
-	    	tmpList = urls.split(',');
-	    }else{
-	    	tmpList = urls;
-	    }
-
-	    // Through list of files requested to be loaded
-    	for(var k=0; k<tmpList.length; k++){	
-    		var may = true;
-			for(var b = 0; b<this.cache.length; b++){
-				if(this.cache[b] === tmpList[k]){
-					may == false;
-					break;
-				}				
-			}
-			if(may){
-				urlList.push(tmpList[k]);
-			}
-    	}
-    	console.log('LoadJS:', this.cache, ', ', urlList);
-
-	    if(location == null)
-	    	location = document.body;
-
-	    for(var i=0; i<urlList.length; i++){
-	    	// for(var b = 0; b<this.cache.length; b++){
-    		// 	if(this.cache[b] === urlList[i]){
-    		// 		return false;
-    		// 	}
-    		// }
-    		// this.cache.push(urlList[i]);
-
-    		// console.log(this.cache);
-    		this.cache.push(urlList[i]);
-
-		    var scriptTag = document.createElement('script');		    
-		    // console.log(urlList[i]);
-
-		    scriptTag.onload = scriptTag.onreadystatechange = function(event){
-		    	counter++;
-
-		    	// Split the path of the laoded file. Get the 2 last entries
-		    	var arr = event.target.src.split('/');
-		    	var identifier1 = arr[arr.length-2] +'/'+arr[arr.length-1];
-
-		    	// Track which file is loaded
-		    	tracker[identifier1] = true;
-
-		    	// Through list of files requested to be loaded
-		    	for(var a=0; a<urlList.length; a++){		    		
-
-		    		// Split the path of the file requsted to be loaded. Get the 2 last entries
-		    		var arr2 = urlList[a].split('/');
-		    		var identifier2 = arr2[arr2.length-2] +'/'+arr2[arr2.length-1];
-
-		    		// Check if the file requested to be loaded match the one of those loaded
-		    		// If one is still not loaded then leave
-					if(tracker[identifier2] !== true){
-						console.log('LoadJS:onload', urlList[a]);
-						// this.cache.push(urlList[a]);
-						return false;
-					}
-		    	}
-
-		    	// Reached this? All files are loaded
-		    	delegate();
-		    };
-
-		    scriptTag.src = urlList[i];
-		    location.appendChild(scriptTag);
-		    // location.removeChild(scriptTag);  
-	    }	    
-	}	
-};
-var Font = {
-	BIGNOODLE: 'BigNoodleTitling',
-	
-	// AMERICANTYPEWRITER: 'americantypewriter',
-	// xml: {},
-	// images: {},
-	// bitmapfonts: {},
-	// init: function(){
-	// 	'use strict';
-	// 	this.xml = {};
-	// 	this.images = {};
-	// 	this.bitmapfonts = {};	
-	// },
-	// register: function(id, size){
-	// 	'use strict';
-	// 	var key = id;//+'_'+size;
-	// 	this.bitmapfonts[key] = new BitmapFont(this.images[id], this.xml[id], size);
-	// 	BitmapTextField.registerBitmapFont(this.bitmapfonts[id], id);
-	// },
-	// create: function(id, size, text){
-	// 	'use strict';
-	// 	var key = id;//+'_'+size;
-	// 	var bitmapText = new BitmapTextField(800,100,text,key,size,0,0,'left','top',true);
-	// 	// var bitmapText = new BitmapTextField(200,100,'Bitmap text','cooper',-1,0,0,'left','top',true);
-	// 	return bitmapText;
-	// }
-};
-/**
-	A facade to browser detection method
-	Wrapped in order to enable change of lib if nessesary
-*/
-var Environment = {	
-	data: null,
-	browser: {},
-	os: null,
-	init: function(){
-		'use strict';
-		var data = browserDetection();
-		this.browser.name = data.browser.toLowerCase();
-		this.browser.version = data.version;
-		this.browser.firefox = (this.browser.name === 'firefox');
-		this.os = data.os;
-
-	}
-};
-'use strict';
-var Delegate = {	
-	create: function (func, target) {
-		'use strict';
-	    return function() { 
-	    	try{
-	    		return func.apply(target, arguments);	
-	    	}catch(err){
-			   console.log(err);
-			}
-	    }
-	}
-};
-// Array
-// Shuffle array and indicate correct index
-Array.prototype.shuffle = function(index){
-	var correctAnswer = this[index];
-    for(var j, x, i = this.length; i; j = Math.floor(Math.random() * i), x = this[--i], this[i] = this[j], this[j] = x)
-    
-    // Find correct answer's index in array
-    for(var a=0; a<this.length; a++){
-    	if(correctAnswer == this[a]){
-    		this.correct = a;
-    		break;
-    	}	    
-    }
-    return this;
-}
-var Topbar = {
-	view: null,
-	soundController: null,
-	init: function(view){
-		this.view = view;		
-	},
-	go: function(frm){
-		// console.log(this.view);
-		// this.view.label_intro.x = 564 + 300;
-		// createjs.Tween.get(this.view.label_intro)
-		// 	.to({x:564}, 300, createjs.Ease.backIn);
-
-
-		this.view.gotoAndStop(frm);
-
-		// Setup for game related to user's choices
-		if(frm === 'game'){
-			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
-
-			// Points
-			HUDController.init(this.view.hud);
-		}
-	},
-	pointsUpdate: function(){
-		HUDController.update();
-	},
-	show: function(){
-		this.view.visible = true;
-	},
-	hide: function(){
-		this.view.visible = false;	
-	}
-}
-var SoundService = function(){
-	'use strict';
-}
-
-// SoundService.getPathByKey = function(key){
-// 	'use strict';
-// 	return SoundService.properties.basePath + this.matrix[key].file;
-// };
-// SoundService.getDurationByKey = function(key){
-// 	'use strict';
-// 	return this.matrix[key].duration;
-// };
-
-SoundService.getSlideDurationById = function(id){
-	'use strict';
-	return this.matrix.slides[id].duration;
-};
-SoundService.getSlideSoundpathById = function(id){
-	'use strict';
-	return SoundService.properties.slidePath + id+'.mp3';
-};
-SoundService.getSlideSoundById = function(id){
-	'use strict';
-	return SoundService.matrix.slides[id]
-};
-SoundService.getSoundByCharacter = function(character){
-	'use strict';
-	return;
-};
-
-SoundService.properties = {
-	basePath: 'assets/sounds/',
-	slidePath: 'assets/sounds/'
-};
-SoundService.matrix = {
-	effects: {
-		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', duration: null },
-		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3', duration: null }
-	},
-	'1.1.1' :{
-		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
-		sundholm: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
-		svendborg: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 }
-	},
-	points: {
-		plus: { src:SoundService.properties.basePath+'Point_plus.mp3', duration: 2.208 },
-		minus: { src:SoundService.properties.basePath+'Point_minus.mp3', duration: 1.128 }
-	},
-	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
-	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
-	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
-	jobinterview: {
-		'svendborg': { 
-			'part1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
-			'part2': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 }
-		}
-	},
-	prerecruitment: {
-		'svendborg': { src:SoundService.properties.basePath+'prerecruitment_svendborg.mp3', duration: 1.078 }
-	},
-	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
-	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
-	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },
-	work: {
-		'svendborg': {
-			'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
-			'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-			'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
-		},
-	},
-	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
-	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
-	'2.10.2': {
-		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3', duration: 52.881 },
-		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3', duration: 53.265 }
-	},
-	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
-	
-	slides: {
-				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
-				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
-				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
-				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
-				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3', duration: 61.208 },
-				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3', duration: 48.573 },
-				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3', duration: 48.573 },
-				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 },
-				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3', duration: 69.641 },
-				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
-			},
-	oppinion: { // 0.4
-			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'BE': { label: 'dovenskab, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
-			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 }
-		},
-	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3', duration: 54.282 },
-	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3', duration: 15.531 },
-	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3', duration: 13.543 },
-	'3.7.1': { label:'w3ork over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3', duration: 30.561 },
-	// challenge: {
-	// 			// 'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
-	// 			// 'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
-	// 			// 'C': { label: 'manager', src:SoundService.properties.basePath+'weakness.mp3', duration: 1.815 }
-	// 			'A': { label: 'manager', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
-	// 			'B': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-	// 			'C': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 }
-	// 		},
-	// family: {
-	// 			'D': null,
-	// 			'E': { label: 'daughter', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-	// 			'F': null
-	// 		}
-	// characters: {
-	// 			'AD': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'AE': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'AF': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'BD': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'BE': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'BF': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'CD': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ],
-	// 			'CE': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'CF': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ]
-	// 		}
-};
-var PlayerStats = {
-	challenge: 'B',			// Default test value
-	family: 'D',			// Default test value
-	nickname: null,
-	poorhouse: 'svendborg', // Test 
-	mood: 2,
-	health: 4,
-	money: 3,
-	job: null,
-	advice: null,
-	wayout: null,
-	job_germany: ['B', 'A'], // Default test values
-	spending: null,
-	whatnow: null,
-	pointsDiff: {mood: 0, health: 0, money: 0},
-
-	resetDiff: function(){
-		this.pointsDiff = {mood: 0, health: 0, money: 0};
-	},
-
-	isAPlusPoint: function(){
-		for(var key in this.pointsDiff){
-			if(this.pointsDiff[key] > 0){
-				return true;
-			}
-		}
-	},
-
-	isAMinusPoint: function(){
-		for(var key in this.pointsDiff){
-			if(this.pointsDiff[key] < 0){
-				return true;
-			}
-		}
-	},
-
-	set: function(type, val){	
-		// Reset diff
-		this.pointsDiff[type] = 0;
-
-		// Remember the previous value
-		var prev = this[type];	
-
-		// Set new value
-		this[type] = val;
-
-		// Find diff
-		this.pointsDiff[type] = this[type] - prev;		
-
-		// Cap values for points
-		if(type == 'mood' || type == 'health' || type == 'money'){
-			if(this[type] > 10){
-				this[type] = 10;
-			}
-			if(this[type] < 1){
-				this[type] = 1;
-			}
-		}
-	},
-	append: function(type, val){		
-		// Reset diff
-		this.pointsDiff[type] = 0;
-		
-		// Remember the previous value
-		var prev = this[type];	
-
-		// Set new value
-		this[type] += val;
-
-		// Find diff
-		this.pointsDiff[type] = this[type] - prev;			
-
-		// Cap values for points
-		if(type == 'mood' || type == 'health' || type == 'money'){
-			if(this[type] > 10){
-				this[type] = 10;
-			}
-			if(this[type] < 1){
-				this[type] = 1;
-			}
-		}
-	}
-}
-var Library = {
-	clearSlide: function(){
-		console.log('clearSlide');
-		slidelib = null;
-	},
-	clearGame: function(){
-		console.log('clearGame');
-		gamelib = null;
-	},
-	clearMain: function(){
-		console.log('clearMain');
-		mainlib = null;
-	},
-}
-var ImageService = function(){
-	'use strict';
-}
-ImageService.properties = {
-	basePath: 'assets/images/pool/',
-};
-ImageService.matrix = {
-	portrait:{
-		'AD': { id: 'ADCloseUp', label:'background', src:ImageService.properties.basePath+'ADCloseUp.png'},
-		'AE': { id: 'AECloseUp', label:'background', src:ImageService.properties.basePath+'AECloseUp.png'},
-		'AF': { id: 'AFCloseUp', label:'background', src:ImageService.properties.basePath+'AFCloseUp.png'},
-		'BD': { id: 'BDCloseUp', label:'background', src:ImageService.properties.basePath+'BDCloseUp.png'},
-		'BE': { id: 'BECloseUp', label:'background', src:ImageService.properties.basePath+'BECloseUp.png'},
-		'BF': { id: 'BFCloseUp', label:'background', src:ImageService.properties.basePath+'BFCloseUp.png'},
-		'CD': { id: 'CDCloseUp', label:'background', src:ImageService.properties.basePath+'CDCloseUp.png'},
-		'CE': { id: 'CECloseUp', label:'background', src:ImageService.properties.basePath+'CECloseUp.png'},
-		'CF': { id: 'CFCloseUp', label:'background', src:ImageService.properties.basePath+'CFCloseUp.png'}
-	},
-	'1.0.1': {
-		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
-		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
-		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
-	},
-	'3.0': {
-		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
-		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
-		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
-	}
-}
-var FlowData ={
-	
-}
-// var Assets = {
-// 	fattiggard: {
-// 		svendborg: {
-// 			images: [
-// 				{src: '../assets/images/1_0BGsvendborg.png', id:'1_0BGsvendborg'},
-// 				{src: '../assets/images/1_1BGsvendborg.png', id:'1_1BGsvendborg'},
-// 				{src: '../assets/images/1_2BGsvendborgA.png', id:'1_2BGsvendborgA'},
-// 				{src: '../assets/images/1_2BGsvendborgB.png', id:'1_2BGsvendborgB'},
-// 				{src: '../assets/images/1_2BGsvendborgC.png', id:'1_2BGsvendborgC'},
-// 				{src: '../assets/images/1_3BGsvendborg.png', id:'1_3BGsvendborg'}
-// 			]
-// 		}
-// 	}
-// }
-var GameManager = {
-	root: null,
-	init: function(root){
-		'use strict';
-		this.root = root;
-	},
-	restart: function(){
-		'use strict';
-	},
-	destroy: function(){
-		'use strict';
-	}
-};
-var FlowManager = {
-	currentPage:null,
-	root: null,
-	init: function(root){
-		'use strict';
-		this.root = root;
-	},
-	clearLib: function(){
-		lib = null;
-	},
-	gotoPage: function(page){
-		'use strict';
-		if(this.currentPage !== null){
-			this.currentPage.destroy();
-			this.currentPage = null;
-		}
-		var self = this;
-		this.root.gotoAndStop('character_build'); // TEST
-		switch(page){
-			case '0.0':
-				// Proluque
-
-				// Tick.disable();
-
-				var self = this;
-
-				// Go to start frame
-				this.root.gotoAndStop('start');
-				this.currentPage = new FlowProloque(this.root.startpagecontainer);
-				this.currentPage.start(); 
-
-				Topbar.hide();
-
-				// Blocker
-				FlowProloque.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-				// Button to next page
-				FlowProloque.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('1.0.1');
-				}, this);				
-				// Tick.disable();	
-				
-			break;
-			case '1.0.1':	
-				// Poor House Intro	
-				
-				this.root.gotoAndStop('start');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');
-
-				this.currentPage = null;
-				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
-				this.currentPage.start('1.0.1', 'slide_1_0_1');
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('1.0.2');
-				}, this);
-				// Tick.disable();
-			break;
-			case '1.0.2':	
-				// Poor House		
-				
-				this.root.gotoAndStop('start');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');
-				
-
-				this.currentPage = null;
-				this.currentPage = new FlowPoorhouse(this.root.pagecontainer); // Id references to flow id '0.1'
-				this.currentPage.start(); 				
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('2.5');
-				}, this);
-				Tick.disable();
-			break;
-			case '2.5':
-				// Germany 1.
-
-				// Root frame
-				this.root.gotoAndStop('germany');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');
-
-				this.currentPage = null;
-				this.currentPage = new FlowGermany1(this.root.pagecontainer); 
-				this.currentPage.start(); 		
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('3.0');
-				}, this);
-				Tick.disable();
-			break;
-			case '3.0':	
-				// Poor House 2. time
-
-				// Get id for next poorhouse
-				var newId;
-				var list = ['horsens', 'sundholm', 'svendborg'];
-				list = list.shuffle();
-				for(var i=0; i<list.length; i++){
-					if(list[i] !== PlayerStats.poorhouse){
-						PlayerStats.poorhouse = list[i];
-						break;
-					}
-				}
-
-				// TEST
-				PlayerStats.poorhouse = 'svendborg';
-				
-				this.root.gotoAndStop('start');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');
-
-				this.currentPage = null;
-				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
-				// this.currentPage.setPortrait(ImageService.matrix.portrait['AD']);
-				this.currentPage.start('3.0', 'slide_3_0');	
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('3.1');
-				}, this);
-			break;
-			case '3.1':	
-				// Poor House 2.	
-
-				// TEST
-				// PlayerStats.poorhouse = 'svendborg';
-				
-				this.root.gotoAndStop('start');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');				
-
-				this.currentPage = null;
-				this.currentPage = new FlowPoorhouseSecond(this.root.pagecontainer); // Id references to flow id '0.1'
-				this.currentPage.start(); 				
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('4.0');
-				}, this);
-				Tick.disable();
-			break;
-			case '4.0':	
-				// Germany 2.	
-
-				this.root.gotoAndStop('start');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');				
-
-				this.currentPage = null;
-				this.currentPage = new FlowGermany2(this.root.pagecontainer); // Id references to flow id '0.1'
-				this.currentPage.start(); 				
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('4.10');
-				}, this);
-				Tick.disable();
-			break;
-		}
-	},
-	restart: function(){
-		'use strict';
-		this.currentPage = null;
-	},
-	destroy: function(){
-		'use strict';
-		this.currentPage = null;
-	}
-};
-var ApplicationManager = {
-	root: null,
-	start: function(root){
-		'use strict';
-		this.root = root;
-
-		// Cursor init
-		Cursor.root = root;
-
-		// GUI
-		ContinueButton.init(root.continueBtn);
-		
-		// Init Environment info
-		Environment.init();
-
-		// Game
-		GameManager.init(root);
-
-		// Init page manager
-		FlowManager.init(root);
-
-		// Topbar
-		Topbar.init(root.topbar);
-
-		// Fade black blocker out
-		// createjs.Tween.get(root.blocker_black)
-  //        .to({alpha: 0}, 600, createjs.Ease.linear)
-  //        .call(function(){
-  //        	root.blocker_black.visible = false;
-  //        });         
-
-
-		// Go to start
-		FlowManager.gotoPage('0.0');
-		// FlowManager.gotoPage('1.0.1');
-		// FlowManager.gotoPage('2.5');
-		// FlowManager.gotoPage('3.1');
-		// FlowManager.gotoPage('4.0');
-
-		//console.log('Ticker.framerate:', Ticker.framerate);
-	},
-	restart: function(){
-		'use strict';
-	},
-	destroy: function(){
-		'use strict';
-	}
-};
-var SoundEffect = function(src, duration, loop){
-	'use strict';
-	if(SoundEffect.counter == null)
-		SoundEffect.counter = 0;
-
-	SoundEffect.counter++;
-	this.id = SoundEffect.counter;
-	this.paused = false;
-	this.duration = duration;
-	this.src = src;
-	this.loop = loop;
-	this.preloaded = false;
-	this.listeners = {tick:null, play:null, pause:null, stop:null};
-
-
-	this.soundController = new SoundController(src, duration, loop);
-};
-SoundEffect.prototype.preload = function(src, duration, loop, callback){
-	'use strict';
-	
-	var self = this;
-
-	//self.soundController = new SoundController(src, duration, this.loop);
-	this.soundController.on('ready', function(event){
-		event.remove();
-		self.preloaded = true;
-		if(callback != null)
-			callback();
-
-	}, self);
-	this.soundController.load();
-};
-SoundEffect.prototype.volume = function(value){
-	try{
-		this.soundController.volume(value);	
-	}catch(err){
-		console.log(err);
-	}	
-}
-SoundEffect.prototype.play = function(){
-	'use strict';
-
-	var self = this;
-
-	var doPlay = function(){
-		self.previousFrame = 0;
-
-		// Sound
-		self.soundController.play();
-
-		// Dispacth event 
-		self.dispatchEvent(new createjs.Event('start'));
-
-		// Set this last
-		self.paused = false;
-	}
-
-	if(!this.preloaded){		
-		this.preload(this.src, this.duration, this.loop, function(){
-			doPlay();
-		});
-	}else{
-		doPlay();
-	}
-};
-SoundEffect.prototype.pause = function(){
-	'use strict';
-
-	// If invoked from external the state could be stopped
-	// Adn we do not want to set in paused unintentional
-	if(this.paused)
-		return;
-
-	this.paused = true;
-
-	// Sound
-	this.soundController.pause();
-};
-SoundEffect.prototype.stop = function(){
-	'use strict';
-
-	// Sound
-	this.soundController.stop();
-
-	this.paused = false;
-};
-SoundEffect.prototype.reset = function(){
-	'use strict';
-	this.paused = false;
-	this.listeners = null;
-};
-SoundEffect.prototype.destroy = function(){
-	'use strict';
-	this.view = null;
-	this.listeners = null;
-};
-createjs.EventDispatcher.initialize(SoundEffect.prototype);
-/**
-	Controller uses the browser's AUDIO element as play back for sound
-*/
-function SoundController(audioPath, duration, loop) {
-	'use strict';
-
-	var self = this;
-
-	if(loop === undefined || loop === null)
-		loop = false;
-	
-	this.sndObj = document.createElement('AUDIO');		
-	this.sndObj.src = audioPath;
-	this.sndObj.loop = loop;
-	this.duration = duration;
-
-
-	// Firefox does not invoke the audio load method?! But setting load automated seems to work
-	if(Environment.browser.firefox){
-		this.sndObj.preload = 'auto';
-	}else{
-		this.sndObj.preload = 'none';
-	}
-
-	// LIsten for sound being ready 
-	this.sndObj.addEventListener('canplaythrough', function(event){
-		var e = new createjs.Event('ready');
- 		self.dispatchEvent(e);
-	}, false);
-	this.sndObj.addEventListener('ended', function(event){
- 		this.complete = true;
-	}, false);
-}
-
-SoundController.prototype = {
-	sndObj: null,
-	currentSndPosition: 0,
-	duration: 0,
-	paused: false,
-	self: this,
-	complete: false,
-
-	load: function(){
-		'use strict';
-		// Firefox does not invoke the audio load function?! 
-		// So load has been set 'auto' so we don't need to invoke the load method
-		if(!Environment.browser.firefox){			
-			this.sndObj.load();
-		}
-	},
-	volume: function(value) {
-		'use strict';
-		if(this.sndObj != null){
-			this.sndObj.volume = value;
-		}
-	},
-	play: function() {
-		'use strict';
-		this.sndObj.play();
-		this.paused = false;
-		this.complete = false;
-	},
-	stop: function() {
-		'use strict';
-		this.sndObj.pause();
-		this.sndObj.currentTime = 0;
-		this.paused = false;
-	},
-	pause: function() {
-		'use strict';
-		this.currentSndPosition = this.sndObj.currentTime;
-		this.sndObj.pause();
-		this.paused = true;
-	},
-	resume: function() {
-		'use strict';
-		this.sndObj.play();
-	},
-	progress: function(){
-		'use strict';
-		var num = this.sndObj.currentTime / this.duration;
-		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
-	},
-	isComplete: function(){
-		'use strict';
-		return this.complete;
-	},
-	destroy: function(){
-		'use strict';
-		this.sndObj = null;
-		this.duration = null;
-	}
-};
-createjs.EventDispatcher.initialize(SoundController.prototype);
-var HUDController = {
-	init: function(view){
-		this.view = view;		
-		this.update();
-		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src, SoundService.matrix.points.plus.duration);
-		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src, SoundService.matrix.points.minus.duration);
-	},
-	update: function(){
-		var self = this;
-		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
-		this.view.health.points.gotoAndStop(PlayerStats.health-1);
-		this.view.money.points.gotoAndStop(PlayerStats.money-1);
-
-		var delay = 0;
-		for(var key in PlayerStats.pointsDiff){
-			if(PlayerStats.pointsDiff[key] > 0){
-				setTimeout(function(){ 
-					self.soundControllerPlus.play();
-				}, delay);
-				delay += 1000;
-			}else if(PlayerStats.pointsDiff[key] < 0){
-				setTimeout(function(){ 
-					self.soundControllerMinus.play();
-				}, delay);
-				delay += 1000;
-			}
-		}
-
-		// Need to reset 
-		PlayerStats.resetDiff();
-	}
-}
-var PlayerSoundComponent = function(view){
-	'use strict';
-	if(PlayerSoundComponent.counter == null)
-		PlayerSoundComponent.counter = 0;
-
-	PlayerSoundComponent.counter++;
-	this.id = PlayerSoundComponent.counter;
-
-	this.view = view;
-	this.paused = false;
-	this.duration = 0;
-	this.listeners = {tick:null, play:null, pause:null, stop:null};
-	this.playBtn = new ButtonCustom(view.playBtn);
-	this.pauseBtn = new ButtonCustom(view.pauseBtn);
-	this.stopBtn = new ButtonCustom(view.stopBtn);
-
-	// Initial visibility of play/pause/stop
-	this.playBtn.setActive(false);
-	this.stopBtn.setActive(false);
-	this.pauseBtn.setActive(true);	
-	this.pauseBtn.visible(false);
-
-	// Controller button events
-	this.listeners.play = this.playBtn.on('click', this.play, this);
-	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
-	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
-
-	// Progression
-	this.progressionBar = view.progressionBar;
-	this.progressionBar.scaleX = 0;
-
-	// Sound
-	this.soundController = null;
-};
-PlayerSoundComponent.prototype.preload = function(src, duration){
-	'use strict';
-	var self = this;
-
-	// Safety net
-	this.removeLoopEvent();
-
-	// Sound ready state
-	if(self.soundController !== null){
-		self.soundController.destroy();
-		self.soundController = null;
-	}
-	self.soundController = new SoundController(src, duration);
-	self.soundController.on('ready', function(event){
-		event.remove();
-		// Enable buttons
-		self.playBtn.setActive(true);
-		self.stopBtn.setActive(true);
-
-		// Dispatch event 
-		self.dispatchEvent(new createjs.Event('ready'));
-	}, self);
-	self.soundController.load();
-};
-PlayerSoundComponent.prototype.addLoopEvent = function(){
-	'use strict';
-	if(this.listeners.tick === null){
-		this.listeners.tick = this.progressionBar.on('tick', this.loop, this);
-	}
-};
-PlayerSoundComponent.prototype.removeLoopEvent = function(){
-	'use strict';
-	this.progressionBar.off('tick', this.listeners.tick);
-	this.listeners.tick = null;
-};
-PlayerSoundComponent.prototype.loop = function(){
-	'use strict';	
-	// var progression = this.progress();
-	var sndProgression = this.soundController.progress();
-
-	// Reached end of slide
-	if(sndProgression >= 1){
-		// Remove tick
-		this.removeLoopEvent();
-
-		// Swap Play/Pause visibility
-		this.pauseBtn.visible(false);
-		this.playBtn.visible(true);
-
-		// Dispacth event 
-		this.dispatchEvent(new createjs.Event('complete'));
-	}
-
-	// Progression bar
-	this.progressionBar.scaleX = sndProgression;
-};
-PlayerSoundComponent.prototype.play = function(){
-	'use strict';
-	this.previousFrame = 0;
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(true);
-	this.playBtn.visible(false);
-
-	// Timeline
-	this.addLoopEvent('tick');
-
-	// Sound
-	this.soundController.play();
-
-	// Dispacth event 
-	this.dispatchEvent(new createjs.Event('start'));
-
-	// Set this last
-	this.paused = false;
-
-	// Tick
-	Tick.enable();
-};
-PlayerSoundComponent.prototype.pause = function(){
-	'use strict';
-
-	// If invoked from external the state could be stopped
-	// Adn we do not want to set in paused unintentional
-	if(this.paused)
-		return;
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	// Dispacth event 
-	// this.dispatchEvent(new createjs.Event('pause'));
-
-	this.paused = true;
-
-	// Sound
-	this.soundController.pause();
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSoundComponent.prototype.stop = function(){
-	'use strict';
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	// Progression bar
-	this.progressionBar.scaleX = 0;
-
-	// Sound
-	this.soundController.stop();
-
-	// Dispacth event 
-	// this.dispatchEvent(new createjs.Event('stop'));
-
-	this.paused = false;
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSoundComponent.prototype.progress = function(){
-	'use strict';
-	var num = this.slide.currentFrame / this.duration;
-	return Math.round(num * 1000) / 1000;
-};
-PlayerSoundComponent.prototype.reset = function(){
-	'use strict';
-	this.removeLoopEvent();
-	this.paused = false;
-	this.listeners = null;
-};
-PlayerSoundComponent.prototype.destroy = function(){
-	'use strict';
-	this.removeLoopEvent();
-	this.view = null;
-	this.listeners = null;
-	this.playBtn.destroy();
-	this.pauseBtn.destroy();
-	this.stopBtn.destroy();
-	this.playBtn = null;
-	this.pauseBtn = null;
-	this.stopBtn = null;
-};
-createjs.EventDispatcher.initialize(PlayerSoundComponent.prototype);
-var PlayerSliderComponent = function(view){
-	'use strict';
-	this.view = view;
-	this.container = view.container;
-	this.slideId = null;
-	this.slide = null;
-	this.paused = false;
-	this.duration = 0;
-	this.listeners = {tick:null, play:null, pause:null, stop:null};
-	this.playBtn = new ButtonCustom(view.playBtn);
-	this.pauseBtn = new ButtonCustom(view.pauseBtn);
-	this.stopBtn = new ButtonCustom(view.stopBtn);
-
-	// Initial visibility of play/pause/stop
-	this.playBtn.setActive(false);
-	this.stopBtn.setActive(false);
-	this.pauseBtn.setActive(true);	
-	this.pauseBtn.visible(false);
-
-	// Controller button events
-	this.listeners.play = this.playBtn.on('click', this.play, this);
-	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
-	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
-
-	// Progression
-	this.progressionBar = view.progressionBar;
-	this.progressionBar.scaleX = 0;
-
-	// Sound
-	this.soundController = null;
-};
-PlayerSliderComponent.prototype.preload = function(slideId, lib){
-	'use strict';
-	var self = this;
-	this.slideId = slideId;
-
-	// console.log("preload: ", slideId);
-
-	// Flash sliders lib referecne due to id
-	// var lib = eval('libslide'+slideId);
-	// var lib = new Function('libslide_'+slideId);
-	
-	// Load assets	
-	Preloader.load(lib.properties.manifest, 
-		function(event){
-			if (event.item.type === 'image'){ 
-				images[event.item.id] = event.result; 
-			}
-			// // console.log(event.result);
-		}, 
-		function(event){			
-			// Clean slider container if a slider already has been played
-			if(self.slide !== null){
-				self.container.remove(slide);
-				self.slide = null;
-			}
-			
-			// Create slider object and attach to container
-			self.slide = eval('new lib.'+slideId+'()');
-			
-			self.container.addChild(self.slide);
-
-			// Get the duration of the timeline in the slide
-			self.duration = self.slide.timeline.duration - 1;
-
-			// Sound
-			if(self.soundController !== null){
-				self.soundController.destroy();
-				self.soundController = null;
-			}
-			try{
-				var snd = SoundService.getSlideSoundById(self.slideId);
-				self.soundController = new SoundController(snd.src, snd.duration);
-				//self.soundController = new SoundController(SoundService.getSlideSoundpathById(self.slideId), SoundService.getSlideDurationById(self.slideId));
-				self.soundController.on('ready', function(event){
-					event.remove(); // Only run once. Otherwise it will run every time player has ended and starts slide after it played to the end
-					// Enable buttons
-					self.playBtn.setActive(true);
-					self.stopBtn.setActive(true);
-
-					// Dispatch event 
-					self.dispatchEvent(new createjs.Event('ready'));
-				}, self);
-				self.soundController.load();
-			}catch(err){
-				console.log(err);
-			}			
-		}
-	);	
-};
-PlayerSliderComponent.prototype.addLoopEvent = function(){
-	'use strict';
-	if(this.listeners.tick === null){
-		this.listeners.tick = this.slide.on('tick', this.loop, this);
-	}
-};
-PlayerSliderComponent.prototype.removeLoopEvent = function(){
-	'use strict';
-	this.slide.off('tick', this.listeners.tick);
-	this.listeners.tick = null;
-};
-PlayerSliderComponent.prototype.loop = function(){
-	'use strict';	
-	// var progression = this.progress();
-	var sndProgression = this.soundController.progress();
-
-	// Reached end of slide
-	if(sndProgression >= 1){
-		// Remove tick
-		this.removeLoopEvent();
-
-		// Set slide timeline back to start
-		this.slide.stop();
-
-		// Swap Play/Pause visibility
-		this.pauseBtn.visible(false);
-		this.playBtn.visible(true);
-
-		this.paused = false;
-
-		// Dispacth event 
-		this.dispatchEvent(new createjs.Event('complete'));
-	}else{
-		var sndIsComplete = this.soundController.isComplete();				
-		if(!sndIsComplete){
-			//// console.log(sndProgression, ':', progression);
-
-			// Calculate in which frame the timeline shold be related to soudn progression
-			var desiredFrame = Math.round(this.duration * sndProgression);			
-
-			// Just a fail safe making sure that we do NOT play a frame already shown
-			if(desiredFrame > this.previousFrame){
-				this.slide.gotoAndPlay(desiredFrame);
-				this.previousFrame = desiredFrame;
-			}
-		}
-	}
-
-	// Progression bar
-	this.progressionBar.scaleX = sndProgression;
-};
-PlayerSliderComponent.prototype.play = function(){
-	'use strict';
-	// console.log('play');
-
-	this.previousFrame = 0;
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(true);
-	this.playBtn.visible(false);
-
-	// Timeline
-	this.slide.play();
-	this.addLoopEvent('tick');
-
-	// Sound
-	this.soundController.play();
-
-	// Set this last
-	this.paused = false;
-
-	// Tick
-	Tick.enable();
-};
-PlayerSliderComponent.prototype.pause = function(){
-	'use strict';
-
-	// console.log('pause');
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	this.paused = true;
-
-	// Pause timeline
-	this.slide.stop();
-
-	// Sound
-	this.soundController.pause();
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSliderComponent.prototype.stop = function(){
-	'use strict';
-
-	// console.log('stop');
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Set slide timeline back to start
-	this.slide.gotoAndStop(0);
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	// Progression bar
-	this.progressionBar.scaleX = 0;
-
-	// Sound
-	this.soundController.stop();
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSliderComponent.prototype.progress = function(){
-	'use strict';
-	var num = this.slide.currentFrame / this.duration;
-	return Math.round(num * 1000) / 1000;
-};
-PlayerSliderComponent.prototype.reset = function(){
-	'use strict';
-	this.slideId = null;
-	this.paused = false;
-};
-PlayerSliderComponent.prototype.destroy = function(){
-	'use strict';
-	this.view = null;
-	this.slideId = null;
-};
-createjs.EventDispatcher.initialize(PlayerSliderComponent.prototype);
-var Preloader = {
-	id: 'preloader',
-	imagePath: 'assets/images/preloader.gif',
-
-
-	load: function(manifest, handleFileLoad, handleComplete, clss){
-		
-		// If nothing to load exit 
-		if(manifest.length === 0){
-			handleComplete(null);
-			return;
-		}
-
-		var self = this;
-
-		if(clss == null)
-			clss = 'center';
-
-		var loader = new createjs.LoadQueue(false);
-		if(handleFileLoad != null)
-			loader.addEventListener('fileload', function(event){
-				if(handleFileLoad != null){
-					handleFileLoad(event);
-				}
-			});		
-			loader.addEventListener('complete', function(event){
-				if(handleComplete != null){
-					handleComplete(event);
-				}
-				self.remove();
-			});
-
-		// self.add('preloader small');
-		self.add('preloader '+clss);
-		// self.add('preloader full');
-		loader.loadManifest(manifest);
-	},
-	add: function(clss){
-		// console.log('preloader:', clss);
-		$('body').append(
-			'<div id="preloader" class="'+clss+'"><div><div></div>'
-		);
-	},
-	// add: function(clss){
-	// 	$('body').append(
-	// 		'<div id="preloader" class="'+clss+'">'+
-	// 			'<div><img src="'+this.imagePath+'"></div>'+
-	// 		'</div>'
-	// 	);
-	// },
-	// add: function(clss){
-	// 	$('body').append(
-	// 		'<div id="preloader" class="'+clss+'">'+
-	// 			'<div class="loader">'+
-	// 			  '<div class="box"></div>'+
-	// 			  '<div class="box"></div>'+
-	// 			  '<div class="box"></div>'+
-	// 			  '<div class="box"></div>'+
-	// 			'</div>'+
-	// 		'</div>'
-	// 	);
-	// },
-
-
-
-	remove: function(){
-		$('#'+this.id).remove();
-	}
-};
 (function (lib, img, cjs, ss) {
 
 var p; // shortcut to reference prototypes
@@ -5779,40 +4910,40 @@ var p; // shortcut to reference prototypes
 // library properties:
 lib.properties = {
 	width: 1024,
-	height: 648,
+	height: 108,
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../assets/images/pool/CharacterCardNickame0001.png", id:"CharacterCardNickame0001"},
-		{src:"../assets/images/pool/CharacterCardNickame0002.png", id:"CharacterCardNickame0002"},
-		{src:"../assets/images/pool/CharacterCardNickame0003.png", id:"CharacterCardNickame0003"},
-		{src:"../assets/images/pool/CharacterCardNickame0004.png", id:"CharacterCardNickame0004"},
-		{src:"../assets/images/pool/CharacterCardNickame0005.png", id:"CharacterCardNickame0005"},
-		{src:"../assets/images/pool/CharacterCardNickame0006.png", id:"CharacterCardNickame0006"},
-		{src:"../assets/images/pool/FotoAD.jpg", id:"FotoAD"},
-		{src:"../assets/images/pool/FotoAE.jpg", id:"FotoAE"},
-		{src:"../assets/images/pool/FotoAF.jpg", id:"FotoAF"},
-		{src:"../assets/images/pool/FotoBD.jpg", id:"FotoBD"},
-		{src:"../assets/images/pool/FotoBE.jpg", id:"FotoBE"},
-		{src:"../assets/images/pool/FotoBF.jpg", id:"FotoBF"},
-		{src:"../assets/images/pool/FotoCD.jpg", id:"FotoCD"},
-		{src:"../assets/images/pool/FotoCE.jpg", id:"FotoCE"},
-		{src:"../assets/images/pool/FotoCF.jpg", id:"FotoCF"},
-		{src:"../assets/images/pool/IntroTextFrame.png", id:"IntroTextFrame"},
-		{src:"../assets/images/pool/Logo.png", id:"Logo"},
-		{src:"../assets/images/pool/p1.png", id:"p1"},
-		{src:"../assets/images/pool/p10.png", id:"p10"},
-		{src:"../assets/images/pool/p2.png", id:"p2"},
-		{src:"../assets/images/pool/p3.png", id:"p3"},
-		{src:"../assets/images/pool/p4.png", id:"p4"},
-		{src:"../assets/images/pool/p5.png", id:"p5"},
-		{src:"../assets/images/pool/p6.png", id:"p6"},
-		{src:"../assets/images/pool/p7.png", id:"p7"},
-		{src:"../assets/images/pool/p8.png", id:"p8"},
-		{src:"../assets/images/pool/p9.png", id:"p9"},
-		{src:"../assets/images/pool/PointBG.png", id:"PointBG"},
-		{src:"../assets/images/pool/TopBG.jpg", id:"TopBG"},
-		{src:"../assets/images/pool/TopCard.png", id:"TopCard"}
+		{src:"../../assets/images/pool/CharacterCardNickame0001.png", id:"CharacterCardNickame0001"},
+		{src:"../../assets/images/pool/CharacterCardNickame0002.png", id:"CharacterCardNickame0002"},
+		{src:"../../assets/images/pool/CharacterCardNickame0003.png", id:"CharacterCardNickame0003"},
+		{src:"../../assets/images/pool/CharacterCardNickame0004.png", id:"CharacterCardNickame0004"},
+		{src:"../../assets/images/pool/CharacterCardNickame0005.png", id:"CharacterCardNickame0005"},
+		{src:"../../assets/images/pool/CharacterCardNickame0006.png", id:"CharacterCardNickame0006"},
+		{src:"../../assets/images/pool/FotoAD.jpg", id:"FotoAD"},
+		{src:"../../assets/images/pool/FotoAE.jpg", id:"FotoAE"},
+		{src:"../../assets/images/pool/FotoAF.jpg", id:"FotoAF"},
+		{src:"../../assets/images/pool/FotoBD.jpg", id:"FotoBD"},
+		{src:"../../assets/images/pool/FotoBE.jpg", id:"FotoBE"},
+		{src:"../../assets/images/pool/FotoBF.jpg", id:"FotoBF"},
+		{src:"../../assets/images/pool/FotoCD.jpg", id:"FotoCD"},
+		{src:"../../assets/images/pool/FotoCE.jpg", id:"FotoCE"},
+		{src:"../../assets/images/pool/FotoCF.jpg", id:"FotoCF"},
+		{src:"../../assets/images/pool/IntroTextFrame.png", id:"IntroTextFrame"},
+		{src:"../../assets/images/pool/Logo.png", id:"Logo"},
+		{src:"../../assets/images/pool/p1.png", id:"p1"},
+		{src:"../../assets/images/pool/p10.png", id:"p10"},
+		{src:"../../assets/images/pool/p2.png", id:"p2"},
+		{src:"../../assets/images/pool/p3.png", id:"p3"},
+		{src:"../../assets/images/pool/p4.png", id:"p4"},
+		{src:"../../assets/images/pool/p5.png", id:"p5"},
+		{src:"../../assets/images/pool/p6.png", id:"p6"},
+		{src:"../../assets/images/pool/p7.png", id:"p7"},
+		{src:"../../assets/images/pool/p8.png", id:"p8"},
+		{src:"../../assets/images/pool/p9.png", id:"p9"},
+		{src:"../../assets/images/pool/PointBG.png", id:"PointBG"},
+		{src:"../../assets/images/pool/TopBG.jpg", id:"TopBG"},
+		{src:"../../assets/images/pool/TopCard.png", id:"TopCard"}
 	]
 };
 
@@ -6135,85 +5266,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,165,108);
 p.nominalBounds = new cjs.Rectangle(0,0,177,50);
 
 
-(lib.PageContainerEmpty = function() {
-	this.initialize();
-
-}).prototype = p = new cjs.Container();
-p.nominalBounds = null;
-
-
-(lib.SkipButton = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 3
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#FFFFFF").s().p("AA/BHIAAiNIAjAAQAXAAAAAYIAAArQAAAKgFAGQgHAGgLAAIgQAAIAAA0gABSACIAMAAQAIAAAAgHIAAgoQAAgEgCgCQgCgCgFAAIgLAAgAAaBHIAAiNIATAAIAACNgAgCBHIgYhGIAAgBIAUhGIAQAAIgSBGIAYBHgAguBHIAAiNIATAAIAACNgAhhBHQgXAAAAgaIAAgHIATAAIAAAHQAAAJAJAAIADAAQAIAAAAgJIAAgYQAAgEgCgBIgFgEIgbgOQgDgCgBgDIgBgJIAAgeQAAgYAXAAIAMAAQAMAAAFAGQAGAGAAAMIAAAOIgTAAIAAgMQAAgFgDgCQgCgCgDAAIgEAAQgEAAgCACQgCACAAAFIAAAXQAAAFACABIAFADIAaAOQADABACADQABADAAAHIAAAfQAAAYgXAAg");
-	this.shape.setTransform(48,46.7);
-
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#FFFFFF").s().p("AA/BHIAAiNIAjAAQAXAAAAAYIAAArQAAAKgFAGQgHAGgLAAIgQAAIAAA0gABSACIAMAAQAIAAAAgHIAAgoQAAgEgCgCQgDgCgEAAIgLAAgAAaBHIAAiNIATAAIAACNgAgCBHIgYhGIAAgBIAUhGIAQAAIgSBGIAYBHgAguBHIAAiNIATAAIAACNgAhhBHQgXAAAAgaIAAgHIATAAIAAAHQAAAJAJAAIADAAQAIAAAAgJIAAgYQAAgEgCgBIgFgEIgbgOQgDgCgBgDIgBgJIAAgeQAAgYAXAAIAMAAQAMAAAFAGQAGAGAAAMIAAAOIgTAAIAAgMQAAgFgDgCQgCgCgDAAIgEAAQgEAAgCACQgCACAAAFIAAAXQAAAFACABIAFADIAaAOQADABACADQABADAAAHIAAAfQAAAYgXAAg");
-	this.shape_1.setTransform(49,47.7);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape}]}).to({state:[{t:this.shape_1}]},2).to({state:[]},1).wait(1));
-
-	// Layer 2
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f("#D18B00").s().p("Ai6C7QhOhOAAhtQAAhsBOhOQBOhOBsAAQBtAABOBOQBOBOAABsQAABthOBOQhOBOhtAAQhsAAhOhOg");
-	this.shape_2.setTransform(47,47);
-
-	this.timeline.addTween(cjs.Tween.get(this.shape_2).wait(2).to({x:48,y:48},0).to({_off:true},1).wait(1));
-
-	// Layer 1
-	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.f("#F1DAB5").s().p("AjiDhQhchdAAiEQAAiDBchfQBfhcCDAAQCFAABcBcQBfBfAACDQAACEhfBdQhcBfiFAAQiDAAhfhfg");
-	this.shape_3.setTransform(47,47);
-
-	this.shape_4 = new cjs.Shape();
-	this.shape_4.graphics.f("#F1DAB5").s().p("AjiDhQhdhdABiEQgBiDBdhfQBfhdCDABQCEgBBdBdQBfBfAACDQAACEhfBdQhdBfiEAAQiDAAhfhfg");
-	this.shape_4.setTransform(48,48);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3}]}).to({state:[{t:this.shape_4}]},2).to({state:[{t:this.shape_3}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(15,15,64,64);
-
-
-(lib.GoOnButton = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 3
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#FFFFFF").s().p("AinC1ICwi1IiziyIBUhTIEBEHIkCEEg");
-	this.shape.setTransform(51.4,45.9);
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(2).to({x:53.4,y:47.9},0).to({_off:true},1).wait(1));
-
-	// Layer 2
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#D18B00").s().p("AkSETQhyhyAAihQAAifByhzQBzhyCfAAQChAAByByQBzBzAACfQAAChhzByQhyBzihAAQifAAhzhzg");
-	this.shape_1.setTransform(47,47);
-
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f("#D18B00").s().p("AkSETQhyhzgBigQABifByhzQBzhyCfgBQCgABBzByQByBzABCfQgBCghyBzQhzByigABQifgBhzhyg");
-	this.shape_2.setTransform(49,49);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_1}]}).to({state:[{t:this.shape_2}]},2).to({state:[]},1).wait(1));
-
-	// Layer 1
-	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.f("#F1DAB5").s().p("AlMFLQiIiJgBjCQABjBCIiLQCLiIDBgBQDCABCJCIQCKCLAADBQAADCiKCJQiJCKjCAAQjBAAiLiKg");
-	this.shape_3.setTransform(47,47);
-
-	this.shape_4 = new cjs.Shape();
-	this.shape_4.graphics.f("#F1DAB5").s().p("AlMFLQiIiJgBjCQABjBCIiLQCLiIDBgBQDDABCICIQCLCLAADBQAADCiLCJQiICLjDAAQjBAAiLiLg");
-	this.shape_4.setTransform(49,49);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3}]}).to({state:[{t:this.shape_4}]},2).to({state:[{t:this.shape_3}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,94,94);
-
-
 (lib.CharacterCardNickame = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{});
 
@@ -6248,19 +5300,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,94,94);
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(3.5,0.6,212.3,28.1);
-
-
-(lib.BlockerBLACK = function() {
-	this.initialize();
-
-	// Layer 1
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#000000").s().p("ApXJXIAAyuISuAAIAASug");
-	this.shape.setTransform(60,60);
-
-	this.addChild(this.shape);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,120,120);
 
 
 (lib.PointsMood = function() {
@@ -6312,24 +5351,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,177,50);
 	this.addChild(this.points,this.text);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,177,50);
-
-
-(lib.ContinueButton = function() {
-	this.initialize();
-
-	// Skip
-	this.skipBtn = new lib.SkipButton();
-	this.skipBtn.setTransform(47,47,1,1,0,0,0,47,47);
-	new cjs.ButtonHelper(this.skipBtn, 0, 1, 2, false, new lib.SkipButton(), 3);
-
-	// Continue
-	this.nextBtn = new lib.GoOnButton();
-	this.nextBtn.setTransform(47,47,1,1,0,0,0,47,47);
-	new cjs.ButtonHelper(this.nextBtn, 0, 1, 2, false, new lib.GoOnButton(), 3);
-
-	this.addChild(this.nextBtn,this.skipBtn);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,96,96);
 
 
 (lib.HUD = function() {
@@ -6429,8 +5450,2072 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,118);
 
 
 // stage content:
+(lib.TopbarView = function() {
+	this.initialize();
+
+	// Layer 1
+	this.mainClip = new lib.TopBarMain();
+	this.mainClip.setTransform(512,59,1,1,0,0,0,512,59);
+
+	this.addChild(this.mainClip);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(512,54,1024,118);
+
+})(lib = lib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
+var lib, images, createjs, ss;
+var Topbar = {
+	view: null,
+	soundController: null,
+	init: function(view){
+		if(view === undefined || view === null){
+			throw new Error("'view' is undefined");
+		}
+		this.view = view;		
+	},
+	go: function(frm){
+		// console.log(this.view);
+		// this.view.label_intro.x = 564 + 300;
+		// createjs.Tween.get(this.view.label_intro)
+		// 	.to({x:564}, 300, createjs.Ease.backIn);
+
+console.log(this.view)
+		this.view.gotoAndStop(frm);
+
+		// Setup for game related to user's choices
+		if(frm === 'game'){
+			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
+
+			// Points
+			HUDController.init(this.view.hud);
+		}
+	},
+	pointsUpdate: function(){
+		HUDController.update();
+	},
+	show: function(){
+		this.view.visible = true;
+	},
+	hide: function(){
+		this.view.visible = false;	
+	}
+}
+'use strict';
+var TweenUtil = {
+	to: function(element, options, delay, delegate){
+		createjs.Tween.get(element)
+			.to(options, delay, createjs.Ease.linear)
+			.call(function(){
+				if(delegate !== undefined){
+					delegate();
+				}
+			})
+	}
+}
+var Transitions = {
+	inOut: function(inObj, outObj, delegate){
+		// For checking done of in/out tween
+		var left = 0;
+		
+		//console.log(outObj.element)
+		(inObj.element !== null) ? left++ : console.log('inObj::none');
+		(outObj.element !== null) ? left++ : console.log('outObj::none');
+
+		var checkDone = function(left){
+			// console.log('checkDone', left)
+			if(left == 0){
+				if(delegate !== null){
+					delegate();
+				}
+			}
+		}
+		// Previous page out
+		switch(outObj.prop){
+			case 'pos': 
+				this.transOutPosition(outObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+			case 'alpha': 
+				this.transOutAlpha(outObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+		}
+		// New page in
+		switch(inObj.prop){
+			case 'pos': 
+				this.transInPosition(inObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+			case 'alpha': 
+				this.transInAlpha(inObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+		}
+		
+	},
+	transInPosition: function(pageView, callback){
+		if(pageView === null || pageView === undefined)
+			return;
+
+		// New page in
+		pageView.visible = true;
+		pageView.alpha = 1;
+		pageView.x = 1024;
+		createjs.Tween.get(pageView)
+			.to({x:0}, 300, createjs.Ease.linear)
+			.call(function(){
+				if(callback !== undefined){
+					callback();
+				}
+			});
+	},
+	transOutPosition: function(pageView, callback){
+		if(pageView === null || pageView === undefined)
+			return;
+
+		// New page in
+		createjs.Tween.get(pageView)
+			.to({x:-1024}, 300, createjs.Ease.linear)
+			.call(function(){
+				if(callback !== undefined){
+					callback();
+					pageView.visible = false;
+				}
+			});
+	},
+	transInAlpha: function(pageView, callback){
+		if(pageView === null || pageView === undefined)
+			return;
+
+		// New page in
+		pageView.visible = true;
+		pageView.alpha = 0;
+		pageView.x = 0;
+		createjs.Tween.get(pageView)
+			.to({alpha:1}, 300, createjs.Ease.linear)
+			.call(function(){
+				if(callback !== undefined){
+					callback();
+				}
+			});
+	},
+	transOutAlpha: function(pageView, callback){
+		if(pageView === null || pageView === undefined)
+			return;
+		
+		// New page in
+		createjs.Tween.get(pageView)
+			.to({alpha:0}, 300, createjs.Ease.linear)
+			.call(function(){
+				if(callback !== undefined){
+					callback();
+				}
+			});
+	},
+	changeBackground: function(oldView, newView){
+		try{
+			if(oldView !== null && oldView !== undefined){
+				oldView.x = 1024;
+				oldView.visible = false;
+			}
+		}catch(err) {
+			console.log(err);
+		}
+		try{
+			newView.x = 0;
+			newView.visible = true;
+		}catch(err) {
+			console.log(err);
+		}
+		return newView;
+	}
+}
+var Tick = {
+	defaultDelay: 100,
+	stage: null,
+	enabled: false,
+	debug: false,
+	init: function(stage, framerate){
+		this.stage = stage;
+		// createjs.Ticker.setFPS(framerate);
+		this.framerate(framerate);
+		enabled = false;
+	},
+	framerate: function(framerate){
+		console.log('framerate', framerate);
+		createjs.Ticker.framerate = framerate;
+	},
+	enable: function(){		
+		if(enabled)
+			return false;
+
+		console.log('enable');
+
+		createjs.Ticker.removeEventListener('tick', self.stage); // Handbreak. Remove handler before setting again
+		createjs.Ticker.addEventListener('tick', this.stage);
+		if(this.debug){
+			createjs.Ticker.addEventListener('tick', this.foo);
+		}
+		enabled = true;
+	},
+	disable: function(delay){		
+		console.log('disable');
+		if(delay === undefined){
+			delay = this.defaultDelay;
+		}
+
+		var self = this;
+		setTimeout(function(){
+			// Hand break. Hdnles enable/disable conflicts due tp timer
+			if(enabled)
+				return false;
+
+			createjs.Ticker.removeEventListener('tick', self.stage);
+
+			if(self.debug){
+				createjs.Ticker.removeEventListener('tick', self.foo);
+			}
+		}, delay);
+
+		enabled = false;
+	},
+	resume: function(){
+		createjs.Ticker.paused = false;
+	},
+	pause: function(){
+		createjs.Ticker.paused = true;
+	},
+	foo: function(event){
+		console.log(createjs.Ticker.framerate);
+		// console.log(event.paused,
+	 //         createjs.Ticker.getTime(false),
+	 //         createjs.Ticker.getTime(true));
+	}
+}
+var TextField = function(){
+
+} 
+TextField.create = function(type, text, fontsize, color, fontface, fontWeight){
+
+	if(!fontWeight)
+	 var fontWeight = '';
+
+	var tf = new createjs.Text();
+	// tf.lineWidth = 490;
+
+	tf.font = fontWeight+fontsize+'px '+fontface;
+	tf.color = color;
+	tf.text = text;
+	return tf;
+}
+TextField.createBmp = function(id, text, fontsize, color){
+	var bmptxt = Font.create(id, fontsize, text);
+	if(color)
+		bmptxt.setColor(color);
+	return bmptxt;
+}
+// Math
+Math.range = function(min, max){
+	'use strict';
+	return Math.random() * (max - min) + min;
+}
+Math.rangeInt = function(min, max){
+	'use strict';
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+var Preloader = {
+	id: 0,
+	imagePath: 'assets/images/preloader.gif',
+
+
+	load: function(manifest, handleFileLoad, handleComplete, clss, keep){
+		'use strict';
+		this.id++;
+
+		console.log('clss:', clss)
+		
+		// If nothing to load exit 
+		if(manifest.length === 0){
+			handleComplete(null);
+			return;
+		}
+
+		var self = this;
+
+		// if(clss == null)
+		// 	clss = 'center';
+
+		var loader = new createjs.LoadQueue(false);
+		loader.id = this.id;
+		(keep === undefined) ? loader.keepPreloader = false : loader.keepPreloader = keep;
+		if(handleFileLoad != null)
+			loader.addEventListener('fileload', function(event){
+				if(handleFileLoad != null){
+					handleFileLoad(event);
+				}				
+			});		
+			loader.addEventListener('complete', function(event){
+				if(handleComplete != null){
+					handleComplete(event);
+				}	
+				// self.remove(event.target.id);				
+				if(!event.target.keepPreloader){
+					//console.log(event.target.id);
+					self.remove(event.target.id);
+				}
+			});
+			loader.addEventListener('progress', function(event){
+				console.log(event.loaded);
+				var w = event.loaded * 400;
+				$(".progress-bar .bar").css("width", w);
+				// $(".progress-bar .bar").css("left", (w/2)-200);
+			});	
+
+		// self.add('preloader small');
+		if(clss !== undefined){
+			self.add(clss);
+		}
+		
+		loader.loadManifest(manifest);
+	},
+	add: function(clss){
+		'use strict';
+		$('body').append(
+			'<div class="preload-wrapper"><div class="preloader '+clss+'">'+
+				'<div class="image">'+					
+				'</div>'+
+				'<div class="progress-bar"><div class="bar"></div></div>'+
+			'</div>'
+		);
+	},
+	remove: function(id){
+		'use strict';
+		$('.preload-wrapper').remove();
+	}
+};
+var LoadJS = {
+	cache: [],
+	load: function(urls, delegate, location){
+		'use strict';
+		var urlList = [];
+		var tmpList = [];
+		
+		//url is URL of external file, code is the code
+	    //to be called from the file, location is the location to 
+	    //insert the <script> element
+
+	    var counter = 0;
+	    var tracker = {};
+
+	    if(typeof urls === 'string'){
+	    	tmpList = urls.split(',');
+	    }else{
+	    	tmpList = urls;
+	    }
+
+	    // Through list of files requested to be loaded
+    	for(var k=0; k<tmpList.length; k++){	
+    		var may = true;
+			for(var b = 0; b<this.cache.length; b++){
+				if(this.cache[b] === tmpList[k]){
+					may == false;
+					break;
+				}				
+			}
+			if(may){
+				urlList.push(tmpList[k]);
+			}
+    	}
+    	// console.log('LoadJS:', this.cache, ', ', urlList);
+
+	    if(location == null)
+	    	location = document.body;
+
+	    for(var i=0; i<urlList.length; i++){
+	    	// for(var b = 0; b<this.cache.length; b++){
+    		// 	if(this.cache[b] === urlList[i]){
+    		// 		return false;
+    		// 	}
+    		// }
+    		// this.cache.push(urlList[i]);
+
+    		// console.log(this.cache);
+    		this.cache.push(urlList[i]);
+
+		    var scriptTag = document.createElement('script');		    
+		    // console.log(urlList[i]);
+
+		    scriptTag.onload = scriptTag.onreadystatechange = function(event){
+		    	counter++;
+
+		    	// Split the path of the laoded file. Get the 2 last entries
+		    	var arr = event.target.src.split('/');
+		    	var identifier1 = arr[arr.length-2] +'/'+arr[arr.length-1];
+
+		    	// Track which file is loaded
+		    	tracker[identifier1] = true;
+
+		    	// Through list of files requested to be loaded
+		    	for(var a=0; a<urlList.length; a++){		    		
+
+		    		// Split the path of the file requsted to be loaded. Get the 2 last entries
+		    		var arr2 = urlList[a].split('/');
+		    		var identifier2 = arr2[arr2.length-2] +'/'+arr2[arr2.length-1];
+
+		    		// Check if the file requested to be loaded match the one of those loaded
+		    		// If one is still not loaded then leave
+					if(tracker[identifier2] !== true){
+						// console.log('LoadJS:onload', urlList[a]);
+						// this.cache.push(urlList[a]);
+						return false;
+					}
+		    	}
+
+		    	// Reached this? All files are loaded
+		    	delegate();
+		    };
+
+		    scriptTag.src = urlList[i];
+		    location.appendChild(scriptTag);
+		    // location.removeChild(scriptTag);  
+	    }	    
+	}	
+};
+var Font = {
+	BIGNOODLE: 'BigNoodleTitling',
+	
+	// AMERICANTYPEWRITER: 'americantypewriter',
+	// xml: {},
+	// images: {},
+	// bitmapfonts: {},
+	// init: function(){
+	// 	'use strict';
+	// 	this.xml = {};
+	// 	this.images = {};
+	// 	this.bitmapfonts = {};	
+	// },
+	// register: function(id, size){
+	// 	'use strict';
+	// 	var key = id;//+'_'+size;
+	// 	this.bitmapfonts[key] = new BitmapFont(this.images[id], this.xml[id], size);
+	// 	BitmapTextField.registerBitmapFont(this.bitmapfonts[id], id);
+	// },
+	// create: function(id, size, text){
+	// 	'use strict';
+	// 	var key = id;//+'_'+size;
+	// 	var bitmapText = new BitmapTextField(800,100,text,key,size,0,0,'left','top',true);
+	// 	// var bitmapText = new BitmapTextField(200,100,'Bitmap text','cooper',-1,0,0,'left','top',true);
+	// 	return bitmapText;
+	// }
+};
+var Flow = {
+	statsSplit: function(vo) {
+		if(vo.type == 'bool'){
+			if(vo.value !== vo.threshold){
+				this.trigger = vo.triggers[0];
+			}else{
+				this.trigger = vo.triggers[1];
+			}
+		}else{
+			if(vo.value < vo.threshold){
+				this.trigger = vo.triggers[0];
+			}else{
+				this.trigger = vo.triggers[1];
+			}
+		}
+		
+		vo.callback();
+		//this.flow.next(this.trigger);
+	}
+}
+/**
+	A facade to browser detection method
+	Wrapped in order to enable change of lib if nessesary
+*/
+var Environment = {	
+	data: null,
+	browser: {},
+	os: null,
+	init: function(){
+		'use strict';
+		var data = browserDetection();
+		this.browser.name = data.browser.toLowerCase();
+		this.browser.version = data.version;
+		this.browser.firefox = (this.browser.name === 'firefox');
+		this.os = data.os;
+
+	}
+};
+'use strict';
+var Delegate = {	
+	create: function (func, target) {
+		'use strict';
+	    return function() { 
+	    	try{
+	    		return func.apply(target, arguments);	
+	    	}catch(err){
+			   console.log(err);
+			}
+	    }
+	}
+};
+// Array
+// Shuffle array and indicate correct index
+Array.prototype.shuffle = function(index){
+	var correctAnswer = this[index];
+    for(var j, x, i = this.length; i; j = Math.floor(Math.random() * i), x = this[--i], this[i] = this[j], this[j] = x)
+    
+    // Find correct answer's index in array
+    for(var a=0; a<this.length; a++){
+    	if(correctAnswer == this[a]){
+    		this.correct = a;
+    		break;
+    	}	    
+    }
+    return this;
+}
+var SoundService = function(){
+	'use strict';
+}
+
+// SoundService.getPathByKey = function(key){
+// 	'use strict';
+// 	return SoundService.properties.basePath + this.matrix[key].file;
+// };
+// SoundService.getDurationByKey = function(key){
+// 	'use strict';
+// 	return this.matrix[key].duration;
+// };
+
+SoundService.getSlideDurationById = function(id){
+	'use strict';
+	return this.matrix.slides[id].duration;
+};
+SoundService.getSlideSoundpathById = function(id){
+	'use strict';
+	return SoundService.properties.slidePath + id+'.mp3';
+};
+SoundService.getSlideSoundById = function(id){
+	'use strict';
+	return SoundService.matrix.slides[id]
+};
+SoundService.getSoundByCharacter = function(character){
+	'use strict';
+	return;
+};
+
+SoundService.properties = {
+	basePath: 'assets/sounds/',
+	slidePath: 'assets/sounds/'
+};
+SoundService.matrix = {
+	effects: {
+		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', duration: null },
+		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3', duration: null }
+	},
+	'1.1.1' :{
+		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
+		sundholm: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
+		svendborg: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 }
+	},
+	points: {
+		plus: { src:SoundService.properties.basePath+'Point_plus.mp3', duration: 2.208 },
+		minus: { src:SoundService.properties.basePath+'Point_minus.mp3', duration: 1.128 }
+	},
+	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
+	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
+	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
+	jobinterview: {
+		'svendborg': { 
+			'part1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
+			'part2': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 }
+		}
+	},
+	prerecruitment: {
+		'svendborg': { src:SoundService.properties.basePath+'prerecruitment_svendborg.mp3', duration: 1.078 }
+	},
+	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
+	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
+	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },
+	work: {
+		'svendborg': {
+			'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
+			'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+			'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
+		},
+	},
+	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
+	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
+	'2.10.2': {
+		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3', duration: 52.881 },
+		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3', duration: 53.265 }
+	},
+	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
+	
+	slides: {
+				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
+				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
+				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
+				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
+				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3', duration: 61.208 },
+				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3', duration: 48.573 },
+				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3', duration: 48.573 },
+				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 },
+				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3', duration: 69.641 },
+				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_7': { src:SoundService.properties.basePath+'4.7_krigenskriderfrem.mp3', duration: 81.350 }
+				
+				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
+			},
+	oppinion: { // 0.4
+			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
+			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
+			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
+			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
+			'BE': { label: 'dovenskab, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
+			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
+			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
+			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
+			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 }
+		},
+	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3', duration: 54.282 },
+	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3', duration: 15.531 },
+	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3', duration: 13.543 },
+	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3', duration: 30.561 },
+	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1_moede.mp3', duration: 42.563 },
+	'4.10.1': { label:'dansk front', src:SoundService.properties.basePath+'4.10.1_bombe.mp3', duration: 45.637 },
+	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4_sygdom.mp3', duration: 44.285 },
+	'4.10.7': { label:'illness', src:SoundService.properties.basePath+'4.10.7_pavejhjem.mp3', duration: 51.754 },
+	'4.11.1': { label:'compensation', src:SoundService.properties.basePath+'4.11.1.mp3', duration: 80 },
+	'4.11.2': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
+	'4.11.3': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
+	'4.11.4': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
+	
+	
+	
+	
+	// challenge: {
+	// 			// 'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
+	// 			// 'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
+	// 			// 'C': { label: 'manager', src:SoundService.properties.basePath+'weakness.mp3', duration: 1.815 }
+	// 			'A': { label: 'manager', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
+	// 			'B': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
+	// 			'C': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 }
+	// 		},
+	// family: {
+	// 			'D': null,
+	// 			'E': { label: 'daughter', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
+	// 			'F': null
+	// 		}
+	// characters: {
+	// 			'AD': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
+	// 			'AE': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
+	// 			'AF': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
+	// 			'BD': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
+	// 			'BE': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
+	// 			'BF': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
+	// 			'CD': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ],
+	// 			'CE': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
+	// 			'CF': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ]
+	// 		}
+};
+var PlayerStats = {
+	challenge: 'B',			// Default test value
+	family: 'D',			// Default test value
+	nickname: null,
+	poorhouse: 'svendborg', // Test 
+	mood: 2,
+	health: 4,
+	money: 3,
+	job: null,
+	advice: null,
+	wayout: null,
+	job_germany: ['B', 'A'], // Default test values
+	spending: null,
+	whatnow: null,
+	nazi: null,
+	pointsDiff: {mood: 0, health: 0, money: 0},
+	bomb: false,
+
+	resetDiff: function(){
+		'use strict';
+		this.pointsDiff = {mood: 0, health: 0, money: 0};
+	},
+
+	isAPlusPoint: function(){
+		'use strict';
+		for(var key in this.pointsDiff){
+			if(this.pointsDiff[key] > 0){
+				return true;
+			}
+		}
+	},
+
+	isAMinusPoint: function(){
+		'use strict';
+		for(var key in this.pointsDiff){
+			if(this.pointsDiff[key] < 0){
+				return true;
+			}
+		}
+	},
+
+	set: function(type, val){
+		'use strict';
+		// Reset diff
+		this.pointsDiff[type] = 0;
+
+		// Remember the previous value
+		var prev = this[type];	
+
+		// Set new value
+		this[type] = val;
+
+		// Find diff
+		this.pointsDiff[type] = this[type] - prev;		
+
+		// Cap values for points
+		if(type == 'mood' || type == 'health' || type == 'money'){
+			if(this[type] > 10){
+				this[type] = 10;
+			}
+			if(this[type] < 1){
+				this[type] = 1;
+			}
+		}
+	},
+	append: function(type, val){	
+		'use strict';	
+		// Reset diff
+		this.pointsDiff[type] = 0;
+		
+		// Remember the previous value
+		var prev = this[type];	
+
+		// Set new value
+		this[type] += val;
+
+		// Find diff
+		this.pointsDiff[type] = this[type] - prev;			
+
+		// Cap values for points
+		if(type == 'mood' || type == 'health' || type == 'money'){
+			if(this[type] > 10){
+				this[type] = 10;
+			}
+			if(this[type] < 1){
+				this[type] = 1;
+			}
+		}
+	}
+}
+var Library = {
+	clearSlide: function(){
+		'use strict';
+		console.log('clearSlide');
+		try{
+			slidelib = null;
+		}catch(err){
+			console.log(err);
+		}		
+	},
+	clearGame: function(){
+		'use strict';
+		console.log('clearGame');		
+		try{
+			gamelib = null;
+		}catch(err){
+			console.log(err);
+		}
+	},
+	clearMain: function(){
+		'use strict';
+		console.log('clearMain');		
+		try{
+			mainlib = null;
+		}catch(err){
+			console.log(err);
+		}
+	},
+}
+var ImageService = function(){
+	'use strict';
+}
+ImageService.properties = {
+	basePath: 'assets/images/pool/',
+};
+ImageService.matrix = {
+	portrait:{
+		'AD': { id: 'ADCloseUp', label:'background', src:ImageService.properties.basePath+'ADCloseUp.png'},
+		'AE': { id: 'AECloseUp', label:'background', src:ImageService.properties.basePath+'AECloseUp.png'},
+		'AF': { id: 'AFCloseUp', label:'background', src:ImageService.properties.basePath+'AFCloseUp.png'},
+		'BD': { id: 'BDCloseUp', label:'background', src:ImageService.properties.basePath+'BDCloseUp.png'},
+		'BE': { id: 'BECloseUp', label:'background', src:ImageService.properties.basePath+'BECloseUp.png'},
+		'BF': { id: 'BFCloseUp', label:'background', src:ImageService.properties.basePath+'BFCloseUp.png'},
+		'CD': { id: 'CDCloseUp', label:'background', src:ImageService.properties.basePath+'CDCloseUp.png'},
+		'CE': { id: 'CECloseUp', label:'background', src:ImageService.properties.basePath+'CECloseUp.png'},
+		'CF': { id: 'CFCloseUp', label:'background', src:ImageService.properties.basePath+'CFCloseUp.png'}
+	},
+	'1.0.1': {
+		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
+		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
+		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
+	},
+	'3.0': {
+		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
+		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
+		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
+	}
+}
+var FlowData ={
+	
+}
+// var Assets = {
+// 	fattiggard: {
+// 		svendborg: {
+// 			images: [
+// 				{src: '../assets/images/1_0BGsvendborg.png', id:'1_0BGsvendborg'},
+// 				{src: '../assets/images/1_1BGsvendborg.png', id:'1_1BGsvendborg'},
+// 				{src: '../assets/images/1_2BGsvendborgA.png', id:'1_2BGsvendborgA'},
+// 				{src: '../assets/images/1_2BGsvendborgB.png', id:'1_2BGsvendborgB'},
+// 				{src: '../assets/images/1_2BGsvendborgC.png', id:'1_2BGsvendborgC'},
+// 				{src: '../assets/images/1_3BGsvendborg.png', id:'1_3BGsvendborg'}
+// 			]
+// 		}
+// 	}
+// }
+var GameManager = {
+	root: null,
+	init: function(root){
+		'use strict';
+		if(root === undefined){
+			throw new Error("'root' is undefined");
+		}
+		this.root = root;
+	},
+	restart: function(){
+		'use strict';
+	},
+	destroy: function(){
+		'use strict';
+	}
+};
+var FlowManager = {
+	currentPage:null,
+	root: null,
+	topbar: null,
+	init: function(root){
+		'use strict';
+		if(root === undefined && root === null){
+			throw new Error("'root' is", root);
+		}
+		this.root = root;
+	},
+	clearLib: function(){
+		lib = null;
+	},
+	gotoPage: function(page){
+		'use strict';
+		if(this.currentPage !== null){
+			this.currentPage.destroy();
+			this.currentPage = null;
+		}
+		var self = this;
+		// this.root.gotoAndStop('character_build'); // TEST
+		switch(page){
+			case '0.0':
+				this.root.gotoAndStop('frontpage');	
+				this.root.blocker_black.visible = false;
+
+				ContinueButton.on('click', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					Preloader.load(lib.properties.manifest, onFileLoad, onLoadComplete, 'full', true);
+				}, this);
+				ContinueButton.activate('next');
+
+				var onFileLoad = function(event){
+					if (event.item.type === 'image') { 
+						images[event.item.id] = event.result; 
+					}
+				};
+				var onLoadComplete = function(event){
+					// Instantiate view
+					self.topbar = new lib.TopbarView();
+
+					//Add
+					self.root.topbarcontainer.addChild(self.topbar);
+
+					// To intro
+					self.gotoPage('0.1');
+				};	
+				
+			break;
+			case '0.1':
+				// Proluque
+				// Topbar
+				try{
+					Topbar.init(this.topbar.mainClip);
+					Topbar.hide();
+				}catch(err){
+					console.log(err);
+				}
+
+				// Tick.disable();
+				var self = this;
+
+				// Go to start frame
+				this.root.gotoAndStop('start');
+				this.currentPage = new FlowProloque(this.root.pagecontainer);
+				this.currentPage.start(); 
+
+				// Blocker
+				FlowProloque.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page
+				FlowProloque.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('1.0.1');
+				}, this);				
+				// Tick.disable();	
+				
+			break;
+			case '1.0.1':	
+				// Poor House Intro	
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');
+
+				this.currentPage = null;
+				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start('1.0.1', 'slide_1_0_1');
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('1.0.2');
+				}, this);
+				// Tick.disable();
+			break;
+			case '1.0.2':	
+				// Poor House		
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');
+				
+
+				this.currentPage = null;
+				this.currentPage = new FlowPoorhouse(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('2.5');
+				}, this);
+				Tick.disable();
+			break;
+			case '2.5':
+				// Germany 1.
+
+				// Root frame
+				this.root.gotoAndStop('germany');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');
+
+				this.currentPage = null;
+				this.currentPage = new FlowGermany1(this.root.pagecontainer); 
+				this.currentPage.start(); 		
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('3.0');
+				}, this);
+				Tick.disable();
+			break;
+			case '3.0':	
+				// Poor House 2. time
+
+				// Get id for next poorhouse
+				var newId;
+				var list = ['horsens', 'sundholm', 'svendborg'];
+				list = list.shuffle();
+				for(var i=0; i<list.length; i++){
+					if(list[i] !== PlayerStats.poorhouse){
+						PlayerStats.poorhouse = list[i];
+						break;
+					}
+				}
+
+				// TEST
+				PlayerStats.poorhouse = 'svendborg';
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');
+
+				this.currentPage = null;
+				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
+				// this.currentPage.setPortrait(ImageService.matrix.portrait['AD']);
+				this.currentPage.start('3.0', 'slide_3_0');	
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('3.1');
+				}, this);
+			break;
+			case '3.1':	
+				// Poor House 2.	
+
+				// TEST
+				// PlayerStats.poorhouse = 'svendborg';
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');				
+
+				this.currentPage = null;
+				this.currentPage = new FlowPoorhouseSecond(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('4.0');
+				}, this);
+				Tick.disable();
+			break;
+			case '4.0':	
+				// Germany 2.	
+
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');				
+
+				this.currentPage = null;
+				this.currentPage = new FlowGermany2(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('4.11');
+				}, this);
+				Tick.disable();
+			break;
+			case '4.11':	
+
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');				
+
+				this.currentPage = null;
+				this.currentPage = new FlowEpilogue(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				// this.currentPage.on('continue', function(event){
+				// 	event.remove();
+				// 	Library.clearSlide();
+				// 	Library.clearGame();
+				// 	self.gotoPage('4.10');
+				// }, this);
+				Tick.disable();
+			break;
+		}
+	},
+	restart: function(){
+		'use strict';
+		this.currentPage = null;
+	},
+	destroy: function(){
+		'use strict';
+		this.currentPage = null;
+	}
+};
+var ApplicationManager = {
+	root: null,
+	start: function(root){
+		'use strict';
+		this.root = root;
+
+		// Init Environment info
+		Environment.init();
+
+		// Cursor init
+		Cursor.root = root;
+
+		// GUI
+		try{
+			ContinueButton.init(root.continueBtn);
+		}catch(err){
+			console.log(err);
+		}
+		
+		// Game
+		try{
+			GameManager.init(root);
+		}catch(err){
+			console.log(err);
+		}		
+
+		// Init page manager
+		try{
+			FlowManager.init(root);
+		}catch(err){
+			console.log(err);
+		}
+			
+
+		// Fade black blocker out
+		// createjs.Tween.get(root.blocker_black)
+  //        .to({alpha: 0}, 600, createjs.Ease.linear)
+  //        .call(function(){
+  //        	root.blocker_black.visible = false;
+  //        });         
+
+
+		// Go to start
+		FlowManager.gotoPage('0.0');
+		// FlowManager.gotoPage('1.0.1');
+		// FlowManager.gotoPage('2.5');
+		// FlowManager.gotoPage('3.0');
+		// FlowManager.gotoPage('4.0');
+
+		//console.log('Ticker.framerate:', Ticker.framerate);
+	},
+	restart: function(){
+		'use strict';
+	},
+	destroy: function(){
+		'use strict';
+	}
+};
+var SoundEffect = function(src, duration, loop){
+	'use strict';
+	if(SoundEffect.counter == null)
+		SoundEffect.counter = 0;
+
+	SoundEffect.counter++;
+	this.id = SoundEffect.counter;
+	this.paused = false;
+	this.duration = duration;
+	this.src = src;
+	this.loop = loop;
+	this.preloaded = false;
+	this.listeners = {tick:null, play:null, pause:null, stop:null};
+
+
+	this.soundController = new SoundController(src, duration, loop);
+};
+SoundEffect.prototype.preload = function(src, duration, loop, callback){
+	'use strict';
+	
+	var self = this;
+
+	//self.soundController = new SoundController(src, duration, this.loop);
+	this.soundController.on('ready', function(event){
+		event.remove();
+		self.preloaded = true;
+		if(callback != null)
+			callback();
+
+	}, self);
+	this.soundController.load();
+};
+SoundEffect.prototype.volume = function(value){
+	try{
+		this.soundController.volume(value);	
+	}catch(err){
+		console.log(err);
+	}	
+}
+SoundEffect.prototype.play = function(){
+	'use strict';
+
+	var self = this;
+
+	var doPlay = function(){
+		self.previousFrame = 0;
+
+		// Sound
+		self.soundController.play();
+
+		// Dispacth event 
+		self.dispatchEvent(new createjs.Event('start'));
+
+		// Set this last
+		self.paused = false;
+	}
+
+	if(!this.preloaded){		
+		this.preload(this.src, this.duration, this.loop, function(){
+			doPlay();
+		});
+	}else{
+		doPlay();
+	}
+};
+SoundEffect.prototype.pause = function(){
+	'use strict';
+
+	// If invoked from external the state could be stopped
+	// Adn we do not want to set in paused unintentional
+	if(this.paused)
+		return;
+
+	this.paused = true;
+
+	// Sound
+	this.soundController.pause();
+};
+SoundEffect.prototype.stop = function(){
+	'use strict';
+
+	// Sound
+	this.soundController.stop();
+
+	this.paused = false;
+};
+SoundEffect.prototype.reset = function(){
+	'use strict';
+	this.paused = false;
+	this.listeners = null;
+};
+SoundEffect.prototype.destroy = function(){
+	'use strict';
+	this.view = null;
+	this.listeners = null;
+};
+createjs.EventDispatcher.initialize(SoundEffect.prototype);
+/**
+	Controller uses the browser's AUDIO element as play back for sound
+*/
+function SoundController(audioPath, duration, loop) {
+	'use strict';
+
+	var self = this;
+
+	if(loop === undefined || loop === null)
+		loop = false;
+	
+	this.sndObj = document.createElement('AUDIO');		
+	this.sndObj.src = audioPath;
+	this.sndObj.loop = loop;
+	this.duration = duration;
+
+
+	// Firefox does not invoke the audio load method?! But setting load automated seems to work
+	if(Environment.browser.firefox){
+		this.sndObj.preload = 'auto';
+	}else{
+		this.sndObj.preload = 'none';
+	}
+
+	// LIsten for sound being ready 
+	this.sndObj.addEventListener('canplaythrough', function(event){
+		var e = new createjs.Event('ready');
+ 		self.dispatchEvent(e);
+	}, false);
+	this.sndObj.addEventListener('ended', function(event){
+ 		this.complete = true;
+	}, false);
+}
+
+SoundController.prototype = {
+	sndObj: null,
+	currentSndPosition: 0,
+	duration: 0,
+	paused: false,
+	self: this,
+	complete: false,
+
+	getState: function(){
+		return this.sndObj.state;
+	},
+	load: function(){
+		'use strict';
+		// Firefox does not invoke the audio load function?! 
+		// So load has been set 'auto' so we don't need to invoke the load method
+		if(!Environment.browser.firefox){			
+			this.sndObj.load();
+		}
+	},
+	volume: function(value) {
+		'use strict';
+		if(this.sndObj != null){
+			this.sndObj.volume = value;
+		}
+	},
+	play: function() {
+		'use strict';
+		this.sndObj.play();
+		this.paused = false;
+		this.sndObj.state = 'play';
+		this.complete = false;
+	},
+	stop: function() {
+		'use strict';
+		this.sndObj.pause();
+		this.sndObj.currentTime = 0;
+		this.paused = false;
+		this.sndObj.state = 'stop';
+	},
+	pause: function() {
+		'use strict';
+		this.currentSndPosition = this.sndObj.currentTime;
+		this.sndObj.pause();
+		this.paused = true;
+		this.sndObj.state = 'pause';
+	},
+	resume: function() {
+		'use strict';
+		this.sndObj.play();
+	},
+	progress: function(){
+		'use strict';
+		var num = this.sndObj.currentTime / this.duration;
+		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
+	},
+	isComplete: function(){
+		'use strict';
+		this.state = 'stop';
+		return this.complete;
+	},
+	destroy: function(){
+		'use strict';
+		this.state = 'stop';
+		this.sndObj = null;
+		this.duration = null;
+	}
+};
+createjs.EventDispatcher.initialize(SoundController.prototype);
+var HUDController = {
+	init: function(view){
+		this.view = view;		
+		this.update();
+		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src, SoundService.matrix.points.plus.duration);
+		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src, SoundService.matrix.points.minus.duration);
+	},
+	update: function(){
+		var self = this;
+		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
+		this.view.health.points.gotoAndStop(PlayerStats.health-1);
+		this.view.money.points.gotoAndStop(PlayerStats.money-1);
+
+		var delay = 0;
+		// console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
+		for(var key in PlayerStats.pointsDiff){
+			if(PlayerStats.pointsDiff[key] > 0){
+				setTimeout(function(){ 
+					self.soundControllerPlus.play();
+				}, delay);
+				delay += 1000;
+			}else if(PlayerStats.pointsDiff[key] < 0){
+				setTimeout(function(){ 
+					self.soundControllerMinus.play();
+				}, delay);
+				delay += 1000;
+			}
+		}
+
+		// Need to reset 
+		PlayerStats.resetDiff();
+	}
+}
+var PlayerSoundComponent = function(view){
+	'use strict';
+	if(PlayerSoundComponent.counter == null)
+		PlayerSoundComponent.counter = 0;
+
+	PlayerSoundComponent.counter++;
+	this.id = PlayerSoundComponent.counter;
+
+	// console.log('PlayerSoundComponent');
+
+	this.view = view;
+	this.paused = false;
+	this.duration = 0;
+	this.listeners = {tick:null, play:null, pause:null, stop:null};
+	this.playBtn = new ButtonCustom(view.playBtn);
+	this.pauseBtn = new ButtonCustom(view.pauseBtn);
+	this.stopBtn = new ButtonCustom(view.stopBtn);
+
+	// Initial visibility of play/pause/stop
+	this.playBtn.setActive(false);
+	this.stopBtn.setActive(false);
+	this.pauseBtn.setActive(true);	
+	this.pauseBtn.visible(false);
+
+	// Controller button events
+	this.listeners.play = this.playBtn.on('click', this.play, this);
+	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
+	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
+
+	// Progression
+	this.progressionBar = view.progressionBar;
+	this.progressionBar.scaleX = 0;
+
+	// Sound
+	this.soundController = null;
+};
+PlayerSoundComponent.prototype.preload = function(src, duration){
+	'use strict';
+	var self = this;
+
+	// console.log('PlayerSoundComponent.preload');
+
+	// Safety net
+	this.removeLoopEvent();
+
+	// Sound ready state
+	if(self.soundController !== null){
+		self.soundController.destroy();
+		self.soundController = null;
+	}
+	self.soundController = new SoundController(src, duration);
+	self.soundController.on('ready', function(event){
+		event.remove();
+		// Enable buttons
+		self.playBtn.setActive(true);
+		self.stopBtn.setActive(true);
+
+		// Dispatch event 
+		self.dispatchEvent(new createjs.Event('ready'));
+	}, self);
+	self.soundController.load();
+};
+PlayerSoundComponent.prototype.addLoopEvent = function(){
+	'use strict';
+	if(this.listeners.tick === null){
+		this.listeners.tick = this.progressionBar.on('tick', this.loop, this);
+	}
+};
+PlayerSoundComponent.prototype.removeLoopEvent = function(){
+	'use strict';
+	this.progressionBar.off('tick', this.listeners.tick);
+	this.listeners.tick = null;
+};
+PlayerSoundComponent.prototype.loop = function(){
+	'use strict';	
+	// var progression = this.progress();
+	var sndProgression = this.soundController.progress();
+
+	// Reached end of slide
+	if(sndProgression >= 1){
+		// Remove tick
+		this.removeLoopEvent();
+
+		// Swap Play/Pause visibility
+		this.pauseBtn.visible(false);
+		this.playBtn.visible(true);
+
+		// Dispacth event 
+		this.dispatchEvent(new createjs.Event('complete'));
+	}
+
+	// Progression bar
+	this.progressionBar.scaleX = sndProgression;
+};
+PlayerSoundComponent.prototype.play = function(){
+	'use strict';
+	this.previousFrame = 0;
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(true);
+	this.playBtn.visible(false);
+
+	// Timeline
+	this.addLoopEvent('tick');
+
+	// Sound
+	this.soundController.play();
+
+	// Dispacth event 
+	this.dispatchEvent(new createjs.Event('start'));
+
+	// Set this last
+	this.paused = false;
+
+	// Tick
+	Tick.enable();
+};
+PlayerSoundComponent.prototype.pause = function(){
+	'use strict';
+
+	// If invoked from external the state could be stopped
+	// Adn we do not want to set in paused unintentional
+	if(this.paused)
+		return;
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	// Dispacth event 
+	// this.dispatchEvent(new createjs.Event('pause'));
+
+	this.paused = true;
+
+	// Sound
+	this.soundController.pause();
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSoundComponent.prototype.stop = function(){
+	'use strict';
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	// Progression bar
+	this.progressionBar.scaleX = 0;
+
+	// Sound
+	this.soundController.stop();
+
+	// Dispacth event 
+	// this.dispatchEvent(new createjs.Event('stop'));
+
+	this.paused = false;
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSoundComponent.prototype.progress = function(){
+	'use strict';
+	var num = this.slide.currentFrame / this.duration;
+	return Math.round(num * 1000) / 1000;
+};
+PlayerSoundComponent.prototype.reset = function(){
+	'use strict';
+	this.removeLoopEvent();
+	this.paused = false;
+	this.listeners = null;
+};
+PlayerSoundComponent.prototype.destroy = function(){
+	'use strict';
+	this.removeLoopEvent();
+	this.view = null;
+	this.listeners = null;
+	this.playBtn.destroy();
+	this.pauseBtn.destroy();
+	this.stopBtn.destroy();
+	this.playBtn = null;
+	this.pauseBtn = null;
+	this.stopBtn = null;
+};
+createjs.EventDispatcher.initialize(PlayerSoundComponent.prototype);
+var PlayerSliderComponent = function(view, soundOffset){
+	'use strict';
+	this.view = view;
+	this.soundOffset = soundOffset;
+	this.container = view.container;
+	this.slideId = null;
+	this.slide = null;
+	this.paused = false;
+	this.state = null;
+	this.duration = 0;
+	this.listeners = {tick:null, play:null, pause:null, stop:null, auto:null};
+	this.playBtn = new ButtonCustom(view.playBtn);
+	this.pauseBtn = new ButtonCustom(view.pauseBtn);
+	this.stopBtn = new ButtonCustom(view.stopBtn);
+
+	if(this.soundOffset === null || this.soundOffset === undefined){
+		this.soundOffset = 0;
+	}
+
+	// Initial visibility of play/pause/stop
+	this.playBtn.setActive(false);
+	this.stopBtn.setActive(false);
+	this.pauseBtn.setActive(true);	
+	this.pauseBtn.visible(false);
+
+	// Controller button events
+	this.listeners.play = this.playBtn.on('click', this.play, this);
+	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
+	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
+
+	// Progression
+	this.progressionBar = view.progressionBar;
+	this.progressionBar.scaleX = 0;
+
+	// Sound
+	this.soundController = null;
+};
+PlayerSliderComponent.prototype.preload = function(slideId, lib){
+	'use strict';
+	var self = this;
+	this.slideId = slideId;
+
+	// console.log("preload: ", slideId);
+
+	// Flash sliders lib referecne due to id
+	// var lib = eval('libslide'+slideId);
+	// var lib = new Function('libslide_'+slideId);
+	
+	// Load assets	
+	Preloader.load(lib.properties.manifest, 
+		function(event){
+			if (event.item.type === 'image'){ 
+				images[event.item.id] = event.result; 
+			}
+			// // console.log(event.result);
+		}, 
+		function(event){			
+			// Clean slider container if a slider already has been played
+			if(self.slide !== null){
+				self.container.remove(slide);
+				self.slide = null;
+			}
+			
+			// Create slider object and attach to container
+			self.slide = eval('new lib.'+slideId+'()');
+			
+			self.container.addChild(self.slide);
+
+			// Get the duration of the timeline in the slide
+			self.duration = self.slide.timeline.duration - 1;
+
+			// Sound
+			if(self.soundController !== null){
+				self.soundController.destroy();
+				self.soundController = null;
+			}
+			try{
+				var snd = SoundService.getSlideSoundById(self.slideId);
+				self.soundController = new SoundController(snd.src, snd.duration);
+				//self.soundController = new SoundController(SoundService.getSlideSoundpathById(self.slideId), SoundService.getSlideDurationById(self.slideId));
+				self.soundController.on('ready', function(event){
+					event.remove(); // Only run once. Otherwise it will run every time player has ended and starts slide after it played to the end
+					// Enable buttons
+					self.playBtn.setActive(true);
+					self.stopBtn.setActive(true);
+
+					// Dispatch event 
+					self.dispatchEvent(new createjs.Event('ready'));
+				}, self);
+				self.soundController.load();
+			}catch(err){
+				console.log(err);
+			}			
+		}
+	);	
+};
+PlayerSliderComponent.prototype.addLoopEvent = function(){
+	'use strict';
+	if(this.listeners.tick === null){
+		this.listeners.tick = this.slide.on('tick', this.loop, this);
+	}
+};
+PlayerSliderComponent.prototype.removeLoopEvent = function(){
+	'use strict';
+	this.slide.off('tick', this.listeners.tick);
+	this.listeners.tick = null;
+};
+PlayerSliderComponent.prototype.loop = function(){
+	'use strict';	
+	// var progression = this.progress();
+	var sndProgression = this.soundController.progress();
+
+	// Reached end of slide
+	if(sndProgression >= 1){
+		// Remove tick
+		this.removeLoopEvent();
+
+		// Set slide timeline back to start
+		this.slide.stop();
+
+		// Swap Play/Pause visibility
+		this.pauseBtn.visible(false);
+		this.playBtn.visible(true);
+
+		this.paused = false;
+
+		// Dispacth event 
+		this.dispatchEvent(new createjs.Event('complete'));
+	}else{
+		var sndIsComplete = this.soundController.isComplete();				
+		if(!sndIsComplete){
+
+			// Calculate in which frame the timeline shold be related to soudn progression
+			var desiredFrame = Math.round(this.duration * sndProgression) + this.offset;			
+
+			// Just a fail safe making sure that we do NOT play a frame already shown
+			if(desiredFrame > this.previousFrame){
+				this.slide.gotoAndPlay(desiredFrame);
+				this.previousFrame = desiredFrame;
+			}
+			
+			// Sound
+			if(this.soundOffset > 0){
+				if(this.soundController.state !== 'play'){
+					if(this.slide.currentFrame >= this.soundOffset){						
+						this.listeners.auto = this.dispatchEvent(new createjs.Event('autoplay'));
+					}
+				}				
+			}
+		}
+	}
+
+	// Progression bar
+	// this.progressionBar.scaleX = sndProgression;
+	this.progressionBar.scaleX = this.progress()
+};
+PlayerSliderComponent.prototype.play = function(){
+	'use strict';
+	// console.log('play');
+	var self = this;
+
+	this.previousFrame = 0;
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(true);
+	this.playBtn.visible(false);
+
+	// Sound
+	// Sound starts at frame 0
+	if(this.soundOffset === 0){
+		this.soundController.play();		
+
+	// Sound starts later than frame 0
+	}else{
+		// Current frame is after sound start frame
+		if(this.slide.currentFrame >= this.soundOffset){
+			this.soundController.play();
+
+		// Current frame is before sound start frame
+		}else{
+			// Listen for an event dispatch 
+			this.on('autoplay', function(event){
+				event.remove();
+				this.listeners.auto = null;
+				self.soundController.play();
+			}, this);
+		}		
+	}
+	
+	// Timeline
+	this.addLoopEvent('tick');
+	this.slide.play();
+
+	// Sound
+	// this.soundController.play();
+
+	// Set this last
+	this.paused = false;
+	this.state = 'play';
+
+	// Tick
+	Tick.enable();	
+};
+PlayerSliderComponent.prototype.pause = function(){
+	'use strict';
+
+	// console.log('pause');
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	this.paused = true;
+	this.state = 'pause';
+
+	// Pause timeline
+	this.slide.stop();
+
+	// Sound
+	this.soundController.pause();
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSliderComponent.prototype.stop = function(){
+	'use strict';
+	Tick.enable();
+
+	// console.log('stop');
+
+
+	// Progression bar
+	this.progressionBar.scaleX = 0;
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Set slide timeline back to start
+	this.slide.gotoAndStop(0);
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	// Sound
+	this.soundController.stop();
+
+	this.state = 'stop';
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSliderComponent.prototype.progress = function(){
+	'use strict';
+	var num = this.slide.currentFrame / this.duration;
+	return Math.round(num * 1000) / 1000;
+};
+PlayerSliderComponent.prototype.reset = function(){
+	'use strict';
+	this.slideId = null;
+	this.paused = false;
+};
+PlayerSliderComponent.prototype.destroy = function(){
+	'use strict';
+	this.view = null;
+	this.slideId = null;
+};
+createjs.EventDispatcher.initialize(PlayerSliderComponent.prototype);
+(function (lib, img, cjs, ss) {
+
+var p; // shortcut to reference prototypes
+
+// library properties:
+lib.properties = {
+	width: 1024,
+	height: 648,
+	fps: 24,
+	color: "#000000",
+	manifest: [
+		{src:"../assets/images/pool/_0_0Frontpage.jpg", id:"_0_0Frontpage"}
+	]
+};
+
+
+
+// symbols:
+
+
+
+(lib._0_0Frontpage = function() {
+	this.initialize(img._0_0Frontpage);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
+
+
+(lib.PageContainerEmpty = function() {
+	this.initialize();
+
+}).prototype = p = new cjs.Container();
+p.nominalBounds = null;
+
+
+(lib.SkipButton = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{});
+
+	// Layer 3
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("#FFFFFF").s().p("AA/BHIAAiNIAjAAQAXAAAAAYIAAArQAAAKgFAGQgHAGgLAAIgQAAIAAA0gABSACIAMAAQAIAAAAgHIAAgoQAAgEgCgCQgCgCgFAAIgLAAgAAaBHIAAiNIATAAIAACNgAgCBHIgYhGIAAgBIAUhGIAQAAIgSBGIAYBHgAguBHIAAiNIATAAIAACNgAhhBHQgXAAAAgaIAAgHIATAAIAAAHQAAAJAJAAIADAAQAIAAAAgJIAAgYQAAgEgCgBIgFgEIgbgOQgDgCgBgDIgBgJIAAgeQAAgYAXAAIAMAAQAMAAAFAGQAGAGAAAMIAAAOIgTAAIAAgMQAAgFgDgCQgCgCgDAAIgEAAQgEAAgCACQgCACAAAFIAAAXQAAAFACABIAFADIAaAOQADABACADQABADAAAHIAAAfQAAAYgXAAg");
+	this.shape.setTransform(48,46.7);
+
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f("#FFFFFF").s().p("AA/BHIAAiNIAjAAQAXAAAAAYIAAArQAAAKgFAGQgHAGgLAAIgQAAIAAA0gABSACIAMAAQAIAAAAgHIAAgoQAAgEgCgCQgDgCgEAAIgLAAgAAaBHIAAiNIATAAIAACNgAgCBHIgYhGIAAgBIAUhGIAQAAIgSBGIAYBHgAguBHIAAiNIATAAIAACNgAhhBHQgXAAAAgaIAAgHIATAAIAAAHQAAAJAJAAIADAAQAIAAAAgJIAAgYQAAgEgCgBIgFgEIgbgOQgDgCgBgDIgBgJIAAgeQAAgYAXAAIAMAAQAMAAAFAGQAGAGAAAMIAAAOIgTAAIAAgMQAAgFgDgCQgCgCgDAAIgEAAQgEAAgCACQgCACAAAFIAAAXQAAAFACABIAFADIAaAOQADABACADQABADAAAHIAAAfQAAAYgXAAg");
+	this.shape_1.setTransform(49,47.7);
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape}]}).to({state:[{t:this.shape_1}]},2).to({state:[]},1).wait(1));
+
+	// Layer 2
+	this.shape_2 = new cjs.Shape();
+	this.shape_2.graphics.f("#D18B00").s().p("Ai6C7QhOhOAAhtQAAhsBOhOQBOhOBsAAQBtAABOBOQBOBOAABsQAABthOBOQhOBOhtAAQhsAAhOhOg");
+	this.shape_2.setTransform(47,47);
+
+	this.timeline.addTween(cjs.Tween.get(this.shape_2).wait(2).to({x:48,y:48},0).to({_off:true},1).wait(1));
+
+	// Layer 1
+	this.shape_3 = new cjs.Shape();
+	this.shape_3.graphics.f("#F1DAB5").s().p("AjiDhQhchdAAiEQAAiDBchfQBfhcCDAAQCFAABcBcQBfBfAACDQAACEhfBdQhcBfiFAAQiDAAhfhfg");
+	this.shape_3.setTransform(47,47);
+
+	this.shape_4 = new cjs.Shape();
+	this.shape_4.graphics.f("#F1DAB5").s().p("AjiDhQhdhdABiEQgBiDBdhfQBfhdCDABQCEgBBdBdQBfBfAACDQAACEhfBdQhdBfiEAAQiDAAhfhfg");
+	this.shape_4.setTransform(48,48);
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3}]}).to({state:[{t:this.shape_4}]},2).to({state:[{t:this.shape_3}]},1).wait(1));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(15,15,64,64);
+
+
+(lib.GoOnButton = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{});
+
+	// Layer 3
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("#FFFFFF").s().p("AinC1ICwi1IiziyIBUhTIEBEHIkCEEg");
+	this.shape.setTransform(51.4,45.9);
+
+	this.timeline.addTween(cjs.Tween.get(this.shape).wait(2).to({x:53.4,y:47.9},0).to({_off:true},1).wait(1));
+
+	// Layer 2
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f("#D18B00").s().p("AkSETQhyhyAAihQAAifByhzQBzhyCfAAQChAAByByQBzBzAACfQAAChhzByQhyBzihAAQifAAhzhzg");
+	this.shape_1.setTransform(47,47);
+
+	this.shape_2 = new cjs.Shape();
+	this.shape_2.graphics.f("#D18B00").s().p("AkSETQhyhzgBigQABifByhzQBzhyCfgBQCgABBzByQByBzABCfQgBCghyBzQhzByigABQifgBhzhyg");
+	this.shape_2.setTransform(49,49);
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_1}]}).to({state:[{t:this.shape_2}]},2).to({state:[]},1).wait(1));
+
+	// Layer 1
+	this.shape_3 = new cjs.Shape();
+	this.shape_3.graphics.f("#F1DAB5").s().p("AlMFLQiIiJgBjCQABjBCIiLQCLiIDBgBQDCABCJCIQCKCLAADBQAADCiKCJQiJCKjCAAQjBAAiLiKg");
+	this.shape_3.setTransform(47,47);
+
+	this.shape_4 = new cjs.Shape();
+	this.shape_4.graphics.f("#F1DAB5").s().p("AlMFLQiIiJgBjCQABjBCIiLQCLiIDBgBQDDABCICIQCLCLAADBQAADCiLCJQiICLjDAAQjBAAiLiLg");
+	this.shape_4.setTransform(49,49);
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3}]}).to({state:[{t:this.shape_4}]},2).to({state:[{t:this.shape_3}]},1).wait(1));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,94,94);
+
+
+(lib.BlockerBLACK = function() {
+	this.initialize();
+
+	// Layer 1
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("#000000").s().p("ApXJXIAAyuISuAAIAASug");
+	this.shape.setTransform(60,60);
+
+	this.addChild(this.shape);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,120,120);
+
+
+(lib.ContinueButton = function() {
+	this.initialize();
+
+	// Skip
+	this.skipBtn = new lib.SkipButton();
+	this.skipBtn.setTransform(47,47,1,1,0,0,0,47,47);
+	new cjs.ButtonHelper(this.skipBtn, 0, 1, 2, false, new lib.SkipButton(), 3);
+
+	// Continue
+	this.nextBtn = new lib.GoOnButton();
+	this.nextBtn.setTransform(47,47,1,1,0,0,0,47,47);
+	new cjs.ButtonHelper(this.nextBtn, 0, 1, 2, false, new lib.GoOnButton(), 3);
+
+	this.addChild(this.nextBtn,this.skipBtn);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,96,96);
+
+
+// stage content:
 (lib.Main = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{preload:4,start:10,character_build:19,poohouse:34,germany:44});
+	this.initialize(mode,startPosition,loop,{preload:4,frontpage:14,start:24,character_build:33,poohouse:48,germany:58});
 
 	// timeline functions:
 	this.frame_0 = function() {
@@ -6438,35 +7523,37 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,118);
 	}
 
 	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(70));
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(84));
 
 	// Blocker
 	this.blocker_black = new lib.BlockerBLACK();
 	this.blocker_black.setTransform(-10,0,8.7,6.4);
 
-	this.timeline.addTween(cjs.Tween.get(this.blocker_black).wait(70));
+	this.timeline.addTween(cjs.Tween.get(this.blocker_black).wait(84));
 
-	// Top Bar
-	this.topbar = new lib.TopBarMain();
-	this.topbar.setTransform(512,54,1,1,0,0,0,512,54);
-	this.topbar._off = true;
+	// Topbar Container
+	this.topbarcontainer = new lib.PageContainerEmpty();
 
-	this.timeline.addTween(cjs.Tween.get(this.topbar).wait(10).to({_off:false},0).wait(60));
+	this.timeline.addTween(cjs.Tween.get(this.topbarcontainer).wait(84));
 
 	// Continue
 	this.continueBtn = new lib.ContinueButton();
 	this.continueBtn.setTransform(951,579.4,1,1,0,0,0,48,48);
 	this.continueBtn._off = true;
 
-	this.timeline.addTween(cjs.Tween.get(this.continueBtn).wait(10).to({_off:false},0).wait(60));
+	this.timeline.addTween(cjs.Tween.get(this.continueBtn).wait(14).to({_off:false},0).wait(70));
 
 	// Container
-	this.startpagecontainer = new lib.PageContainerEmpty();
-
 	this.pagecontainer = new lib.PageContainerEmpty();
 	this.pagecontainer.setTransform(0,108);
 
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.pagecontainer},{t:this.startpagecontainer}]}).wait(70));
+	this.timeline.addTween(cjs.Tween.get(this.pagecontainer).wait(84));
+
+	// Start IMage
+	this.instance = new lib._0_0Frontpage();
+	this.instance._off = true;
+
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(14).to({_off:false},0).to({_off:true},10).wait(60));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(502,324,1044,768);
@@ -6485,6 +7572,7 @@ var mainlib, images, createjs, ss;
 		// $scope.canvas;
 
 		function init(){
+			// Device.ratio = 1;
 			// Load files
 			var onFileLoad = function(evt){		
 				if (evt.item.type === 'image') { 
@@ -6495,53 +7583,29 @@ var mainlib, images, createjs, ss;
 				// Instantiate root object. Equivalent to root timeline
 				$scope.exportRoot = new $scope.lib.Main();
 
-				var stage = new createjs.Stage($scope.canvas);
-				stage.addChild($scope.exportRoot);
+				try{
+					var stage = new createjs.Stage($scope.canvas);
+					stage.addChild($scope.exportRoot);
+					
+					// Do cursor
+					stage.enableMouseOver(10);
 
-				// Do cursor
-				stage.enableMouseOver(10);
+					// Scale canvas according to ratio
+					stage.scaleX = stage.scaleY = Device.ratio;
+					stage.update();
 
-				// Scale canvas according to ratio
-				stage.scaleX = stage.scaleY = Device.ratio;
-				stage.update();
+					// Tik tak - ticker
+					Tick.init(stage, 15);
+					Tick.enable();	
 
-				// Tik tak - ticker
-				Tick.init(stage, 15);
-				Tick.enable();		
-
-				// console.log('stage.autoClear:', stage.autoClear);
-				
-				//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
-
-				// --------------------- Go start ->
-				ApplicationManager.start($scope.exportRoot);
+					// --------------------- Go start ->
+					ApplicationManager.start($scope.exportRoot);
+				}catch(err){
+					console.log(err);
+				}				
 			};
 			Preloader.load($scope.lib.properties.manifest, onFileLoad, onLoadComplete, 'full');
 		}
-
-		// function setup(){
-		// 	// Instantiate root object. Equivalent to root timeline
-		// 	$scope.exportRoot = new $scope.lib.FlashApp();
-
-		// 	var stage = new createjs.Stage($scope.canvas);
-		// 	stage.addChild($scope.exportRoot);
-
-		// 	// Do cursor
-		// 	stage.enableMouseOver(10);
-
-		// 	// Scale canvas according to ratio
-		// 	stage.scaleX = stage.scaleY = Device.ratio;
-		// 	stage.update();
-
-		// 	// Tik tak			
-		// 	Tick.init(stage, 15);
-		// 	Tick.enable();		
-			
-		// 	//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
-
-		// 	// --------------------- Go start ->
-		// 	ApplicationManager.start($scope.exportRoot);
-		// }
 
 		init();
 	}]);
@@ -6550,7 +7614,8 @@ var mainlib, images, createjs, ss;
 		function link(scope){	
 			// Create base canvas
 			// Device.ratio = 1;
-			scope.canvas = Canvas.create(1024, 648, Device.ratio);	
+			// scope.canvas = Canvas.create(1024, 648, Device.ratio);
+			scope.canvas = Canvas.create(1024, 648, Device.ratio);
 			scope.canvas.style.background = '#000';
 			document.body.appendChild(scope.canvas);	
 		}
@@ -6653,8 +7718,8 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/germany1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>germany1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="germany1.js"></script><script>var canvas, stage, exportRoot;\n' +
+  $templateCache.put('/fattiggarden/assets/logic/games/epilogue.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>epilogue</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="epilogue.js"></script><script>var canvas, stage, exportRoot;\n' +
     '\n' +
     'function init() {\n' +
     '	canvas = document.getElementById("canvas");\n' +
@@ -6671,7 +7736,7 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.germany_1();\n' +
+    '	exportRoot = new gamelib.epilogue();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
@@ -6681,552 +7746,5 @@ module.run(['$templateCache', function($templateCache) {
     '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/germany2.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>germany2</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="germany2.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.germany_2();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/poorhouse_intro.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>poorhouse_intro</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="poorhouse_intro.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	exportRoot = new gamelib.poorhouse_intro();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/proloque.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>proloque</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="proloque.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.proloque();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="648" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/svendborg.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>svendborg</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="svendborg.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.svendborg();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/svendborg_second.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>svendborg_second</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="svendborg_second.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.svendborg_second();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_1_0_1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_1_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_1_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_1_0_1();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_5.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_5</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_5.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_5();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_amory.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_amory</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_amory.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_7_1_amory();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_butcher.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_butcher</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_butcher.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_7_1_butcher();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_mine.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_mine</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_mine.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_7_1_mine();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_3_0.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_3_0</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_3_0.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_3_0();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_4_3.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_4_3</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_4_3.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_4_3();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_home1A.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_home1A</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_home1A.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_home1A();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_home1B.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_home1B</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_home1B.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_home1B();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_intro.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_intro</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_intro.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_intro();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
 })();
