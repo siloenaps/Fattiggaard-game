@@ -24,7 +24,7 @@
 				try{
 					var stage = new createjs.Stage($scope.canvas);
 					stage.addChild($scope.exportRoot);
-
+					
 					// Do cursor
 					stage.enableMouseOver(10);
 
@@ -47,6 +47,32 @@
 
 		init();
 	});
+
+	// app.controller('MainController', function($scope, Device) {
+	// 	// Instantiate root object. Equivalent to root timeline
+	// 	// $scope.exportRoot = new $scope.lib.Main();
+	// 	$scope.baseRoot = new createjs.MovieClip(null, 0, false, {preload:0, frontpage:10, start:20});
+	// 	try{
+	// 		var stage = new createjs.Stage($scope.canvas);
+	// 		stage.addChild($scope.baseRoot);
+			
+	// 		// Do cursor
+	// 		// stage.enableMouseOver(10);
+
+	// 		// Scale canvas according to ratio
+	// 		stage.scaleX = stage.scaleY = Device.ratio;
+	// 		stage.update();
+
+	// 		// Tik tak - ticker
+	// 		Tick.init(stage, 15);
+	// 		Tick.enable();	
+		
+	// 		// --------------------- Go start ->
+	// 		ApplicationManager.start($scope.baseRoot);
+	// 	}catch(err){
+	// 		console.log(err);
+	// 	}
+	// });
 	
 	app.directive('slCanvas', function(Device, Canvas) {	
 		function link(scope){	

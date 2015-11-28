@@ -5,11 +5,10 @@ var p; // shortcut to reference prototypes
 // library properties:
 lib.properties = {
 	width: 1024,
-	height: 648,
+	height: 540,
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../../../assets/images/pool/_0_0Frontpage.jpg", id:"_0_0Frontpage"},
 		{src:"../../../assets/images/pool/_0_1BG.jpg", id:"_0_1BG"},
 		{src:"../../../assets/images/pool/_0_2BG.jpg", id:"_0_2BG"},
 		{src:"../../../assets/images/pool/_0_3BG.jpg", id:"_0_3BG"},
@@ -71,12 +70,6 @@ lib.properties = {
 
 // symbols:
 
-
-
-(lib._0_0Frontpage = function() {
-	this.initialize(img._0_0Frontpage);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
 
 
 (lib._0_1BG = function() {
@@ -428,14 +421,15 @@ p.nominalBounds = new cjs.Rectangle(0,0,485,10);
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(25));
 
 	// Layer 1
-	this.text = new cjs.Text("???", "37px 'BigNoodleTitling'", "#B9961D");
-	this.text.lineHeight = 39;
-	this.text.lineWidth = 459;
+	this.text = new cjs.Text("Forvalteren på fattiggården siger om dig:", "32px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 34;
+	this.text.lineWidth = 751;
+	this.text.setTransform(0.4,8);
 
-	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Din voksne datter"},0).wait(1).to({text:"???"},0).wait(2).to({text:"Din voksne datter"},0).wait(1).to({text:"???"},0).wait(2).to({text:"Din voksne datter"},0).wait(1).to({text:"???"},0).wait(17));
+	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Din datter siger om dig:"},0).wait(1).to({text:"Forvalteren på fattiggården siger om dig:"},0).wait(1).to({text:"Din kone siger om dig:"},0).wait(1).to({text:"Din datter siger om dig:"},0).wait(1).to({text:"En af de andre indlagte på fattiggården \nsiger om dig:",lineWidth:689},0).wait(1).to({text:"Din kone siger om dig:",lineWidth:751},0).wait(1).to({text:"Din datter siger om dig:"},0).wait(1).to({text:"En af de andre indlagte på fattiggården \nsiger om dig:",lineWidth:689},0).wait(17));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,462.8,43.9);
+p.nominalBounds = new cjs.Rectangle(0.4,8,754.6,36);
 
 
 (lib.OpenionCloseups = function(mode,startPosition,loop) {
@@ -723,17 +717,6 @@ p.nominalBounds = new cjs.Rectangle(2.3,2.1,36.1,22.5);
 p.nominalBounds = new cjs.Rectangle(-2.3,0,195.5,34.5);
 
 
-(lib._00Frontpage = function() {
-	this.initialize();
-
-	// Layer 1
-	this.instance = new lib._0_0Frontpage();
-
-	this.addChild(this.instance);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
-
-
 (lib.EmptyContainerGrey = function() {
 	this.initialize();
 
@@ -745,13 +728,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
 	this.addChild(this.shape);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,580,404);
-
-
-(lib.EmptyContainer = function() {
-	this.initialize();
-
-}).prototype = p = new cjs.Container();
-p.nominalBounds = null;
 
 
 (lib.CloseButton = function(mode,startPosition,loop) {
@@ -967,6 +943,7 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,421.4,61.5);
 	// Info Popup
 	this.infopopup = new lib.InfoPopup();
 	this.infopopup.setTransform(1024,0);
+	this.infopopup.cache(-2,-2,1028,544);
 
 	// Info Buttons
 	this.info3 = new lib.InfoButton();
@@ -1199,6 +1176,7 @@ p.nominalBounds = new cjs.Rectangle(208.4,91,587.6,383.7);
 
 	// Page 0.2.1 Intro
 	this.character_intro = new lib.CharacterIntro();
+	this.character_intro.cache(210,130,602,397);
 
 	this.timeline.addTween(cjs.Tween.get(this.character_intro).wait(28));
 
@@ -1449,14 +1427,14 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 
 	// Text
 	this.playerlabel = new lib.Playerlabels();
-	this.playerlabel.setTransform(443.4,69,1,1,0,0,0,231.4,21.9);
+	this.playerlabel.setTransform(440.4,69,1,1,0,0,0,231.4,21.9);
 
 	this.charactertext = new lib.Page04CharacterText();
 	this.charactertext.setTransform(36,309.1,1,1,-3,0,0,-0.2,0.4);
 
 	// Players
 	this.player = new lib.PlayerAudio();
-	this.player.setTransform(212,98);
+	this.player.setTransform(212,132);
 
 	// Closeups
 	this.portrait = new lib.OpenionCloseups();
@@ -1486,8 +1464,8 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
 // stage content:
-(lib.proloque = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{start:0,character_build:9,poohouse:24,germany:34});
+(lib.prologue = function(mode,startPosition,loop) {
+if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{start:0,character_build:9});
 
 	// timeline functions:
 	this.frame_0 = function() {
@@ -1495,64 +1473,40 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	}
 
 	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(60));
-
-	// Actions
-	this.instance = new lib.CharacterCardName();
-	this.instance.setTransform(2027,324,1,1,0,0,0,856,11.5);
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(60));
-
-	// 0.0 Start
-	this.pageStart = new lib._00Frontpage();
-	this.pageStart.setTransform(512,324,1,1,0,0,0,512,324);
-
-	this.timeline.addTween(cjs.Tween.get(this.pageStart).to({_off:true},9).wait(51));
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(24));
 
 	// 0.1 Intro
 	this.page_intro = new lib._01IntroMain();
-	this.page_intro.setTransform(1024,108);
+	this.page_intro.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.page_intro).to({_off:true},24).wait(36));
+	this.timeline.addTween(cjs.Tween.get(this.page_intro).wait(24));
 
 	// 0.2 Character
 	this.page_character = new lib._02CharacterMain();
-	this.page_character.setTransform(1023,108);
+	this.page_character.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.page_character).to({_off:true},24).wait(36));
+	this.timeline.addTween(cjs.Tween.get(this.page_character).wait(24));
 
 	// 0.3 Card
 	this.page_card = new lib._03CardMain();
-	this.page_card.setTransform(1024,108);
+	this.page_card.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.page_card).to({_off:true},24).wait(36));
+	this.timeline.addTween(cjs.Tween.get(this.page_card).wait(24));
 
 	// 0.4 Opinion
 	this.page_opinion = new lib._04OpinionMain();
-	this.page_opinion.setTransform(1024,108);
+	this.page_opinion.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.page_opinion).to({_off:true},24).wait(36));
+	this.timeline.addTween(cjs.Tween.get(this.page_opinion).wait(24));
 
 	// 0.5 Map
 	this.page_map = new lib._05Map();
-	this.page_map.setTransform(1024,108);
+	this.page_map.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.page_map).to({_off:true},24).wait(36));
-
-	// 1.0 Poor House Container
-	this.poorhouse_container = new lib.EmptyContainer();
-	this.poorhouse_container.setTransform(0,108);
-
-	this.timeline.addTween(cjs.Tween.get(this.poorhouse_container).to({_off:true},34).wait(26));
-
-	// 2.0 Germany Container
-	this.germany_container = new lib.EmptyContainer();
-	this.germany_container.setTransform(0,108);
-
-	this.timeline.addTween(cjs.Tween.get(this.germany_container).wait(60));
+	this.timeline.addTween(cjs.Tween.get(this.page_map).wait(24));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(512,324,3285.3,648);
+p.nominalBounds = new cjs.Rectangle(1536,252,2261.3,558);
 
 })(gamelib = gamelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var gamelib, images, createjs, ss;

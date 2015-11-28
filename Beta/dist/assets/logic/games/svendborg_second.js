@@ -23,6 +23,7 @@ lib.properties = {
 		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
 		{src:"../../../assets/images/pool/ansat_1.png", id:"ansat_1"},
 		{src:"../../../assets/images/pool/ansat_2.png", id:"ansat_2"},
+		{src:"../../../assets/images/pool/ansat_3.png", id:"ansat_3"},
 		{src:"../../../assets/images/pool/BDCloseUp.png", id:"BDCloseUp"},
 		{src:"../../../assets/images/pool/BECloseUp.png", id:"BECloseUp"},
 		{src:"../../../assets/images/pool/BFCloseUp.png", id:"BFCloseUp"},
@@ -137,6 +138,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 (lib.ansat_2 = function() {
 	this.initialize(img.ansat_2);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
+(lib.ansat_3 = function() {
+	this.initialize(img.ansat_3);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
@@ -304,6 +311,44 @@ p.nominalBounds = new cjs.Rectangle(0,0,48,450);
 p.nominalBounds = new cjs.Rectangle(0,0,485,10);
 
 
+(lib._310PagePoints4 = function() {
+	this.initialize();
+
+	// Layer 1
+	this.text = new cjs.Text("Point", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 584;
+	this.text.setTransform(212,40);
+
+	this.text_1 = new cjs.Text("Et afslag… det kunne man\nogså have tænkt sig til.", "18px 'Special Elite'");
+	this.text_1.lineHeight = 20;
+	this.text_1.lineWidth = 262;
+	this.text_1.setTransform(529.8,137);
+
+	this.text_2 = new cjs.Text("-1", "48px 'Special Elite'", "#FFFFFF");
+	this.text_2.textAlign = "center";
+	this.text_2.lineHeight = 50;
+	this.text_2.lineWidth = 145;
+	this.text_2.setTransform(323.5,142);
+
+	this.text_3 = new cjs.Text("Humør", "28px 'BigNoodleTitling'");
+	this.text_3.textAlign = "center";
+	this.text_3.lineHeight = 30;
+	this.text_3.lineWidth = 106;
+	this.text_3.setTransform(454.3,144);
+
+	this.instance = new lib.PointNegativ();
+	this.instance.setTransform(238.8,126);
+
+	// Layer 2
+	this.instance_1 = new lib.PointEnkeltBG();
+	this.instance_1.setTransform(214,50);
+
+	this.addChild(this.instance_1,this.instance,this.text_3,this.text_2,this.text_1,this.text);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(212,40,602,187);
+
+
 (lib._39PageLetterReturn = function() {
 	this.initialize();
 
@@ -332,7 +377,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,485,10);
 p.nominalBounds = new cjs.Rectangle(111,0,913,540);
 
 
-(lib._372PagePoints2 = function() {
+(lib._372PagePoints3 = function() {
 	this.initialize();
 
 	// Layer 2
@@ -423,6 +468,55 @@ p.nominalBounds = new cjs.Rectangle(212,40,601.8,276);
 p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 
 
+(lib._342InmatePortraitMain = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{horsens:0,sundholm:1,svendborg:2});
+
+	// timeline functions:
+	this.frame_0 = function() {
+		this.stop();
+	}
+
+	// actions tween:
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
+
+	// Layer 1
+	this.instance = new lib.indsat_1();
+
+	this.instance_1 = new lib.indsat_2();
+
+	this.instance_2 = new lib.indsat_3();
+	this.instance_2.setTransform(-8,105);
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
+(lib._341EmployeePortraitMain = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{"horsens":0,"sundholm":1,"svendborg":2});
+
+	// timeline functions:
+	this.frame_0 = function() {
+		this.stop();
+	}
+
+	// actions tween:
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
+
+	// Layer 1
+	this.instance = new lib.ansat_1();
+
+	this.instance_1 = new lib.ansat_2();
+
+	this.instance_2 = new lib.ansat_3();
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
 (lib._322PagePoints1 = function() {
 	this.initialize();
 
@@ -459,66 +553,6 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 	this.addChild(this.instance_1,this.instance,this.text_3,this.text_2,this.text_1,this.text);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(212,40,602,187);
-
-
-(lib._134EmployeePortraitMain = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{horsens:0,sundholm:1,svendborg:2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
-
-	// Layer 1
-	this.instance = new lib.ansat_1();
-
-	this.instance_1 = new lib.ansat_2();
-
-	this.text = new cjs.Text("Mangler\nbillede", "24px 'Special Elite'");
-	this.text.lineHeight = 26;
-	this.text.lineWidth = 100;
-	this.text.setTransform(243,255.1);
-
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f().s("#CCCCCC").ss(1,1,1).p("Avn85IfPAAMAAAA5zI/PAAg");
-	this.shape.setTransform(299.5,374.5);
-
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#00CC33").s().p("Avmc6MAAAg5yIfOAAMAAAA5yg");
-	this.shape_1.setTransform(299.5,374.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.shape_1},{t:this.shape},{t:this.text}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib._133InmatePortraitMain = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"horsens":0,"sundholm":1,"svendborg":2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
-
-	// Layer 1
-	this.instance = new lib.indsat_1();
-
-	this.instance_1 = new lib.indsat_2();
-
-	this.instance_2 = new lib.indsat_3();
-	this.instance_2.setTransform(-8,105);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
 (lib.OpenionCloseups = function(mode,startPosition,loop) {
@@ -1493,9 +1527,9 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 	this.text.lineWidth = 620;
 	this.text.setTransform(522.8,20.1);
 
-	this.text_1 = new cjs.Text("Til det                                       sociale Udvalg\n\nUndertegnede                                       tilladelse til\nat dimittere, grundet daarlig behandling, fra\ndele af personalet paa fattiggaarden.\nOpsynsmanden lod mig i Lørdags høre, at jeg laa\nSvendborg kommune til byrde. Jeg arbejder hver\nDag fra kl. 8. morgen til kl. 17. aften for Kost og\nLogi og 50 øre om dagen. Han faar Kost og Logi og\nen stor Løn, og han bestiller ikke stort andet end\nat gaa med Hænderne dybt begravet til Albuerne i\nBukselommerne, og ser paa, at vi andre arbejder.\nHvem af os to, ham eller jeg, synes De ligger\nKommunen mest til Byrde?", "24px 'Special Elite'");
+	this.text_1 = new cjs.Text("Til det                                       sociale Udvalg\n\nUndertegnede                                       tilladelse til\nat dimittere, grundet daarlig behandling, fra\ndele af personalet. Opsynsmanden lod mig i\nLørdags høre, at jeg laa Kommunen til byrde. \nJeg arbejder hver Dag fra kl. 8. morgen til kl. 17.\naften for Kost og Logi og 50 øre om dagen.\nHan faar Kost og Logi og en stor Løn, og hanbestiller ikke stort andet end at gaa med Hænderne dybt begravet til Albuerne i Bukselommerne, og ser paa, \nat vi andre arbejder. Hvem af os to, ham eller jeg, \nsynes De ligger Kommunen mest til Byrde? Såfremt, \njeg får tilladelse til at dimittere, har jeg tænkt mig\nat søge arbejde i Tyskland.", "24px 'Special Elite'");
 	this.text_1.lineHeight = 26;
-	this.text_1.lineWidth = 619;
+	this.text_1.lineWidth = 684;
 	this.text_1.setTransform(213,59);
 
 	// Letter BG
@@ -1517,9 +1551,9 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
 
-	this.text = new cjs.Text("Slut med arbejde\nKæmpe SUK – \ntilbage på Fattiggården", "48px 'Special Elite'", "#FFFFFF");
+	this.text = new cjs.Text("Tilbage på Fattiggården…", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
-	this.text.lineWidth = 738;
+	this.text.lineWidth = 737;
 	this.text.setTransform(210,38);
 
 	this.addChild(this.text,this.player,this.portrait);
@@ -1562,6 +1596,50 @@ p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 	this.addChild(this.text_3,this.text_2,this.text_1,this.text,this.checkbox1,this.checkbox2);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(210,38,615,355);
+
+
+(lib._342PagePlayAdviceInmate = function() {
+	this.initialize();
+
+	// Text
+	this.text = new cjs.Text("Få et godt råd af en indsat", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 800;
+	this.text.setTransform(210,38);
+
+	// Player
+	this.player = new lib.PlayerAudio();
+	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
+
+	// Photo
+	this.portrait = new lib._342InmatePortraitMain();
+	this.portrait.setTransform(823,261,1,1,0,0,0,201,279);
+
+	this.addChild(this.portrait,this.player,this.text);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
+
+
+(lib._341PagePlayAdviceEmployee = function() {
+	this.initialize();
+
+	// Photo
+	this.portrait = new lib._341EmployeePortraitMain();
+	this.portrait.setTransform(823,261,1,1,0,0,0,201,279);
+
+	// Text
+	this.text = new cjs.Text("Få et godt råd af en ansat", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 800;
+	this.text.setTransform(210,38);
+
+	// Player
+	this.player = new lib.PlayerAudio();
+	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
+
+	this.addChild(this.player,this.text,this.portrait);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 (lib._33PageGetout = function() {
@@ -1651,50 +1729,6 @@ p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
 p.nominalBounds = new cjs.Rectangle(121,38,903,534.5);
 
 
-(lib._134PagePlayAdviceEmployee = function() {
-	this.initialize();
-
-	// Photo
-	this.portrait = new lib._134EmployeePortraitMain();
-	this.portrait.setTransform(823,261,1,1,0,0,0,201,279);
-
-	// Text
-	this.text = new cjs.Text("Få et godt råd af en ansat", "48px 'Special Elite'", "#FFFFFF");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 800;
-	this.text.setTransform(210,38);
-
-	// Player
-	this.player = new lib.PlayerAudio();
-	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
-
-	this.addChild(this.player,this.text,this.portrait);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
-
-
-(lib._133PagePlayAdviceInmate = function() {
-	this.initialize();
-
-	// Text
-	this.text = new cjs.Text("Få et godt råd af en indsat", "48px 'Special Elite'", "#FFFFFF");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 800;
-	this.text.setTransform(210,38);
-
-	// Player
-	this.player = new lib.PlayerAudio();
-	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
-
-	// Photo
-	this.portrait = new lib._133InmatePortraitMain();
-	this.portrait.setTransform(823,261,1,1,0,0,0,201,279);
-
-	this.addChild(this.portrait,this.player,this.text);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
-
-
 // stage content:
 (lib.svendborg_second = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{intro:0});
@@ -1706,6 +1740,12 @@ p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(26));
+
+	// 3.10 Points4
+	this.points4 = new lib._310PagePoints4();
+	this.points4.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.points4).wait(26));
 
 	// 3.9 Answer on letter
 	this.letteranswer = new lib._39PageLetterReturn();
@@ -1720,7 +1760,7 @@ p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 	this.timeline.addTween(cjs.Tween.get(this.letterwrite).wait(26));
 
 	// 3.7.2 Points3
-	this.points3 = new lib._372PagePoints2();
+	this.points3 = new lib._372PagePoints3();
 	this.points3.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.points3).wait(26));
@@ -1750,13 +1790,13 @@ p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 	this.timeline.addTween(cjs.Tween.get(this.choosewayout).wait(26));
 
 	// 3.4.2 Advice Inmate
-	this.adviceinmate = new lib._133PagePlayAdviceInmate();
+	this.adviceinmate = new lib._342PagePlayAdviceInmate();
 	this.adviceinmate.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.adviceinmate).wait(26));
 
 	// 3.4.1 Advice Employee
-	this.adviceemployee = new lib._134PagePlayAdviceEmployee();
+	this.adviceemployee = new lib._341PagePlayAdviceEmployee();
 	this.adviceemployee.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.adviceemployee).wait(26));

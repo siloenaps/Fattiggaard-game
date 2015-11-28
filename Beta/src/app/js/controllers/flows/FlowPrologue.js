@@ -61,6 +61,7 @@ var FlowProloque = function(container){
 		},
 		next: function(page){
 			'use strict';
+			console.log('next:',page);
 			if(this.currentPage !== null){
 				this.currentPage.destroy();
 				this.currentPage = null;

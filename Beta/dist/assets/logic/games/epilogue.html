@@ -2,13 +2,13 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>slide_4_3</title>
+<title>epilogue</title>
 
 <script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script>
 <script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script>
 <script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script>
 <script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script>
-<script src="slide_4_3.js"></script>
+<script src="epilogue.js"></script>
 
 <script>
 var canvas, stage, exportRoot;
@@ -20,7 +20,7 @@ function init() {
 	var loader = new createjs.LoadQueue(false);
 	loader.addEventListener("fileload", handleFileLoad);
 	loader.addEventListener("complete", handleComplete);
-	loader.loadManifest(slidelib.properties.manifest);
+	loader.loadManifest(gamelib.properties.manifest);
 }
 
 function handleFileLoad(evt) {
@@ -28,19 +28,20 @@ function handleFileLoad(evt) {
 }
 
 function handleComplete(evt) {
-	exportRoot = new slidelib.slide_4_3();
+	exportRoot = new gamelib.epilogue();
 
 	stage = new createjs.Stage(canvas);
 	stage.addChild(exportRoot);
 	stage.update();
+	stage.enableMouseOver();
 
-	createjs.Ticker.setFPS(slidelib.properties.fps);
+	createjs.Ticker.setFPS(gamelib.properties.fps);
 	createjs.Ticker.addEventListener("tick", stage);
 }
 </script>
 </head>
 
 <body onload="init();" style="background-color:#D4D4D4">
-	<canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas>
+	<canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas>
 </body>
 </html>

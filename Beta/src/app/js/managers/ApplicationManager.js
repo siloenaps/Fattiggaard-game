@@ -25,15 +25,12 @@ var ApplicationManager = {
 		}		
 
 		// Init page manager
-		FlowManager.init(root);
-
-		// Topbar
 		try{
-			Topbar.init(root.topbar);
+			FlowManager.init(root);
 		}catch(err){
 			console.log(err);
 		}
-		
+			
 
 		// Fade black blocker out
 		// createjs.Tween.get(root.blocker_black)
