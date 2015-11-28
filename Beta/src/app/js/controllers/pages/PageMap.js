@@ -15,7 +15,7 @@ PageMap.prototype.start = function() {
 
 	// Checkboxes
 	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
-	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundby'});
+	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundholm'});
 	var btn3 = new RadioButton(this.view.checkbox3, {value:'svendborg'});
 
 	// Group
@@ -42,7 +42,6 @@ PageMap.prototype.start = function() {
 			self.dispatchEvent(new createjs.Event('continue'));
 		});
 	}, self);
-
 
 	// Info popup
 	this.view.infopopup.visible = false;

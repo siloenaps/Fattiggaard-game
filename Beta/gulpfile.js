@@ -139,6 +139,14 @@ gulp.task('images', function() {
     .pipe(imagemin({ progressive: true , optimizationLevel: 5}))
     .pipe(gulp.dest('./dist/assets/images'));
 });
+/**
+* Assets - Images
+*/
+gulp.task('sound', function() {
+    return gulp.src('./src/app/assets/sounds/**/*.*')
+    .pipe(imagemin({ progressive: true , optimizationLevel: 5}))
+    .pipe(gulp.dest('./dist/assets/sounds'));
+});
 
 
 /**
@@ -158,6 +166,11 @@ gulp.task('dist-code', ['vendors', 'styles-dist', 'scripts-dist'], function () {
     .pipe(g.htmlmin(htmlminOpts))
     .pipe(gulp.dest('./dist/'));
 });
+gulp.task('dist-sound', function() {
+    return gulp.src('./src/app/assets/sounds/**/*.*')
+    .pipe(gulp.dest('./dist/assets/sounds'));
+});
+
 
 /**
  * Static file server
