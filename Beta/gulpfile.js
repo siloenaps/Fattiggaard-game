@@ -12,6 +12,7 @@ var gulp = require('gulp'),
     stylish = require('jshint-stylish'),
     bower = require('./bower'),
     imagemin = require('gulp-imagemin'),
+    ftp = require( 'vinyl-ftp' ),
     isWatching = false;
 
 var htmlminOpts = {
@@ -329,3 +330,31 @@ function jshint (jshintfile) {
     .pipe(g.jshint, jshintfile)
     .pipe(g.jshint.reporter, stylish)();
 }
+
+/**
+ * Delploy
+ */
+gulp.task( 'deploy-stage', function () {
+ 
+    var conn = ftp.create( {
+        host:     'siloen.dk',
+        user:     'siloen',
+        password: 'cxraz999',
+        parallel: 10,
+        log:      null
+    } );
+ 
+    var globs = [
+        'dist/index.html',
+        'dist/*.js',
+        'dist/assets/**'
+    ];
+ 
+    // using base = '.' will transfer everything to /public_html correctly 
+    // turn off buffering in gulp.src for best performance 
+ 
+    return gulp.src( globs, { base: './dist', buffer: false } )
+        .pipe( conn.newer( '/var/www/html/clients/forsorgsmuseet' ) ) // only upload newer files 
+        .pipe( conn.dest( '/var/www/html/clients/forsorgsmuseet' ) );
+ 
+} );
