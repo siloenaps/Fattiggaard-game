@@ -949,18 +949,18 @@ PageMap.prototype.start = function() {
 	this.infoButtons.push(this.view.info1);
 	this.infoButtons.push(this.view.info2);
 	this.infoButtons.push(this.view.info3);
-	this.view.info1.id = 1;
-	this.view.info2.id = 2;
-	this.view.info3.id = 3;
+	this.view.info1.id = 0;
+	this.view.info2.id = 1;
+	this.view.info3.id = 2;
 	// Info buttons events
 	this.listeners['info1'] = this.view.info1.on('click', function(event){
-		this.openInfo(event.target.id);
+		self.openInfo(event.target.id);
 	}, this);
 	this.listeners['info2'] = this.view.info2.on('click', function(event){
-		this.openInfo(event.target.id);
+		self.openInfo(event.target.id);
 	}, this);
 	this.listeners['info3'] = this.view.info3.on('click', function(event){
-		this.openInfo(event.target.id);
+		self.openInfo(event.target.id);
 	}, this);
 	// Close button	
 	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){
@@ -5733,11 +5733,17 @@ var Preloader = {
 	imagePath: 'assets/images/preloader.gif',
 
 
-	load: function(manifest, handleFileLoad, handleComplete, clss, keep){
+	load: function(manifest, handleFileLoad, handleComplete, clss, keep, factor){
 		'use strict';
 		this.id++;
 
+		(factor === undefined) ? this.factor = 1 : this.factor = factor;
+		(clss === undefined) ? clss = 'center': //nothing;
+
+		// clss = 'center'
+		// console.log('factor:', this.factor)
 		console.log('clss:', clss)
+		// clss = 'small'
 		
 		// If nothing to load exit 
 		if(manifest.length === 0){
@@ -5763,17 +5769,14 @@ var Preloader = {
 				if(handleComplete != null){
 					handleComplete(event);
 				}	
-				// self.remove(event.target.id);				
 				if(!event.target.keepPreloader){
-					//console.log(event.target.id);
 					self.remove(event.target.id);
 				}
 			});
 			loader.addEventListener('progress', function(event){
-				console.log(event.loaded);
-				var w = event.loaded * 400;
+				// console.log(event.loaded);
+				var w = (event.loaded * 400) / self.factor;
 				$(".progress-bar .bar").css("width", w);
-				// $(".progress-bar .bar").css("left", (w/2)-200);
 			});	
 
 		// self.add('preloader small');
@@ -6360,6 +6363,7 @@ var FlowManager = {
 
 					// To intro
 					self.gotoPage('0.1');
+					// self.gotoPage('1.0.1'); // TEST
 				};	
 				
 			break;
@@ -6668,10 +6672,6 @@ var ApplicationManager = {
 
 		// Go to start
 		FlowManager.gotoPage('0.0');
-		// FlowManager.gotoPage('1.0.1');
-		// FlowManager.gotoPage('2.5');
-		// FlowManager.gotoPage('3.0');
-		// FlowManager.gotoPage('4.0');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},

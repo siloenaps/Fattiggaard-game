@@ -19,8 +19,6 @@ body {
     height: 648px; }
     .preloader.full div {
       top: 50%; }
-  .preloader.center > div {
-    top: 44%; }
   .preloader.small {
     width: 100px;
     height: 100px; }
@@ -28,6 +26,8 @@ body {
     width: 1024px;
     height: 548px;
     background-color: transparent; }
+    .preloader.center div {
+      top: 44%; }
   .preloader .image {
     background-image: url("/assets/images/preloader.gif");
     background-size: 70px 70px;
