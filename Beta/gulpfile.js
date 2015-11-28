@@ -347,6 +347,7 @@ gulp.task( 'deploy-stage', function () {
     var globs = [
         'dist/index.html',
         'dist/*.js',
+        'dist/*.css',
         'dist/assets/**'
     ];
  
