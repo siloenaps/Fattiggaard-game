@@ -75,10 +75,6 @@ var FlowProloque = function(container){
 					this.view.gotoAndStop('character_build');				
 					this.view.page_intro.x = 0;				
 					this.currentPage = new PageIntro(this.view.page_intro, 'intro'); 
-					// this.currentPage.on('ready', function(event){
-					// 	event.remove();
-					// 	// Tick.disable();
-					// })
 					this.currentPage.start(); 
 
 					// Topbar

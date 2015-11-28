@@ -151,6 +151,13 @@ gulp.task('dist', ['vendors', 'assets', 'styles-dist', 'scripts-dist'], function
     .pipe(g.htmlmin(htmlminOpts))
     .pipe(gulp.dest('./dist/'));
 });
+gulp.task('dist-code', ['vendors', 'styles-dist', 'scripts-dist'], function () {
+  return gulp.src('./src/app/index.html')
+    .pipe(g.inject(gulp.src('./dist/vendors.min.{js,css}'), {ignorePath: 'dist', starttag: '<!-- inject:vendor:{{ext}} -->'}))
+    .pipe(g.inject(gulp.src('./dist/' + bower.name + '.min.{js,css}'), {ignorePath: 'dist'}))
+    .pipe(g.htmlmin(htmlminOpts))
+    .pipe(gulp.dest('./dist/'));
+});
 
 /**
  * Static file server

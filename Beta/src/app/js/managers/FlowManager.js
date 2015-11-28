@@ -29,19 +29,16 @@ var FlowManager = {
 					event.remove();
 					Library.clearSlide();
 					Library.clearGame();
-					Preloader.load(lib.properties.manifest, onFileLoad, onLoadComplete, 'full');
+					Preloader.load(lib.properties.manifest, onFileLoad, onLoadComplete, 'full', true);
 				}, this);
 				ContinueButton.activate('next');
 
 				var onFileLoad = function(event){
 					if (event.item.type === 'image') { 
-						// console.log('result:', event.item.id, event.result);
 						images[event.item.id] = event.result; 
 					}
 				};
 				var onLoadComplete = function(event){
-					// console.log('onLoadComplete');
-
 					// Instantiate view
 					self.topbar = new lib.TopbarView();
 
@@ -50,13 +47,12 @@ var FlowManager = {
 
 					// To intro
 					self.gotoPage('0.1');
+					// self.gotoPage('1.0.1'); // TEST
 				};	
 				
 			break;
 			case '0.1':
 				// Proluque
-
-
 				// Topbar
 				try{
 					Topbar.init(this.topbar.mainClip);
@@ -66,8 +62,6 @@ var FlowManager = {
 				}
 
 				// Tick.disable();
-				console.log('0.1')
-
 				var self = this;
 
 				// Go to start frame

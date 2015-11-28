@@ -6,46 +6,61 @@ body {
   background: #FFF;
   overflow: hidden;
 }
-#preloader{
-	// border: 3px solid red;
+.preloader{
+	
 	background-color: #000;
 	position: absolute; 
 	z-index:1000; 
 	left:0; top:0;
-}
-#preloader.full{
-  background-image: url("/assets/images/Logo_wait.jpg");
-  background-repeat: no-repeat;
-	width:1024px; 
-	height:548px;
-}
-#preloader.small{
-	width:100px; 
-	height:100px;
-}
-#preloader.center{
-	width:1024px; 
-	height:548px;
-	background-color: transparent;
-}
-#preloader>div{
-  background-image: url("/assets/images/preloader.gif");
-  background-size: 70px 70px;
-  background-repeat: no-repeat;
-	margin: 0px auto; 
-	width:70px;
-  height:70px;
-	position: relative;	
-	transform: translateY(-50%);
-  // border: 1px solid red;
-}
-#preloader.full>div{
-  top: 60%;
-}
-#preloader.center>div{
-  top: 44%;
-}
 
+  &.full{
+    // border: 3px solid red;
+    background-image: url("/assets/images/Logo_wait.jpg");
+    background-repeat: no-repeat;
+    width:1024px; 
+    height:648px;
+    div{
+      top: 50%;
+    }
+  }
+  &.small{
+    width:100px; 
+    height:100px;
+  }
+  &.center{
+    width:1024px; 
+    height:548px;
+    background-color: transparent;
+    div{
+      top: 44%;
+    }
+  }
+
+  .image{
+    background-image: url("/assets/images/preloader.gif");
+    background-size: 70px 70px;
+    background-repeat: no-repeat;
+    margin: 0px auto; 
+    width:70px;
+    height:70px;
+    position: relative; 
+    transform: translateY(-50%);
+    // border: 1px solid red;
+  }
+  .progress-bar{
+    .bar{
+      height: inherit;
+      width: inherit;
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+    margin: auto;
+    position: relative; 
+    transform: translateY(50%);
+    height: 10px;
+    width: 400px;
+    border: 1px solid #FFF;
+  }
+}
 
 
 // Preloadin animation
