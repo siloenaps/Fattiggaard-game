@@ -21,53 +21,29 @@
 				// Instantiate root object. Equivalent to root timeline
 				$scope.exportRoot = new $scope.lib.Main();
 
-				var stage = new createjs.Stage($scope.canvas);
-				stage.addChild($scope.exportRoot);
+				try{
+					var stage = new createjs.Stage($scope.canvas);
+					stage.addChild($scope.exportRoot);
 
-				// Do cursor
-				stage.enableMouseOver(10);
+					// Do cursor
+					stage.enableMouseOver(10);
 
-				// Scale canvas according to ratio
-				stage.scaleX = stage.scaleY = Device.ratio;
-				stage.update();
+					// Scale canvas according to ratio
+					stage.scaleX = stage.scaleY = Device.ratio;
+					stage.update();
 
-				// Tik tak - ticker
-				Tick.init(stage, 15);
-				Tick.enable();		
+					// Tik tak - ticker
+					Tick.init(stage, 15);
+					Tick.enable();	
 
-				// console.log('stage.autoClear:', stage.autoClear);
-				
-				//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
-
-				// --------------------- Go start ->
-				ApplicationManager.start($scope.exportRoot);
+					// --------------------- Go start ->
+					ApplicationManager.start($scope.exportRoot);
+				}catch(err){
+					console.log(err);
+				}				
 			};
 			Preloader.load($scope.lib.properties.manifest, onFileLoad, onLoadComplete, 'full');
 		}
-
-		// function setup(){
-		// 	// Instantiate root object. Equivalent to root timeline
-		// 	$scope.exportRoot = new $scope.lib.FlashApp();
-
-		// 	var stage = new createjs.Stage($scope.canvas);
-		// 	stage.addChild($scope.exportRoot);
-
-		// 	// Do cursor
-		// 	stage.enableMouseOver(10);
-
-		// 	// Scale canvas according to ratio
-		// 	stage.scaleX = stage.scaleY = Device.ratio;
-		// 	stage.update();
-
-		// 	// Tik tak			
-		// 	Tick.init(stage, 15);
-		// 	Tick.enable();		
-			
-		// 	//console.log('createjs.Ticker.framerate:', createjs.Ticker.framerate)
-
-		// 	// --------------------- Go start ->
-		// 	ApplicationManager.start($scope.exportRoot);
-		// }
 
 		init();
 	});

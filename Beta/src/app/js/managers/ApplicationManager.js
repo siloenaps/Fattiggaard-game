@@ -4,23 +4,36 @@ var ApplicationManager = {
 		'use strict';
 		this.root = root;
 
+		// Init Environment info
+		Environment.init();
+
 		// Cursor init
 		Cursor.root = root;
 
 		// GUI
-		ContinueButton.init(root.continueBtn);
+		try{
+			ContinueButton.init(root.continueBtn);
+		}catch(err){
+			console.log(err);
+		}
 		
-		// Init Environment info
-		Environment.init();
-
 		// Game
-		GameManager.init(root);
+		try{
+			GameManager.init(root);
+		}catch(err){
+			console.log(err);
+		}		
 
 		// Init page manager
 		FlowManager.init(root);
 
 		// Topbar
-		Topbar.init(root.topbar);
+		try{
+			Topbar.init(root.topbar);
+		}catch(err){
+			console.log(err);
+		}
+		
 
 		// Fade black blocker out
 		// createjs.Tween.get(root.blocker_black)

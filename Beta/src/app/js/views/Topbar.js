@@ -2,6 +2,9 @@ var Topbar = {
 	view: null,
 	soundController: null,
 	init: function(view){
+		if(view === undefined){
+			throw new Error("'view' is undefined");
+		}
 		this.view = view;		
 	},
 	go: function(frm){

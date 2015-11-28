@@ -10,6 +10,10 @@ var PageStart = function(container){
 		start: function(){
 			'use strict';
 
+			if(this.container === undefined){
+				throw new Error("'container' is undefined");
+			}
+
 			// Dispatcher
 			createjs.EventDispatcher.initialize(this);
 

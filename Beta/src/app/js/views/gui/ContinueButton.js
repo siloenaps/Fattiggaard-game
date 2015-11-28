@@ -1,6 +1,10 @@
 var ContinueButton = {
 	init: function(view){
 		'use strict';
+		if(view === undefined){
+			throw new Error("'view' is undefined");
+		}
+
 		this.type = null;
 
 		// Safety belt

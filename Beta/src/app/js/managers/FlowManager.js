@@ -15,37 +15,42 @@ var FlowManager = {
 			this.currentPage = null;
 		}
 		var self = this;
-		this.root.gotoAndStop('character_build'); // TEST
+		// this.root.gotoAndStop('character_build'); // TEST
 		switch(page){
 			case '0.0':
 				// Tick.disable();
 				var self = this;
+				this.root.gotoAndStop('frontpage');	
 				// Go to start frame
-				this.root.gotoAndStop('frontpage');
-				this.currentPage = new PageStart(this.root.startpagecontainer);
-				this.currentPage.start(); 
+				try{
+					this.currentPage = new PageStart(this.root.startpagecontainer);
+					this.currentPage.start(); 
 
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
+					// Blocker
+					this.currentPage.on('ready', function(event){
+						event.remove();					
+						self.root.blocker_black.visible = false;
+					}, this);
 
-				// Button to next page
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					try{
-						Library.clearSlide();	
-					}catch(err){
-						console.log(err);
-					}
-					try{
-						Library.clearGame();
-					}catch(err){
-						console.log(err);
-					}					
-					self.gotoPage('0.1');
-				}, this);	
+					// Button to next page
+					this.currentPage.on('continue', function(event){
+						event.remove();
+						try{
+							Library.clearSlide();	
+						}catch(err){
+							console.log(err);
+						}
+						try{
+							Library.clearGame();
+						}catch(err){
+							console.log(err);
+						}					
+						self.gotoPage('0.1');
+					}, this);	
+				}catch(err){
+					console.log(err);
+				}
+				
 				
 			break;
 			case '0.1':
