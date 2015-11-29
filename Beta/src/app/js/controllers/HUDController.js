@@ -6,7 +6,7 @@ var HUDController = {
 		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src, SoundService.matrix.points.minus.duration);
 	},
 	update: function(){
-		if(view === undefined || view === null){
+		if(this.view === undefined || this.view === null){
 			throw new Error("'view' is undefined");
 		}
 

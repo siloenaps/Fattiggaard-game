@@ -25,7 +25,7 @@ lib.properties = {
 		{src:"../../../assets/images/pool/_1_3BGsvendborg.jpg", id:"_1_3BGsvendborg"},
 		{src:"../../../assets/images/pool/_1_4BG.jpg", id:"_1_4BG"},
 		{src:"../../../assets/images/pool/_1_5BGsvendborg2.jpg", id:"_1_5BGsvendborg2"},
-		{src:"../../../assets/images/pool/_1_8BGsvendborg.jpg", id:"_1_8BGsvendborg"},
+		{src:"../../../assets/images/pool/_1_8BG_horsens.jpg", id:"_1_8BG_horsens"},
 		{src:"../../../assets/images/pool/_22.jpg", id:"_22"},
 		{src:"../../../assets/images/pool/_23RecruimentOffice.jpg", id:"_23RecruimentOffice"},
 		{src:"../../../assets/images/pool/_2_1BG_sundholm.jpg", id:"_2_1BG_sundholm"},
@@ -162,8 +162,8 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._1_8BGsvendborg = function() {
-	this.initialize(img._1_8BGsvendborg);
+(lib._1_8BG_horsens = function() {
+	this.initialize(img._1_8BG_horsens);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -939,19 +939,14 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 (lib.Background1_8 = function() {
 	this.initialize();
 
-	// Layer 2
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f().s("#CCCCCC").ss(1,1,1).p("EhK/glfMCV/AAAMAAABK/MiV/AAAg");
-	this.shape.setTransform(509.5,269.5);
-
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#33FF00").s().p("EhK+AlfMAAAhK9MCV9AAAMAAABK9g");
-	this.shape_1.setTransform(509.5,269.5);
+	// Layer 3
+	this.instance = new lib.horsens_title();
+	this.instance.setTransform(16,14);
 
 	// Layer 1
-	this.instance = new lib._1_8BGsvendborg();
+	this.instance_1 = new lib._1_8BG_horsens();
 
-	this.addChild(this.instance,this.shape_1,this.shape);
+	this.addChild(this.instance_1,this.instance);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -1916,7 +1911,7 @@ p.nominalBounds = new cjs.Rectangle(211,-18,813,558);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_2_1).wait(26));
 
-	// 1.8 ?
+	// 1.8
 	this.bg_1_8 = new lib.Background1_8();
 	this.bg_1_8.setTransform(1024,0);
 
