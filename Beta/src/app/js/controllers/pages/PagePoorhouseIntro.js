@@ -67,32 +67,24 @@ PagePoorhouseIntro.prototype.setup = function(){
 	this.lib = gamelib;
 	this.slideLib = slidelib;
 	Clss = this.lib.poorhouse_intro;
-	switch(this.id){
-		case 'horsens':			
-			// Clss = this.lib.horsens;
-			manifest = this.lib.properties.manifest;
-
-		break;
-		case 'sundholm':
-			// this.lib = sundbyGameLib;
-			// Clss = this.lib.sundby;
-			manifest = this.lib.properties.manifest;
-		break;
-		case 'svendborg':				
-			// Clss = this.lib.svendborg;		
-			manifest = this.lib.properties.manifest;
-		break;
-	}
+	manifest = this.lib.properties.manifest;
+	// switch(this.id){
+	// 	case 'horsens':			
+	// 		manifest = this.lib.properties.manifest;
+	// 	break;
+	// 	case 'sundholm':
+	// 		manifest = this.lib.properties.manifest;
+	// 	break;
+	// 	case 'svendborg':				
+	// 		manifest = this.lib.properties.manifest;
+	// 	break;
+	// }
 
 	try{
 		// Background image
 		this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';
 		manifest.push({src: this.bgImage.src, id: this.bgImage.id});
 
-		// // Portrait
-		// if(this.portrait !== null){
-		// 	manifest.push({src: this.portrait.src, id: this.portrait.id});
-		// }
 	}catch(err){
 		console.log(PlayerStats.poorhouse, this.bgImage);
 		console.log(err);
@@ -193,12 +185,6 @@ PagePoorhouseIntro.prototype.intro = function(trigger){
 	var bitmap = new createjs.Bitmap(this.bgImage.src);	
 	this.view.bg_container.addChild(bitmap);
 
-	// // Portrait
-	// if(this.portrait !== null){
-	// 	bitmap = new createjs.Bitmap(this.portrait.src);	
-	// 	this.view.portrait.addChild(bitmap);
-	// }
-	
 	// Slide. Loading is self contained
 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 	this.listeners.complete = self.playerComponent.on('complete', function(event){

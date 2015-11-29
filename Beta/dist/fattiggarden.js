@@ -574,540 +574,6 @@ ButtonCustom.prototype.destroy = function(){
 }
 
 createjs.EventDispatcher.initialize(ButtonCustom.prototype);
-var PagePoorhouseIntro = function(container){
-	'use strict';
-	this.container = container;
-	this.id = null; 
-	this.view = null;	
-	this.lib = null;
-	this.slideLib = null;
-	this.playerComponent = null;
-	this.listeners = {};
-	this.trigger = 'start'; 
-	this.currentPage = null;
-	this.currentBackground = null;
-	this.groups = {};
-	// this.portrait = null;
-
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost('skip');
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
-};
-PagePoorhouseIntro.prototype.setPortrait = function(image){
-	this.portrait = image;
-}
-PagePoorhouseIntro.prototype.start = function(flowId, slideName){
-	this.id = PlayerStats.poorhouse;
-	this.flowId = flowId;
-	this.slideName = slideName;
-
-	var gameFile;
-
-	console.log('PagePoorhouseIntro:start', slideName+'.js');
-	console.log('PagePoorhouseIntro', this.runonce, slideName+'.js');
-
-	LoadJS.load(
-		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
-		Delegate.create(this.setup, this)
-	);
-};
-PagePoorhouseIntro.prototype.setup = function(){
-	'use strict';
-	console.log('PagePoorhouseIntro::setup:runonce', this.runonce);
-
-	if(this.runonce != null)
-		return;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	// Tick
-	Tick.framerate(15);
-
-	var self = this;
-	var manifest, Clss;	
-
-	// Setup flow
-	this.flow = new SubFlowController();
-	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
-	this.flow.addAction('end', Delegate.create(
-		function(){
-			self.removeEvents();
-			self.dispatchEvent(new createjs.Event('continue'));
-		}, this)
-	);
-
-	console.log('PagePoorhouseIntro::setup:id', this.id);
-	this.lib = gamelib;
-	this.slideLib = slidelib;
-	Clss = this.lib.poorhouse_intro;
-	switch(this.id){
-		case 'horsens':			
-			// Clss = this.lib.horsens;
-			manifest = this.lib.properties.manifest;
-
-		break;
-		case 'sundholm':
-			// this.lib = sundbyGameLib;
-			// Clss = this.lib.sundby;
-			manifest = this.lib.properties.manifest;
-		break;
-		case 'svendborg':				
-			// Clss = this.lib.svendborg;		
-			manifest = this.lib.properties.manifest;
-		break;
-	}
-
-	try{
-		// Background image
-		this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';
-		manifest.push({src: this.bgImage.src, id: this.bgImage.id});
-
-		// // Portrait
-		// if(this.portrait !== null){
-		// 	manifest.push({src: this.portrait.src, id: this.portrait.id});
-		// }
-	}catch(err){
-		console.log(PlayerStats.poorhouse, this.bgImage);
-		console.log(err);
-	}	
-	
-	// Load files
-	var onFileLoad = function(event){
-		if (event.item.type === 'image') { 
-			console.log(event.item.id, event.result);
-			images[event.item.id] = event.result; 
-		}
-	};
-	var onLoadComplete = function(event){
-		// Instantiate view
-		self.view = new Clss();
-
-		//Add
-		self.container.addChild(self.view);
-
-		// Set start page
-		self.next();
-
-		console.log('PagePoorhouseIntro:onLoadComplete');
-		self.dispatchEvent(new createjs.Event('ready'));
-	};
-	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-	console.log('manifest:', manifest);
-};
-PagePoorhouseIntro.prototype.next = function(){
-	'use strict';
-	this.flow.next(this.trigger);	
-};
-PagePoorhouseIntro.prototype.onComplete = function(event) {
-	'use strict';
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-	}
-
-	// Set next button active
-	this.continueBtn.activate('next');	
-};
-PagePoorhouseIntro.prototype.onContinue = function(event) {
-	'use strict';
-	
-	console.log('PagePoorhouseIntro::onContinue');
-	
-	// Stop player if any
-	if(this.playerComponent != null){
-		this.playerComponent.stop();
-	}
-
-	this.next();
-
-	// console.log('this.playerComponent:', this.playerComponent)
-};
-PagePoorhouseIntro.prototype.removeEvents = function() {
-	'use strict';
-	
-	// Remove events
-	this.continueBtn.off('click', this.listeners.continue);
-	this.listeners.continue = null;
-};
-PagePoorhouseIntro.prototype.destroy = function() {
-	'use strict';
-	
-	// Remove events
-	this.removeEvents();
-
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-		this.playerComponent.destroy();	
-		this.playerComponent = null;
-	}			
-	this.view = null;
-	this.lib = null;
-	this.currentPage = null;
-	this.listeners = null;
-	this.flow = null;
-};
-PagePoorhouseIntro.prototype.intro = function(trigger){
-	'use strict';
-
-	// Next move
-	this.trigger = trigger;
-
-	var self = this;
-
-	// Set page view
-	this.currentPage = this.view.intro;
-	this.currentPage.x = 0;
-
-	// Set background
-	this.view.bg_container.x = 0;
-
-	// Background
-	var bitmap = new createjs.Bitmap(this.bgImage.src);	
-	this.view.bg_container.addChild(bitmap);
-
-	// // Portrait
-	// if(this.portrait !== null){
-	// 	bitmap = new createjs.Bitmap(this.portrait.src);	
-	// 	this.view.portrait.addChild(bitmap);
-	// }
-	
-	// Slide. Loading is self contained
-	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-	this.listeners.complete = self.playerComponent.on('complete', function(event){
-		console.log('PagePoorhouseIntro::complete');
-		self.continueBtn.activate('next');
-		Tick.disable();
-	}, self);
-	this.playerComponent.on('ready', function(event){
-		event.remove();		
-		self.continueBtn.activate("skip");
-		// self.dispatchEvent(new createjs.Event('ready'));
-		console.log('PagePoorhouseIntro::ready');
-		// No tick
-		// Tick.disable();
-		console.log('NB. Disabled tick-disablign as test in PagePoorhouseIntro');
-	});
-	// console.log(this.slideLib)
-	this.playerComponent.preload(this.slideName, this.slideLib);
-	
-};
-createjs.EventDispatcher.initialize(PagePoorhouseIntro.prototype);
-
-
-
-var PageOpinion = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.activePlayer = null;
-
-	this.playersCount = 0;
-	this.completed = 0;
-
-	var key = PlayerStats.challenge + PlayerStats.family;
-
-	// Get sound
-	this.soundChallengeObject = SoundService.matrix.oppinion[key];
-
-	// Set Text
-	this.view.charactertext.gotoAndStop(key);
-	this.view.playerlabel.gotoAndStop(key);
-
-
-	// Player - Challenge
-	// view.player.visible = false;
-	if(this.soundChallengeObject != null){
-		// view.player.visible = true;
-		this.challengePlayerComponent = new PlayerSoundComponent(view.player);
-		this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
-		this.playersCount++;
-
-		this.listeners.challengeStart = this.challengePlayerComponent.on("start", this.onSoundStart, this);
-
-		this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
-	}
-
-	// Continue/Skip button
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("skip");
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageOpinion.prototype.onSoundStart = function(event) {
-	'use strict';
-	// If there is a player active, pause it
-	if(this.activePlayer != null){
-		if(event.target.id != this.activePlayer.id){
-			this.activePlayer.pause();
-		}
-	}
-
-	// Save activated player
-	this.activePlayer = event.target;
-};
-PageOpinion.prototype.onComplete = function(event){
-	'use strict';
-	this.completed++;
-	if(this.completed >= this.playersCount){
-		if(this.challengePlayerComponent !== undefined){
-			this.challengePlayerComponent.off('complete', this.listeners.challenge);
-		}
-		if(this.familyPlayerComponent !== undefined){
-			this.familyPlayerComponent.off('complete', this.listeners.family);
-		}
-
-		this.continueBtn.activate("next");
-	}
-};
-PageOpinion.prototype.start = function() {
-	'use strict';
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.view.portrait.gotoAndStop(frm);
-};
-PageOpinion.prototype.onContinue = function(event) {
-	'use strict';
-	this.continueBtn.off('click', this.listeners.continue);
-
-	// Stop sound if it still on
-	if(this.challengePlayerComponent !== undefined){
-		this.challengePlayerComponent.stop();
-	}
-
-	if(this.familyPlayerComponent !== undefined){
-		this.familyPlayerComponent.stop();
-	}
-
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageOpinion.prototype.destroy = function() {
-	'use strict';
-	this.view = null;	
-
-	if(this.challengePlayer != null){
-		this.challengePlayer.destroy();
-		this.challengePlayer = null;
-	}
-	if(this.familyPlayerComponent != null){
-		this.familyPlayerComponent.destroy();
-		this.familyPlayerComponent = null;
-	}
-
-	this.activePlayer = null;
-};
-createjs.EventDispatcher.initialize(PageOpinion.prototype);
-var PageMap = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost("next");	
-};
-PageMap.prototype.start = function() {
-	'use strict';
-	var self = this;
-
-	// Allow tick
-	Tick.enable();
-	Tick.framerate(5);
-
-	// Checkboxes
-	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
-	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundholm'});
-	var btn3 = new RadioButton(this.view.checkbox3, {value:'svendborg'});
-
-	// Group
-	this.group = new ButtonGroup();
-	this.group.add(btn1);
-	this.group.add(btn2);
-	this.group.add(btn3);
-
-	// Events
-	this.listeners.group = this.group.on("click", function(event){
-		// Save chosen "fattiggård"
-		PlayerStats.poorhouse = event.data.value;
-
-		// User may continue
-		self.continueBtn.activate('next');
-		self.continueBtn.on('click', function(e){
-			e.remove();
-			event.remove();
-
-			self.view.info1.off('click', self.listeners['info1']);
-			self.view.info2.off('click', self.listeners['info2']);
-			self.view.info3.off('click', self.listeners['info3']);
-
-			self.dispatchEvent(new createjs.Event('continue'));
-		});
-	}, self);
-
-	// Info popup
-	this.view.infopopup.visible = false;
-	this.infoButtons = [];
-	this.infoButtons.push(this.view.info1);
-	this.infoButtons.push(this.view.info2);
-	this.infoButtons.push(this.view.info3);
-	this.view.info1.id = 0;
-	this.view.info2.id = 1;
-	this.view.info3.id = 2;
-	// Info buttons events
-	this.listeners['info1'] = this.view.info1.on('click', function(event){
-		self.openInfo(event.target.id);
-	}, this);
-	this.listeners['info2'] = this.view.info2.on('click', function(event){
-		self.openInfo(event.target.id);
-	}, this);
-	this.listeners['info3'] = this.view.info3.on('click', function(event){
-		self.openInfo(event.target.id);
-	}, this);
-	// Close button	
-	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){
-		this.closeInfo();
-	}, this);
-};
-PageMap.prototype.openInfo = function(id) {
-	'use strict';
-	this.view.infopopup.gotoAndStop(id);
-	this.view.infopopup.x = 0;
-	this.view.infopopup.visible = true;
-	this.continueBtn.hide();
-};
-PageMap.prototype.closeInfo = function(id) {
-	'use strict';
-	this.view.infopopup.x = 1024;
-	this.view.infopopup.visible = false;
-	this.continueBtn.show();
-};
-PageMap.prototype.destroy = function() {
-	'use strict';
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageMap.prototype);
-var PageIntro = function(view, id){
-	'use strict';
-	//console.log("view.player:", view.player);
-	this.view = view;
-	this.id = id;
-	this.lib = null;
-	this.listeners = {};
-	this.playerComponent = new PlayerSliderComponent(view.player);
-	
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost("skip");
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
-};
-PageIntro.prototype.start = function() {
-	'use strict';
-	LoadJS.load(
-		'../assets/logic/slides/'+"slide_"+this.id+".js", 
-		Delegate.create(this.setup, this)
-	);
-	// Allow tick
-	Tick.enable();
-};
-PageIntro.prototype.setup = function() {
-	'use strict';
-	if(this.runonce != null)
-		return;
-
-	var self = this;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	try{
-		this.lib = slidelib;
-		this.playerComponent.on('ready', function(event){
-			event.remove();
-			// No tick
-			Tick.disable();
-			self.continueBtn.activate("skip");
-			// self.dispatchEvent(new createjs.Event('ready'));
-		});
-		this.playerComponent.preload("slide_"+this.id, this.lib);
-		this.lib = null;
-	}catch(err) {
-   		console.log(err);
-   	}
-};
-PageIntro.prototype.onContinue = function(event) {
-	'use strict';
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.listeners.continue = null;
-
-	// Stop Player
-	if(this.playerComponent !== undefined){
-		this.playerComponent.stop();
-	}
-
-	this.dispatchEvent(new createjs.Event('continue'));
-
-	this.destroy();
-};
-PageIntro.prototype.onComplete = function(event) {
-	'use strict';
-	this.playerComponent.off('complete', this.listeners.complete);	
-	this.listeners.complete = null;
-
-	// Set next button active
-	this.continueBtn.activate("next");
-};
-PageIntro.prototype.destroy = function() {
-	'use strict';
-	if(this.playerComponent != null){
-		this.playerComponent.destroy();	
-	}
-	this.playerComponent = null;
-	this.view = null;
-	this.lib = null;
-};
-createjs.EventDispatcher.initialize(PageIntro.prototype);
-var PageCard = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("next");	
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageCard.prototype.start = function() {
-	'use strict';
-	var frm;
-
-
-	// Set portrait a real name
-	frm = PlayerStats.challenge + PlayerStats.family;
-	this.view.portrait.gotoAndStop(frm);
-	this.view.realname.gotoAndStop(frm);
-
-	// Set nickname
-	frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
-	this.view.nickname.gotoAndStop(frm);
-
-	// Set challenge
-	frm = PlayerStats.challenge;
-	this.view.challenge.gotoAndStop(frm);	
-
-	// Set family, kids
-	frm = PlayerStats.family;
-	this.view.family.gotoAndStop(frm);
-	this.view.kids.gotoAndStop(frm);
-};
-PageCard.prototype.onContinue = function(event) {
-	'use strict';
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageCard.prototype.destroy = function() {
-	'use strict';
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageCard.prototype);
 var SubFlowController = function(){
 	'use strict';
 
@@ -4905,6 +4371,526 @@ FlowCharacter.prototype.destroy = function() {
 	// createjs.Tween.removeTweens(event.target);
 };
 createjs.EventDispatcher.initialize(FlowCharacter.prototype);
+var PagePoorhouseIntro = function(container){
+	'use strict';
+	this.container = container;
+	this.id = null; 
+	this.view = null;	
+	this.lib = null;
+	this.slideLib = null;
+	this.playerComponent = null;
+	this.listeners = {};
+	this.trigger = 'start'; 
+	this.currentPage = null;
+	this.currentBackground = null;
+	this.groups = {};
+	// this.portrait = null;
+
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost('skip');
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+};
+PagePoorhouseIntro.prototype.setPortrait = function(image){
+	this.portrait = image;
+}
+PagePoorhouseIntro.prototype.start = function(flowId, slideName){
+	this.id = PlayerStats.poorhouse;
+	this.flowId = flowId;
+	this.slideName = slideName;
+
+	var gameFile;
+
+	console.log('PagePoorhouseIntro:start', slideName+'.js');
+	console.log('PagePoorhouseIntro', this.runonce, slideName+'.js');
+
+	LoadJS.load(
+		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
+		Delegate.create(this.setup, this)
+	);
+};
+PagePoorhouseIntro.prototype.setup = function(){
+	'use strict';
+	console.log('PagePoorhouseIntro::setup:runonce', this.runonce);
+
+	if(this.runonce != null)
+		return;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	// Tick
+	Tick.framerate(15);
+
+	var self = this;
+	var manifest, Clss;	
+
+	// Setup flow
+	this.flow = new SubFlowController();
+	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
+	this.flow.addAction('end', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
+	console.log('PagePoorhouseIntro::setup:id', this.id);
+	this.lib = gamelib;
+	this.slideLib = slidelib;
+	Clss = this.lib.poorhouse_intro;
+	manifest = this.lib.properties.manifest;
+	// switch(this.id){
+	// 	case 'horsens':			
+	// 		manifest = this.lib.properties.manifest;
+	// 	break;
+	// 	case 'sundholm':
+	// 		manifest = this.lib.properties.manifest;
+	// 	break;
+	// 	case 'svendborg':				
+	// 		manifest = this.lib.properties.manifest;
+	// 	break;
+	// }
+
+	try{
+		// Background image
+		this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';
+		manifest.push({src: this.bgImage.src, id: this.bgImage.id});
+
+	}catch(err){
+		console.log(PlayerStats.poorhouse, this.bgImage);
+		console.log(err);
+	}	
+	
+	// Load files
+	var onFileLoad = function(event){
+		if (event.item.type === 'image') { 
+			console.log(event.item.id, event.result);
+			images[event.item.id] = event.result; 
+		}
+	};
+	var onLoadComplete = function(event){
+		// Instantiate view
+		self.view = new Clss();
+
+		//Add
+		self.container.addChild(self.view);
+
+		// Set start page
+		self.next();
+
+		console.log('PagePoorhouseIntro:onLoadComplete');
+		self.dispatchEvent(new createjs.Event('ready'));
+	};
+	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+	console.log('manifest:', manifest);
+};
+PagePoorhouseIntro.prototype.next = function(){
+	'use strict';
+	this.flow.next(this.trigger);	
+};
+PagePoorhouseIntro.prototype.onComplete = function(event) {
+	'use strict';
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+	}
+
+	// Set next button active
+	this.continueBtn.activate('next');	
+};
+PagePoorhouseIntro.prototype.onContinue = function(event) {
+	'use strict';
+	
+	console.log('PagePoorhouseIntro::onContinue');
+	
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
+
+	this.next();
+
+	// console.log('this.playerComponent:', this.playerComponent)
+};
+PagePoorhouseIntro.prototype.removeEvents = function() {
+	'use strict';
+	
+	// Remove events
+	this.continueBtn.off('click', this.listeners.continue);
+	this.listeners.continue = null;
+};
+PagePoorhouseIntro.prototype.destroy = function() {
+	'use strict';
+	
+	// Remove events
+	this.removeEvents();
+
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+		this.playerComponent.destroy();	
+		this.playerComponent = null;
+	}			
+	this.view = null;
+	this.lib = null;
+	this.currentPage = null;
+	this.listeners = null;
+	this.flow = null;
+};
+PagePoorhouseIntro.prototype.intro = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set page view
+	this.currentPage = this.view.intro;
+	this.currentPage.x = 0;
+
+	// Set background
+	this.view.bg_container.x = 0;
+
+	// Background
+	var bitmap = new createjs.Bitmap(this.bgImage.src);	
+	this.view.bg_container.addChild(bitmap);
+
+	// Slide. Loading is self contained
+	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+	this.listeners.complete = self.playerComponent.on('complete', function(event){
+		console.log('PagePoorhouseIntro::complete');
+		self.continueBtn.activate('next');
+		Tick.disable();
+	}, self);
+	this.playerComponent.on('ready', function(event){
+		event.remove();		
+		self.continueBtn.activate("skip");
+		// self.dispatchEvent(new createjs.Event('ready'));
+		console.log('PagePoorhouseIntro::ready');
+		// No tick
+		// Tick.disable();
+		console.log('NB. Disabled tick-disablign as test in PagePoorhouseIntro');
+	});
+	// console.log(this.slideLib)
+	this.playerComponent.preload(this.slideName, this.slideLib);
+	
+};
+createjs.EventDispatcher.initialize(PagePoorhouseIntro.prototype);
+
+
+
+var PageOpinion = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.activePlayer = null;
+
+	this.playersCount = 0;
+	this.completed = 0;
+
+	var key = PlayerStats.challenge + PlayerStats.family;
+
+	// Get sound
+	this.soundChallengeObject = SoundService.matrix.oppinion[key];
+
+	// Set Text
+	this.view.charactertext.gotoAndStop(key);
+	this.view.playerlabel.gotoAndStop(key);
+
+
+	// Player - Challenge
+	// view.player.visible = false;
+	if(this.soundChallengeObject != null){
+		// view.player.visible = true;
+		this.challengePlayerComponent = new PlayerSoundComponent(view.player);
+		this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
+		this.playersCount++;
+
+		this.listeners.challengeStart = this.challengePlayerComponent.on("start", this.onSoundStart, this);
+
+		this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
+	}
+
+	// Continue/Skip button
+	this.continueBtn = ContinueButton;
+	this.continueBtn.activate("skip");
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+};
+PageOpinion.prototype.onSoundStart = function(event) {
+	'use strict';
+	// If there is a player active, pause it
+	if(this.activePlayer != null){
+		if(event.target.id != this.activePlayer.id){
+			this.activePlayer.pause();
+		}
+	}
+
+	// Save activated player
+	this.activePlayer = event.target;
+};
+PageOpinion.prototype.onComplete = function(event){
+	'use strict';
+	this.completed++;
+	if(this.completed >= this.playersCount){
+		if(this.challengePlayerComponent !== undefined){
+			this.challengePlayerComponent.off('complete', this.listeners.challenge);
+		}
+		if(this.familyPlayerComponent !== undefined){
+			this.familyPlayerComponent.off('complete', this.listeners.family);
+		}
+
+		this.continueBtn.activate("next");
+	}
+};
+PageOpinion.prototype.start = function() {
+	'use strict';
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.view.portrait.gotoAndStop(frm);
+};
+PageOpinion.prototype.onContinue = function(event) {
+	'use strict';
+	this.continueBtn.off('click', this.listeners.continue);
+
+	// Stop sound if it still on
+	if(this.challengePlayerComponent !== undefined){
+		this.challengePlayerComponent.stop();
+	}
+
+	if(this.familyPlayerComponent !== undefined){
+		this.familyPlayerComponent.stop();
+	}
+
+	this.dispatchEvent(new createjs.Event('continue'));
+};
+PageOpinion.prototype.destroy = function() {
+	'use strict';
+	this.view = null;	
+
+	if(this.challengePlayer != null){
+		this.challengePlayer.destroy();
+		this.challengePlayer = null;
+	}
+	if(this.familyPlayerComponent != null){
+		this.familyPlayerComponent.destroy();
+		this.familyPlayerComponent = null;
+	}
+
+	this.activePlayer = null;
+};
+createjs.EventDispatcher.initialize(PageOpinion.prototype);
+var PageMap = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost("next");	
+};
+PageMap.prototype.start = function() {
+	'use strict';
+	var self = this;
+
+	// Allow tick
+	Tick.enable();
+	Tick.framerate(5);
+
+	// Checkboxes
+	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
+	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundholm'});
+	var btn3 = new RadioButton(this.view.checkbox3, {value:'svendborg'});
+
+	// Group
+	this.group = new ButtonGroup();
+	this.group.add(btn1);
+	this.group.add(btn2);
+	this.group.add(btn3);
+
+	// Events
+	this.listeners.group = this.group.on("click", function(event){
+		// Save chosen "fattiggård"
+		PlayerStats.poorhouse = event.data.value;
+
+		// User may continue
+		self.continueBtn.activate('next');
+		self.continueBtn.on('click', function(e){
+			e.remove();
+			event.remove();
+
+			self.view.info1.off('click', self.listeners['info1']);
+			self.view.info2.off('click', self.listeners['info2']);
+			self.view.info3.off('click', self.listeners['info3']);
+
+			self.dispatchEvent(new createjs.Event('continue'));
+		});
+	}, self);
+
+	// Info popup
+	this.view.infopopup.visible = false;
+	this.infoButtons = [];
+	this.infoButtons.push(this.view.info1);
+	this.infoButtons.push(this.view.info2);
+	this.infoButtons.push(this.view.info3);
+	this.view.info1.id = 0;
+	this.view.info2.id = 1;
+	this.view.info3.id = 2;
+	// Info buttons events
+	this.listeners['info1'] = this.view.info1.on('click', function(event){
+		self.openInfo(event.target.id);
+	}, this);
+	this.listeners['info2'] = this.view.info2.on('click', function(event){
+		self.openInfo(event.target.id);
+	}, this);
+	this.listeners['info3'] = this.view.info3.on('click', function(event){
+		self.openInfo(event.target.id);
+	}, this);
+	// Close button	
+	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){
+		this.closeInfo();
+	}, this);
+};
+PageMap.prototype.openInfo = function(id) {
+	'use strict';
+	this.view.infopopup.gotoAndStop(id);
+	this.view.infopopup.x = 0;
+	this.view.infopopup.visible = true;
+	this.continueBtn.hide();
+};
+PageMap.prototype.closeInfo = function(id) {
+	'use strict';
+	this.view.infopopup.x = 1024;
+	this.view.infopopup.visible = false;
+	this.continueBtn.show();
+};
+PageMap.prototype.destroy = function() {
+	'use strict';
+	this.view = null;	
+};
+createjs.EventDispatcher.initialize(PageMap.prototype);
+var PageIntro = function(view, id){
+	'use strict';
+	//console.log("view.player:", view.player);
+	this.view = view;
+	this.id = id;
+	this.lib = null;
+	this.listeners = {};
+	this.playerComponent = new PlayerSliderComponent(view.player);
+	
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost("skip");
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
+};
+PageIntro.prototype.start = function() {
+	'use strict';
+	LoadJS.load(
+		'../assets/logic/slides/'+"slide_"+this.id+".js", 
+		Delegate.create(this.setup, this)
+	);
+	// Allow tick
+	Tick.enable();
+};
+PageIntro.prototype.setup = function() {
+	'use strict';
+	if(this.runonce != null)
+		return;
+
+	var self = this;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	try{
+		this.lib = slidelib;
+		this.playerComponent.on('ready', function(event){
+			event.remove();
+			// No tick
+			Tick.disable();
+			self.continueBtn.activate("skip");
+			// self.dispatchEvent(new createjs.Event('ready'));
+		});
+		this.playerComponent.preload("slide_"+this.id, this.lib);
+		this.lib = null;
+	}catch(err) {
+   		console.log(err);
+   	}
+};
+PageIntro.prototype.onContinue = function(event) {
+	'use strict';
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.listeners.continue = null;
+
+	// Stop Player
+	if(this.playerComponent !== undefined){
+		this.playerComponent.stop();
+	}
+
+	this.dispatchEvent(new createjs.Event('continue'));
+
+	this.destroy();
+};
+PageIntro.prototype.onComplete = function(event) {
+	'use strict';
+	this.playerComponent.off('complete', this.listeners.complete);	
+	this.listeners.complete = null;
+
+	// Set next button active
+	this.continueBtn.activate("next");
+};
+PageIntro.prototype.destroy = function() {
+	'use strict';
+	if(this.playerComponent != null){
+		this.playerComponent.destroy();	
+	}
+	this.playerComponent = null;
+	this.view = null;
+	this.lib = null;
+};
+createjs.EventDispatcher.initialize(PageIntro.prototype);
+var PageCard = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.continueBtn = ContinueButton;
+	this.continueBtn.activate("next");	
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+};
+PageCard.prototype.start = function() {
+	'use strict';
+	var frm;
+
+
+	// Set portrait a real name
+	frm = PlayerStats.challenge + PlayerStats.family;
+	this.view.portrait.gotoAndStop(frm);
+	this.view.realname.gotoAndStop(frm);
+
+	// Set nickname
+	frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
+	this.view.nickname.gotoAndStop(frm);
+
+	// Set challenge
+	frm = PlayerStats.challenge;
+	this.view.challenge.gotoAndStop(frm);	
+
+	// Set family, kids
+	frm = PlayerStats.family;
+	this.view.family.gotoAndStop(frm);
+	this.view.kids.gotoAndStop(frm);
+};
+PageCard.prototype.onContinue = function(event) {
+	'use strict';
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.dispatchEvent(new createjs.Event('continue'));
+};
+PageCard.prototype.destroy = function() {
+	'use strict';
+	this.view = null;	
+};
+createjs.EventDispatcher.initialize(PageCard.prototype);
 (function (lib, img, cjs, ss) {
 
 var p; // shortcut to reference prototypes
@@ -5990,6 +5976,342 @@ Array.prototype.shuffle = function(index){
     }
     return this;
 }
+var SoundService = function(){
+	'use strict';
+}
+
+// SoundService.getPathByKey = function(key){
+// 	'use strict';
+// 	return SoundService.properties.basePath + this.matrix[key].file;
+// };
+// SoundService.getDurationByKey = function(key){
+// 	'use strict';
+// 	return this.matrix[key].duration;
+// };
+
+SoundService.getSlideDurationById = function(id){
+	'use strict';
+	return this.matrix.slides[id].duration;
+};
+SoundService.getSlideSoundpathById = function(id){
+	'use strict';
+	return SoundService.properties.slidePath + id+'.mp3';
+};
+SoundService.getSlideSoundById = function(id){
+	'use strict';
+	return SoundService.matrix.slides[id]
+};
+SoundService.getSoundByCharacter = function(character){
+	'use strict';
+	return;
+};
+
+SoundService.properties = {
+	basePath: 'assets/sounds/',
+	slidePath: 'assets/sounds/'
+};
+SoundService.matrix = {
+	effects: {
+		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', duration: null },
+		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3', duration: null }
+	},
+	'1.1.1' :{
+		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
+		sundholm: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
+		svendborg: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 }
+	},
+	points: {
+		plus: { src:SoundService.properties.basePath+'Point_plus.mp3', duration: 2.208 },
+		minus: { src:SoundService.properties.basePath+'Point_minus.mp3', duration: 1.128 }
+	},
+	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
+	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
+	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
+	'1.2.1': {
+		'horsens': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
+					},
+		'sundholm': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
+					},
+		'svendborg': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
+					},
+	},
+	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
+	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
+	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },	
+	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
+	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 },
+	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
+	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
+	'2.10.2': {
+		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3', duration: 52.881 },
+		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3', duration: 53.265 }
+	},
+	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
+	
+	slides: {
+				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
+				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
+				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
+				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
+				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3', duration: 61.208 },
+				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3', duration: 48.573 },
+				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3', duration: 48.573 },
+				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 },
+				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3', duration: 69.641 },
+				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
+				'slide_4_7': { src:SoundService.properties.basePath+'4.7_krigenskriderfrem.mp3', duration: 81.350 }
+				
+				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
+			},
+	oppinion: { // 0.4
+			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
+			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
+			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
+			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
+			'BE': { label: 'dovenskab, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
+			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
+			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
+			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
+			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 }
+		},
+	'3.2.1': {
+		'horsens': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
+					},
+		'sundholm': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
+					},
+		'svendborg': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
+					},
+	},
+	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3', duration: 54.282 },
+	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3', duration: 15.531 },
+	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3', duration: 13.543 },
+	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3', duration: 30.561 },
+	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1_moede.mp3', duration: 42.563 },
+	'4.10.1': { label:'dansk front', src:SoundService.properties.basePath+'4.10.1_bombe.mp3', duration: 45.637 },
+	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4_sygdom.mp3', duration: 44.285 },
+	'4.10.7': { label:'illness', src:SoundService.properties.basePath+'4.10.7_pavejhjem.mp3', duration: 51.754 },
+	'4.11.1': { label:'compensation', src:SoundService.properties.basePath+'4.11.1.mp3', duration: 80 },
+	'4.11.2': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
+	'4.11.3': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
+	'4.11.4': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
+	
+	
+	
+	
+	// challenge: {
+	// 			// 'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
+	// 			// 'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
+	// 			// 'C': { label: 'manager', src:SoundService.properties.basePath+'weakness.mp3', duration: 1.815 }
+	// 			'A': { label: 'manager', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
+	// 			'B': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
+	// 			'C': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 }
+	// 		},
+	// family: {
+	// 			'D': null,
+	// 			'E': { label: 'daughter', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
+	// 			'F': null
+	// 		}
+	// characters: {
+	// 			'AD': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
+	// 			'AE': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
+	// 			'AF': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
+	// 			'BD': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
+	// 			'BE': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
+	// 			'BF': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
+	// 			'CD': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ],
+	// 			'CE': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
+	// 			'CF': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ]
+	// 		}
+};
+var PlayerStats = {
+	challenge: 'B',			// Default test value
+	family: 'D',			// Default test value
+	nickname: null,
+	poorhouse: 'svendborg', // Test 
+	mood: 2,
+	health: 4,
+	money: 3,
+	job: null,
+	advice: null,
+	wayout: null,
+	job_germany: ['B', 'A'], // Default test values
+	spending: null,
+	whatnow: null,
+	nazi: null,
+	pointsDiff: {mood: 0, health: 0, money: 0},
+	bomb: false,
+
+	resetDiff: function(){
+		'use strict';
+		this.pointsDiff = {mood: 0, health: 0, money: 0};
+	},
+
+	isAPlusPoint: function(){
+		'use strict';
+		for(var key in this.pointsDiff){
+			if(this.pointsDiff[key] > 0){
+				return true;
+			}
+		}
+	},
+
+	isAMinusPoint: function(){
+		'use strict';
+		for(var key in this.pointsDiff){
+			if(this.pointsDiff[key] < 0){
+				return true;
+			}
+		}
+	},
+
+	set: function(type, val){
+		'use strict';
+		// Reset diff
+		this.pointsDiff[type] = 0;
+
+		// Remember the previous value
+		var prev = this[type];	
+
+		// Set new value
+		this[type] = val;
+
+		// Find diff
+		this.pointsDiff[type] = this[type] - prev;		
+
+		// Cap values for points
+		if(type == 'mood' || type == 'health' || type == 'money'){
+			if(this[type] > 10){
+				this[type] = 10;
+			}
+			if(this[type] < 1){
+				this[type] = 1;
+			}
+		}
+	},
+	append: function(type, val){	
+		'use strict';	
+		// Reset diff
+		this.pointsDiff[type] = 0;
+		
+		// Remember the previous value
+		var prev = this[type];	
+
+		// Set new value
+		this[type] += val;
+
+		// Find diff
+		this.pointsDiff[type] = this[type] - prev;			
+
+		// Cap values for points
+		if(type == 'mood' || type == 'health' || type == 'money'){
+			if(this[type] > 10){
+				this[type] = 10;
+			}
+			if(this[type] < 1){
+				this[type] = 1;
+			}
+		}
+	}
+}
+var Library = {
+	clearSlide: function(){
+		'use strict';
+		console.log('clearSlide');
+		try{
+			slidelib = null;
+		}catch(err){
+			console.log(err);
+		}		
+	},
+	clearGame: function(){
+		'use strict';
+		console.log('clearGame');		
+		try{
+			gamelib = null;
+		}catch(err){
+			console.log(err);
+		}
+	},
+	clearMain: function(){
+		'use strict';
+		console.log('clearMain');		
+		try{
+			mainlib = null;
+		}catch(err){
+			console.log(err);
+		}
+	},
+}
+var ImageService = function(){
+	'use strict';
+}
+ImageService.properties = {
+	basePath: 'assets/images/pool/',
+};
+ImageService.matrix = {
+	portrait:{
+		'AD': { id: 'ADCloseUp', label:'background', src:ImageService.properties.basePath+'ADCloseUp.png'},
+		'AE': { id: 'AECloseUp', label:'background', src:ImageService.properties.basePath+'AECloseUp.png'},
+		'AF': { id: 'AFCloseUp', label:'background', src:ImageService.properties.basePath+'AFCloseUp.png'},
+		'BD': { id: 'BDCloseUp', label:'background', src:ImageService.properties.basePath+'BDCloseUp.png'},
+		'BE': { id: 'BECloseUp', label:'background', src:ImageService.properties.basePath+'BECloseUp.png'},
+		'BF': { id: 'BFCloseUp', label:'background', src:ImageService.properties.basePath+'BFCloseUp.png'},
+		'CD': { id: 'CDCloseUp', label:'background', src:ImageService.properties.basePath+'CDCloseUp.png'},
+		'CE': { id: 'CECloseUp', label:'background', src:ImageService.properties.basePath+'CECloseUp.png'},
+		'CF': { id: 'CFCloseUp', label:'background', src:ImageService.properties.basePath+'CFCloseUp.png'}
+	},
+	'1.0.1': {
+		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
+		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
+		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
+	},
+	'3.0': {
+		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
+		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
+		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
+	}
+}
+var FlowData ={
+	
+}
+// var Assets = {
+// 	fattiggard: {
+// 		svendborg: {
+// 			images: [
+// 				{src: '../assets/images/1_0BGsvendborg.png', id:'1_0BGsvendborg'},
+// 				{src: '../assets/images/1_1BGsvendborg.png', id:'1_1BGsvendborg'},
+// 				{src: '../assets/images/1_2BGsvendborgA.png', id:'1_2BGsvendborgA'},
+// 				{src: '../assets/images/1_2BGsvendborgB.png', id:'1_2BGsvendborgB'},
+// 				{src: '../assets/images/1_2BGsvendborgC.png', id:'1_2BGsvendborgC'},
+// 				{src: '../assets/images/1_3BGsvendborg.png', id:'1_3BGsvendborg'}
+// 			]
+// 		}
+// 	}
+// }
 var GameManager = {
 	root: null,
 	init: function(root){
@@ -6395,342 +6717,6 @@ var ApplicationManager = {
 		'use strict';
 	}
 };
-var SoundService = function(){
-	'use strict';
-}
-
-// SoundService.getPathByKey = function(key){
-// 	'use strict';
-// 	return SoundService.properties.basePath + this.matrix[key].file;
-// };
-// SoundService.getDurationByKey = function(key){
-// 	'use strict';
-// 	return this.matrix[key].duration;
-// };
-
-SoundService.getSlideDurationById = function(id){
-	'use strict';
-	return this.matrix.slides[id].duration;
-};
-SoundService.getSlideSoundpathById = function(id){
-	'use strict';
-	return SoundService.properties.slidePath + id+'.mp3';
-};
-SoundService.getSlideSoundById = function(id){
-	'use strict';
-	return SoundService.matrix.slides[id]
-};
-SoundService.getSoundByCharacter = function(character){
-	'use strict';
-	return;
-};
-
-SoundService.properties = {
-	basePath: 'assets/sounds/',
-	slidePath: 'assets/sounds/'
-};
-SoundService.matrix = {
-	effects: {
-		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', duration: null },
-		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3', duration: null }
-	},
-	'1.1.1' :{
-		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
-		sundholm: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
-		svendborg: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 }
-	},
-	points: {
-		plus: { src:SoundService.properties.basePath+'Point_plus.mp3', duration: 2.208 },
-		minus: { src:SoundService.properties.basePath+'Point_minus.mp3', duration: 1.128 }
-	},
-	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
-	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
-	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
-	'1.2.1': {
-		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
-					},
-		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
-					},
-		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
-					},
-	},
-	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
-	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
-	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },	
-	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
-	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 },
-	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
-	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
-	'2.10.2': {
-		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3', duration: 52.881 },
-		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3', duration: 53.265 }
-	},
-	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
-	
-	slides: {
-				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
-				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
-				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
-				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
-				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3', duration: 61.208 },
-				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3', duration: 48.573 },
-				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3', duration: 48.573 },
-				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 },
-				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3', duration: 69.641 },
-				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_7': { src:SoundService.properties.basePath+'4.7_krigenskriderfrem.mp3', duration: 81.350 }
-				
-				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
-			},
-	oppinion: { // 0.4
-			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'BE': { label: 'dovenskab, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
-			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 }
-		},
-	'3.2.1': {
-		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
-					},
-		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
-					},
-		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
-					},
-	},
-	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3', duration: 54.282 },
-	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3', duration: 15.531 },
-	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3', duration: 13.543 },
-	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3', duration: 30.561 },
-	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1_moede.mp3', duration: 42.563 },
-	'4.10.1': { label:'dansk front', src:SoundService.properties.basePath+'4.10.1_bombe.mp3', duration: 45.637 },
-	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4_sygdom.mp3', duration: 44.285 },
-	'4.10.7': { label:'illness', src:SoundService.properties.basePath+'4.10.7_pavejhjem.mp3', duration: 51.754 },
-	'4.11.1': { label:'compensation', src:SoundService.properties.basePath+'4.11.1.mp3', duration: 80 },
-	'4.11.2': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	'4.11.3': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	'4.11.4': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	
-	
-	
-	
-	// challenge: {
-	// 			// 'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
-	// 			// 'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
-	// 			// 'C': { label: 'manager', src:SoundService.properties.basePath+'weakness.mp3', duration: 1.815 }
-	// 			'A': { label: 'manager', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
-	// 			'B': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-	// 			'C': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 }
-	// 		},
-	// family: {
-	// 			'D': null,
-	// 			'E': { label: 'daughter', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-	// 			'F': null
-	// 		}
-	// characters: {
-	// 			'AD': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'AE': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'AF': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'BD': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'BE': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'BF': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'CD': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ],
-	// 			'CE': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'CF': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ]
-	// 		}
-};
-var PlayerStats = {
-	challenge: 'B',			// Default test value
-	family: 'D',			// Default test value
-	nickname: null,
-	poorhouse: 'svendborg', // Test 
-	mood: 2,
-	health: 4,
-	money: 3,
-	job: null,
-	advice: null,
-	wayout: null,
-	job_germany: ['B', 'A'], // Default test values
-	spending: null,
-	whatnow: null,
-	nazi: null,
-	pointsDiff: {mood: 0, health: 0, money: 0},
-	bomb: false,
-
-	resetDiff: function(){
-		'use strict';
-		this.pointsDiff = {mood: 0, health: 0, money: 0};
-	},
-
-	isAPlusPoint: function(){
-		'use strict';
-		for(var key in this.pointsDiff){
-			if(this.pointsDiff[key] > 0){
-				return true;
-			}
-		}
-	},
-
-	isAMinusPoint: function(){
-		'use strict';
-		for(var key in this.pointsDiff){
-			if(this.pointsDiff[key] < 0){
-				return true;
-			}
-		}
-	},
-
-	set: function(type, val){
-		'use strict';
-		// Reset diff
-		this.pointsDiff[type] = 0;
-
-		// Remember the previous value
-		var prev = this[type];	
-
-		// Set new value
-		this[type] = val;
-
-		// Find diff
-		this.pointsDiff[type] = this[type] - prev;		
-
-		// Cap values for points
-		if(type == 'mood' || type == 'health' || type == 'money'){
-			if(this[type] > 10){
-				this[type] = 10;
-			}
-			if(this[type] < 1){
-				this[type] = 1;
-			}
-		}
-	},
-	append: function(type, val){	
-		'use strict';	
-		// Reset diff
-		this.pointsDiff[type] = 0;
-		
-		// Remember the previous value
-		var prev = this[type];	
-
-		// Set new value
-		this[type] += val;
-
-		// Find diff
-		this.pointsDiff[type] = this[type] - prev;			
-
-		// Cap values for points
-		if(type == 'mood' || type == 'health' || type == 'money'){
-			if(this[type] > 10){
-				this[type] = 10;
-			}
-			if(this[type] < 1){
-				this[type] = 1;
-			}
-		}
-	}
-}
-var Library = {
-	clearSlide: function(){
-		'use strict';
-		console.log('clearSlide');
-		try{
-			slidelib = null;
-		}catch(err){
-			console.log(err);
-		}		
-	},
-	clearGame: function(){
-		'use strict';
-		console.log('clearGame');		
-		try{
-			gamelib = null;
-		}catch(err){
-			console.log(err);
-		}
-	},
-	clearMain: function(){
-		'use strict';
-		console.log('clearMain');		
-		try{
-			mainlib = null;
-		}catch(err){
-			console.log(err);
-		}
-	},
-}
-var ImageService = function(){
-	'use strict';
-}
-ImageService.properties = {
-	basePath: 'assets/images/pool/',
-};
-ImageService.matrix = {
-	portrait:{
-		'AD': { id: 'ADCloseUp', label:'background', src:ImageService.properties.basePath+'ADCloseUp.png'},
-		'AE': { id: 'AECloseUp', label:'background', src:ImageService.properties.basePath+'AECloseUp.png'},
-		'AF': { id: 'AFCloseUp', label:'background', src:ImageService.properties.basePath+'AFCloseUp.png'},
-		'BD': { id: 'BDCloseUp', label:'background', src:ImageService.properties.basePath+'BDCloseUp.png'},
-		'BE': { id: 'BECloseUp', label:'background', src:ImageService.properties.basePath+'BECloseUp.png'},
-		'BF': { id: 'BFCloseUp', label:'background', src:ImageService.properties.basePath+'BFCloseUp.png'},
-		'CD': { id: 'CDCloseUp', label:'background', src:ImageService.properties.basePath+'CDCloseUp.png'},
-		'CE': { id: 'CECloseUp', label:'background', src:ImageService.properties.basePath+'CECloseUp.png'},
-		'CF': { id: 'CFCloseUp', label:'background', src:ImageService.properties.basePath+'CFCloseUp.png'}
-	},
-	'1.0.1': {
-		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
-		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
-		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
-	},
-	'3.0': {
-		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
-		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
-		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
-	}
-}
-var FlowData ={
-	
-}
-// var Assets = {
-// 	fattiggard: {
-// 		svendborg: {
-// 			images: [
-// 				{src: '../assets/images/1_0BGsvendborg.png', id:'1_0BGsvendborg'},
-// 				{src: '../assets/images/1_1BGsvendborg.png', id:'1_1BGsvendborg'},
-// 				{src: '../assets/images/1_2BGsvendborgA.png', id:'1_2BGsvendborgA'},
-// 				{src: '../assets/images/1_2BGsvendborgB.png', id:'1_2BGsvendborgB'},
-// 				{src: '../assets/images/1_2BGsvendborgC.png', id:'1_2BGsvendborgC'},
-// 				{src: '../assets/images/1_3BGsvendborg.png', id:'1_3BGsvendborg'}
-// 			]
-// 		}
-// 	}
-// }
 var SoundEffect = function(src, duration, loop){
 	'use strict';
 	if(SoundEffect.counter == null)
@@ -7657,6 +7643,11 @@ var mainlib, images, createjs, ss;
 					console.log(err);
 				}				
 			};
+
+			// Remove startup preloader div
+			$('.preload-wrapper').remove();
+
+			// Start preload app
 			Preloader.load($scope.lib.properties.manifest, onFileLoad, onLoadComplete, 'full');
 		}
 

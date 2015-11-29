@@ -42,6 +42,11 @@
 					console.log(err);
 				}				
 			};
+
+			// Remove startup preloader div
+			$('.preload-wrapper').remove();
+
+			// Start preload app
 			Preloader.load($scope.lib.properties.manifest, onFileLoad, onLoadComplete, 'full');
 		}
 

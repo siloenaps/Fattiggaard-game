@@ -3,6 +3,23 @@
   <head>
     <meta charset="utf-8"/>
     <title>fattiggarden</title>
+
+    <!-- inject:vendor:css -->
+    <!-- endinject -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="/css/app.css">
+    <!-- endinject -->
+  </head>
+  <body ng-controller="MainController">    
+    <div class="preload-wrapper">
+        <div class="preloader startup">
+            <div>
+                <img src="/assets/images/preloader.gif">
+            </div>            
+        </div>
+    </div>
+    <sl-canvas></sl-canvas>
+
     <link href='https://fonts.googleapis.com/css?family=Special+Elite' rel='stylesheet' type='text/css'>
     <link href='/assets/fonts/BigNoodle/stylesheet.css' rel='stylesheet' type='text/css'>
     <script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script>
@@ -10,14 +27,8 @@
     <script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script>
     <script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script>
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <!-- inject:vendor:css -->
-    <!-- endinject -->
-    <!-- inject:css -->
-    <link rel="stylesheet" href="/css/app.css">
-    <!-- endinject -->
-  </head>
-  <body ng-controller="MainController">
-    <sl-canvas></sl-canvas>
+
+
     <!-- <ng-view></ng-view> -->
     <!-- inject:vendor:js -->
     <script src="/angular/angular.js"></script>
@@ -77,5 +88,8 @@
     <script src="/app.js"></script>
     <script src="/fattiggarden-templates.js"></script>
     <!-- endinject -->
+
+
+
   </body>
 </html>
