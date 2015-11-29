@@ -11,17 +11,17 @@ lib.properties = {
 	manifest: [
 		{src:"../../../assets/images/pool/_112_letter_bg.png", id:"_112_letter_bg"},
 		{src:"../../../assets/images/pool/_112_letter_text.png", id:"_112_letter_text"},
-		{src:"../../../assets/images/pool/_1_1BGsvendborg.jpg", id:"_1_1BGsvendborg"},
-		{src:"../../../assets/images/pool/_1_2BGsvendborgA.jpg", id:"_1_2BGsvendborgA"},
-		{src:"../../../assets/images/pool/_1_2BGsvendborgB.jpg", id:"_1_2BGsvendborgB"},
-		{src:"../../../assets/images/pool/_1_2BGsvendborgC.jpg", id:"_1_2BGsvendborgC"},
-		{src:"../../../assets/images/pool/_1_3BGsvendborg.jpg", id:"_1_3BGsvendborg"},
+		{src:"../../../assets/images/pool/_1_1BGsundholm.jpg", id:"_1_1BGsundholm"},
+		{src:"../../../assets/images/pool/_1_2BGsundholmA.jpg", id:"_1_2BGsundholmA"},
+		{src:"../../../assets/images/pool/_1_2BGsundholmB.jpg", id:"_1_2BGsundholmB"},
+		{src:"../../../assets/images/pool/_1_2BGsundholmC.jpg", id:"_1_2BGsundholmC"},
+		{src:"../../../assets/images/pool/_1_3BGsundholm.jpg", id:"_1_3BGsundholm"},
 		{src:"../../../assets/images/pool/_1_4BG.jpg", id:"_1_4BG"},
 		{src:"../../../assets/images/pool/_3_6BG.jpg", id:"_3_6BG"},
 		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
 		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
 		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
-		{src:"../../../assets/images/pool/ansat_3.png", id:"ansat_3"},
+		{src:"../../../assets/images/pool/ansat_2.png", id:"ansat_2"},
 		{src:"../../../assets/images/pool/BDCloseUp.png", id:"BDCloseUp"},
 		{src:"../../../assets/images/pool/BECloseUp.png", id:"BECloseUp"},
 		{src:"../../../assets/images/pool/BFCloseUp.png", id:"BFCloseUp"},
@@ -37,14 +37,14 @@ lib.properties = {
 		{src:"../../../assets/images/pool/CharacterCardName0007.png", id:"CharacterCardName0007"},
 		{src:"../../../assets/images/pool/CharacterCardName0008.png", id:"CharacterCardName0008"},
 		{src:"../../../assets/images/pool/CharacterCardName0009.png", id:"CharacterCardName0009"},
-		{src:"../../../assets/images/pool/indsat_3.png", id:"indsat_3"},
+		{src:"../../../assets/images/pool/indsat_2.png", id:"indsat_2"},
 		{src:"../../../assets/images/pool/LetterBG.png", id:"LetterBG"},
 		{src:"../../../assets/images/pool/LetterWriteBG.png", id:"LetterWriteBG"},
 		{src:"../../../assets/images/pool/PointDobbeltBG.png", id:"PointDobbeltBG"},
 		{src:"../../../assets/images/pool/PointEnkeltBG.png", id:"PointEnkeltBG"},
 		{src:"../../../assets/images/pool/PointNegativ.png", id:"PointNegativ"},
 		{src:"../../../assets/images/pool/PointPositiv.png", id:"PointPositiv"},
-		{src:"../../../assets/images/pool/svendborg_title.png", id:"svendborg_title"}
+		{src:"../../../assets/images/pool/sundholm_title.png", id:"sundholm_title"}
 	]
 };
 
@@ -66,32 +66,32 @@ p.nominalBounds = new cjs.Rectangle(0,0,465,449);
 p.nominalBounds = new cjs.Rectangle(0,0,415,318);
 
 
-(lib._1_1BGsvendborg = function() {
-	this.initialize(img._1_1BGsvendborg);
+(lib._1_1BGsundholm = function() {
+	this.initialize(img._1_1BGsundholm);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._1_2BGsvendborgA = function() {
-	this.initialize(img._1_2BGsvendborgA);
+(lib._1_2BGsundholmA = function() {
+	this.initialize(img._1_2BGsundholmA);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._1_2BGsvendborgB = function() {
-	this.initialize(img._1_2BGsvendborgB);
+(lib._1_2BGsundholmB = function() {
+	this.initialize(img._1_2BGsundholmB);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._1_2BGsvendborgC = function() {
-	this.initialize(img._1_2BGsvendborgC);
+(lib._1_2BGsundholmC = function() {
+	this.initialize(img._1_2BGsundholmC);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._1_3BGsvendborg = function() {
-	this.initialize(img._1_3BGsvendborg);
+(lib._1_3BGsundholm = function() {
+	this.initialize(img._1_3BGsundholm);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -126,8 +126,8 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
-(lib.ansat_3 = function() {
-	this.initialize(img.ansat_3);
+(lib.ansat_2 = function() {
+	this.initialize(img.ansat_2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
@@ -222,10 +222,10 @@ p.nominalBounds = new cjs.Rectangle(0,0,188,19);
 p.nominalBounds = new cjs.Rectangle(0,0,188,19);
 
 
-(lib.indsat_3 = function() {
-	this.initialize(img.indsat_3);
+(lib.indsat_2 = function() {
+	this.initialize(img.indsat_2);
 }).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,540,453);
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
 (lib.LetterBG = function() {
@@ -264,10 +264,10 @@ p.nominalBounds = new cjs.Rectangle(0,0,279,75);
 p.nominalBounds = new cjs.Rectangle(0,0,279,75);
 
 
-(lib.svendborg_title = function() {
-	this.initialize(img.svendborg_title);
+(lib.sundholm_title = function() {
+	this.initialize(img.sundholm_title);
 }).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,48,450);
+p.nominalBounds = new cjs.Rectangle(0,0,32,452);
 
 
 (lib.ProgressionBar = function() {
@@ -444,19 +444,18 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib.indsat_3();
-	this.instance.setTransform(-8,105);
+	this.instance = new lib.indsat_2();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(-8,105,540,453);
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
 (lib._341EmployeePortraitMain = function() {
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib.ansat_3();
+	this.instance = new lib.ansat_2();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
@@ -821,8 +820,8 @@ p.nominalBounds = null;
 	this.initialize();
 
 	// Layer 2
-	this.instance = new lib.svendborg_title();
-	this.instance.setTransform(13,48);
+	this.instance = new lib.sundholm_title();
+	this.instance.setTransform(22,57);
 
 	// Layer 1
 	this.instance_1 = new lib._1_4BG();
@@ -836,8 +835,8 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.initialize();
 
 	// Layer 2
-	this.instance = new lib.svendborg_title();
-	this.instance.setTransform(13,48);
+	this.instance = new lib.sundholm_title();
+	this.instance.setTransform(22,57);
 
 	// Layer 1
 	this.instance_1 = new lib._3_6BG();
@@ -851,7 +850,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib._1_3BGsvendborg();
+	this.instance = new lib._1_3BGsundholm();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
@@ -862,7 +861,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib._1_2BGsvendborgC();
+	this.instance = new lib._1_2BGsundholmC();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
@@ -873,7 +872,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib._1_2BGsvendborgB();
+	this.instance = new lib._1_2BGsundholmB();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
@@ -884,7 +883,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib._1_2BGsvendborgA();
+	this.instance = new lib._1_2BGsundholmA();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
@@ -895,7 +894,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib._1_1BGsvendborg();
+	this.instance = new lib._1_1BGsundholm();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
@@ -1563,7 +1562,7 @@ p.nominalBounds = new cjs.Rectangle(210,38,615,355);
 
 	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,38,944,502);
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 (lib._341PagePlayAdviceEmployee = function() {
@@ -1641,17 +1640,17 @@ p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
 	this.checkbox1.setTransform(333.2,193.2,1,1,0,0,0,209.2,29.2);
 
 	// Checkbox text
-	this.text = new cjs.Text("pille orm ud af kål", "40px 'BigNoodleTitling'", "#C69700");
+	this.text = new cjs.Text("Knus skærver", "40px 'BigNoodleTitling'", "#C69700");
 	this.text.lineHeight = 42;
 	this.text.lineWidth = 326;
 	this.text.setTransform(205,391);
 
-	this.text_1 = new cjs.Text("væve måtter", "40px 'BigNoodleTitling'", "#C69700");
+	this.text_1 = new cjs.Text("Pas grise", "40px 'BigNoodleTitling'", "#C69700");
 	this.text_1.lineHeight = 42;
 	this.text_1.lineWidth = 326;
 	this.text_1.setTransform(205,281);
 
-	this.text_2 = new cjs.Text("slå skærver", "40px 'BigNoodleTitling'", "#C69700");
+	this.text_2 = new cjs.Text("Hug brænde", "40px 'BigNoodleTitling'", "#C69700");
 	this.text_2.lineHeight = 42;
 	this.text_2.lineWidth = 326;
 	this.text_2.setTransform(205,171);
@@ -1676,7 +1675,7 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,534.5);
 
 
 // stage content:
-(lib.svendborg_second = function(mode,startPosition,loop) {
+(lib.sundholm_second = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{intro:0});
 
 	// timeline functions:
@@ -1789,19 +1788,19 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,534.5);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_3_3).wait(26));
 
-	// 1.2C
+	// 3.2C
 	this.bg_3_2_1C = new lib.Background3_2_1C();
 	this.bg_3_2_1C.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_3_2_1C).wait(26));
 
-	// 1.2B
+	// 3.2B
 	this.bg_3_2_1B = new lib.Background3_2_1B();
 	this.bg_3_2_1B.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_3_2_1B).wait(26));
 
-	// 1.2A
+	// 3.2A
 	this.bg_3_2_1A = new lib.Background3_2_1A();
 	this.bg_3_2_1A.setTransform(1024,0);
 
@@ -1814,7 +1813,7 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,534.5);
 	this.timeline.addTween(cjs.Tween.get(this.bg_3_1).wait(26));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(1536,252,1154,558);
+p.nominalBounds = new cjs.Rectangle(1536,252,1025,558);
 
 })(gamelib = gamelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var gamelib, images, createjs, ss;

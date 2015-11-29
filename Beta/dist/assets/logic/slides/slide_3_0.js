@@ -97,7 +97,7 @@ p.nominalBounds = new cjs.Rectangle(-65,0,405,28.1);
 
 // stage content:
 (lib.slide_3_0 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
+if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{});
 
 	// timeline functions:
 	this.frame_0 = function() {

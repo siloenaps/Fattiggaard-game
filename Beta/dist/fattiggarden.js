@@ -605,7 +605,7 @@ PagePoorhouseIntro.prototype.start = function(flowId, slideName){
 
 	var gameFile;
 
-	// console.log('PagePoorhouseIntro:start', slideName+'.js');
+	console.log('PagePoorhouseIntro:start', slideName+'.js');
 	console.log('PagePoorhouseIntro', this.runonce, slideName+'.js');
 
 	LoadJS.load(
@@ -788,9 +788,10 @@ PagePoorhouseIntro.prototype.intro = function(trigger){
 		// self.dispatchEvent(new createjs.Event('ready'));
 		console.log('PagePoorhouseIntro::ready');
 		// No tick
-		Tick.disable();
+		// Tick.disable();
+		console.log('NB. Disabled tick-disablign as test in PagePoorhouseIntro');
 	});
-	console.log(this.slideLib)
+	// console.log(this.slideLib)
 	this.playerComponent.preload(this.slideName, this.slideLib);
 	
 };
@@ -914,7 +915,7 @@ PageMap.prototype.start = function() {
 
 	// Checkboxes
 	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
-	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundby'});
+	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundholm'});
 	var btn3 = new RadioButton(this.view.checkbox3, {value:'svendborg'});
 
 	// Group
@@ -942,7 +943,6 @@ PageMap.prototype.start = function() {
 		});
 	}, self);
 
-
 	// Info popup
 	this.view.infopopup.visible = false;
 	this.infoButtons = [];
@@ -969,7 +969,7 @@ PageMap.prototype.start = function() {
 };
 PageMap.prototype.openInfo = function(id) {
 	'use strict';
-	this.view.infopopup.gotoAndStop(id-1);
+	this.view.infopopup.gotoAndStop(id);
 	this.view.infopopup.x = 0;
 	this.view.infopopup.visible = true;
 	this.continueBtn.hide();
@@ -1634,7 +1634,7 @@ FlowPoorhouseSecond.prototype.work = function(trigger) {
 	this.continueBtn.activate('skip');
 
 	// Get sound
-	var sound = SoundService.matrix.work[this.id][PlayerStats.job]; // "svendborg/A"	
+	var sound = SoundService.matrix['3.2.1'][this.id][PlayerStats.job]; // "svendborg/A"	
 	// this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
 	
 	// Change background
@@ -1761,7 +1761,7 @@ FlowPoorhouseSecond.prototype.playAdvice = function(trigger) {
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
 	// Portrait
-	this.currentPage.portrait.gotoAndStop(this.id);
+	// this.currentPage.portrait.gotoAndStop(this.id);
 
 	// Next button
 	this.continueBtn.ghost('skip');
@@ -1855,6 +1855,9 @@ FlowPoorhouseSecond.prototype.farmworkEnded = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
+	// Change background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_7);
+
 	// Get sound
 	var sound = SoundService.matrix[currentTrigger];
 
@@ -1905,9 +1908,6 @@ FlowPoorhouseSecond.prototype.letterWrite = function(trigger) {
 	var self = this;
 
 	self.trigger = trigger;
-
-	// Change background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_8);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -2084,7 +2084,7 @@ FlowPoorhouse.prototype.setup = function(){
 		}, this)
 	);
 
-	this.id = 'svendborg';
+	// this.id = 'svendborg';
 	console.log('FlowPoorhouse:setup', this.id);
 
 	this.lib = gamelib;
@@ -2325,13 +2325,15 @@ FlowPoorhouse.prototype.work = function(trigger) {
 
 	var self = this;
 
+	var currentTrigger = this.trigger;
+
 	// Next move
 	this.trigger = trigger;
 
 	this.continueBtn.activate('skip');
 
 	// Get sound
-	var sound = SoundService.matrix.work[this.id][PlayerStats.job]; // "svendborg/A"	
+	var sound = SoundService.matrix[currentTrigger][this.id][PlayerStats.job]; // "svendborg/A"	
 	// this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
 	
 	// Change background
@@ -2475,7 +2477,7 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
 	// Portrait
-	this.currentPage.portrait.gotoAndStop(this.id);
+	// this.currentPage.portrait.gotoAndStop(this.id);
 
 	// Next button
 	this.continueBtn.ghost('skip');
@@ -2768,7 +2770,7 @@ FlowPoorhouse.prototype.jobInterviewPart1 = function(trigger){
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_2);
 
 	// Get sound
-	var sound = SoundService.matrix.jobinterview[this.id]['part1']; // "svendborg"
+	var sound = SoundService.matrix['2.2.1'];
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -2836,7 +2838,7 @@ FlowPoorhouse.prototype.jobInterviewPart2 = function(trigger){
 	this.trigger = trigger;
 
 	// Get sound
-	var sound = SoundService.matrix.jobinterview[this.id]['part2']; // "svendborg"
+	var sound = SoundService.matrix['2.2.3'];
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -5478,7 +5480,9 @@ var Topbar = {
 		// createjs.Tween.get(this.view.label_intro)
 		// 	.to({x:564}, 300, createjs.Ease.backIn);
 
-console.log(this.view)
+		if(this.view === undefined || this.view === null){
+			throw new Error("'view' is undefined");
+		}
 		this.view.gotoAndStop(frm);
 
 		// Setup for game related to user's choices
@@ -5492,7 +5496,11 @@ console.log(this.view)
 		}
 	},
 	pointsUpdate: function(){
-		HUDController.update();
+		try{
+			HUDController.update();
+		}catch(err){
+			console.log(err);			
+		}		
 	},
 	show: function(){
 		this.view.visible = true;
@@ -5982,6 +5990,411 @@ Array.prototype.shuffle = function(index){
     }
     return this;
 }
+var GameManager = {
+	root: null,
+	init: function(root){
+		'use strict';
+		if(root === undefined){
+			throw new Error("'root' is undefined");
+		}
+		this.root = root;
+	},
+	restart: function(){
+		'use strict';
+	},
+	destroy: function(){
+		'use strict';
+	}
+};
+var FlowManager = {
+	currentPage:null,
+	root: null,
+	topbar: null,
+	init: function(root){
+		'use strict';
+		if(root === undefined && root === null){
+			throw new Error("'root' is", root);
+		}
+		this.root = root;
+	},
+	clearLib: function(){
+		lib = null;
+	},
+	gotoPage: function(page){
+		'use strict';
+		if(this.currentPage !== null){
+			this.currentPage.destroy();
+			this.currentPage = null;
+		}
+		var self = this;
+		// this.root.gotoAndStop('character_build'); // TEST
+		switch(page){
+			case '0.0':
+				this.root.gotoAndStop('frontpage');	
+				this.root.blocker_black.visible = false;
+
+				ContinueButton.on('click', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					Preloader.load(lib.properties.manifest, onFileLoad, onLoadComplete, 'full', true);
+				}, this);
+				ContinueButton.activate('next');
+
+				var onFileLoad = function(event){
+					if (event.item.type === 'image') { 
+						images[event.item.id] = event.result; 
+					}
+				};
+				var onLoadComplete = function(event){
+					// Instantiate view
+					self.topbar = new lib.TopbarView();
+
+					//Add
+					self.root.topbarcontainer.addChild(self.topbar);
+
+					// To intro
+					self.gotoPage('0.1');
+					// self.gotoPage('1.0.1'); // TEST
+				};	
+				
+			break;
+			case '0.1':
+				// Proloque
+				// Topbar
+				try{
+					Topbar.init(this.topbar.mainClip);
+					Topbar.hide();
+				}catch(err){
+					console.log(err);
+				}
+
+				// Tick.disable();
+				var self = this;
+
+				// Go to start frame
+				this.root.gotoAndStop('start');
+				this.currentPage = new FlowProloque(this.root.pagecontainer);
+				this.currentPage.start(); 
+
+				// Blocker
+				FlowProloque.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page
+				FlowProloque.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('1.0.1');
+				}, this);				
+				// Tick.disable();	
+				
+			break;
+			case '1.0.1':	
+				// Poor House Intro	
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');
+
+				this.currentPage = null;
+				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start('1.0.1', 'slide_1_0_1');
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('1.0.2');
+				}, this);
+				// Tick.disable();
+			break;
+			case '1.0.2':	
+				// Poor House		
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				Topbar.go('game');
+				
+
+				this.currentPage = null;
+				this.currentPage = new FlowPoorhouse(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('2.5');
+				}, this);
+				Tick.disable();
+			break;
+			case '2.5':
+				// Germany 1.
+
+				// Root frame
+				this.root.gotoAndStop('germany');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}
+
+				this.currentPage = null;
+				this.currentPage = new FlowGermany1(this.root.pagecontainer); 
+				this.currentPage.start(); 		
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('3.0');
+				}, this);
+				Tick.disable();
+			break;
+			case '3.0':	
+				// Poor House 2. time
+
+				// Get id for next poorhouse
+				var newId;
+				var list = ['horsens', 'sundholm', 'svendborg'];
+				list = list.shuffle();
+				for(var i=0; i<list.length; i++){
+					if(list[i] !== PlayerStats.poorhouse){
+						PlayerStats.poorhouse = list[i];
+						break;
+					}
+				}
+
+				// TEST
+				// PlayerStats.poorhouse = 'svendborg';
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}				
+
+				this.currentPage = null;
+				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
+				// this.currentPage.setPortrait(ImageService.matrix.portrait['AD']);
+				this.currentPage.start('3.0', 'slide_3_0');	
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('3.1');
+				}, this);
+			break;
+			case '3.1':	
+				// Poor House 2.	
+
+				// TEST
+				// PlayerStats.poorhouse = 'svendborg';
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}				
+
+				this.currentPage = null;
+				this.currentPage = new FlowPoorhouseSecond(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('4.0');
+				}, this);
+				Tick.disable();
+			break;
+			case '4.0':	
+				// Germany 2.	
+
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}				
+
+				this.currentPage = null;
+				this.currentPage = new FlowGermany2(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('4.11');
+				}, this);
+				Tick.disable();
+			break;
+			case '4.11':	
+
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}				
+
+				this.currentPage = null;
+				this.currentPage = new FlowEpilogue(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start(); 				
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				// this.currentPage.on('continue', function(event){
+				// 	event.remove();
+				// 	Library.clearSlide();
+				// 	Library.clearGame();
+				// 	self.gotoPage('4.10');
+				// }, this);
+				Tick.disable();
+			break;
+		}
+	},
+	restart: function(){
+		'use strict';
+		this.currentPage = null;
+	},
+	destroy: function(){
+		'use strict';
+		this.currentPage = null;
+	}
+};
+var ApplicationManager = {
+	root: null,
+	start: function(root){
+		'use strict';
+		this.root = root;
+
+		// Init Environment info
+		Environment.init();
+
+		// Cursor init
+		Cursor.root = root;
+
+		// GUI
+		try{
+			ContinueButton.init(root.continueBtn);
+		}catch(err){
+			console.log(err);
+		}
+		
+		// Game
+		try{
+			GameManager.init(root);
+		}catch(err){
+			console.log(err);
+		}		
+
+		// Init page manager
+		try{
+			FlowManager.init(root);
+		}catch(err){
+			console.log(err);
+		}
+			
+
+		// Fade black blocker out
+		// createjs.Tween.get(root.blocker_black)
+  //        .to({alpha: 0}, 600, createjs.Ease.linear)
+  //        .call(function(){
+  //        	root.blocker_black.visible = false;
+  //        });         
+
+
+		// Go to start
+		FlowManager.gotoPage('0.0');
+		// FlowManager.gotoPage('3.1');
+
+		//console.log('Ticker.framerate:', Ticker.framerate);
+	},
+	restart: function(){
+		'use strict';
+	},
+	destroy: function(){
+		'use strict';
+	}
+};
 var SoundService = function(){
 	'use strict';
 }
@@ -6033,25 +6446,28 @@ SoundService.matrix = {
 	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
 	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
 	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
-	jobinterview: {
-		'svendborg': { 
-			'part1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
-			'part2': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 }
-		}
-	},
-	prerecruitment: {
-		'svendborg': { src:SoundService.properties.basePath+'prerecruitment_svendborg.mp3', duration: 1.078 }
+	'1.2.1': {
+		'horsens': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
+					},
+		'sundholm': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
+					},
+		'svendborg': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
+					},
 	},
 	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
 	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
-	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },
-	work: {
-		'svendborg': {
-			'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
-			'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-			'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
-		},
-	},
+	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },	
+	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
+	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 },
 	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
 	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
 	'2.10.2': {
@@ -6092,6 +6508,23 @@ SoundService.matrix = {
 			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
 			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 }
 		},
+	'3.2.1': {
+		'horsens': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
+					},
+		'sundholm': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
+					},
+		'svendborg': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
+					},
+	},
 	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3', duration: 54.282 },
 	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3', duration: 15.531 },
 	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3', duration: 13.543 },
@@ -6298,390 +6731,6 @@ var FlowData ={
 // 		}
 // 	}
 // }
-var GameManager = {
-	root: null,
-	init: function(root){
-		'use strict';
-		if(root === undefined){
-			throw new Error("'root' is undefined");
-		}
-		this.root = root;
-	},
-	restart: function(){
-		'use strict';
-	},
-	destroy: function(){
-		'use strict';
-	}
-};
-var FlowManager = {
-	currentPage:null,
-	root: null,
-	topbar: null,
-	init: function(root){
-		'use strict';
-		if(root === undefined && root === null){
-			throw new Error("'root' is", root);
-		}
-		this.root = root;
-	},
-	clearLib: function(){
-		lib = null;
-	},
-	gotoPage: function(page){
-		'use strict';
-		if(this.currentPage !== null){
-			this.currentPage.destroy();
-			this.currentPage = null;
-		}
-		var self = this;
-		// this.root.gotoAndStop('character_build'); // TEST
-		switch(page){
-			case '0.0':
-				this.root.gotoAndStop('frontpage');	
-				this.root.blocker_black.visible = false;
-
-				ContinueButton.on('click', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					Preloader.load(lib.properties.manifest, onFileLoad, onLoadComplete, 'full', true);
-				}, this);
-				ContinueButton.activate('next');
-
-				var onFileLoad = function(event){
-					if (event.item.type === 'image') { 
-						images[event.item.id] = event.result; 
-					}
-				};
-				var onLoadComplete = function(event){
-					// Instantiate view
-					self.topbar = new lib.TopbarView();
-
-					//Add
-					self.root.topbarcontainer.addChild(self.topbar);
-
-					// To intro
-					self.gotoPage('0.1');
-					// self.gotoPage('1.0.1'); // TEST
-				};	
-				
-			break;
-			case '0.1':
-				// Proluque
-				// Topbar
-				try{
-					Topbar.init(this.topbar.mainClip);
-					Topbar.hide();
-				}catch(err){
-					console.log(err);
-				}
-
-				// Tick.disable();
-				var self = this;
-
-				// Go to start frame
-				this.root.gotoAndStop('start');
-				this.currentPage = new FlowProloque(this.root.pagecontainer);
-				this.currentPage.start(); 
-
-				// Blocker
-				FlowProloque.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-				// Button to next page
-				FlowProloque.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('1.0.1');
-				}, this);				
-				// Tick.disable();	
-				
-			break;
-			case '1.0.1':	
-				// Poor House Intro	
-				
-				this.root.gotoAndStop('start');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');
-
-				this.currentPage = null;
-				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
-				this.currentPage.start('1.0.1', 'slide_1_0_1');
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('1.0.2');
-				}, this);
-				// Tick.disable();
-			break;
-			case '1.0.2':	
-				// Poor House		
-				
-				this.root.gotoAndStop('start');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');
-				
-
-				this.currentPage = null;
-				this.currentPage = new FlowPoorhouse(this.root.pagecontainer); // Id references to flow id '0.1'
-				this.currentPage.start(); 				
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('2.5');
-				}, this);
-				Tick.disable();
-			break;
-			case '2.5':
-				// Germany 1.
-
-				// Root frame
-				this.root.gotoAndStop('germany');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');
-
-				this.currentPage = null;
-				this.currentPage = new FlowGermany1(this.root.pagecontainer); 
-				this.currentPage.start(); 		
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('3.0');
-				}, this);
-				Tick.disable();
-			break;
-			case '3.0':	
-				// Poor House 2. time
-
-				// Get id for next poorhouse
-				var newId;
-				var list = ['horsens', 'sundholm', 'svendborg'];
-				list = list.shuffle();
-				for(var i=0; i<list.length; i++){
-					if(list[i] !== PlayerStats.poorhouse){
-						PlayerStats.poorhouse = list[i];
-						break;
-					}
-				}
-
-				// TEST
-				PlayerStats.poorhouse = 'svendborg';
-				
-				this.root.gotoAndStop('start');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');
-
-				this.currentPage = null;
-				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
-				// this.currentPage.setPortrait(ImageService.matrix.portrait['AD']);
-				this.currentPage.start('3.0', 'slide_3_0');	
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('3.1');
-				}, this);
-			break;
-			case '3.1':	
-				// Poor House 2.	
-
-				// TEST
-				// PlayerStats.poorhouse = 'svendborg';
-				
-				this.root.gotoAndStop('start');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');				
-
-				this.currentPage = null;
-				this.currentPage = new FlowPoorhouseSecond(this.root.pagecontainer); // Id references to flow id '0.1'
-				this.currentPage.start(); 				
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('4.0');
-				}, this);
-				Tick.disable();
-			break;
-			case '4.0':	
-				// Germany 2.	
-
-				this.root.gotoAndStop('start');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');				
-
-				this.currentPage = null;
-				this.currentPage = new FlowGermany2(this.root.pagecontainer); // Id references to flow id '0.1'
-				this.currentPage.start(); 				
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-				// Button to next page/flow
-				this.currentPage.on('continue', function(event){
-					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					self.gotoPage('4.11');
-				}, this);
-				Tick.disable();
-			break;
-			case '4.11':	
-
-				this.root.gotoAndStop('start');
-				this.root.pagecontainer.removeAllChildren();
-
-				// Topbar
-				Topbar.go('game');				
-
-				this.currentPage = null;
-				this.currentPage = new FlowEpilogue(this.root.pagecontainer); // Id references to flow id '0.1'
-				this.currentPage.start(); 				
-
-				// Blocker
-				this.currentPage.on('ready', function(event){
-					event.remove();					
-					self.root.blocker_black.visible = false;
-				}, this);
-
-				// Button to next page/flow
-				// this.currentPage.on('continue', function(event){
-				// 	event.remove();
-				// 	Library.clearSlide();
-				// 	Library.clearGame();
-				// 	self.gotoPage('4.10');
-				// }, this);
-				Tick.disable();
-			break;
-		}
-	},
-	restart: function(){
-		'use strict';
-		this.currentPage = null;
-	},
-	destroy: function(){
-		'use strict';
-		this.currentPage = null;
-	}
-};
-var ApplicationManager = {
-	root: null,
-	start: function(root){
-		'use strict';
-		this.root = root;
-
-		// Init Environment info
-		Environment.init();
-
-		// Cursor init
-		Cursor.root = root;
-
-		// GUI
-		try{
-			ContinueButton.init(root.continueBtn);
-		}catch(err){
-			console.log(err);
-		}
-		
-		// Game
-		try{
-			GameManager.init(root);
-		}catch(err){
-			console.log(err);
-		}		
-
-		// Init page manager
-		try{
-			FlowManager.init(root);
-		}catch(err){
-			console.log(err);
-		}
-			
-
-		// Fade black blocker out
-		// createjs.Tween.get(root.blocker_black)
-  //        .to({alpha: 0}, 600, createjs.Ease.linear)
-  //        .call(function(){
-  //        	root.blocker_black.visible = false;
-  //        });         
-
-
-		// Go to start
-		FlowManager.gotoPage('0.0');
-
-		//console.log('Ticker.framerate:', Ticker.framerate);
-	},
-	restart: function(){
-		'use strict';
-	},
-	destroy: function(){
-		'use strict';
-	}
-};
 var SoundEffect = function(src, duration, loop){
 	'use strict';
 	if(SoundEffect.counter == null)
@@ -6889,6 +6938,10 @@ var HUDController = {
 		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src, SoundService.matrix.points.minus.duration);
 	},
 	update: function(){
+		if(view === undefined || view === null){
+			throw new Error("'view' is undefined");
+		}
+
 		var self = this;
 		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
 		this.view.health.points.gotoAndStop(PlayerStats.health-1);
@@ -7737,6 +7790,234 @@ module.run(['$templateCache', function($templateCache) {
     '\n' +
     'function handleComplete(evt) {\n' +
     '	exportRoot = new gamelib.epilogue();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/horsens.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>horsens</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="horsens.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.horsens();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/horsens_second.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>horsens_second</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="horsens_second.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.horsens_second();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/sundholm.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>sundholm</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="sundholm.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.sundholm();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/sundholm_second.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>sundholm_second</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="sundholm_second.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.sundholm_second();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/svendborg.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>svendborg</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="svendborg.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.svendborg();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/svendborg_second.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>svendborg_second</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="svendborg_second.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.svendborg_second();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +

@@ -769,7 +769,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 
 
 (lib.InfoPopup = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
+if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{});
 
 	// timeline functions:
 	this.frame_0 = function() {
@@ -789,10 +789,10 @@ p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 	// Text
 	this.text = new cjs.Text("Horsens Forsørgelsesanstalt er en fattiganstalt med plads til i alt 74\npersoner, 52 mænd og 22 kvinder. Mænd og kvinder holdes adskilt. Horsens\nForsørgelsesanstalt består af en arbejdsafdeling en forsørgelsesafdeling\nog en sygeafdeling. Arbejdsdygtige individer, alkoholister og forsømmelige\nforsørgere bliver indlagt på arbejdsafdelingen. Der er mure langs anstaltens\ngårdarealer. Anstaltens chef er Forvalteren, det er ham, der bestemmer over\nde indlagte og har det overordnede ansvar for, at stedets regler bliver\noverholdt. Opsynsmændene er forvalterens forlængede arm. ", "28px 'BigNoodleTitling'", "#B9961D");
 	this.text.lineHeight = 30;
-	this.text.lineWidth = 724;
+	this.text.lineWidth = 822;
 	this.text.setTransform(219,135.3);
 
-	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Sundholm er en kæmpe stor fattiganstalt på Amager med plads til op mod\n750 indlagte. Mænd og kvinder holdes adskilt. Sundholm består af en\narbejdsanstalt, en forsørgelsesanstalt og en tvangsarbejdsanstalt. \nArbejdsdygtige individer bliver indlagt på arbejdsanstalten eller tvangs-\narbejdsanstalten, da man mener, at de selv bærer hovedansvaret for deres \nfattigdom. Rundt om Sundholm har man gravet en fire meter dyb voldgrav.\nPå kanten af voldgraven står et to meter højt pigtrådshegn. Pigtrådshegnet\ner ca. 1400 meter langt. Anstaltens chef er Forvalteren, det er ham, der\nbestemmer over de indlagte og har det overordnede ansvar for, at stedets\nregler bliver overholdt. Opsynsmændene er forvalterens forlængede arm. ",lineWidth:781},0).wait(1).to({text:"Svendborg Fattiggård er en anstalt med plads til 51 indlagte. Svendborg \nfattiggård indeholder en arbejdsafdeling, en forsørgelsesafdeling og en \nsygeafdeling. Mænd og kvinder holdes adskilt. Arbejdsdygtige individer \nbliver indlagt på arbejdsafdelingen, da man mener, at de er dovne og \narbejdssky, og derfor selv bærer hovedansvaret for deres fattigdom. \nLangs fattiggårdens bygninger er der høje mure med pigtråd på toppen. \nAnstaltens chef er Forvalteren, det er ham, der bestemmer over de indlagte \nog har det overordnede ansvar for, at stedets regler bliver overholdt.",lineWidth:724},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Sundholm er en kæmpe stor fattiganstalt på Amager med plads til op mod\n750 indlagte. Mænd og kvinder holdes adskilt. Sundholm består af en\narbejdsanstalt, en forsørgelsesanstalt og en tvangsarbejdsanstalt. \nArbejdsdygtige individer bliver indlagt på arbejdsanstalten eller tvangs-\narbejdsanstalten, da man mener, at de selv bærer hovedansvaret for deres \nfattigdom. Rundt om Sundholm har man gravet en fire meter dyb voldgrav.\nPå kanten af voldgraven står et to meter højt pigtrådshegn. Pigtrådshegnet\ner ca. 1400 meter langt. Anstaltens chef er Forvalteren, det er ham, der\nbestemmer over de indlagte og har det overordnede ansvar for, at stedets\nregler bliver overholdt. Opsynsmændene er forvalterens forlængede arm. ",lineWidth:898},0).wait(1).to({text:"Svendborg Fattiggård er en anstalt med plads til 51 indlagte. Svendborg \nfattiggård indeholder en arbejdsafdeling, en forsørgelsesafdeling og en \nsygeafdeling. Mænd og kvinder holdes adskilt. Arbejdsdygtige individer \nbliver indlagt på arbejdsafdelingen, da man mener, at de er dovne og \narbejdssky, og derfor selv bærer hovedansvaret for deres fattigdom. \nLangs fattiggårdens bygninger er der høje mure med pigtråd på toppen. \nAnstaltens chef er Forvalteren, det er ham, der bestemmer over de indlagte \nog har det overordnede ansvar for, at stedets regler bliver overholdt.",lineWidth:908},0).wait(1));
 
 	// Text BG
 	this.instance = new lib.BlackTextBG("synched",0);
@@ -811,7 +811,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance_1}]}).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).wait(1));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+p.nominalBounds = new cjs.Rectangle(0,0,1045,540);
 
 
 (lib.CheckBoxsmall = function(mode,startPosition,loop) {
@@ -943,7 +943,6 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,421.4,61.5);
 	// Info Popup
 	this.infopopup = new lib.InfoPopup();
 	this.infopopup.setTransform(1024,0);
-	this.infopopup.cache(-2,-2,1028,544);
 
 	// Info Buttons
 	this.info3 = new lib.InfoButton();
@@ -983,7 +982,7 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,421.4,61.5);
 
 	this.addChild(this.instance,this.text,this.shape,this.checkbox1,this.checkbox2,this.checkbox3,this.info1,this.info2,this.info3,this.infopopup);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,2048,540);
+p.nominalBounds = new cjs.Rectangle(0,0,2069,540);
 
 
 (lib._03CardMain = function() {
