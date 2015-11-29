@@ -82,7 +82,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 
 
 // stage content:
-(lib.slide_4_5_1_AB_ = function(mode,startPosition,loop) {
+(lib.slide_4_5_1_AC = function(mode,startPosition,loop) {
 if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{});
 
 	// Layer 2

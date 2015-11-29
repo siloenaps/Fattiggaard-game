@@ -6,6 +6,10 @@ var HUDController = {
 		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src, SoundService.matrix.points.minus.duration);
 	},
 	update: function(){
+		if(view === undefined || view === null){
+			throw new Error("'view' is undefined");
+		}
+
 		var self = this;
 		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
 		this.view.health.points.gotoAndStop(PlayerStats.health-1);

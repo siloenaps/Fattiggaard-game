@@ -212,9 +212,10 @@ PagePoorhouseIntro.prototype.intro = function(trigger){
 		// self.dispatchEvent(new createjs.Event('ready'));
 		console.log('PagePoorhouseIntro::ready');
 		// No tick
-		Tick.disable();
+		// Tick.disable();
+		console.log('NB. Disabled tick-disablign as test in PagePoorhouseIntro');
 	});
-	console.log(this.slideLib)
+	// console.log(this.slideLib)
 	this.playerComponent.preload(this.slideName, this.slideLib);
 	
 };

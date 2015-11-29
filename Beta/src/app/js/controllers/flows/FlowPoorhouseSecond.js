@@ -471,6 +471,9 @@ FlowPoorhouseSecond.prototype.farmworkEnded = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
+	// Change background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_7);
+
 	// Get sound
 	var sound = SoundService.matrix[currentTrigger];
 
@@ -521,9 +524,6 @@ FlowPoorhouseSecond.prototype.letterWrite = function(trigger) {
 	var self = this;
 
 	self.trigger = trigger;
-
-	// Change background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_8);
 
 	// Pages in/out
 	var previousPage = this.currentPage;

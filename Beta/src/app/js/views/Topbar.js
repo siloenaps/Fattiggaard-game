@@ -29,7 +29,11 @@ var Topbar = {
 		}
 	},
 	pointsUpdate: function(){
-		HUDController.update();
+		try{
+			HUDController.update();
+		}catch(err){
+			console.log(err);			
+		}		
 	},
 	show: function(){
 		this.view.visible = true;

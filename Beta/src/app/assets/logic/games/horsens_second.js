@@ -816,7 +816,7 @@ p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
 p.nominalBounds = null;
 
 
-(lib.Background3_8 = function() {
+(lib.Background3_7 = function() {
 	this.initialize();
 
 	// Layer 2
@@ -1771,10 +1771,10 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,534.5);
 	this.timeline.addTween(cjs.Tween.get(this.choosework).wait(26));
 
 	// 3.7
-	this.bg_1_5 = new lib.Background3_8();
-	this.bg_1_5.setTransform(1025,0);
+	this.bg_3_7 = new lib.Background3_7();
+	this.bg_3_7.setTransform(1025,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.bg_1_5).wait(26));
+	this.timeline.addTween(cjs.Tween.get(this.bg_3_7).wait(26));
 
 	// 3.6
 	this.bg_3_6 = new lib.Background3_6();

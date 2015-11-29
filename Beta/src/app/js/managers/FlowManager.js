@@ -232,7 +232,11 @@ var FlowManager = {
 				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
-				Topbar.go('game');				
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}				
 
 				this.currentPage = null;
 				this.currentPage = new FlowPoorhouseSecond(this.root.pagecontainer); // Id references to flow id '0.1'
@@ -261,7 +265,11 @@ var FlowManager = {
 				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
-				Topbar.go('game');				
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}				
 
 				this.currentPage = null;
 				this.currentPage = new FlowGermany2(this.root.pagecontainer); // Id references to flow id '0.1'
@@ -288,7 +296,11 @@ var FlowManager = {
 				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
-				Topbar.go('game');				
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}				
 
 				this.currentPage = null;
 				this.currentPage = new FlowEpilogue(this.root.pagecontainer); // Id references to flow id '0.1'
