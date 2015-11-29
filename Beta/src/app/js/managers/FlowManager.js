@@ -52,7 +52,7 @@ var FlowManager = {
 				
 			break;
 			case '0.1':
-				// Proluque
+				// Proloque
 				// Topbar
 				try{
 					Topbar.init(this.topbar.mainClip);
@@ -151,7 +151,11 @@ var FlowManager = {
 				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
-				Topbar.go('game');
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}
 
 				this.currentPage = null;
 				this.currentPage = new FlowGermany1(this.root.pagecontainer); 
@@ -187,13 +191,17 @@ var FlowManager = {
 				}
 
 				// TEST
-				PlayerStats.poorhouse = 'svendborg';
+				// PlayerStats.poorhouse = 'svendborg';
 				
 				this.root.gotoAndStop('start');
 				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
-				Topbar.go('game');
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}				
 
 				this.currentPage = null;
 				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'

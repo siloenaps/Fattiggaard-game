@@ -106,7 +106,7 @@ FlowPoorhouse.prototype.setup = function(){
 		}, this)
 	);
 
-	this.id = 'svendborg';
+	// this.id = 'svendborg';
 	console.log('FlowPoorhouse:setup', this.id);
 
 	this.lib = gamelib;
@@ -347,13 +347,15 @@ FlowPoorhouse.prototype.work = function(trigger) {
 
 	var self = this;
 
+	var currentTrigger = this.trigger;
+
 	// Next move
 	this.trigger = trigger;
 
 	this.continueBtn.activate('skip');
 
 	// Get sound
-	var sound = SoundService.matrix.work[this.id][PlayerStats.job]; // "svendborg/A"	
+	var sound = SoundService.matrix[currentTrigger][this.id][PlayerStats.job]; // "svendborg/A"	
 	// this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
 	
 	// Change background
@@ -497,7 +499,7 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
 	// Portrait
-	this.currentPage.portrait.gotoAndStop(this.id);
+	// this.currentPage.portrait.gotoAndStop(this.id);
 
 	// Next button
 	this.continueBtn.ghost('skip');
@@ -790,7 +792,7 @@ FlowPoorhouse.prototype.jobInterviewPart1 = function(trigger){
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_2_2);
 
 	// Get sound
-	var sound = SoundService.matrix.jobinterview[this.id]['part1']; // "svendborg"
+	var sound = SoundService.matrix['2.2.1'];
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -858,7 +860,7 @@ FlowPoorhouse.prototype.jobInterviewPart2 = function(trigger){
 	this.trigger = trigger;
 
 	// Get sound
-	var sound = SoundService.matrix.jobinterview[this.id]['part2']; // "svendborg"
+	var sound = SoundService.matrix['2.2.3'];
 
 	// Pages in/out
 	var previousPage = this.currentPage;

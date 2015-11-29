@@ -49,25 +49,28 @@ SoundService.matrix = {
 	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
 	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
 	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
-	jobinterview: {
-		'svendborg': { 
-			'part1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
-			'part2': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 }
-		}
-	},
-	prerecruitment: {
-		'svendborg': { src:SoundService.properties.basePath+'prerecruitment_svendborg.mp3', duration: 1.078 }
+	'1.2.1': {
+		'horsens': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
+					},
+		'sundholm': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
+					},
+		'svendborg': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
+					},
 	},
 	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
 	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
-	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },
-	work: {
-		'svendborg': {
-			'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
-			'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-			'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
-		},
-	},
+	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },	
+	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
+	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 },
 	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
 	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
 	'2.10.2': {
@@ -108,6 +111,23 @@ SoundService.matrix = {
 			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
 			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 }
 		},
+	'3.2.1': {
+		'horsens': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
+					},
+		'sundholm': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
+					},
+		'svendborg': {
+						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
+						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
+						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
+					},
+	},
 	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3', duration: 54.282 },
 	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3', duration: 15.531 },
 	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3', duration: 13.543 },

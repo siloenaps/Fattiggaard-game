@@ -21,8 +21,6 @@ lib.properties = {
 		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
 		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
 		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
-		{src:"../../../assets/images/pool/ansat_1.png", id:"ansat_1"},
-		{src:"../../../assets/images/pool/ansat_2.png", id:"ansat_2"},
 		{src:"../../../assets/images/pool/ansat_3.png", id:"ansat_3"},
 		{src:"../../../assets/images/pool/BDCloseUp.png", id:"BDCloseUp"},
 		{src:"../../../assets/images/pool/BECloseUp.png", id:"BECloseUp"},
@@ -39,8 +37,6 @@ lib.properties = {
 		{src:"../../../assets/images/pool/CharacterCardName0007.png", id:"CharacterCardName0007"},
 		{src:"../../../assets/images/pool/CharacterCardName0008.png", id:"CharacterCardName0008"},
 		{src:"../../../assets/images/pool/CharacterCardName0009.png", id:"CharacterCardName0009"},
-		{src:"../../../assets/images/pool/indsat_1.png", id:"indsat_1"},
-		{src:"../../../assets/images/pool/indsat_2.png", id:"indsat_2"},
 		{src:"../../../assets/images/pool/indsat_3.png", id:"indsat_3"},
 		{src:"../../../assets/images/pool/LetterBG.png", id:"LetterBG"},
 		{src:"../../../assets/images/pool/LetterWriteBG.png", id:"LetterWriteBG"},
@@ -126,18 +122,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 (lib.AFCloseUp = function() {
 	this.initialize(img.AFCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.ansat_1 = function() {
-	this.initialize(img.ansat_1);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.ansat_2 = function() {
-	this.initialize(img.ansat_2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
@@ -236,18 +220,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,188,19);
 	this.initialize(img.CharacterCardName0009);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.indsat_1 = function() {
-	this.initialize(img.indsat_1);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.indsat_2 = function() {
-	this.initialize(img.indsat_2);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
 (lib.indsat_3 = function() {
@@ -468,52 +440,26 @@ p.nominalBounds = new cjs.Rectangle(212,40,601.8,276);
 p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 
 
-(lib._342InmatePortraitMain = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{horsens:0,sundholm:1,svendborg:2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
+(lib._342InmatePortraitMain = function() {
+	this.initialize();
 
 	// Layer 1
-	this.instance = new lib.indsat_1();
+	this.instance = new lib.indsat_3();
+	this.instance.setTransform(-8,105);
 
-	this.instance_1 = new lib.indsat_2();
-
-	this.instance_2 = new lib.indsat_3();
-	this.instance_2.setTransform(-8,105);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(-8,105,540,453);
 
 
-(lib._341EmployeePortraitMain = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"horsens":0,"sundholm":1,"svendborg":2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
+(lib._341EmployeePortraitMain = function() {
+	this.initialize();
 
 	// Layer 1
-	this.instance = new lib.ansat_1();
+	this.instance = new lib.ansat_3();
 
-	this.instance_1 = new lib.ansat_2();
-
-	this.instance_2 = new lib.ansat_3();
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
@@ -901,6 +847,17 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
+(lib.Background3_3 = function() {
+	this.initialize();
+
+	// Layer 1
+	this.instance = new lib._1_3BGsvendborg();
+
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
 (lib.Background3_2_1C = function() {
 	this.initialize();
 
@@ -939,17 +896,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 	// Layer 1
 	this.instance = new lib._1_1BGsvendborg();
-
-	this.addChild(this.instance);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib.Background1_3 = function() {
-	this.initialize();
-
-	// Layer 1
-	this.instance = new lib._1_3BGsvendborg();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
@@ -1617,7 +1563,7 @@ p.nominalBounds = new cjs.Rectangle(210,38,615,355);
 
 	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
+p.nominalBounds = new cjs.Rectangle(210,38,944,502);
 
 
 (lib._341PagePlayAdviceEmployee = function() {
@@ -1838,7 +1784,7 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,534.5);
 	this.timeline.addTween(cjs.Tween.get(this.bg_3_6).wait(26));
 
 	// 3.3
-	this.bg_3_3 = new lib.Background1_3();
+	this.bg_3_3 = new lib.Background3_3();
 	this.bg_3_3.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_3_3).wait(26));
@@ -1868,7 +1814,7 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,534.5);
 	this.timeline.addTween(cjs.Tween.get(this.bg_3_1).wait(26));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(1536,252,1025,558);
+p.nominalBounds = new cjs.Rectangle(1536,252,1154,558);
 
 })(gamelib = gamelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var gamelib, images, createjs, ss;

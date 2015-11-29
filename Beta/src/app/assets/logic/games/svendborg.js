@@ -28,8 +28,6 @@ lib.properties = {
 		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
 		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
 		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
-		{src:"../../../assets/images/pool/ansat_1.png", id:"ansat_1"},
-		{src:"../../../assets/images/pool/ansat_2.png", id:"ansat_2"},
 		{src:"../../../assets/images/pool/ansat_3.png", id:"ansat_3"},
 		{src:"../../../assets/images/pool/BDCloseUp.png", id:"BDCloseUp"},
 		{src:"../../../assets/images/pool/BECloseUp.png", id:"BECloseUp"},
@@ -46,8 +44,6 @@ lib.properties = {
 		{src:"../../../assets/images/pool/CharacterCardName0007.png", id:"CharacterCardName0007"},
 		{src:"../../../assets/images/pool/CharacterCardName0008.png", id:"CharacterCardName0008"},
 		{src:"../../../assets/images/pool/CharacterCardName0009.png", id:"CharacterCardName0009"},
-		{src:"../../../assets/images/pool/indsat_1.png", id:"indsat_1"},
-		{src:"../../../assets/images/pool/indsat_2.png", id:"indsat_2"},
 		{src:"../../../assets/images/pool/indsat_3.png", id:"indsat_3"},
 		{src:"../../../assets/images/pool/LetterArrested.png", id:"LetterArrested"},
 		{src:"../../../assets/images/pool/LetterWriteBG.png", id:"LetterWriteBG"},
@@ -180,18 +176,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
-(lib.ansat_1 = function() {
-	this.initialize(img.ansat_1);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.ansat_2 = function() {
-	this.initialize(img.ansat_2);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
 (lib.ansat_3 = function() {
 	this.initialize(img.ansat_3);
 }).prototype = p = new cjs.Bitmap();
@@ -286,18 +270,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,188,19);
 	this.initialize(img.CharacterCardName0009);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,188,19);
-
-
-(lib.indsat_1 = function() {
-	this.initialize(img.indsat_1);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.indsat_2 = function() {
-	this.initialize(img.indsat_2);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
 (lib.indsat_3 = function() {
@@ -579,53 +551,27 @@ p.nominalBounds = new cjs.Rectangle(196.7,0,657,576.5);
 p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 
 
-(lib._134EmployeePortraitMain = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{horsens:0,sundholm:1,svendborg:2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
+(lib._134EmployeePortraitMain = function() {
+	this.initialize();
 
 	// Layer 1
-	this.instance = new lib.ansat_1();
+	this.instance = new lib.ansat_3();
 
-	this.instance_1 = new lib.ansat_2();
-
-	this.instance_2 = new lib.ansat_3();
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
-(lib._133InmatePortraitMain = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"horsens":0,"sundholm":1,"svendborg":2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
+(lib._133InmatePortraitMain = function() {
+	this.initialize();
 
 	// Layer 1
-	this.instance = new lib.indsat_1();
+	this.instance = new lib.indsat_3();
+	this.instance.setTransform(-8,105);
 
-	this.instance_1 = new lib.indsat_2();
-
-	this.instance_2 = new lib.indsat_3();
-	this.instance_2.setTransform(-8,105);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(-8,105,540,453);
 
 
 (lib._131PagePoints3 = function() {
@@ -912,226 +858,6 @@ p.nominalBounds = new cjs.Rectangle(5,3,82,28.1);
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(5,3,83,30);
-
-
-(lib.DropdownItem133 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.label = new cjs.Text("Må retfærdigheden sejre", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 318;
-	this.label.setTransform(5,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(4));
-
-	// Layer 2
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#EEEEEE").s().p("A68B9IAAj5MA14AAAIAAD5g");
-	this.shape.setTransform(172.5,12.5);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1).to({_off:false},0).wait(3));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(5,0,322,28.1);
-
-
-(lib.DropdownItem132 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.label = new cjs.Text("Deres forbundne", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
-	this.label.setTransform(5,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(4));
-
-	// Layer 2
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#EEEEEE").s().p("A68B9IAAj5MA14AAAIAAD5g");
-	this.shape.setTransform(172.5,12.5);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1).to({_off:false},0).wait(3));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
-
-
-(lib.DropdownItem131 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.label = new cjs.Text("Den varmeste Tak", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
-	this.label.setTransform(5,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(4));
-
-	// Layer 2
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#EEEEEE").s().p("A68B9IAAj5MA14AAAIAAD5g");
-	this.shape.setTransform(172.5,12.5);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1).to({_off:false},0).wait(3));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
-
-
-(lib.DropdownItem123 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.label = new cjs.Text("beder ydmygt om", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
-	this.label.setTransform(5,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(4));
-
-	// Layer 2
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#EEEEEE").s().p("A0YB9IAAj5MAoxAAAIAAD5g");
-	this.shape.setTransform(130.5,12.5);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1).to({_off:false},0).wait(3));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
-
-
-(lib.DropdownItem122 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.label = new cjs.Text("kræver", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
-	this.label.setTransform(5,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(4));
-
-	// Layer 2
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#EEEEEE").s().p("A0YB9IAAj5MAoxAAAIAAD5g");
-	this.shape.setTransform(130.5,12.5);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1).to({_off:false},0).wait(3));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
-
-
-(lib.DropdownItem121 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.label = new cjs.Text("opnaa", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
-	this.label.setTransform(5,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(4));
-
-	// Layer 2
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#EEEEEE").s().p("A0YB9IAAj5MAoxAAAIAAD5g");
-	this.shape.setTransform(130.5,12.5);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1).to({_off:false},0).wait(3));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
-
-
-(lib.DropdownItem113 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.label = new cjs.Text("forstående", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
-	this.label.setTransform(5,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(4));
-
-	// Layer 2
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#EEEEEE").s().p("A0YB9IAAj5MAoxAAAIAAD5g");
-	this.shape.setTransform(130.5,12.5);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1).to({_off:false},0).wait(3));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(5,0,229.6,28.1);
-
-
-(lib.DropdownItem112 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.label = new cjs.Text("uduelige", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
-	this.label.setTransform(5,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(4));
-
-	// Layer 2
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#EEEEEE").s().p("A0YB9IAAj5MAoxAAAIAAD5g");
-	this.shape.setTransform(130.5,12.5);
-
-	this.text = new cjs.Text("ærede", "18px 'Special Elite'");
-	this.text.lineHeight = 20;
-	this.text.lineWidth = 226;
-	this.text.setTransform(3.2,0.7);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[]}).to({state:[{t:this.shape}]},1).to({state:[{t:this.shape},{t:this.text}]},2).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(5,0,229.6,28.1);
-
-
-(lib.DropdownItem111 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.label = new cjs.Text("ærede", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
-	this.label.setTransform(5,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(4));
-
-	// Layer 2
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#EEEEEE").s().p("A0YB9IAAj5MAoxAAAIAAD5g");
-	this.shape.setTransform(130.5,12.5);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1).to({_off:false},0).wait(3));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
 
 
 (lib.BlockerButton = function(mode,startPosition,loop) {
@@ -1553,279 +1279,6 @@ p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
 p.nominalBounds = new cjs.Rectangle(-1,-1,106.5,33.8);
 
 
-(lib.Letter1Dropdown3 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"closed":0,"open":4});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(15));
-
-	// Hitarea
-	this.hitarea = new lib.BlockerButton();
-	this.hitarea.setTransform(0,0,6.897,0.58);
-	new cjs.ButtonHelper(this.hitarea, 0, 1, 2, false, new lib.BlockerButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.hitarea).to({_off:true},4).wait(11));
-
-	// Horizontal line
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f().s("#CCCCCC").ss(1,1,0,3).p("AXvAAMgvdAAA");
-	this.shape.setTransform(159.9,26);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(4).to({_off:false},0).wait(11));
-
-	// Chosen Label
-	this.label = new cjs.Text("<label>", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 338;
-	this.label.setTransform(5.2,4.7);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(15));
-
-	// Items
-	this.item_A = new lib.DropdownItem131();
-	this.item_A.setTransform(3,31,1,1,0,0,0,3,1);
-	new cjs.ButtonHelper(this.item_A, 0, 1, 2, false, new lib.DropdownItem131(), 3);
-
-	this.item_C = new lib.DropdownItem133();
-	this.item_C.setTransform(3,82,1,1,0,0,0,3,1);
-	new cjs.ButtonHelper(this.item_C, 0, 1, 2, false, new lib.DropdownItem133(), 3);
-
-	this.item_B = new lib.DropdownItem132();
-	this.item_B.setTransform(3,56.5,1,1,0,0,0,3,1);
-	new cjs.ButtonHelper(this.item_B, 0, 1, 2, false, new lib.DropdownItem132(), 3);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[]}).to({state:[{t:this.item_B},{t:this.item_C},{t:this.item_A}]},4).wait(11));
-
-	// Arrow
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#000000").s().p("AhTgsICoAAIhUBZg");
-	this.shape_1.setTransform(330.5,16.6);
-
-	this.timeline.addTween(cjs.Tween.get(this.shape_1).wait(15));
-
-	// Button BG
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f().s("#000000").ss(1,1,0,3).p("AhyhtIDlAAIAADbIjlAAg");
-	this.shape_2.setTransform(330.5,14.5);
-
-	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.f("#C99800").s().p("AhyBtIAAjZIDlAAIAADZg");
-	this.shape_3.setTransform(330.5,14.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3},{t:this.shape_2}]}).wait(15));
-
-	// BG
-	this.shape_4 = new cjs.Shape();
-	this.shape_4.graphics.f().s("#000000").ss(1,1,0,3).p("A8+iQMA59AAAIAAEhMg59AAAg");
-	this.shape_4.setTransform(172.5,14.5,0.93,1);
-
-	this.shape_5 = new cjs.Shape();
-	this.shape_5.graphics.f("#FFFFFF").s().p("A8+CQIAAkgMA58AAAIAAEgg");
-	this.shape_5.setTransform(172.5,14.5,0.93,1);
-
-	this.shape_6 = new cjs.Shape();
-	this.shape_6.graphics.f().s("#000000").ss(1,1,0,3).p("A68olMA15AAAIAARLMg15AAAg");
-	this.shape_6.setTransform(172.5,55);
-
-	this.shape_7 = new cjs.Shape();
-	this.shape_7.graphics.f("#FFFFFF").s().p("A68IlIAAxKMA14AAAIAARKg");
-	this.shape_7.setTransform(172.5,55);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_5},{t:this.shape_4}]}).to({state:[{t:this.shape_7},{t:this.shape_6}]},4).wait(11));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(-1,-1,347.7,34.7);
-
-
-(lib.Letter1Dropdown2 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"closed":0,"open":4});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(15));
-
-	// Hitarea
-	this.hitarea = new lib.BlockerButton();
-	this.hitarea.setTransform(0,0,5.24,0.58);
-	new cjs.ButtonHelper(this.hitarea, 0, 1, 2, false, new lib.BlockerButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.hitarea).to({_off:true},4).wait(11));
-
-	// Horizontal line
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f().s("#CCCCCC").ss(1,1,0,3).p("ARMAAMgiXAAA");
-	this.shape.setTransform(118,26);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(4).to({_off:false},0).wait(11));
-
-	// Chosen Label
-	this.label = new cjs.Text("<label>", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
-	this.label.setTransform(5.2,4.7);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(15));
-
-	// Items
-	this.item_A = new lib.DropdownItem121();
-	this.item_A.setTransform(3,31,1,1,0,0,0,3,1);
-	new cjs.ButtonHelper(this.item_A, 0, 1, 2, false, new lib.DropdownItem121(), 3);
-
-	this.item_C = new lib.DropdownItem123();
-	this.item_C.setTransform(3,82,1,1,0,0,0,3,1);
-	new cjs.ButtonHelper(this.item_C, 0, 1, 2, false, new lib.DropdownItem123(), 3);
-
-	this.item_B = new lib.DropdownItem122();
-	this.item_B.setTransform(3,56.5,1,1,0,0,0,3,1);
-	new cjs.ButtonHelper(this.item_B, 0, 1, 2, false, new lib.DropdownItem122(), 3);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[]}).to({state:[{t:this.item_B},{t:this.item_C},{t:this.item_A}]},4).wait(11));
-
-	// Arrow
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#000000").s().p("AhUgsICpAAIhUBZg");
-	this.shape_1.setTransform(247,16.6);
-
-	this.timeline.addTween(cjs.Tween.get(this.shape_1).wait(15));
-
-	// Button BG
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f().s("#000000").ss(1,1,0,3).p("AhyhtIDlAAIAADbIjlAAg");
-	this.shape_2.setTransform(247,14.5);
-
-	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.f("#C99800").s().p("AhxBtIAAjZIDjAAIAADZg");
-	this.shape_3.setTransform(247,14.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3},{t:this.shape_2}]}).wait(15));
-
-	// BG
-	this.shape_4 = new cjs.Shape();
-	this.shape_4.graphics.f().s("#000000").ss(1,1,0,3).p("A0diQMAo7AAAIAAEhMgo7AAAg");
-	this.shape_4.setTransform(131,14.5);
-
-	this.shape_5 = new cjs.Shape();
-	this.shape_5.graphics.f("#FFFFFF").s().p("A0dCQIAAkgMAo6AAAIAAEgg");
-	this.shape_5.setTransform(131,14.5);
-
-	this.shape_6 = new cjs.Shape();
-	this.shape_6.graphics.f().s("#000000").ss(1,1,0,3).p("A0dolMAo7AAAIAARLMgo7AAAg");
-	this.shape_6.setTransform(131,55);
-
-	this.shape_7 = new cjs.Shape();
-	this.shape_7.graphics.f("#FFFFFF").s().p("A0dIlIAAxKMAo6AAAIAARKg");
-	this.shape_7.setTransform(131,55);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_5},{t:this.shape_4}]}).to({state:[{t:this.shape_7},{t:this.shape_6}]},4).wait(11));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(-1,-1,264,34.7);
-
-
-(lib.Letter1Dropdown1 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"closed":0,"open":4});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(15));
-
-	// Hitarea
-	this.hitarea = new lib.BlockerButton();
-	this.hitarea.setTransform(0,0,5.24,0.58);
-	new cjs.ButtonHelper(this.hitarea, 0, 1, 2, false, new lib.BlockerButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.hitarea).to({_off:true},4).wait(11));
-
-	// Horizontal line
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f().s("#CCCCCC").ss(1,1,0,3).p("ARMAAMgiXAAA");
-	this.shape.setTransform(118,26);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(4).to({_off:false},0).wait(11));
-
-	// Chosen Label
-	this.label = new cjs.Text("<label>", "24px 'Special Elite'");
-	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
-	this.label.setTransform(5.2,4.7);
-
-	this.timeline.addTween(cjs.Tween.get(this.label).wait(15));
-
-	// Items
-	this.item_A = new lib.DropdownItem111();
-	this.item_A.setTransform(3,31,1,1,0,0,0,3,1);
-	new cjs.ButtonHelper(this.item_A, 0, 1, 2, false, new lib.DropdownItem111(), 3);
-
-	this.item_C = new lib.DropdownItem113();
-	this.item_C.setTransform(3,82,1,1,0,0,0,3,1);
-	new cjs.ButtonHelper(this.item_C, 0, 1, 2, false, new lib.DropdownItem113(), 3);
-
-	this.item_B = new lib.DropdownItem112();
-	this.item_B.setTransform(3,56.5,1,1,0,0,0,3,1);
-	new cjs.ButtonHelper(this.item_B, 0, 1, 2, false, new lib.DropdownItem112(), 3);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[]}).to({state:[{t:this.item_B},{t:this.item_C},{t:this.item_A}]},4).wait(11));
-
-	// Arrow
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#000000").s().p("AhUgsICpAAIhUBZg");
-	this.shape_1.setTransform(247,16.6);
-
-	this.timeline.addTween(cjs.Tween.get(this.shape_1).wait(15));
-
-	// Button BG
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f().s("#000000").ss(1,1,0,3).p("AhyhtIDlAAIAADbIjlAAg");
-	this.shape_2.setTransform(247,14.5);
-
-	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.f("#C99800").s().p("AhxBtIAAjZIDjAAIAADZg");
-	this.shape_3.setTransform(247,14.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3},{t:this.shape_2}]}).wait(15));
-
-	// BG
-	this.shape_4 = new cjs.Shape();
-	this.shape_4.graphics.f().s("#000000").ss(1,1,0,3).p("A0diQMAo7AAAIAAEhMgo7AAAg");
-	this.shape_4.setTransform(131,14.5);
-
-	this.shape_5 = new cjs.Shape();
-	this.shape_5.graphics.f("#FFFFFF").s().p("A0dCQIAAkgMAo6AAAIAAEgg");
-	this.shape_5.setTransform(131,14.5);
-
-	this.shape_6 = new cjs.Shape();
-	this.shape_6.graphics.f().s("#000000").ss(1,1,0,3).p("A0dolMAo7AAAIAARLMgo7AAAg");
-	this.shape_6.setTransform(131,55);
-
-	this.shape_7 = new cjs.Shape();
-	this.shape_7.graphics.f("#FFFFFF").s().p("A0dIlIAAxKMAo6AAAIAARKg");
-	this.shape_7.setTransform(131,55);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_5},{t:this.shape_4}]}).to({state:[{t:this.shape_7},{t:this.shape_6}]},4).wait(11));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(-1,-1,264,34.7);
-
-
 (lib.CheckBox = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{inactive:0,active:9});
 
@@ -2000,49 +1453,6 @@ p.nominalBounds = new cjs.Rectangle(210,38,587.6,408.7);
 p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
 
 
-(lib._17PageLettertoSocialAuthorities = function() {
-	this.initialize();
-
-	// Dropdowns
-	this.dropdown_A = new lib.Letter1Dropdown1();
-	this.dropdown_A.setTransform(309,54.1,1,1,0,0,0,0,0.5);
-
-	this.dropdown_B = new lib.Letter1Dropdown2();
-	this.dropdown_B.setTransform(518,122.1,1,1,0,0,0,131,16.1);
-
-	this.dropdown_C = new lib.Letter1Dropdown3();
-	this.dropdown_C.setTransform(344,446,1,1,0,0,0,131,16.6);
-
-	// Full screen button
-	this.fullscreenButton = new lib.BlockerButton();
-	this.fullscreenButton.setTransform(0,0,20.479,10.8);
-	new cjs.ButtonHelper(this.fullscreenButton, 0, 1, 2, false, new lib.BlockerButton(), 3);
-
-	// Name
-	this.realname = new lib.CharacterCardName();
-	this.realname.setTransform(216.4,467.9,1.35,1.35,0,0,0,2.6,0.7);
-
-	// Text
-	this.text = new cjs.Text("Socialudvalget", "24px 'Special Elite'");
-	this.text.textAlign = "center";
-	this.text.lineHeight = 26;
-	this.text.lineWidth = 620;
-	this.text.setTransform(522.8,20.1);
-
-	this.text_1 = new cjs.Text("Til det                                       sociale Udvalg\n\nUndertegnede                                       tilladelse til\nat dimittere, grundet daarlig behandling, fra\ndele af personalet paa fattiggaarden.\nOpsynsmanden lod mig i Lørdags høre, at jeg laa\nSvendborg kommune til byrde. Jeg arbejder hver\nDag fra kl. 8. morgen til kl. 17. aften for Kost og\nLogi og 50 øre om dagen. Han faar Kost og Logi og\nen stor Løn, og han bestiller ikke stort andet end\nat gaa med Hænderne dybt begravet til Albuerne i\nBukselommerne, og ser paa, at vi andre arbejder.\nHvem af os to, ham eller jeg, synes De ligger\nKommunen mest til Byrde?", "24px 'Special Elite'");
-	this.text_1.lineHeight = 26;
-	this.text_1.lineWidth = 619;
-	this.text_1.setTransform(213,59);
-
-	// Letter BG
-	this.instance = new lib.LetterWriteBG();
-	this.instance.setTransform(121.3,0);
-
-	this.addChild(this.instance,this.text_1,this.text,this.realname,this.fullscreenButton,this.dropdown_C,this.dropdown_B,this.dropdown_A);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
 (lib._161Constablearrested = function() {
 	this.initialize();
 
@@ -2190,7 +1600,7 @@ p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
+p.nominalBounds = new cjs.Rectangle(210,38,944,502);
 
 
 (lib._132PageGetOut = function() {
@@ -2354,12 +1764,6 @@ p.nominalBounds = new cjs.Rectangle(211,38,813,502);
 	this.backtopoorhouse.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.backtopoorhouse).wait(26));
-
-	// 1.7 Write Letter
-	this.letterwrite = new lib._17PageLettertoSocialAuthorities();
-	this.letterwrite.setTransform(1024,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.letterwrite).wait(26));
 
 	// 1.6.4 Points6
 	this.points6 = new lib._163PagePoints6();
@@ -2545,7 +1949,7 @@ p.nominalBounds = new cjs.Rectangle(211,38,813,502);
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance_4},{t:this.instance_3},{t:this.instance_2},{t:this.instance_1},{t:this.instance},{t:this.bg_1_0}]}).wait(26));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(512,252,2049,558);
+p.nominalBounds = new cjs.Rectangle(512,252,2178,558);
 
 })(gamelib = gamelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var gamelib, images, createjs, ss;

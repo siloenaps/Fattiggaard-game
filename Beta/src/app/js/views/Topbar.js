@@ -13,7 +13,9 @@ var Topbar = {
 		// createjs.Tween.get(this.view.label_intro)
 		// 	.to({x:564}, 300, createjs.Ease.backIn);
 
-console.log(this.view)
+		if(this.view === undefined || this.view === null){
+			throw new Error("'view' is undefined");
+		}
 		this.view.gotoAndStop(frm);
 
 		// Setup for game related to user's choices

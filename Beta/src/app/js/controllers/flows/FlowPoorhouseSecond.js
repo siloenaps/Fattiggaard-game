@@ -250,7 +250,7 @@ FlowPoorhouseSecond.prototype.work = function(trigger) {
 	this.continueBtn.activate('skip');
 
 	// Get sound
-	var sound = SoundService.matrix.work[this.id][PlayerStats.job]; // "svendborg/A"	
+	var sound = SoundService.matrix['3.2.1'][this.id][PlayerStats.job]; // "svendborg/A"	
 	// this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
 	
 	// Change background
@@ -377,7 +377,7 @@ FlowPoorhouseSecond.prototype.playAdvice = function(trigger) {
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
 	// Portrait
-	this.currentPage.portrait.gotoAndStop(this.id);
+	// this.currentPage.portrait.gotoAndStop(this.id);
 
 	// Next button
 	this.continueBtn.ghost('skip');

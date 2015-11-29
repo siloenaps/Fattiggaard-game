@@ -29,7 +29,7 @@ PagePoorhouseIntro.prototype.start = function(flowId, slideName){
 
 	var gameFile;
 
-	// console.log('PagePoorhouseIntro:start', slideName+'.js');
+	console.log('PagePoorhouseIntro:start', slideName+'.js');
 	console.log('PagePoorhouseIntro', this.runonce, slideName+'.js');
 
 	LoadJS.load(
