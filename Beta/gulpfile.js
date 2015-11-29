@@ -25,6 +25,21 @@ var htmlminOpts = {
 
 
 /**
+ * GZIP
+ */
+var gzip = require('gulp-gzip');
+gulp.task('compress', function() {
+    // gulp.src('./dev/scripts/*.js')
+    // .pipe(gzip())
+    // .pipe(gulp.dest('./public/scripts'));
+
+    return gulp.src('./src/app/assets/logic/**/*.*')
+    .pipe(gzip({ append: false }))
+    .pipe(gulp.dest('./dist/assets/logic'));
+});
+
+
+/**
  * JS Hint
  */
 gulp.task('jshint', function () {
@@ -121,32 +136,38 @@ function index () {
 /**
  * Assets
  */
-gulp.task('assets', ['notimages', 'images']);
-
-/**
- * Assets - !images
- */
-gulp.task('notimages', function () {
-  return gulp.src(['./src/app/assets/**', '!./src/app/assets/images/**'])
-    .pipe(gulp.dest('./dist/assets'));
-});
-
-/**
-* Assets - Images
-*/
+gulp.task('assets', ['sound', 'images', 'fonts', 'logic']);
 gulp.task('images', function() {
     return gulp.src('./src/app/assets/images/**/*.*')
     .pipe(imagemin({ progressive: true , optimizationLevel: 5}))
     .pipe(gulp.dest('./dist/assets/images'));
 });
-/**
-* Assets - Images
-*/
 gulp.task('sound', function() {
     return gulp.src('./src/app/assets/sounds/**/*.*')
     .pipe(imagemin({ progressive: true , optimizationLevel: 5}))
     .pipe(gulp.dest('./dist/assets/sounds'));
 });
+gulp.task('fonts', function() {
+    return gulp.src(['./src/app/assets/fonts/**/*.*', '!./src/app/assets/fonts/**/*.html', '!./src/app/assets/fonts/**/*.txt'])
+    .pipe(gulp.dest('./dist/assets/fonts'));
+});
+var uglify = require('gulp-uglify'); 
+gulp.task('logic', function() {
+    return gulp.src('./src/app/assets/logic/**/*.*')    
+    .pipe(uglify({hoist_funs: true, hoist_vars: true}))
+    // .pipe(gzip({ append: false }))
+    .pipe(gulp.dest('./dist/assets/logic'));
+});
+
+
+// gulp.task('compress', function() {
+//   return gulp.src('./src/app/assets/logic/**/*.*')
+//     .pipe(uglify({hoist_funs: true, hoist_vars: true}))
+//     .pipe(gulp.dest('./dist/assets/logic'));
+// });
+// gulp.task('scripts-dist', ['templates-dist'], function () {
+//   return logicFiles().pipe(dist('js', bower.name, {ngAnnotate: true}));
+// });
 
 
 /**
@@ -280,6 +301,17 @@ function appFiles () {
 }
 
 /**
+ * Logic js asset files
+ */
+function logicFiles () {
+  var files = [
+    './src/app/assets/logic/**/*.js',
+  ];
+  return gulp.src(files)
+    .pipe(g.angularFilesort());
+}
+
+/**
  * All AngularJS templates/partials as a stream
  */
 function templateFiles (opt) {
@@ -321,7 +353,7 @@ function fileTypeFilter (files, extension) {
  * @param {String} name
  * @param {Object} opt
  */
-function dist (ext, name, opt) {
+function dist(ext, name, opt) {
   opt = opt || {};
   return lazypipe()
     .pipe(g.concat, name + '.' + ext)
