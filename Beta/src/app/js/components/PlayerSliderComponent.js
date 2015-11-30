@@ -91,7 +91,8 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 			}catch(err){
 				console.log(err);
 			}			
-		}
+		},
+		'center'
 	);	
 };
 PlayerSliderComponent.prototype.addLoopEvent = function(){
