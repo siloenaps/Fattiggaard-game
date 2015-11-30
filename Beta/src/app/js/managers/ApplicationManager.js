@@ -4,8 +4,8 @@ var ApplicationManager = {
 		'use strict';
 		this.root = root;
 
-		// Init Environment info
-		Environment.init();
+		// // Init Environment info
+		// Environment.init();
 
 		// Cursor init
 		Cursor.root = root;

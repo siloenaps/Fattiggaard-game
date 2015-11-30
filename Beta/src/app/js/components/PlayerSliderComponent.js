@@ -92,7 +92,7 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 				console.log(err);
 			}			
 		},
-		'center'
+		'small'
 	);	
 };
 PlayerSliderComponent.prototype.addLoopEvent = function(){
