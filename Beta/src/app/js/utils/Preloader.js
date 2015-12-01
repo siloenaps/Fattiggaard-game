@@ -60,18 +60,18 @@ var Preloader = {
 		console.log('add:', clss);
 		$('.preload-wrapper').removeClass('hide');
 		$('.preload-wrapper').addClass('show');
-		$('.preload-wrapper').removeClass('small');
-		$('.preloader').removeClass('startup');
-		$('.preloader').removeClass('full');
-		$('.preloader').removeClass('small');
-
 		$('.preload-wrapper').addClass(clss);
 		$('.preloader').addClass(clss);
 	},
 	remove: function(id){
 		'use strict';
+		$('.preloader').removeClass('full');
+		$('.preloader').removeClass('small');		
 		$('.preload-wrapper').removeClass('show');
+		$('.preload-wrapper').removeClass('full');
 		$('.preload-wrapper').removeClass('small');
 		$('.preload-wrapper').addClass('hide');
+		
+		
 	}
 };
