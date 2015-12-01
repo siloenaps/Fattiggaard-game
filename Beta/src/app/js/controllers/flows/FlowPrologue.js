@@ -10,8 +10,7 @@ var FlowProloque = function(container){
 			'use strict';
 			this.id = 'prologue';//PlayerStats.poorhouse;
 
-			// console.log('FlowProloque:start', this.view);
-
+			// console.log('FlowProloque:start', this.view);			
 			LoadJS.load(
 				['../assets/logic/games/prologue.js'], 
 				Delegate.create(this.setup, this)

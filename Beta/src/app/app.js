@@ -1,13 +1,20 @@
+var canvas;
 (function () {
 	'use strict';
 	var app = angular.module('fattiggarden', ['ngRoute']);	
 
-	app.controller('MainController', function($scope, Device) {
+	app.controller('MainController', function($scope, Canvas) {
+		var vm = this;
+
+		// Init Environment info
+		Environment.init();
 
 		$scope.lib = mainlib;
 		$scope.images = images;
-		// $scope.exportRoot;
-		// $scope.canvas;
+
+		$scope.canvas = Canvas.create(1024, 648, Environment.ratio);
+		$scope.canvas.style.background = '#000';
+		$('.content').append($scope.canvas);
 
 		function init(){
 			// Device.ratio = 1;
@@ -29,7 +36,7 @@
 					stage.enableMouseOver(10);
 
 					// Scale canvas according to ratio
-					stage.scaleX = stage.scaleY = Device.ratio;
+					stage.scaleX = stage.scaleY = Environment.ratio;
 					stage.update();
 
 					// Tik tak - ticker
@@ -42,61 +49,26 @@
 					console.log(err);
 				}				
 			};
-
-			// Remove startup preloader div
-			$('.preload-wrapper').remove();
-
 			// Start preload app
 			Preloader.load($scope.lib.properties.manifest, onFileLoad, onLoadComplete, 'full');
 		}
 
 		init();
 	});
-	
-	app.directive('slCanvas', function(Device, Canvas) {	
-		function link(scope){	
-			// Create base canvas
-			// Device.ratio = 1;
-			// scope.canvas = Canvas.create(1024, 648, Device.ratio);
-			scope.canvas = Canvas.create(1024, 648, Device.ratio);
-			scope.canvas.style.background = '#000';
-			document.body.appendChild(scope.canvas);	
-		}
-		return {
-			restrict: 'AEC',
-	    	link: link
-		};
-	});
-
-	app.factory('Device', function(){
-		function ratio(){
-			var ctx = document.createElement('canvas').getContext('2d'),
-	        dpr = window.devicePixelRatio || 1,
-	        bsr = ctx.webkitBackingStorePixelRatio ||
-	              ctx.mozBackingStorePixelRatio ||
-	              ctx.msBackingStorePixelRatio ||
-	              ctx.oBackingStorePixelRatio ||
-	              ctx.backingStorePixelRatio || 1;
-
-	    	return dpr / bsr;
-		}
-		return {
-			ratio: ratio()
-		};
-	});
-
 	app.factory('Canvas', function() {
 		return {
-			create: function(w, h, ratio) {			    
+			create: function(w, h, ratio) {	
+				var winScale = Environment.winScale;
+				if(winScale > 1) winScale = 1;
+
 			    var canvas = document.createElement('canvas');
 			    canvas.width = w * ratio;
 			    canvas.height = h * ratio;
-			    canvas.style.width = w + 'px';
-			    canvas.style.height = h + 'px';
-			    canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);			    
+			    canvas.style.width = w * winScale + 'px';
+			    canvas.style.height = h * winScale + 'px';
+			    canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);	
 			    return canvas;
 			}
 		};
 	});
-
 })();

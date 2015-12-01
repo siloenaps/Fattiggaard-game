@@ -44,7 +44,6 @@ var Preloader = {
 				}
 			});
 			loader.addEventListener('progress', function(event){
-				// console.log(event.loaded);
 				var w = (event.loaded * 400) / self.factor;
 				$(".progress-bar .bar").css("width", w);
 			});	
@@ -58,16 +57,21 @@ var Preloader = {
 	},
 	add: function(clss){
 		'use strict';
-		$('body').append(
-			'<div class="preload-wrapper"><div class="preloader '+clss+'">'+
-				'<div class="image">'+					
-				'</div>'+
-				'<div class="progress-bar"><div class="bar"></div></div>'+
-			'</div>'
-		);
+		console.log('add:', clss);
+		$('.preload-wrapper').removeClass('hide');
+		$('.preload-wrapper').addClass('show');
+		$('.preload-wrapper').addClass(clss);
+		$('.preloader').addClass(clss);
 	},
 	remove: function(id){
 		'use strict';
-		$('.preload-wrapper').remove();
+		$('.preloader').removeClass('full');
+		$('.preloader').removeClass('small');		
+		$('.preload-wrapper').removeClass('show');
+		$('.preload-wrapper').removeClass('full');
+		$('.preload-wrapper').removeClass('small');
+		$('.preload-wrapper').addClass('hide');
+		
+		
 	}
 };

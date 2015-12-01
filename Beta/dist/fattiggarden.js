@@ -574,6 +574,526 @@ ButtonCustom.prototype.destroy = function(){
 }
 
 createjs.EventDispatcher.initialize(ButtonCustom.prototype);
+var PagePoorhouseIntro = function(container){
+	'use strict';
+	this.container = container;
+	this.id = null; 
+	this.view = null;	
+	this.lib = null;
+	this.slideLib = null;
+	this.playerComponent = null;
+	this.listeners = {};
+	this.trigger = 'start'; 
+	this.currentPage = null;
+	this.currentBackground = null;
+	this.groups = {};
+	// this.portrait = null;
+
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost('skip');
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+};
+PagePoorhouseIntro.prototype.setPortrait = function(image){
+	this.portrait = image;
+}
+PagePoorhouseIntro.prototype.start = function(flowId, slideName){
+	this.id = PlayerStats.poorhouse;
+	this.flowId = flowId;
+	this.slideName = slideName;
+
+	var gameFile;
+
+	console.log('PagePoorhouseIntro:start', slideName+'.js');
+	console.log('PagePoorhouseIntro', this.runonce, slideName+'.js');
+
+	LoadJS.load(
+		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
+		Delegate.create(this.setup, this)
+	);
+};
+PagePoorhouseIntro.prototype.setup = function(){
+	'use strict';
+	console.log('PagePoorhouseIntro::setup:runonce', this.runonce);
+
+	if(this.runonce != null)
+		return;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	// Tick
+	Tick.framerate(15);
+
+	var self = this;
+	var manifest, Clss;	
+
+	// Setup flow
+	this.flow = new SubFlowController();
+	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
+	this.flow.addAction('end', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
+	console.log('PagePoorhouseIntro::setup:id', this.id);
+	this.lib = gamelib;
+	this.slideLib = slidelib;
+	Clss = this.lib.poorhouse_intro;
+	manifest = this.lib.properties.manifest;
+	// switch(this.id){
+	// 	case 'horsens':			
+	// 		manifest = this.lib.properties.manifest;
+	// 	break;
+	// 	case 'sundholm':
+	// 		manifest = this.lib.properties.manifest;
+	// 	break;
+	// 	case 'svendborg':				
+	// 		manifest = this.lib.properties.manifest;
+	// 	break;
+	// }
+
+	try{
+		// Background image
+		this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';
+		manifest.push({src: this.bgImage.src, id: this.bgImage.id});
+
+	}catch(err){
+		console.log(PlayerStats.poorhouse, this.bgImage);
+		console.log(err);
+	}	
+	
+	// Load files
+	var onFileLoad = function(event){
+		if (event.item.type === 'image') { 
+			console.log(event.item.id, event.result);
+			images[event.item.id] = event.result; 
+		}
+	};
+	var onLoadComplete = function(event){
+		// Instantiate view
+		self.view = new Clss();
+
+		//Add
+		self.container.addChild(self.view);
+
+		// Set start page
+		self.next();
+
+		console.log('PagePoorhouseIntro:onLoadComplete');
+		self.dispatchEvent(new createjs.Event('ready'));
+	};
+	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+	console.log('manifest:', manifest);
+};
+PagePoorhouseIntro.prototype.next = function(){
+	'use strict';
+	this.flow.next(this.trigger);	
+};
+PagePoorhouseIntro.prototype.onComplete = function(event) {
+	'use strict';
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+	}
+
+	// Set next button active
+	this.continueBtn.activate('next');	
+};
+PagePoorhouseIntro.prototype.onContinue = function(event) {
+	'use strict';
+	
+	console.log('PagePoorhouseIntro::onContinue');
+	
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
+
+	this.next();
+
+	// console.log('this.playerComponent:', this.playerComponent)
+};
+PagePoorhouseIntro.prototype.removeEvents = function() {
+	'use strict';
+	
+	// Remove events
+	this.continueBtn.off('click', this.listeners.continue);
+	this.listeners.continue = null;
+};
+PagePoorhouseIntro.prototype.destroy = function() {
+	'use strict';
+	
+	// Remove events
+	this.removeEvents();
+
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+		this.playerComponent.destroy();	
+		this.playerComponent = null;
+	}			
+	this.view = null;
+	this.lib = null;
+	this.currentPage = null;
+	this.listeners = null;
+	this.flow = null;
+};
+PagePoorhouseIntro.prototype.intro = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set page view
+	this.currentPage = this.view.intro;
+	this.currentPage.x = 0;
+
+	// Set background
+	this.view.bg_container.x = 0;
+
+	// Background
+	var bitmap = new createjs.Bitmap(this.bgImage.src);	
+	this.view.bg_container.addChild(bitmap);
+
+	// Slide. Loading is self contained
+	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+	this.listeners.complete = self.playerComponent.on('complete', function(event){
+		console.log('PagePoorhouseIntro::complete');
+		self.continueBtn.activate('next');
+		Tick.disable();
+	}, self);
+	this.playerComponent.on('ready', function(event){
+		event.remove();		
+		self.continueBtn.activate("skip");
+		// self.dispatchEvent(new createjs.Event('ready'));
+		console.log('PagePoorhouseIntro::ready');
+		// No tick
+		// Tick.disable();
+		console.log('NB. Disabled tick-disablign as test in PagePoorhouseIntro');
+	});
+	// console.log(this.slideLib)
+	this.playerComponent.preload(this.slideName, this.slideLib);
+	
+};
+createjs.EventDispatcher.initialize(PagePoorhouseIntro.prototype);
+
+
+
+var PageOpinion = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.activePlayer = null;
+
+	this.playersCount = 0;
+	this.completed = 0;
+
+	var key = PlayerStats.challenge + PlayerStats.family;
+
+	// Get sound
+	this.soundChallengeObject = SoundService.matrix.oppinion[key];
+
+	// Set Text
+	this.view.charactertext.gotoAndStop(key);
+	this.view.playerlabel.gotoAndStop(key);
+
+
+	// Player - Challenge
+	// view.player.visible = false;
+	if(this.soundChallengeObject != null){
+		// view.player.visible = true;
+		this.challengePlayerComponent = new PlayerSoundComponent(view.player);
+		this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
+		this.playersCount++;
+
+		this.listeners.challengeStart = this.challengePlayerComponent.on("start", this.onSoundStart, this);
+
+		this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
+	}
+
+	// Continue/Skip button
+	this.continueBtn = ContinueButton;
+	this.continueBtn.activate("skip");
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+};
+PageOpinion.prototype.onSoundStart = function(event) {
+	'use strict';
+	// If there is a player active, pause it
+	if(this.activePlayer != null){
+		if(event.target.id != this.activePlayer.id){
+			this.activePlayer.pause();
+		}
+	}
+
+	// Save activated player
+	this.activePlayer = event.target;
+};
+PageOpinion.prototype.onComplete = function(event){
+	'use strict';
+	this.completed++;
+	if(this.completed >= this.playersCount){
+		if(this.challengePlayerComponent !== undefined){
+			this.challengePlayerComponent.off('complete', this.listeners.challenge);
+		}
+		if(this.familyPlayerComponent !== undefined){
+			this.familyPlayerComponent.off('complete', this.listeners.family);
+		}
+
+		this.continueBtn.activate("next");
+	}
+};
+PageOpinion.prototype.start = function() {
+	'use strict';
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.view.portrait.gotoAndStop(frm);
+};
+PageOpinion.prototype.onContinue = function(event) {
+	'use strict';
+	this.continueBtn.off('click', this.listeners.continue);
+
+	// Stop sound if it still on
+	if(this.challengePlayerComponent !== undefined){
+		this.challengePlayerComponent.stop();
+	}
+
+	if(this.familyPlayerComponent !== undefined){
+		this.familyPlayerComponent.stop();
+	}
+
+	this.dispatchEvent(new createjs.Event('continue'));
+};
+PageOpinion.prototype.destroy = function() {
+	'use strict';
+	this.view = null;	
+
+	if(this.challengePlayer != null){
+		this.challengePlayer.destroy();
+		this.challengePlayer = null;
+	}
+	if(this.familyPlayerComponent != null){
+		this.familyPlayerComponent.destroy();
+		this.familyPlayerComponent = null;
+	}
+
+	this.activePlayer = null;
+};
+createjs.EventDispatcher.initialize(PageOpinion.prototype);
+var PageMap = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost("next");	
+};
+PageMap.prototype.start = function() {
+	'use strict';
+	var self = this;
+
+	// Allow tick
+	Tick.enable();
+	Tick.framerate(5);
+
+	// Checkboxes
+	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
+	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundholm'});
+	var btn3 = new RadioButton(this.view.checkbox3, {value:'svendborg'});
+
+	// Group
+	this.group = new ButtonGroup();
+	this.group.add(btn1);
+	this.group.add(btn2);
+	this.group.add(btn3);
+
+	// Events
+	this.listeners.group = this.group.on("click", function(event){
+		// Save chosen "fattiggård"
+		PlayerStats.poorhouse = event.data.value;
+
+		// User may continue
+		self.continueBtn.activate('next');
+		self.continueBtn.on('click', function(e){
+			e.remove();
+			event.remove();
+
+			self.view.info1.off('click', self.listeners['info1']);
+			self.view.info2.off('click', self.listeners['info2']);
+			self.view.info3.off('click', self.listeners['info3']);
+
+			self.dispatchEvent(new createjs.Event('continue'));
+		});
+	}, self);
+
+	// Info popup
+	this.view.infopopup.visible = false;
+	this.infoButtons = [];
+	this.infoButtons.push(this.view.info1);
+	this.infoButtons.push(this.view.info2);
+	this.infoButtons.push(this.view.info3);
+	this.view.info1.id = 0;
+	this.view.info2.id = 1;
+	this.view.info3.id = 2;
+	// Info buttons events
+	this.listeners['info1'] = this.view.info1.on('click', function(event){
+		self.openInfo(event.target.id);
+	}, this);
+	this.listeners['info2'] = this.view.info2.on('click', function(event){
+		self.openInfo(event.target.id);
+	}, this);
+	this.listeners['info3'] = this.view.info3.on('click', function(event){
+		self.openInfo(event.target.id);
+	}, this);
+	// Close button	
+	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){
+		this.closeInfo();
+	}, this);
+};
+PageMap.prototype.openInfo = function(id) {
+	'use strict';
+	this.view.infopopup.gotoAndStop(id);
+	this.view.infopopup.x = 0;
+	this.view.infopopup.visible = true;
+	this.continueBtn.hide();
+};
+PageMap.prototype.closeInfo = function(id) {
+	'use strict';
+	this.view.infopopup.x = 1024;
+	this.view.infopopup.visible = false;
+	this.continueBtn.show();
+};
+PageMap.prototype.destroy = function() {
+	'use strict';
+	this.view = null;	
+};
+createjs.EventDispatcher.initialize(PageMap.prototype);
+var PageIntro = function(view, id){
+	'use strict';
+	//console.log("view.player:", view.player);
+	this.view = view;
+	this.id = id;
+	this.lib = null;
+	this.listeners = {};
+	this.playerComponent = new PlayerSliderComponent(view.player);
+	
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost("skip");
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
+};
+PageIntro.prototype.start = function() {
+	'use strict';
+	LoadJS.load(
+		'../assets/logic/slides/'+"slide_"+this.id+".js", 
+		Delegate.create(this.setup, this)
+	);
+	// Allow tick
+	Tick.enable();
+};
+PageIntro.prototype.setup = function() {
+	'use strict';
+	if(this.runonce != null)
+		return;
+
+	var self = this;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	try{
+		this.lib = slidelib;
+		this.playerComponent.on('ready', function(event){
+			event.remove();
+			// No tick
+			Tick.disable();
+			self.continueBtn.activate("skip");
+			// self.dispatchEvent(new createjs.Event('ready'));
+		});
+		this.playerComponent.preload("slide_"+this.id, this.lib);
+		this.lib = null;
+	}catch(err) {
+   		console.log(err);
+   	}
+};
+PageIntro.prototype.onContinue = function(event) {
+	'use strict';
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.listeners.continue = null;
+
+	// Stop Player
+	if(this.playerComponent !== undefined){
+		this.playerComponent.stop();
+	}
+
+	this.dispatchEvent(new createjs.Event('continue'));
+
+	this.destroy();
+};
+PageIntro.prototype.onComplete = function(event) {
+	'use strict';
+	this.playerComponent.off('complete', this.listeners.complete);	
+	this.listeners.complete = null;
+
+	// Set next button active
+	this.continueBtn.activate("next");
+};
+PageIntro.prototype.destroy = function() {
+	'use strict';
+	if(this.playerComponent != null){
+		this.playerComponent.destroy();	
+	}
+	this.playerComponent = null;
+	this.view = null;
+	this.lib = null;
+};
+createjs.EventDispatcher.initialize(PageIntro.prototype);
+var PageCard = function(view){
+	'use strict';
+	this.view = view;
+	this.listeners = {};
+	this.continueBtn = ContinueButton;
+	this.continueBtn.activate("next");	
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+};
+PageCard.prototype.start = function() {
+	'use strict';
+	var frm;
+
+
+	// Set portrait a real name
+	frm = PlayerStats.challenge + PlayerStats.family;
+	this.view.portrait.gotoAndStop(frm);
+	this.view.realname.gotoAndStop(frm);
+
+	// Set nickname
+	frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
+	this.view.nickname.gotoAndStop(frm);
+
+	// Set challenge
+	frm = PlayerStats.challenge;
+	this.view.challenge.gotoAndStop(frm);	
+
+	// Set family, kids
+	frm = PlayerStats.family;
+	this.view.family.gotoAndStop(frm);
+	this.view.kids.gotoAndStop(frm);
+};
+PageCard.prototype.onContinue = function(event) {
+	'use strict';
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.dispatchEvent(new createjs.Event('continue'));
+};
+PageCard.prototype.destroy = function() {
+	'use strict';
+	this.view = null;	
+};
+createjs.EventDispatcher.initialize(PageCard.prototype);
 var SubFlowController = function(){
 	'use strict';
 
@@ -641,8 +1161,7 @@ var FlowProloque = function(container){
 			'use strict';
 			this.id = 'prologue';//PlayerStats.poorhouse;
 
-			// console.log('FlowProloque:start', this.view);
-
+			// console.log('FlowProloque:start', this.view);			
 			LoadJS.load(
 				['../assets/logic/games/prologue.js'], 
 				Delegate.create(this.setup, this)
@@ -4371,526 +4890,6 @@ FlowCharacter.prototype.destroy = function() {
 	// createjs.Tween.removeTweens(event.target);
 };
 createjs.EventDispatcher.initialize(FlowCharacter.prototype);
-var PagePoorhouseIntro = function(container){
-	'use strict';
-	this.container = container;
-	this.id = null; 
-	this.view = null;	
-	this.lib = null;
-	this.slideLib = null;
-	this.playerComponent = null;
-	this.listeners = {};
-	this.trigger = 'start'; 
-	this.currentPage = null;
-	this.currentBackground = null;
-	this.groups = {};
-	// this.portrait = null;
-
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost('skip');
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
-};
-PagePoorhouseIntro.prototype.setPortrait = function(image){
-	this.portrait = image;
-}
-PagePoorhouseIntro.prototype.start = function(flowId, slideName){
-	this.id = PlayerStats.poorhouse;
-	this.flowId = flowId;
-	this.slideName = slideName;
-
-	var gameFile;
-
-	console.log('PagePoorhouseIntro:start', slideName+'.js');
-	console.log('PagePoorhouseIntro', this.runonce, slideName+'.js');
-
-	LoadJS.load(
-		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
-		Delegate.create(this.setup, this)
-	);
-};
-PagePoorhouseIntro.prototype.setup = function(){
-	'use strict';
-	console.log('PagePoorhouseIntro::setup:runonce', this.runonce);
-
-	if(this.runonce != null)
-		return;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	// Tick
-	Tick.framerate(15);
-
-	var self = this;
-	var manifest, Clss;	
-
-	// Setup flow
-	this.flow = new SubFlowController();
-	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
-	this.flow.addAction('end', Delegate.create(
-		function(){
-			self.removeEvents();
-			self.dispatchEvent(new createjs.Event('continue'));
-		}, this)
-	);
-
-	console.log('PagePoorhouseIntro::setup:id', this.id);
-	this.lib = gamelib;
-	this.slideLib = slidelib;
-	Clss = this.lib.poorhouse_intro;
-	manifest = this.lib.properties.manifest;
-	// switch(this.id){
-	// 	case 'horsens':			
-	// 		manifest = this.lib.properties.manifest;
-	// 	break;
-	// 	case 'sundholm':
-	// 		manifest = this.lib.properties.manifest;
-	// 	break;
-	// 	case 'svendborg':				
-	// 		manifest = this.lib.properties.manifest;
-	// 	break;
-	// }
-
-	try{
-		// Background image
-		this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';
-		manifest.push({src: this.bgImage.src, id: this.bgImage.id});
-
-	}catch(err){
-		console.log(PlayerStats.poorhouse, this.bgImage);
-		console.log(err);
-	}	
-	
-	// Load files
-	var onFileLoad = function(event){
-		if (event.item.type === 'image') { 
-			console.log(event.item.id, event.result);
-			images[event.item.id] = event.result; 
-		}
-	};
-	var onLoadComplete = function(event){
-		// Instantiate view
-		self.view = new Clss();
-
-		//Add
-		self.container.addChild(self.view);
-
-		// Set start page
-		self.next();
-
-		console.log('PagePoorhouseIntro:onLoadComplete');
-		self.dispatchEvent(new createjs.Event('ready'));
-	};
-	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-	console.log('manifest:', manifest);
-};
-PagePoorhouseIntro.prototype.next = function(){
-	'use strict';
-	this.flow.next(this.trigger);	
-};
-PagePoorhouseIntro.prototype.onComplete = function(event) {
-	'use strict';
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-	}
-
-	// Set next button active
-	this.continueBtn.activate('next');	
-};
-PagePoorhouseIntro.prototype.onContinue = function(event) {
-	'use strict';
-	
-	console.log('PagePoorhouseIntro::onContinue');
-	
-	// Stop player if any
-	if(this.playerComponent != null){
-		this.playerComponent.stop();
-	}
-
-	this.next();
-
-	// console.log('this.playerComponent:', this.playerComponent)
-};
-PagePoorhouseIntro.prototype.removeEvents = function() {
-	'use strict';
-	
-	// Remove events
-	this.continueBtn.off('click', this.listeners.continue);
-	this.listeners.continue = null;
-};
-PagePoorhouseIntro.prototype.destroy = function() {
-	'use strict';
-	
-	// Remove events
-	this.removeEvents();
-
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-		this.playerComponent.destroy();	
-		this.playerComponent = null;
-	}			
-	this.view = null;
-	this.lib = null;
-	this.currentPage = null;
-	this.listeners = null;
-	this.flow = null;
-};
-PagePoorhouseIntro.prototype.intro = function(trigger){
-	'use strict';
-
-	// Next move
-	this.trigger = trigger;
-
-	var self = this;
-
-	// Set page view
-	this.currentPage = this.view.intro;
-	this.currentPage.x = 0;
-
-	// Set background
-	this.view.bg_container.x = 0;
-
-	// Background
-	var bitmap = new createjs.Bitmap(this.bgImage.src);	
-	this.view.bg_container.addChild(bitmap);
-
-	// Slide. Loading is self contained
-	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-	this.listeners.complete = self.playerComponent.on('complete', function(event){
-		console.log('PagePoorhouseIntro::complete');
-		self.continueBtn.activate('next');
-		Tick.disable();
-	}, self);
-	this.playerComponent.on('ready', function(event){
-		event.remove();		
-		self.continueBtn.activate("skip");
-		// self.dispatchEvent(new createjs.Event('ready'));
-		console.log('PagePoorhouseIntro::ready');
-		// No tick
-		// Tick.disable();
-		console.log('NB. Disabled tick-disablign as test in PagePoorhouseIntro');
-	});
-	// console.log(this.slideLib)
-	this.playerComponent.preload(this.slideName, this.slideLib);
-	
-};
-createjs.EventDispatcher.initialize(PagePoorhouseIntro.prototype);
-
-
-
-var PageOpinion = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.activePlayer = null;
-
-	this.playersCount = 0;
-	this.completed = 0;
-
-	var key = PlayerStats.challenge + PlayerStats.family;
-
-	// Get sound
-	this.soundChallengeObject = SoundService.matrix.oppinion[key];
-
-	// Set Text
-	this.view.charactertext.gotoAndStop(key);
-	this.view.playerlabel.gotoAndStop(key);
-
-
-	// Player - Challenge
-	// view.player.visible = false;
-	if(this.soundChallengeObject != null){
-		// view.player.visible = true;
-		this.challengePlayerComponent = new PlayerSoundComponent(view.player);
-		this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
-		this.playersCount++;
-
-		this.listeners.challengeStart = this.challengePlayerComponent.on("start", this.onSoundStart, this);
-
-		this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
-	}
-
-	// Continue/Skip button
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("skip");
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageOpinion.prototype.onSoundStart = function(event) {
-	'use strict';
-	// If there is a player active, pause it
-	if(this.activePlayer != null){
-		if(event.target.id != this.activePlayer.id){
-			this.activePlayer.pause();
-		}
-	}
-
-	// Save activated player
-	this.activePlayer = event.target;
-};
-PageOpinion.prototype.onComplete = function(event){
-	'use strict';
-	this.completed++;
-	if(this.completed >= this.playersCount){
-		if(this.challengePlayerComponent !== undefined){
-			this.challengePlayerComponent.off('complete', this.listeners.challenge);
-		}
-		if(this.familyPlayerComponent !== undefined){
-			this.familyPlayerComponent.off('complete', this.listeners.family);
-		}
-
-		this.continueBtn.activate("next");
-	}
-};
-PageOpinion.prototype.start = function() {
-	'use strict';
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.view.portrait.gotoAndStop(frm);
-};
-PageOpinion.prototype.onContinue = function(event) {
-	'use strict';
-	this.continueBtn.off('click', this.listeners.continue);
-
-	// Stop sound if it still on
-	if(this.challengePlayerComponent !== undefined){
-		this.challengePlayerComponent.stop();
-	}
-
-	if(this.familyPlayerComponent !== undefined){
-		this.familyPlayerComponent.stop();
-	}
-
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageOpinion.prototype.destroy = function() {
-	'use strict';
-	this.view = null;	
-
-	if(this.challengePlayer != null){
-		this.challengePlayer.destroy();
-		this.challengePlayer = null;
-	}
-	if(this.familyPlayerComponent != null){
-		this.familyPlayerComponent.destroy();
-		this.familyPlayerComponent = null;
-	}
-
-	this.activePlayer = null;
-};
-createjs.EventDispatcher.initialize(PageOpinion.prototype);
-var PageMap = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost("next");	
-};
-PageMap.prototype.start = function() {
-	'use strict';
-	var self = this;
-
-	// Allow tick
-	Tick.enable();
-	Tick.framerate(5);
-
-	// Checkboxes
-	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
-	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundholm'});
-	var btn3 = new RadioButton(this.view.checkbox3, {value:'svendborg'});
-
-	// Group
-	this.group = new ButtonGroup();
-	this.group.add(btn1);
-	this.group.add(btn2);
-	this.group.add(btn3);
-
-	// Events
-	this.listeners.group = this.group.on("click", function(event){
-		// Save chosen "fattiggård"
-		PlayerStats.poorhouse = event.data.value;
-
-		// User may continue
-		self.continueBtn.activate('next');
-		self.continueBtn.on('click', function(e){
-			e.remove();
-			event.remove();
-
-			self.view.info1.off('click', self.listeners['info1']);
-			self.view.info2.off('click', self.listeners['info2']);
-			self.view.info3.off('click', self.listeners['info3']);
-
-			self.dispatchEvent(new createjs.Event('continue'));
-		});
-	}, self);
-
-	// Info popup
-	this.view.infopopup.visible = false;
-	this.infoButtons = [];
-	this.infoButtons.push(this.view.info1);
-	this.infoButtons.push(this.view.info2);
-	this.infoButtons.push(this.view.info3);
-	this.view.info1.id = 0;
-	this.view.info2.id = 1;
-	this.view.info3.id = 2;
-	// Info buttons events
-	this.listeners['info1'] = this.view.info1.on('click', function(event){
-		self.openInfo(event.target.id);
-	}, this);
-	this.listeners['info2'] = this.view.info2.on('click', function(event){
-		self.openInfo(event.target.id);
-	}, this);
-	this.listeners['info3'] = this.view.info3.on('click', function(event){
-		self.openInfo(event.target.id);
-	}, this);
-	// Close button	
-	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){
-		this.closeInfo();
-	}, this);
-};
-PageMap.prototype.openInfo = function(id) {
-	'use strict';
-	this.view.infopopup.gotoAndStop(id);
-	this.view.infopopup.x = 0;
-	this.view.infopopup.visible = true;
-	this.continueBtn.hide();
-};
-PageMap.prototype.closeInfo = function(id) {
-	'use strict';
-	this.view.infopopup.x = 1024;
-	this.view.infopopup.visible = false;
-	this.continueBtn.show();
-};
-PageMap.prototype.destroy = function() {
-	'use strict';
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageMap.prototype);
-var PageIntro = function(view, id){
-	'use strict';
-	//console.log("view.player:", view.player);
-	this.view = view;
-	this.id = id;
-	this.lib = null;
-	this.listeners = {};
-	this.playerComponent = new PlayerSliderComponent(view.player);
-	
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost("skip");
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
-};
-PageIntro.prototype.start = function() {
-	'use strict';
-	LoadJS.load(
-		'../assets/logic/slides/'+"slide_"+this.id+".js", 
-		Delegate.create(this.setup, this)
-	);
-	// Allow tick
-	Tick.enable();
-};
-PageIntro.prototype.setup = function() {
-	'use strict';
-	if(this.runonce != null)
-		return;
-
-	var self = this;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	try{
-		this.lib = slidelib;
-		this.playerComponent.on('ready', function(event){
-			event.remove();
-			// No tick
-			Tick.disable();
-			self.continueBtn.activate("skip");
-			// self.dispatchEvent(new createjs.Event('ready'));
-		});
-		this.playerComponent.preload("slide_"+this.id, this.lib);
-		this.lib = null;
-	}catch(err) {
-   		console.log(err);
-   	}
-};
-PageIntro.prototype.onContinue = function(event) {
-	'use strict';
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.listeners.continue = null;
-
-	// Stop Player
-	if(this.playerComponent !== undefined){
-		this.playerComponent.stop();
-	}
-
-	this.dispatchEvent(new createjs.Event('continue'));
-
-	this.destroy();
-};
-PageIntro.prototype.onComplete = function(event) {
-	'use strict';
-	this.playerComponent.off('complete', this.listeners.complete);	
-	this.listeners.complete = null;
-
-	// Set next button active
-	this.continueBtn.activate("next");
-};
-PageIntro.prototype.destroy = function() {
-	'use strict';
-	if(this.playerComponent != null){
-		this.playerComponent.destroy();	
-	}
-	this.playerComponent = null;
-	this.view = null;
-	this.lib = null;
-};
-createjs.EventDispatcher.initialize(PageIntro.prototype);
-var PageCard = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("next");	
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageCard.prototype.start = function() {
-	'use strict';
-	var frm;
-
-
-	// Set portrait a real name
-	frm = PlayerStats.challenge + PlayerStats.family;
-	this.view.portrait.gotoAndStop(frm);
-	this.view.realname.gotoAndStop(frm);
-
-	// Set nickname
-	frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
-	this.view.nickname.gotoAndStop(frm);
-
-	// Set challenge
-	frm = PlayerStats.challenge;
-	this.view.challenge.gotoAndStop(frm);	
-
-	// Set family, kids
-	frm = PlayerStats.family;
-	this.view.family.gotoAndStop(frm);
-	this.view.kids.gotoAndStop(frm);
-};
-PageCard.prototype.onContinue = function(event) {
-	'use strict';
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageCard.prototype.destroy = function() {
-	'use strict';
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageCard.prototype);
 (function (lib, img, cjs, ss) {
 
 var p; // shortcut to reference prototypes
@@ -5782,17 +5781,25 @@ var Preloader = {
 	},
 	add: function(clss){
 		'use strict';
-		$('body').append(
-			'<div class="preload-wrapper"><div class="preloader '+clss+'">'+
-				'<div class="image">'+					
-				'</div>'+
-				'<div class="progress-bar"><div class="bar"></div></div>'+
-			'</div>'
-		);
+		// $('.preload-wrapper').removeClass('hide');
+		// $('.preload-wrapper').addClass('show');
+		$('.progress-bar').removeClass('hide');
+		$('.preload-wrapper').show();
+		
+		// $('body').append(
+		// 	'<div class="preload-wrapper"><div class="preloader '+clss+'">'+
+		// 		'<div class="image">'+					
+		// 		'</div>'+
+		// 		'<div class="progress-bar"><div class="bar"></div></div>'+
+		// 	'</div>'
+		// );
 	},
 	remove: function(id){
 		'use strict';
-		$('.preload-wrapper').remove();
+		// $('.preload-wrapper').removeClass('show');
+		// $('.preload-wrapper').addClass('hide');
+		// $('.preload-wrapper').hide();
+		// $('.preload-wrapper').remove();
 	}
 };
 var LoadJS = {
@@ -5938,6 +5945,8 @@ var Environment = {
 	data: null,
 	browser: {},
 	os: null,
+	dimensions: {},
+	ratioValue: null,
 	init: function(){
 		'use strict';
 		var data = browserDetection();
@@ -5945,7 +5954,26 @@ var Environment = {
 		this.browser.version = data.version;
 		this.browser.firefox = (this.browser.name === 'firefox');
 		this.os = data.os;
+		this.dimensions.w = window.innerWidth;
+		this.dimensions.h = window.innerHeight;
+		
 
+		var cr = function(){
+			var ctx = document.createElement('canvas').getContext('2d'),
+	        dpr = window.devicePixelRatio || 1,
+	        bsr = ctx.webkitBackingStorePixelRatio ||
+	              ctx.mozBackingStorePixelRatio ||
+	              ctx.msBackingStorePixelRatio ||
+	              ctx.oBackingStorePixelRatio ||
+	              ctx.backingStorePixelRatio || 1;
+	    	return dpr / bsr;
+		}
+		this.ratio = cr();
+
+		var wf = function(){
+			return Environment.dimensions.w / 1024;
+		}
+		this.winScale = wf();
 	}
 };
 'use strict';
@@ -6344,6 +6372,9 @@ var FlowManager = {
 	},
 	gotoPage: function(page){
 		'use strict';
+		
+		// $('.content').hide();
+
 		if(this.currentPage !== null){
 			this.currentPage.destroy();
 			this.currentPage = null;
@@ -6379,7 +6410,7 @@ var FlowManager = {
 					self.gotoPage('0.1');
 					// self.gotoPage('1.0.1'); // TEST
 				};	
-				
+			
 			break;
 			case '0.1':
 				// Proloque
@@ -6668,8 +6699,8 @@ var ApplicationManager = {
 		'use strict';
 		this.root = root;
 
-		// Init Environment info
-		Environment.init();
+		// // Init Environment info
+		// Environment.init();
 
 		// Cursor init
 		Cursor.root = root;
@@ -7600,16 +7631,186 @@ p.nominalBounds = new cjs.Rectangle(502,324,1044,768);
 
 })(mainlib = mainlib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var mainlib, images, createjs, ss;
+(function (lib, img, cjs, ss) {
+
+var p; // shortcut to reference prototypes
+
+// library properties:
+lib.properties = {
+	width: 1024,
+	height: 648,
+	fps: 24,
+	color: "#000000",
+	manifest: [
+		{src:"../assets/images/pool/_0_0Frontpage.jpg", id:"_0_0Frontpage"}
+	]
+};
+
+
+
+// symbols:
+
+
+
+(lib._0_0Frontpage = function() {
+	this.initialize(img._0_0Frontpage);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
+
+
+(lib.PageContainerEmpty = function() {
+	this.initialize();
+
+}).prototype = p = new cjs.Container();
+p.nominalBounds = null;
+
+
+(lib.SkipButton = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{});
+
+	// Layer 3
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("#FFFFFF").s().p("AA/BHIAAiNIAjAAQAXAAAAAYIAAArQAAAKgFAGQgHAGgLAAIgQAAIAAA0gABSACIAMAAQAIAAAAgHIAAgoQAAgEgCgCQgCgCgFAAIgLAAgAAaBHIAAiNIATAAIAACNgAgCBHIgYhGIAAgBIAUhGIAQAAIgSBGIAYBHgAguBHIAAiNIATAAIAACNgAhhBHQgXAAAAgaIAAgHIATAAIAAAHQAAAJAJAAIADAAQAIAAAAgJIAAgYQAAgEgCgBIgFgEIgbgOQgDgCgBgDIgBgJIAAgeQAAgYAXAAIAMAAQAMAAAFAGQAGAGAAAMIAAAOIgTAAIAAgMQAAgFgDgCQgCgCgDAAIgEAAQgEAAgCACQgCACAAAFIAAAXQAAAFACABIAFADIAaAOQADABACADQABADAAAHIAAAfQAAAYgXAAg");
+	this.shape.setTransform(48,46.7);
+
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f("#FFFFFF").s().p("AA/BHIAAiNIAjAAQAXAAAAAYIAAArQAAAKgFAGQgHAGgLAAIgQAAIAAA0gABSACIAMAAQAIAAAAgHIAAgoQAAgEgCgCQgDgCgEAAIgLAAgAAaBHIAAiNIATAAIAACNgAgCBHIgYhGIAAgBIAUhGIAQAAIgSBGIAYBHgAguBHIAAiNIATAAIAACNgAhhBHQgXAAAAgaIAAgHIATAAIAAAHQAAAJAJAAIADAAQAIAAAAgJIAAgYQAAgEgCgBIgFgEIgbgOQgDgCgBgDIgBgJIAAgeQAAgYAXAAIAMAAQAMAAAFAGQAGAGAAAMIAAAOIgTAAIAAgMQAAgFgDgCQgCgCgDAAIgEAAQgEAAgCACQgCACAAAFIAAAXQAAAFACABIAFADIAaAOQADABACADQABADAAAHIAAAfQAAAYgXAAg");
+	this.shape_1.setTransform(49,47.7);
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape}]}).to({state:[{t:this.shape_1}]},2).to({state:[]},1).wait(1));
+
+	// Layer 2
+	this.shape_2 = new cjs.Shape();
+	this.shape_2.graphics.f("#D18B00").s().p("Ai6C7QhOhOAAhtQAAhsBOhOQBOhOBsAAQBtAABOBOQBOBOAABsQAABthOBOQhOBOhtAAQhsAAhOhOg");
+	this.shape_2.setTransform(47,47);
+
+	this.timeline.addTween(cjs.Tween.get(this.shape_2).wait(2).to({x:48,y:48},0).to({_off:true},1).wait(1));
+
+	// Layer 1
+	this.shape_3 = new cjs.Shape();
+	this.shape_3.graphics.f("#F1DAB5").s().p("AjiDhQhchdAAiEQAAiDBchfQBfhcCDAAQCFAABcBcQBfBfAACDQAACEhfBdQhcBfiFAAQiDAAhfhfg");
+	this.shape_3.setTransform(47,47);
+
+	this.shape_4 = new cjs.Shape();
+	this.shape_4.graphics.f("#F1DAB5").s().p("AjiDhQhdhdABiEQgBiDBdhfQBfhdCDABQCEgBBdBdQBfBfAACDQAACEhfBdQhdBfiEAAQiDAAhfhfg");
+	this.shape_4.setTransform(48,48);
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3}]}).to({state:[{t:this.shape_4}]},2).to({state:[{t:this.shape_3}]},1).wait(1));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(15,15,64,64);
+
+
+(lib.GoOnButton = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{});
+
+	// Layer 3
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("#FFFFFF").s().p("AinC1ICwi1IiziyIBUhTIEBEHIkCEEg");
+	this.shape.setTransform(51.4,45.9);
+
+	this.timeline.addTween(cjs.Tween.get(this.shape).wait(2).to({x:53.4,y:47.9},0).to({_off:true},1).wait(1));
+
+	// Layer 2
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f("#D18B00").s().p("AkSETQhyhyAAihQAAifByhzQBzhyCfAAQChAAByByQBzBzAACfQAAChhzByQhyBzihAAQifAAhzhzg");
+	this.shape_1.setTransform(47,47);
+
+	this.shape_2 = new cjs.Shape();
+	this.shape_2.graphics.f("#D18B00").s().p("AkSETQhyhzgBigQABifByhzQBzhyCfgBQCgABBzByQByBzABCfQgBCghyBzQhzByigABQifgBhzhyg");
+	this.shape_2.setTransform(49,49);
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_1}]}).to({state:[{t:this.shape_2}]},2).to({state:[]},1).wait(1));
+
+	// Layer 1
+	this.shape_3 = new cjs.Shape();
+	this.shape_3.graphics.f("#F1DAB5").s().p("AlMFLQiIiJgBjCQABjBCIiLQCLiIDBgBQDCABCJCIQCKCLAADBQAADCiKCJQiJCKjCAAQjBAAiLiKg");
+	this.shape_3.setTransform(47,47);
+
+	this.shape_4 = new cjs.Shape();
+	this.shape_4.graphics.f("#F1DAB5").s().p("AlMFLQiIiJgBjCQABjBCIiLQCLiIDBgBQDDABCICIQCLCLAADBQAADCiLCJQiICLjDAAQjBAAiLiLg");
+	this.shape_4.setTransform(49,49);
+
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3}]}).to({state:[{t:this.shape_4}]},2).to({state:[{t:this.shape_3}]},1).wait(1));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,94,94);
+
+
+(lib.ContinueButton = function() {
+	this.initialize();
+
+	// Skip
+	this.skipBtn = new lib.SkipButton();
+	this.skipBtn.setTransform(47,47,1,1,0,0,0,47,47);
+	new cjs.ButtonHelper(this.skipBtn, 0, 1, 2, false, new lib.SkipButton(), 3);
+
+	// Continue
+	this.nextBtn = new lib.GoOnButton();
+	this.nextBtn.setTransform(47,47,1,1,0,0,0,47,47);
+	new cjs.ButtonHelper(this.nextBtn, 0, 1, 2, false, new lib.GoOnButton(), 3);
+
+	this.addChild(this.nextBtn,this.skipBtn);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,96,96);
+
+
+// stage content:
+(lib.test = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{preload:4,frontpage:14,start:24,character_build:33,poohouse:48,germany:58});
+
+	// timeline functions:
+	this.frame_0 = function() {
+		this.stop();
+	}
+
+	// actions tween:
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(84));
+
+	// Topbar Container
+	this.topbarcontainer = new lib.PageContainerEmpty();
+
+	this.timeline.addTween(cjs.Tween.get(this.topbarcontainer).wait(84));
+
+	// Continue
+	this.continueBtn = new lib.ContinueButton();
+	this.continueBtn.setTransform(951,579.4,1,1,0,0,0,48,48);
+
+	this.timeline.addTween(cjs.Tween.get(this.continueBtn).wait(84));
+
+	// Container
+	this.pagecontainer = new lib.PageContainerEmpty();
+	this.pagecontainer.setTransform(0,108);
+
+	this.timeline.addTween(cjs.Tween.get(this.pagecontainer).wait(84));
+
+	// Start IMage
+	this.instance = new lib._0_0Frontpage();
+
+	this.timeline.addTween(cjs.Tween.get(this.instance).to({_off:true},24).wait(60));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(512,324,1024,648);
+
+})(mainlib = mainlib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
+var mainlib, images, createjs, ss;
+var canvas;
 (function () {
 	'use strict';
 	var app = angular.module('fattiggarden', ['ngRoute']);	
 
-	app.controller('MainController', function($scope, Device) {
+	app.controller('MainController', function($scope, Canvas) {
+		var vm = this;
+
+		// Init Environment info
+		Environment.init();
 
 		$scope.lib = mainlib;
 		$scope.images = images;
-		// $scope.exportRoot;
-		// $scope.canvas;
+
+		$scope.canvas = Canvas.create(1024, 648, Environment.ratio);
+		$scope.canvas.style.background = '#000';
+		$('.content').append($scope.canvas);
 
 		function init(){
 			// Device.ratio = 1;
@@ -7631,7 +7832,7 @@ var mainlib, images, createjs, ss;
 					stage.enableMouseOver(10);
 
 					// Scale canvas according to ratio
-					stage.scaleX = stage.scaleY = Device.ratio;
+					stage.scaleX = stage.scaleY = Environment.ratio;
 					stage.update();
 
 					// Tik tak - ticker
@@ -7646,7 +7847,8 @@ var mainlib, images, createjs, ss;
 			};
 
 			// Remove startup preloader div
-			$('.preload-wrapper').remove();
+			// $('.preload-wrapper').remove();
+			// $('.preload-wrapper').hide();
 
 			// Start preload app
 			Preloader.load($scope.lib.properties.manifest, onFileLoad, onLoadComplete, 'full');
@@ -7654,54 +7856,120 @@ var mainlib, images, createjs, ss;
 
 		init();
 	});
-	
-	app.directive('slCanvas', function(Device, Canvas) {	
-		function link(scope){	
-			// Create base canvas
-			// Device.ratio = 1;
-			// scope.canvas = Canvas.create(1024, 648, Device.ratio);
-			scope.canvas = Canvas.create(1024, 648, Device.ratio);
-			scope.canvas.style.background = '#000';
-			document.body.appendChild(scope.canvas);	
-		}
-		return {
-			restrict: 'AEC',
-	    	link: link
-		};
-	});
-
-	app.factory('Device', function(){
-		function ratio(){
-			var ctx = document.createElement('canvas').getContext('2d'),
-	        dpr = window.devicePixelRatio || 1,
-	        bsr = ctx.webkitBackingStorePixelRatio ||
-	              ctx.mozBackingStorePixelRatio ||
-	              ctx.msBackingStorePixelRatio ||
-	              ctx.oBackingStorePixelRatio ||
-	              ctx.backingStorePixelRatio || 1;
-
-	    	return dpr / bsr;
-		}
-		return {
-			ratio: ratio()
-		};
-	});
-
 	app.factory('Canvas', function() {
 		return {
 			create: function(w, h, ratio) {			    
 			    var canvas = document.createElement('canvas');
 			    canvas.width = w * ratio;
 			    canvas.height = h * ratio;
-			    canvas.style.width = w + 'px';
-			    canvas.style.height = h + 'px';
-			    canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);			    
+			    canvas.style.width = w * Environment.winScale+ 'px';
+			    canvas.style.height = h * Environment.winScale + 'px';
+			    canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);	
 			    return canvas;
 			}
 		};
 	});
 
+
+	// app.directive('resize', function ($window) {
+	//     return function (scope, element) {
+	//         var w = angular.element($window);
+	//         scope.getWindowDimensions = function () {
+	//             return {
+	//                 'h': w.height(),
+	//                 'w': w.width()
+	//             };
+	//         };
+	//         scope.$watch(scope.getWindowDimensions, function (newValue, oldValue) {
+	//             scope.windowHeight = newValue.h;
+	//             scope.windowWidth = newValue.w;
+
+	//             scope.style = function () {
+	//                 return {
+	//                     'height': (newValue.h - 100) + 'px',
+	//                         'width': (newValue.w - 100) + 'px'
+	//                 };
+	//             };
+
+	//         }, true);
+
+	//         w.bind('resize', function () {
+	//             scope.$apply();
+	//         });
+	//     }
+	// })
+
+	// app.factory('Device', function(){
+	// 	function ratio(){
+	// 		var ctx = document.createElement('canvas').getContext('2d'),
+	//         dpr = window.devicePixelRatio || 1,
+	//         bsr = ctx.webkitBackingStorePixelRatio ||
+	//               ctx.mozBackingStorePixelRatio ||
+	//               ctx.msBackingStorePixelRatio ||
+	//               ctx.oBackingStorePixelRatio ||
+	//               ctx.backingStorePixelRatio || 1;
+	//     	return dpr / bsr;
+	// 	}
+	// 	return {
+	// 		ratio: ratio()
+	// 	};
+	// });
+	
+	// app.directive('slCanvas', function(Device, Canvas) {	
+	// 	function link(scope){	
+	// 		// Create base canvas
+	// 		scope.canvas = Canvas.create(1024, 648, Device.ratio);
+	// 		scope.canvas.style.background = '#000';
+	// 		document.body.appendChild(scope.canvas);	
+	// 		canvas = scope.canvas;
+	// 	}
+	// 	return {
+	// 		restrict: 'AEC',
+	//     	link: link
+	// 	};
+	// });
+
 })();
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/test.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>test</title><style type="text/css">body{\n' +
+    '		margin: 0;\n' +
+    '	}</style><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="test.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(mainlib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new mainlib.test();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(mainlib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="648" style="width: 982px; background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
 (function(module) {
 try {
   module = angular.module('fattiggarden');

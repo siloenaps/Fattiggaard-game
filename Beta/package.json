@@ -44,6 +44,7 @@
     "lazypipe": "~0.2.1",
     "main-bower-files": "^1.0.1",
     "rimraf": "^2.2.8",
+    "sass-mediaqueries": "^1.6.1",
     "streamqueue": "~0.1.1",
     "vinyl-ftp": "^0.4.5"
   }

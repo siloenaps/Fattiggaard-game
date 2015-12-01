@@ -14,6 +14,9 @@ var FlowManager = {
 	},
 	gotoPage: function(page){
 		'use strict';
+		
+		// $('.content').hide();
+
 		if(this.currentPage !== null){
 			this.currentPage.destroy();
 			this.currentPage = null;
@@ -49,7 +52,7 @@ var FlowManager = {
 					self.gotoPage('0.1');
 					// self.gotoPage('1.0.1'); // TEST
 				};	
-				
+			
 			break;
 			case '0.1':
 				// Proloque

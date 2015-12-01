@@ -4,8 +4,8 @@ var ApplicationManager = {
 		'use strict';
 		this.root = root;
 
-		// Init Environment info
-		Environment.init();
+		// // Init Environment info
+		// Environment.init();
 
 		// Cursor init
 		Cursor.root = root;
@@ -42,7 +42,7 @@ var ApplicationManager = {
 
 		// Go to start
 		FlowManager.gotoPage('0.0');
-		// FlowManager.gotoPage('3.1');
+		// FlowManager.gotoPage('0.1');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},
