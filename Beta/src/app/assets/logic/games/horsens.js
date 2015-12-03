@@ -11,8 +11,8 @@ lib.properties = {
 	manifest: [
 		{src:"../../../assets/images/pool/_112_letter_bg.png", id:"_112_letter_bg"},
 		{src:"../../../assets/images/pool/_112_letter_text.png", id:"_112_letter_text"},
-		{src:"../../../assets/images/pool/_161_arresteret.jpg", id:"_161_arresteret"},
-		{src:"../../../assets/images/pool/_162Policereporttext_small.png", id:"_162Policereporttext_small"},
+		{src:"../../../assets/images/pool/_161_arresteret_horsens.jpg", id:"_161_arresteret_horsens"},
+		{src:"../../../assets/images/pool/_162_arresteret_brev_horsens.png", id:"_162_arresteret_brev_horsens"},
 		{src:"../../../assets/images/pool/_1_1BGhorsens.jpg", id:"_1_1BGhorsens"},
 		{src:"../../../assets/images/pool/_1_1BGsvendborg.jpg", id:"_1_1BGsvendborg"},
 		{src:"../../../assets/images/pool/_1_2BGhorsensA.jpg", id:"_1_2BGhorsensA"},
@@ -32,7 +32,6 @@ lib.properties = {
 		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
 		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
 		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
-		{src:"../../../assets/images/pool/ansat_1.png", id:"ansat_1"},
 		{src:"../../../assets/images/pool/BDCloseUp.png", id:"BDCloseUp"},
 		{src:"../../../assets/images/pool/BECloseUp.png", id:"BECloseUp"},
 		{src:"../../../assets/images/pool/BFCloseUp.png", id:"BFCloseUp"},
@@ -50,7 +49,6 @@ lib.properties = {
 		{src:"../../../assets/images/pool/CharacterCardName0009.png", id:"CharacterCardName0009"},
 		{src:"../../../assets/images/pool/horsens_title.png", id:"horsens_title"},
 		{src:"../../../assets/images/pool/indsat_1.png", id:"indsat_1"},
-		{src:"../../../assets/images/pool/LetterArrested.png", id:"LetterArrested"},
 		{src:"../../../assets/images/pool/LetterWriteBG.png", id:"LetterWriteBG"},
 		{src:"../../../assets/images/pool/opsynsmand_horsens_sundholm.png", id:"opsynsmand_horsens_sundholm"},
 		{src:"../../../assets/images/pool/PointDobbeltBG.png", id:"PointDobbeltBG"},
@@ -78,16 +76,16 @@ p.nominalBounds = new cjs.Rectangle(0,0,465,449);
 p.nominalBounds = new cjs.Rectangle(0,0,415,318);
 
 
-(lib._161_arresteret = function() {
-	this.initialize(img._161_arresteret);
+(lib._161_arresteret_horsens = function() {
+	this.initialize(img._161_arresteret_horsens);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._162Policereporttext_small = function() {
-	this.initialize(img._162Policereporttext_small);
+(lib._162_arresteret_brev_horsens = function() {
+	this.initialize(img._162_arresteret_brev_horsens);
 }).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,549,407);
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
 (lib._1_1BGhorsens = function() {
@@ -204,12 +202,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
-(lib.ansat_1 = function() {
-	this.initialize(img.ansat_1);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
 (lib.BDCloseUp = function() {
 	this.initialize(img.BDCloseUp);
 }).prototype = p = new cjs.Bitmap();
@@ -310,12 +302,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,37,513);
 	this.initialize(img.indsat_1);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.LetterArrested = function() {
-	this.initialize(img.LetterArrested);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,657,540);
 
 
 (lib.LetterWriteBG = function() {
@@ -527,17 +513,13 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 (lib._162PoliceReport = function() {
 	this.initialize();
 
-	// Text
-	this.instance = new lib._162Policereporttext_small();
-	this.instance.setTransform(242.5,47.5);
+	// Letter
+	this.instance = new lib._162_arresteret_brev_horsens();
+	this.instance.setTransform(68,0);
 
-	// Photo
-	this.instance_1 = new lib.LetterArrested();
-	this.instance_1.setTransform(196.7,0);
-
-	this.addChild(this.instance_1,this.instance);
+	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(196.7,0,657,576.5);
+p.nominalBounds = new cjs.Rectangle(68,0,1024,576.5);
 
 
 (lib._152PagePoints7 = function() {
@@ -583,7 +565,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib.ansat_1();
+	this.instance = new lib.opsynsmand_horsens_sundholm();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
@@ -959,7 +941,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.instance.setTransform(16,14);
 
 	// Layer 1
-	this.instance_1 = new lib._161_arresteret();
+	this.instance_1 = new lib._161_arresteret_horsens();
 
 	this.addChild(this.instance_1,this.instance);
 }).prototype = p = new cjs.Container();
@@ -1200,24 +1182,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,34,34);
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(0,0,34,34);
-
-
-(lib._18PageBacktoPoorhouse = function() {
-	this.initialize();
-
-	// Portrait
-	this.portrait = new lib.OpenionCloseups();
-	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
-
-	// Text
-	this.text = new cjs.Text("30 dage i arresten bare fordi jeg blev en smule\nberuset… og så får man ikke engang sin frihed\nbagefter – bliver bare lukket ud arresten for\nat blive indlagt på fattiggården… mere\nindespærring og et uendeligt mylder af\nregler… De har taget min udgangstilladelse\nfra mig de næste tre uger… Det gør ikke\ntrangen til at komme ud herfra mindre, men\nhvis jeg stikker af igen, bliver jeg sikkert\nbare straffet endnu hårdere næste gang…\nMåske er tysklandsarbejde en mulighed?!", "24px 'Special Elite'", "#D9D1B4");
-	this.text.lineHeight = 26;
-	this.text.lineWidth = 594;
-	this.text.setTransform(212,132);
-
-	this.addChild(this.text,this.portrait);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
 
 
 (lib.Letter2Dropdown1 = function(mode,startPosition,loop) {
@@ -1485,6 +1449,27 @@ p.nominalBounds = new cjs.Rectangle(210,38,587.6,408.7);
 p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
 
 
+(lib._18PageBacktoPoorhouse = function() {
+	this.initialize();
+
+	// Player
+	this.player = new lib.PlayerAudio();
+	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
+
+	this.text = new cjs.Text("Indlagt igen...", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 800;
+	this.text.setTransform(210,38);
+
+	// Portrait
+	this.portrait = new lib.OpenionCloseups();
+	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
+
+	this.addChild(this.portrait,this.text,this.player);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
+
+
 (lib._161Constablearrested = function() {
 	this.initialize();
 
@@ -1594,10 +1579,6 @@ p.nominalBounds = new cjs.Rectangle(210,38,589,298.7);
 (lib._134PagePlayAdviceEmployee = function() {
 	this.initialize();
 
-	// Photo
-	this.portrait = new lib._134EmployeePortraitMain();
-	this.portrait.setTransform(823,261,1,1,0,0,0,201,279);
-
 	// Text
 	this.text = new cjs.Text("Få et godt råd af en ansat", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
@@ -1608,7 +1589,11 @@ p.nominalBounds = new cjs.Rectangle(210,38,589,298.7);
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
 
-	this.addChild(this.player,this.text,this.portrait);
+	// Photo
+	this.portrait = new lib._134EmployeePortraitMain();
+	this.portrait.setTransform(823,261,1,1,0,0,0,201,279);
+
+	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
@@ -1803,13 +1788,13 @@ p.nominalBounds = new cjs.Rectangle(211,-18,813,558);
 
 	this.timeline.addTween(cjs.Tween.get(this.backtopoorhouse).wait(26));
 
-	// 1.6.4 Points6
+	// 1.6.3 Points6
 	this.points6 = new lib._163PagePoints6();
 	this.points6.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.points6).wait(26));
 
-	// 1.6.3 Police Report
+	// 1.6.2 Police Report
 	this.report = new lib._162PoliceReport();
 	this.report.setTransform(1024,0);
 
@@ -1987,7 +1972,7 @@ p.nominalBounds = new cjs.Rectangle(211,-18,813,558);
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance_4},{t:this.instance_3},{t:this.instance_2},{t:this.instance_1},{t:this.instance},{t:this.bg_1_0}]}).wait(26));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(512,252,2049,663);
+p.nominalBounds = new cjs.Rectangle(512,252,2116,663);
 
 })(gamelib = gamelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var gamelib, images, createjs, ss;

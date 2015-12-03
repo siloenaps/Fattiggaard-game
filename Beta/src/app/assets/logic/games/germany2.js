@@ -1254,6 +1254,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 (lib._4107PageGoingHome = function() {
 	this.initialize();
 
+	// Text
+	this.text = new cjs.Text("På vej hjem...", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 800;
+	this.text.setTransform(210,38);
+
 	// Player
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,149,1,1,0,0,0,289.5,17);
@@ -1262,9 +1268,9 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 	this.portrait = new lib.OpenionCloseups();
 	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
 
-	this.addChild(this.portrait,this.player);
+	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 (lib._4105PageChoose = function() {
@@ -1462,6 +1468,12 @@ p.nominalBounds = new cjs.Rectangle(210,38,715.3,298.7);
 (lib._461PageMeetingDanskFront = function() {
 	this.initialize();
 
+	// Text
+	this.text = new cjs.Text("Der er møde i Den Danske Front", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 800;
+	this.text.setTransform(210,38);
+
 	// Player
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,149,1,1,0,0,0,289.5,17);
@@ -1470,9 +1482,9 @@ p.nominalBounds = new cjs.Rectangle(210,38,715.3,298.7);
 	this.portrait = new lib.OpenionCloseups();
 	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
 
-	this.addChild(this.portrait,this.player);
+	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 (lib._451PageWork = function() {

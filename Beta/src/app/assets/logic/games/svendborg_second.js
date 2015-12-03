@@ -21,7 +21,6 @@ lib.properties = {
 		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
 		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
 		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
-		{src:"../../../assets/images/pool/ansat_3.png", id:"ansat_3"},
 		{src:"../../../assets/images/pool/BDCloseUp.png", id:"BDCloseUp"},
 		{src:"../../../assets/images/pool/BECloseUp.png", id:"BECloseUp"},
 		{src:"../../../assets/images/pool/BFCloseUp.png", id:"BFCloseUp"},
@@ -40,6 +39,7 @@ lib.properties = {
 		{src:"../../../assets/images/pool/indsat_3.png", id:"indsat_3"},
 		{src:"../../../assets/images/pool/LetterBG.png", id:"LetterBG"},
 		{src:"../../../assets/images/pool/LetterWriteBG.png", id:"LetterWriteBG"},
+		{src:"../../../assets/images/pool/OpsynsmandSvendborg.png", id:"OpsynsmandSvendborg"},
 		{src:"../../../assets/images/pool/PointDobbeltBG.png", id:"PointDobbeltBG"},
 		{src:"../../../assets/images/pool/PointEnkeltBG.png", id:"PointEnkeltBG"},
 		{src:"../../../assets/images/pool/PointNegativ.png", id:"PointNegativ"},
@@ -122,12 +122,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 (lib.AFCloseUp = function() {
 	this.initialize(img.AFCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.ansat_3 = function() {
-	this.initialize(img.ansat_3);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
@@ -240,6 +234,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,913,540);
 p.nominalBounds = new cjs.Rectangle(0,0,804,540);
 
 
+(lib.OpsynsmandSvendborg = function() {
+	this.initialize(img.OpsynsmandSvendborg);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,359,372);
+
+
 (lib.PointDobbeltBG = function() {
 	this.initialize(img.PointDobbeltBG);
 }).prototype = p = new cjs.Bitmap();
@@ -325,26 +325,21 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 	this.initialize();
 
 	// Text
-	this.text = new cjs.Text("Formanden for det sociale udvalg\nHr. Bundgaard", "24px 'Special Elite'");
-	this.text.lineHeight = 26;
-	this.text.lineWidth = 590;
-	this.text.setTransform(163,453.1);
+	this.text = new cjs.Text("Svar fra Socialudvalget", "18px 'Special Elite'");
+	this.text.lineHeight = 20;
+	this.text.lineWidth = 620;
+	this.text.setTransform(163,39.1);
 
-	this.text_1 = new cjs.Text("Svar fra Socialudvalget", "24px 'Special Elite'");
-	this.text_1.lineHeight = 26;
-	this.text_1.lineWidth = 620;
-	this.text_1.setTransform(163,39.1);
-
-	this.text_2 = new cjs.Text("Tilladelse nægtet!\nDet er opsynsmandens opgave at sikre\nreglementet overholdt. De har efter den \nomtalte opsynsmands overbevisning ikke levet \nop til de ellers yderst rimelige krav, som\nreglementet foreskriver. Desuden nægter\nopsynsmanden bestemt at have udtalt det\npostulerede eller på anden måde været \nnedladende overfor dem. Det påpeges af\nForvalteren, at De indimellem har svært ved\nat skelne mellem Fantasi og virkelighed. ", "24px 'Special Elite'");
-	this.text_2.lineHeight = 26;
-	this.text_2.lineWidth = 633;
-	this.text_2.setTransform(163,113);
+	this.text_1 = new cjs.Text("Tilladelse nægtet. Det er opsynsmandens opgave at sikre\nreglementet overholdt. Efter den omtalte opsynsmands\noverbevisning har De ikke levet op til de ellers yderst\nrimelige krav som reglementet foreskriver. Desuden nægter\nopsynsmanden bestemt at have udtalt det postulerede eller på\nanden måde været nedladende overfor dem. Det påpeges af\nForvalteren, at De indimellem har svært ved at skelne mellem\nFantasi og virkelighed. Hvis De vitterligt har til hensigt at\nsøge arbejde i Tyskland, kan De bede forvalteren om\ntilladelse til at søge arbejdet. Dimittering kan ikke for\nnuværende komme på tale, uden fremlæggelse af håndfaste\nbeviser på, at De har fået arbejde, eksempelvis en tysk\narbejdskontrakt. \n\nFormanden for det sociale udvalg\nHr. Bohlwinkel ", "18px 'Special Elite'");
+	this.text_1.lineHeight = 20;
+	this.text_1.lineWidth = 580;
+	this.text_1.setTransform(163,113);
 
 	// Letter BG
 	this.instance = new lib.LetterBG();
 	this.instance.setTransform(111,0);
 
-	this.addChild(this.instance,this.text_2,this.text_1,this.text);
+	this.addChild(this.instance,this.text_1,this.text);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(111,0,913,540);
 
@@ -452,17 +447,6 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 p.nominalBounds = new cjs.Rectangle(-8,105,540,453);
 
 
-(lib._341EmployeePortraitMain = function() {
-	this.initialize();
-
-	// Layer 1
-	this.instance = new lib.ansat_3();
-
-	this.addChild(this.instance);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
 (lib._322PagePoints1 = function() {
 	this.initialize();
 
@@ -499,6 +483,17 @@ p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 	this.addChild(this.instance_1,this.instance,this.text_3,this.text_2,this.text_1,this.text);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(212,40,602,187);
+
+
+(lib._134EmployeePortraitMain = function() {
+	this.initialize();
+
+	// Layer 1
+	this.instance = new lib.OpsynsmandSvendborg();
+
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,359,372);
 
 
 (lib.OpenionCloseups = function(mode,startPosition,loop) {
@@ -586,9 +581,9 @@ p.nominalBounds = new cjs.Rectangle(2,1.5,188,19);
 	this.initialize(mode,startPosition,loop,{});
 
 	// Layer 1
-	this.label = new cjs.Text("Må retfærdigheden sejre", "24px 'Special Elite'");
+	this.label = new cjs.Text("Må retfærdigheden sejre", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
+	this.label.lineHeight = 20;
 	this.label.lineWidth = 318;
 	this.label.setTransform(5,0);
 
@@ -610,9 +605,9 @@ p.nominalBounds = new cjs.Rectangle(5,0,322,28.1);
 	this.initialize(mode,startPosition,loop,{});
 
 	// Layer 1
-	this.label = new cjs.Text("Deres forbundne", "24px 'Special Elite'");
+	this.label = new cjs.Text("Deres forbundne", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
+	this.label.lineHeight = 20;
 	this.label.lineWidth = 226;
 	this.label.setTransform(5,0);
 
@@ -634,9 +629,9 @@ p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
 	this.initialize(mode,startPosition,loop,{});
 
 	// Layer 1
-	this.label = new cjs.Text("Den varmeste Tak", "24px 'Special Elite'");
+	this.label = new cjs.Text("Den varmeste Tak", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
+	this.label.lineHeight = 20;
 	this.label.lineWidth = 226;
 	this.label.setTransform(5,0);
 
@@ -658,9 +653,9 @@ p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
 	this.initialize(mode,startPosition,loop,{});
 
 	// Layer 1
-	this.label = new cjs.Text("beder ydmygt om", "24px 'Special Elite'");
+	this.label = new cjs.Text("beder ydmygt om", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
+	this.label.lineHeight = 20;
 	this.label.lineWidth = 226;
 	this.label.setTransform(5,0);
 
@@ -682,9 +677,9 @@ p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
 	this.initialize(mode,startPosition,loop,{});
 
 	// Layer 1
-	this.label = new cjs.Text("kræver", "24px 'Special Elite'");
+	this.label = new cjs.Text("kræver", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
+	this.label.lineHeight = 20;
 	this.label.lineWidth = 226;
 	this.label.setTransform(5,0);
 
@@ -706,9 +701,9 @@ p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
 	this.initialize(mode,startPosition,loop,{});
 
 	// Layer 1
-	this.label = new cjs.Text("opnaa", "24px 'Special Elite'");
+	this.label = new cjs.Text("opnaa", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
+	this.label.lineHeight = 20;
 	this.label.lineWidth = 226;
 	this.label.setTransform(5,0);
 
@@ -730,9 +725,9 @@ p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
 	this.initialize(mode,startPosition,loop,{});
 
 	// Layer 1
-	this.label = new cjs.Text("forstående", "24px 'Special Elite'");
+	this.label = new cjs.Text("forstående", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
+	this.label.lineHeight = 20;
 	this.label.lineWidth = 226;
 	this.label.setTransform(5,0);
 
@@ -754,9 +749,9 @@ p.nominalBounds = new cjs.Rectangle(5,0,229.6,28.1);
 	this.initialize(mode,startPosition,loop,{});
 
 	// Layer 1
-	this.label = new cjs.Text("uduelige", "24px 'Special Elite'");
+	this.label = new cjs.Text("uduelige", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
+	this.label.lineHeight = 20;
 	this.label.lineWidth = 226;
 	this.label.setTransform(5,0);
 
@@ -782,9 +777,9 @@ p.nominalBounds = new cjs.Rectangle(5,0,229.6,28.1);
 	this.initialize(mode,startPosition,loop,{});
 
 	// Layer 1
-	this.label = new cjs.Text("ærede", "24px 'Special Elite'");
+	this.label = new cjs.Text("ærede", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
+	this.label.lineHeight = 20;
 	this.label.lineWidth = 226;
 	this.label.setTransform(5,0);
 
@@ -800,6 +795,28 @@ p.nominalBounds = new cjs.Rectangle(5,0,229.6,28.1);
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(5,0,229.6,29);
+
+
+(lib.Dropdownarrow = function() {
+	this.initialize();
+
+	// Layer 2
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("#000000").s().p("AhUgsICoAAIhTBZg");
+	this.shape.setTransform(10,12.1,0.941,1);
+
+	// Layer 1
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f().s("#000000").ss(1,1,0,3).p("AhjhjIDHAAIAADHIjHAAg");
+	this.shape_1.setTransform(10,10);
+
+	this.shape_2 = new cjs.Shape();
+	this.shape_2.graphics.f("#C99800").s().p("AhjBjIAAjGIDGAAIAADGg");
+	this.shape_2.setTransform(10,10);
+
+	this.addChild(this.shape_2,this.shape_1,this.shape);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(-1,-1,22,22);
 
 
 (lib.BlockerButton = function(mode,startPosition,loop) {
@@ -1073,24 +1090,24 @@ p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 	// Hitarea
 	this.hitarea = new lib.BlockerButton();
-	this.hitarea.setTransform(0,0,6.897,0.58);
+	this.hitarea.setTransform(0,0,5.6,0.5);
 	new cjs.ButtonHelper(this.hitarea, 0, 1, 2, false, new lib.BlockerButton(), 3);
 
 	this.timeline.addTween(cjs.Tween.get(this.hitarea).to({_off:true},4).wait(11));
 
 	// Horizontal line
 	this.shape = new cjs.Shape();
-	this.shape.graphics.f().s("#CCCCCC").ss(1,1,0,3).p("AXvAAMgvdAAA");
-	this.shape.setTransform(159.9,26);
+	this.shape.graphics.f().s("#CCCCCC").ss(1,1,0,3).p("ASwAAMglfAAA");
+	this.shape.setTransform(128.1,26);
 	this.shape._off = true;
 
 	this.timeline.addTween(cjs.Tween.get(this.shape).wait(4).to({_off:false},0).wait(11));
 
 	// Chosen Label
-	this.label = new cjs.Text("<label>", "24px 'Special Elite'");
+	this.label = new cjs.Text("<label>", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 338;
+	this.label.lineHeight = 20;
+	this.label.lineWidth = 240;
 	this.label.setTransform(5.2,4.7);
 
 	this.timeline.addTween(cjs.Tween.get(this.label).wait(15));
@@ -1111,44 +1128,32 @@ p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[]}).to({state:[{t:this.item_B},{t:this.item_C},{t:this.item_A}]},4).wait(11));
 
 	// Arrow
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#000000").s().p("AhTgsICoAAIhUBZg");
-	this.shape_1.setTransform(330.5,16.6);
+	this.instance = new lib.Dropdownarrow("synched",0);
+	this.instance.setTransform(265.5,12.5,1,1,0,0,0,10,10);
 
-	this.timeline.addTween(cjs.Tween.get(this.shape_1).wait(15));
-
-	// Button BG
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f().s("#000000").ss(1,1,0,3).p("AhyhtIDlAAIAADbIjlAAg");
-	this.shape_2.setTransform(330.5,14.5);
-
-	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.f("#C99800").s().p("AhyBtIAAjZIDlAAIAADZg");
-	this.shape_3.setTransform(330.5,14.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3},{t:this.shape_2}]}).wait(15));
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(15));
 
 	// BG
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f().s("#000000").ss(1,1,0,3).p("A13h8MArvAAAIAAD5MgrvAAAg");
+	this.shape_1.setTransform(140,12.5);
+
+	this.shape_2 = new cjs.Shape();
+	this.shape_2.graphics.f("#FFFFFF").s().p("A13B9IAAj5MAruAAAIAAD5g");
+	this.shape_2.setTransform(140,12.5);
+
+	this.shape_3 = new cjs.Shape();
+	this.shape_3.graphics.f().s("#000000").ss(1,1,0,3).p("A13olMArvAAAIAARLMgrvAAAg");
+	this.shape_3.setTransform(140,55);
+
 	this.shape_4 = new cjs.Shape();
-	this.shape_4.graphics.f().s("#000000").ss(1,1,0,3).p("A8+iQMA59AAAIAAEhMg59AAAg");
-	this.shape_4.setTransform(172.5,14.5,0.93,1);
+	this.shape_4.graphics.f("#FFFFFF").s().p("A13IlIAAxKMAruAAAIAARKg");
+	this.shape_4.setTransform(140,55);
 
-	this.shape_5 = new cjs.Shape();
-	this.shape_5.graphics.f("#FFFFFF").s().p("A8+CQIAAkgMA58AAAIAAEgg");
-	this.shape_5.setTransform(172.5,14.5,0.93,1);
-
-	this.shape_6 = new cjs.Shape();
-	this.shape_6.graphics.f().s("#000000").ss(1,1,0,3).p("A68olMA15AAAIAARLMg15AAAg");
-	this.shape_6.setTransform(172.5,55);
-
-	this.shape_7 = new cjs.Shape();
-	this.shape_7.graphics.f("#FFFFFF").s().p("A68IlIAAxKMA14AAAIAARKg");
-	this.shape_7.setTransform(172.5,55);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_5},{t:this.shape_4}]}).to({state:[{t:this.shape_7},{t:this.shape_6}]},4).wait(11));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_2},{t:this.shape_1}]}).to({state:[{t:this.shape_4},{t:this.shape_3}]},4).wait(11));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(-1,-1,347.7,34.7);
+p.nominalBounds = new cjs.Rectangle(-1,-1,282,27.7);
 
 
 (lib.Letter1Dropdown2 = function(mode,startPosition,loop) {
@@ -1164,24 +1169,24 @@ p.nominalBounds = new cjs.Rectangle(-1,-1,347.7,34.7);
 
 	// Hitarea
 	this.hitarea = new lib.BlockerButton();
-	this.hitarea.setTransform(0,0,5.24,0.58);
+	this.hitarea.setTransform(0,-1,3.96,0.5);
 	new cjs.ButtonHelper(this.hitarea, 0, 1, 2, false, new lib.BlockerButton(), 3);
 
 	this.timeline.addTween(cjs.Tween.get(this.hitarea).to({_off:true},4).wait(11));
 
 	// Horizontal line
 	this.shape = new cjs.Shape();
-	this.shape.graphics.f().s("#CCCCCC").ss(1,1,0,3).p("ARMAAMgiXAAA");
-	this.shape.setTransform(118,26);
+	this.shape.graphics.f().s("#CCCCCC").ss(1,1,0,3).p("AMbAAI41AA");
+	this.shape.setTransform(87.6,26);
 	this.shape._off = true;
 
 	this.timeline.addTween(cjs.Tween.get(this.shape).wait(4).to({_off:false},0).wait(11));
 
 	// Chosen Label
-	this.label = new cjs.Text("<label>", "24px 'Special Elite'");
+	this.label = new cjs.Text("<label>", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
+	this.label.lineHeight = 20;
+	this.label.lineWidth = 159;
 	this.label.setTransform(5.2,4.7);
 
 	this.timeline.addTween(cjs.Tween.get(this.label).wait(15));
@@ -1202,44 +1207,32 @@ p.nominalBounds = new cjs.Rectangle(-1,-1,347.7,34.7);
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[]}).to({state:[{t:this.item_B},{t:this.item_C},{t:this.item_A}]},4).wait(11));
 
 	// Arrow
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#000000").s().p("AhUgsICpAAIhUBZg");
-	this.shape_1.setTransform(247,16.6);
+	this.instance = new lib.Dropdownarrow("synched",0);
+	this.instance.setTransform(185.5,12.5,1,1,0,0,0,10,10);
 
-	this.timeline.addTween(cjs.Tween.get(this.shape_1).wait(15));
-
-	// Button BG
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f().s("#000000").ss(1,1,0,3).p("AhyhtIDlAAIAADbIjlAAg");
-	this.shape_2.setTransform(247,14.5);
-
-	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.f("#C99800").s().p("AhxBtIAAjZIDjAAIAADZg");
-	this.shape_3.setTransform(247,14.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3},{t:this.shape_2}]}).wait(15));
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(15));
 
 	// BG
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f().s("#000000").ss(1,1,0,3).p("Avdh8Ie7AAIAAD5I+7AAg");
+	this.shape_1.setTransform(99,12.5);
+
+	this.shape_2 = new cjs.Shape();
+	this.shape_2.graphics.f("#FFFFFF").s().p("AvdB9IAAj5Ie7AAIAAD5g");
+	this.shape_2.setTransform(99,12.5);
+
+	this.shape_3 = new cjs.Shape();
+	this.shape_3.graphics.f().s("#000000").ss(1,1,0,3).p("AvdolIe7AAIAARLI+7AAg");
+	this.shape_3.setTransform(99,55);
+
 	this.shape_4 = new cjs.Shape();
-	this.shape_4.graphics.f().s("#000000").ss(1,1,0,3).p("A0diQMAo7AAAIAAEhMgo7AAAg");
-	this.shape_4.setTransform(131,14.5);
+	this.shape_4.graphics.f("#FFFFFF").s().p("AvdIlIAAxKIe7AAIAARKg");
+	this.shape_4.setTransform(99,55);
 
-	this.shape_5 = new cjs.Shape();
-	this.shape_5.graphics.f("#FFFFFF").s().p("A0dCQIAAkgMAo6AAAIAAEgg");
-	this.shape_5.setTransform(131,14.5);
-
-	this.shape_6 = new cjs.Shape();
-	this.shape_6.graphics.f().s("#000000").ss(1,1,0,3).p("A0dolMAo7AAAIAARLMgo7AAAg");
-	this.shape_6.setTransform(131,55);
-
-	this.shape_7 = new cjs.Shape();
-	this.shape_7.graphics.f("#FFFFFF").s().p("A0dIlIAAxKMAo6AAAIAARKg");
-	this.shape_7.setTransform(131,55);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_5},{t:this.shape_4}]}).to({state:[{t:this.shape_7},{t:this.shape_6}]},4).wait(11));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_2},{t:this.shape_1}]}).to({state:[{t:this.shape_4},{t:this.shape_3}]},4).wait(11));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(-1,-1,264,34.7);
+p.nominalBounds = new cjs.Rectangle(-1,-1,200,27.7);
 
 
 (lib.Letter1Dropdown1 = function(mode,startPosition,loop) {
@@ -1255,82 +1248,70 @@ p.nominalBounds = new cjs.Rectangle(-1,-1,264,34.7);
 
 	// Hitarea
 	this.hitarea = new lib.BlockerButton();
-	this.hitarea.setTransform(0,0,5.24,0.58);
+	this.hitarea.setTransform(0,0,3.8,0.5);
 	new cjs.ButtonHelper(this.hitarea, 0, 1, 2, false, new lib.BlockerButton(), 3);
 
 	this.timeline.addTween(cjs.Tween.get(this.hitarea).to({_off:true},4).wait(11));
 
 	// Horizontal line
 	this.shape = new cjs.Shape();
-	this.shape.graphics.f().s("#CCCCCC").ss(1,1,0,3).p("ARMAAMgiXAAA");
-	this.shape.setTransform(118,26);
+	this.shape.graphics.f().s("#CCCCCC").ss(1,1,0,3).p("ALuAAI3bAA");
+	this.shape.setTransform(83.1,26);
 	this.shape._off = true;
 
 	this.timeline.addTween(cjs.Tween.get(this.shape).wait(4).to({_off:false},0).wait(11));
 
 	// Chosen Label
-	this.label = new cjs.Text("<label>", "24px 'Special Elite'");
+	this.label = new cjs.Text("<label>", "18px 'Special Elite'");
 	this.label.name = "label";
-	this.label.lineHeight = 26;
-	this.label.lineWidth = 226;
-	this.label.setTransform(5.2,4.7);
+	this.label.lineHeight = 20;
+	this.label.lineWidth = 150;
+	this.label.setTransform(5.2,2.7);
 
 	this.timeline.addTween(cjs.Tween.get(this.label).wait(15));
 
 	// Items
 	this.item_A = new lib.DropdownItem111();
-	this.item_A.setTransform(3,31,1,1,0,0,0,3,1);
+	this.item_A.setTransform(3,33,1,1,0,0,0,3,1);
 	new cjs.ButtonHelper(this.item_A, 0, 1, 2, false, new lib.DropdownItem111(), 3);
 
 	this.item_C = new lib.DropdownItem113();
-	this.item_C.setTransform(3,82,1,1,0,0,0,3,1);
+	this.item_C.setTransform(3,84,1,1,0,0,0,3,1);
 	new cjs.ButtonHelper(this.item_C, 0, 1, 2, false, new lib.DropdownItem113(), 3);
 
 	this.item_B = new lib.DropdownItem112();
-	this.item_B.setTransform(3,56.5,1,1,0,0,0,3,1);
+	this.item_B.setTransform(3,58.5,1,1,0,0,0,3,1);
 	new cjs.ButtonHelper(this.item_B, 0, 1, 2, false, new lib.DropdownItem112(), 3);
 
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[]}).to({state:[{t:this.item_B},{t:this.item_C},{t:this.item_A}]},4).wait(11));
 
 	// Arrow
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f("#000000").s().p("AhUgsICpAAIhUBZg");
-	this.shape_1.setTransform(247,16.6);
+	this.instance = new lib.Dropdownarrow("synched",0);
+	this.instance.setTransform(177.5,12.5,1,1,0,0,0,10,10);
 
-	this.timeline.addTween(cjs.Tween.get(this.shape_1).wait(15));
-
-	// Button BG
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f().s("#000000").ss(1,1,0,3).p("AhyhtIDlAAIAADbIjlAAg");
-	this.shape_2.setTransform(247,14.5);
-
-	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.f("#C99800").s().p("AhxBtIAAjZIDjAAIAADZg");
-	this.shape_3.setTransform(247,14.5);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_3},{t:this.shape_2}]}).wait(15));
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(15));
 
 	// BG
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f().s("#000000").ss(1,1,0,3).p("Au1h8IdrAAIAAD5I9rAAg");
+	this.shape_1.setTransform(95,12.5);
+
+	this.shape_2 = new cjs.Shape();
+	this.shape_2.graphics.f("#FFFFFF").s().p("Au1B9IAAj5IdqAAIAAD5g");
+	this.shape_2.setTransform(95,12.5);
+
+	this.shape_3 = new cjs.Shape();
+	this.shape_3.graphics.f().s("#000000").ss(1,1,0,3).p("Au1olIdrAAIAARLI9rAAg");
+	this.shape_3.setTransform(95,55);
+
 	this.shape_4 = new cjs.Shape();
-	this.shape_4.graphics.f().s("#000000").ss(1,1,0,3).p("A0diQMAo7AAAIAAEhMgo7AAAg");
-	this.shape_4.setTransform(131,14.5);
+	this.shape_4.graphics.f("#FFFFFF").s().p("Au1IlIAAxKIdqAAIAARKg");
+	this.shape_4.setTransform(95,55);
 
-	this.shape_5 = new cjs.Shape();
-	this.shape_5.graphics.f("#FFFFFF").s().p("A0dCQIAAkgMAo6AAAIAAEgg");
-	this.shape_5.setTransform(131,14.5);
-
-	this.shape_6 = new cjs.Shape();
-	this.shape_6.graphics.f().s("#000000").ss(1,1,0,3).p("A0dolMAo7AAAIAARLMgo7AAAg");
-	this.shape_6.setTransform(131,55);
-
-	this.shape_7 = new cjs.Shape();
-	this.shape_7.graphics.f("#FFFFFF").s().p("A0dIlIAAxKMAo6AAAIAARKg");
-	this.shape_7.setTransform(131,55);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_5},{t:this.shape_4}]}).to({state:[{t:this.shape_7},{t:this.shape_6}]},4).wait(11));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_2},{t:this.shape_1}]}).to({state:[{t:this.shape_4},{t:this.shape_3}]},4).wait(11));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(-1,-1,264,34.7);
+p.nominalBounds = new cjs.Rectangle(-1,-1,192,27);
 
 
 (lib.CheckBoxDobbel = function(mode,startPosition,loop) {
@@ -1449,13 +1430,13 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 
 	// Dropdowns
 	this.dropdown_A = new lib.Letter1Dropdown1();
-	this.dropdown_A.setTransform(309,54.1,1,1,0,0,0,0,0.5);
+	this.dropdown_A.setTransform(309,56.2,1,1,0,0,0,0,0.5);
 
 	this.dropdown_B = new lib.Letter1Dropdown2();
-	this.dropdown_B.setTransform(518,122.1,1,1,0,0,0,131,16.1);
+	this.dropdown_B.setTransform(362,94,1,1,0,0,0,0,0.1);
 
 	this.dropdown_C = new lib.Letter1Dropdown3();
-	this.dropdown_C.setTransform(344,446,1,1,0,0,0,131,16.6);
+	this.dropdown_C.setTransform(246,344,1,1,0,0,0,0,-0.4);
 
 	// Full screen button
 	this.fullscreenButton = new lib.BlockerButton();
@@ -1464,19 +1445,19 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 
 	// Name
 	this.realname = new lib.CharacterCardName();
-	this.realname.setTransform(216.4,467.9,1.35,1.35,0,0,0,2.6,0.7);
+	this.realname.setTransform(246.5,381.1,0.873,0.873,0,0,0,2.6,0.8);
 
 	// Text
-	this.text = new cjs.Text("Socialudvalget", "24px 'Special Elite'");
+	this.text = new cjs.Text("Socialudvalget", "18px 'Special Elite'");
 	this.text.textAlign = "center";
-	this.text.lineHeight = 26;
+	this.text.lineHeight = 20;
 	this.text.lineWidth = 620;
 	this.text.setTransform(522.8,20.1);
 
-	this.text_1 = new cjs.Text("Til det                                       sociale Udvalg\n\nUndertegnede                                       tilladelse til\nat dimittere, grundet daarlig behandling, fra\ndele af personalet. Opsynsmanden lod mig i\nLørdags høre, at jeg laa Kommunen til byrde. \nJeg arbejder hver Dag fra kl. 8. morgen til kl. 17.\naften for Kost og Logi og 50 øre om dagen.\nHan faar Kost og Logi og en stor Løn, og hanbestiller ikke stort andet end at gaa med Hænderne dybt begravet til Albuerne i Bukselommerne, og ser paa, \nat vi andre arbejder. Hvem af os to, ham eller jeg, \nsynes De ligger Kommunen mest til Byrde? Såfremt, \njeg får tilladelse til at dimittere, har jeg tænkt mig\nat søge arbejde i Tyskland.", "24px 'Special Elite'");
-	this.text_1.lineHeight = 26;
-	this.text_1.lineWidth = 684;
-	this.text_1.setTransform(213,59);
+	this.text_1 = new cjs.Text("Til det                                       sociale Udvalg\n\nUndertegnede                                       tilladelse til at dimittere,\ngrundet daarlig behandling, fra dele af personalet.\nOpsynsmanden lod mig i Lørdags høre, at jeg laa Kommunen til\nbyrde. Jeg arbejder hver Dag fra kl. 8. morgen til kl. 17. aften\nfor Kost og Logi og 50 øre om dagen. Han faar Kost og Logi og en\nstor Løn, og han bestiller ikke stort andet end at gaa med\nHænderne dybt begravet til Albuerne i Bukselommerne, og ser\npaa, at vi andre arbejder. Hvem af os to, ham eller jeg, synes De\nligger Kommunen mest til Byrde? Såfremt, jeg får tilladelse\ntil at dimittere, har jeg tænkt mig at søge arbejde i Tyskland.", "18px 'Special Elite'");
+	this.text_1.lineHeight = 20;
+	this.text_1.lineWidth = 594;
+	this.text_1.setTransform(233,59);
 
 	// Letter BG
 	this.instance = new lib.LetterWriteBG();
@@ -1569,10 +1550,6 @@ p.nominalBounds = new cjs.Rectangle(210,38,944,502);
 (lib._341PagePlayAdviceEmployee = function() {
 	this.initialize();
 
-	// Photo
-	this.portrait = new lib._341EmployeePortraitMain();
-	this.portrait.setTransform(823,261,1,1,0,0,0,201,279);
-
 	// Text
 	this.text = new cjs.Text("Få et godt råd af en ansat", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
@@ -1583,9 +1560,13 @@ p.nominalBounds = new cjs.Rectangle(210,38,944,502);
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
 
-	this.addChild(this.player,this.text,this.portrait);
+	// Photo
+	this.portrait = new lib._134EmployeePortraitMain();
+	this.portrait.setTransform(866,447,1,1,0,0,0,201,279);
+
+	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
+p.nominalBounds = new cjs.Rectangle(210,38,814,502);
 
 
 (lib._33PageGetout = function() {
