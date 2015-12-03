@@ -689,20 +689,20 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 	this.initialize();
 
 	// Layer 2
-	this.text = new cjs.Text("Point", "48px 'Special Elite'", "#FFFFFF");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 584;
-	this.text.setTransform(212,40);
+	this.text = new cjs.Text("Du bliver indespærret på\nFattiggården og mister dine\nborgerlige rettigheder", "18px 'Special Elite'");
+	this.text.lineHeight = 20;
+	this.text.lineWidth = 283;
+	this.text.setTransform(529.8,137);
 
-	this.text_1 = new cjs.Text("Du kan se frem til god og\nnærende mad på Fattiggården", "18px 'Special Elite'");
-	this.text_1.lineHeight = 20;
-	this.text_1.lineWidth = 276;
-	this.text_1.setTransform(529.8,229);
+	this.text_1 = new cjs.Text("Point", "48px 'Special Elite'", "#FFFFFF");
+	this.text_1.lineHeight = 50;
+	this.text_1.lineWidth = 584;
+	this.text_1.setTransform(212,40);
 
-	this.text_2 = new cjs.Text("Du mister dine rettigheder\npå Fattiggården", "18px 'Special Elite'");
+	this.text_2 = new cjs.Text("Du kan se frem til god og\nnærende mad på Fattiggården", "18px 'Special Elite'");
 	this.text_2.lineHeight = 20;
-	this.text_2.lineWidth = 262;
-	this.text_2.setTransform(529.8,137);
+	this.text_2.lineWidth = 276;
+	this.text_2.setTransform(529.8,229);
 
 	this.text_3 = new cjs.Text("+1", "48px 'Special Elite'", "#FFFFFF");
 	this.text_3.textAlign = "center";
@@ -739,7 +739,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 
 	this.addChild(this.instance_2,this.instance_1,this.instance,this.text_6,this.text_5,this.text_4,this.text_3,this.text_2,this.text_1,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,40,601.8,276);
+p.nominalBounds = new cjs.Rectangle(212,40,605,276);
 
 
 (lib.OpenionCloseups = function(mode,startPosition,loop) {
@@ -1649,13 +1649,19 @@ p.nominalBounds = new cjs.Rectangle(210,38,806,607);
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
 
+	// Text
+	this.text = new cjs.Text("Du vil gerne ud...", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 800;
+	this.text.setTransform(210,38);
+
 	// Layer 2
 	this.portrait = new lib.OpenionCloseups();
 	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
 
-	this.addChild(this.portrait,this.player);
+	this.addChild(this.portrait,this.text,this.player);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 (lib._121PageWork = function() {

@@ -19,15 +19,7 @@ lib.properties = {
 		{src:"../../../assets/images/pool/_1_0BGhorsens.jpg", id:"_1_0BGhorsens"},
 		{src:"../../../assets/images/pool/_1_0BGsundholm.jpg", id:"_1_0BGsundholm"},
 		{src:"../../../assets/images/pool/_1_0BGsvendborg.jpg", id:"_1_0BGsvendborg"},
-		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
-		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
-		{src:"../../../assets/images/pool/AFCloseUp.png", id:"AFCloseUp"},
-		{src:"../../../assets/images/pool/BDCloseUp.png", id:"BDCloseUp"},
-		{src:"../../../assets/images/pool/BECloseUp.png", id:"BECloseUp"},
-		{src:"../../../assets/images/pool/BFCloseUp.png", id:"BFCloseUp"},
-		{src:"../../../assets/images/pool/CDCloseUp.png", id:"CDCloseUp"},
-		{src:"../../../assets/images/pool/CECloseUp.png", id:"CECloseUp"},
-		{src:"../../../assets/images/pool/CFCloseUp.png", id:"CFCloseUp"},
+		{src:"../../../assets/images/pool/ansat_2.png", id:"ansat_2"},
 		{src:"../../../assets/images/pool/CharacterCardChallenge0001.png", id:"CharacterCardChallenge0001"},
 		{src:"../../../assets/images/pool/CharacterCardChallenge0002.png", id:"CharacterCardChallenge0002"},
 		{src:"../../../assets/images/pool/CharacterCardChallenge0003.png", id:"CharacterCardChallenge0003"},
@@ -44,6 +36,9 @@ lib.properties = {
 		{src:"../../../assets/images/pool/CharacterCardNickame0004.png", id:"CharacterCardNickame0004"},
 		{src:"../../../assets/images/pool/CharacterCardNickame0005.png", id:"CharacterCardNickame0005"},
 		{src:"../../../assets/images/pool/CharacterCardNickame0006.png", id:"CharacterCardNickame0006"},
+		{src:"../../../assets/images/pool/datter.png", id:"datter"},
+		{src:"../../../assets/images/pool/indsat_3.png", id:"indsat_3"},
+		{src:"../../../assets/images/pool/kone.png", id:"kone"},
 		{src:"../../../assets/images/pool/Page04CharacterText0001.png", id:"Page04CharacterText0001"},
 		{src:"../../../assets/images/pool/Page04CharacterText0002.png", id:"Page04CharacterText0002"},
 		{src:"../../../assets/images/pool/Page04CharacterText0003.png", id:"Page04CharacterText0003"},
@@ -132,56 +127,8 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib.ADCloseUp = function() {
-	this.initialize(img.ADCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.AECloseUp = function() {
-	this.initialize(img.AECloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.AFCloseUp = function() {
-	this.initialize(img.AFCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.BDCloseUp = function() {
-	this.initialize(img.BDCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.BECloseUp = function() {
-	this.initialize(img.BECloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.BFCloseUp = function() {
-	this.initialize(img.BFCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.CDCloseUp = function() {
-	this.initialize(img.CDCloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.CECloseUp = function() {
-	this.initialize(img.CECloseUp);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
-
-
-(lib.CFCloseUp = function() {
-	this.initialize(img.CFCloseUp);
+(lib.ansat_2 = function() {
+	this.initialize(img.ansat_2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
@@ -280,6 +227,24 @@ p.nominalBounds = new cjs.Rectangle(0,0,212,28);
 	this.initialize(img.CharacterCardNickame0006);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,212,28);
+
+
+(lib.datter = function() {
+	this.initialize(img.datter);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+
+
+(lib.indsat_3 = function() {
+	this.initialize(img.indsat_3);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,540,453);
+
+
+(lib.kone = function() {
+	this.initialize(img.kone);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,402,558);
 
 
 (lib.Page04CharacterText0001 = function() {
@@ -433,7 +398,7 @@ p.nominalBounds = new cjs.Rectangle(0.4,8,754.6,36);
 
 
 (lib.OpenionCloseups = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"AD":0,"AE":1,"AF":2,"BD":3,"BE":4,"BF":5,"CD":6,"CE":7,"CF":8});
+if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{"AD":0,"AE":1,"AF":2,"BD":3,"BE":4,"BF":5,"CD":6,"CE":7,"CF":8});
 
 	// timeline functions:
 	this.frame_0 = function() {
@@ -443,29 +408,31 @@ p.nominalBounds = new cjs.Rectangle(0.4,8,754.6,36);
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(9));
 
+	// Mask (mask)
+	var mask = new cjs.Shape();
+	mask._off = true;
+	mask.graphics.p("EghlArlMAAAhUWMBDLAAAMAAABUWg");
+	mask.setTransform(188,279);
+
 	// Content
-	this.instance = new lib.ADCloseUp();
+	this.instance = new lib.ansat_2();
+	this.instance.setTransform(2,0);
 
-	this.instance_1 = new lib.AECloseUp();
+	this.instance_1 = new lib.datter();
+	this.instance_1.setTransform(2,0);
 
-	this.instance_2 = new lib.AFCloseUp();
+	this.instance_2 = new lib.kone();
+	this.instance_2.setTransform(2,0);
 
-	this.instance_3 = new lib.BDCloseUp();
+	this.instance_3 = new lib.indsat_3();
+	this.instance_3.setTransform(15,105);
 
-	this.instance_4 = new lib.BECloseUp();
+	this.instance.mask = this.instance_1.mask = this.instance_2.mask = this.instance_3.mask = mask;
 
-	this.instance_5 = new lib.BFCloseUp();
-
-	this.instance_6 = new lib.CDCloseUp();
-
-	this.instance_7 = new lib.CECloseUp();
-
-	this.instance_8 = new lib.CFCloseUp();
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).to({state:[{t:this.instance_4}]},1).to({state:[{t:this.instance_5}]},1).to({state:[{t:this.instance_6}]},1).to({state:[{t:this.instance_7}]},1).to({state:[{t:this.instance_8}]},1).wait(1));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance}]},1).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_3}]},1).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_3}]},1).wait(1));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,402,558);
+p.nominalBounds = new cjs.Rectangle(2,18,401,540);
 
 
 (lib.InfoButton = function(mode,startPosition,loop) {
@@ -1444,7 +1411,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 
 	this.addChild(this.instance,this.portrait,this.player,this.charactertext,this.playerlabel);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,-18,1024,558);
+p.nominalBounds = new cjs.Rectangle(0,-18,1025,558);
 
 
 (lib._01IntroMain = function() {

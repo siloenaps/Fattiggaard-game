@@ -719,18 +719,30 @@ FlowPoorhouse.prototype.backToPoorhouse = function(trigger) {
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_8);
 
+	// Get sound
+	var sound = SoundService.matrix['1.8'];
+
 	// Pages in/out
 	var previousPage = this.currentPage;
-	this.currentPage = this.view.backtopoorhouse;
+	this.currentPage = this.view.prerecruitment;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
 
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.currentPage.portrait.gotoAndStop(frm);
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
-	// Next button
-	this.continueBtn.activate('next');
+	// Next bnutton
+	this.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.preRecruitment = function(trigger) {
 	'use strict';

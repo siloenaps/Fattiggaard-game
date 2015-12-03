@@ -69,6 +69,7 @@ SoundService.matrix = {
 	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
 	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
 	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },	
+	'1.8': { label:'arrested', src:SoundService.properties.basePath+'1.8.mp3', duration: 37.908 },	
 	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
 	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 },
 	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
