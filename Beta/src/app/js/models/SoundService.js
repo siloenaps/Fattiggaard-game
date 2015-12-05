@@ -81,7 +81,7 @@ SoundService.matrix = {
 	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
 	
 	slides: {
-				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
+				'slide_0_1': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
 				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
 				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
 				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
@@ -101,7 +101,7 @@ SoundService.matrix = {
 				
 				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
 			},
-	oppinion: { // 0.4
+	'0.4': { // oppinion
 			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
 			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
 			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },

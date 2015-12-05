@@ -51,15 +51,50 @@ var FlowManager = {
 					// To intro
 					self.gotoPage('0.1');
 					// self.gotoPage('1.0.1'); // TEST
-				};	
-			
+				};				
 			break;
-			case '0.1':
+
+			// break;
+			case '0.1':	
+				// Intro	
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				try{
+					Topbar.init(this.topbar.mainClip);
+					Topbar.go('intro');
+				}catch(err){
+					console.log(err);
+				}
+
+				this.currentPage = null;
+				this.currentPage = new PageIntroSlide(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start('0.1', 'slide_0_1');
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('0.2');
+				}, this);
+				// Tick.disable();
+			break;
+
+			case '0.2':
 				// Proloque
 				// Topbar
 				try{
 					Topbar.init(this.topbar.mainClip);
-					Topbar.hide();
+					Topbar.go('intro');
 				}catch(err){
 					console.log(err);
 				}
@@ -69,17 +104,17 @@ var FlowManager = {
 
 				// Go to start frame
 				this.root.gotoAndStop('start');
-				this.currentPage = new FlowProloque(this.root.pagecontainer);
+				this.currentPage = new FlowPrologue(this.root.pagecontainer);
 				this.currentPage.start(); 
 
 				// Blocker
-				FlowProloque.on('ready', function(event){
+				this.currentPage.on('ready', function(event){
 					event.remove();					
 					self.root.blocker_black.visible = false;
 				}, this);
 
 				// Button to next page
-				FlowProloque.on('continue', function(event){
+				this.currentPage.on('continue', function(event){
 					event.remove();
 					Library.clearSlide();
 					Library.clearGame();
@@ -98,7 +133,7 @@ var FlowManager = {
 				Topbar.go('game');
 
 				this.currentPage = null;
-				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage = new PageIntroSlide(this.root.pagecontainer); // Id references to flow id '0.1'
 				this.currentPage.start('1.0.1', 'slide_1_0_1');
 
 				// Blocker
@@ -207,7 +242,7 @@ var FlowManager = {
 				}				
 
 				this.currentPage = null;
-				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage = new PageIntroSlide(this.root.pagecontainer); // Id references to flow id '0.1'
 				// this.currentPage.setPortrait(ImageService.matrix.portrait['AD']);
 				this.currentPage.start('3.0', 'slide_3_0');	
 

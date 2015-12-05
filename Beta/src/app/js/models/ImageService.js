@@ -16,6 +16,7 @@ ImageService.matrix = {
 		'CE': { id: 'CECloseUp', label:'background', src:ImageService.properties.basePath+'CECloseUp.png'},
 		'CF': { id: 'CFCloseUp', label:'background', src:ImageService.properties.basePath+'CFCloseUp.png'}
 	},
+	'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_0_1BG.jpg'},
 	'1.0.1': {
 		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
 		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
