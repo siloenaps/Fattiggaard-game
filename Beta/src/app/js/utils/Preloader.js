@@ -8,11 +8,11 @@ var Preloader = {
 		this.id++;
 
 		(factor === undefined) ? this.factor = 1 : this.factor = factor;
-		(clss === undefined) ? clss = 'center': //nothing;
+		if(clss === undefined) clss = 'small';
 
 		// clss = 'center'
 		// console.log('factor:', this.factor)
-		console.log('clss:', clss)
+		// console.log('clss:', clss)
 		// clss = 'small'
 		
 		// If nothing to load exit 
@@ -57,7 +57,7 @@ var Preloader = {
 	},
 	add: function(clss){
 		'use strict';
-		console.log('add:', clss);
+		// console.log('add:', clss);
 		$('.preload-wrapper').removeClass('hide');
 		$('.preload-wrapper').addClass('show');
 		$('.preload-wrapper').addClass(clss);

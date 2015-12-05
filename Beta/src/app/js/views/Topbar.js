@@ -9,7 +9,7 @@ var Topbar = {
 		this.view = view;		
 	},
 	go: function(frm){
-		console.log(this.view);
+		// console.log('Topbar:',this.view);
 		// this.view.label_intro.x = 564 + 300;
 		// createjs.Tween.get(this.view.label_intro)
 		// 	.to({x:564}, 300, createjs.Ease.backIn);
