@@ -49,30 +49,31 @@ FlowGermany2.prototype.setup = function(){
 	this.flow.addAction('4.6.3', Delegate.create(this.points4, this), '4.7_split');
 	this.flow.addAction('4.7', Delegate.create(this.warProgresses, this), '4.10.1');
 	this.flow.addAction('4.7_split', Delegate.create(this.statsSplit, this), {type: 'health', threshold:4, triggers:['4.10.4', '4.10.1']});
-	this.flow.addAction('4.11', 
-				Delegate.create(
-					Flow.statsSplit, this), {
-												type: 'health',
-												threshold:4, 
-												value: PlayerStats.health,
-												triggers:['4.10.4', '4.10.1'], 
-												callback: Delegate.create(this.next, this)
-											}
-								);
 	this.flow.addAction('4.10.1', Delegate.create(this.theBomb, this), '4.10.2');
 	this.flow.addAction('4.10.2', Delegate.create(this.choose1, this), '4.10.3');
 	this.flow.addAction('4.10.3', Delegate.create(this.points5, this), '4.10.7');
 	this.flow.addAction('4.10.4', Delegate.create(this.illness, this), '4.10.5');
 	this.flow.addAction('4.10.5', Delegate.create(this.choose2, this), '4.10.6');
 	this.flow.addAction('4.10.6', Delegate.create(this.points6, this), '4.10.7');
-	this.flow.addAction('4.10.7', Delegate.create(this.goingHome, this), '4.11');
-	this.flow.addAction('4.11', Delegate.create(
+	this.flow.addAction('4.10.7', Delegate.create(this.goingHome, this), 'end');
+	this.flow.addAction('end', Delegate.create(
 		function(){
 			self.removeEvents();
 			self.dispatchEvent(new createjs.Event('continue'));
 		}, this)
 	);
 
+
+	// this.flow.addAction('4.11', 
+	// 			Delegate.create(
+	// 				Flow.statsSplit, this), {
+	// 											type: 'health',
+	// 											threshold:4, 
+	// 											value: PlayerStats.health,
+	// 											triggers:['4.10.4', '4.10.1'], 
+	// 											callback: Delegate.create(this.next, this)
+	// 										}
+	// 							);
 
 	try{
 		// Load files for flow	
@@ -627,7 +628,7 @@ FlowGermany2.prototype.choose1 = function(trigger) {
 		Delegate.create(function(vo){
 
 			// Choice
-			PlayerStats.choiceEndGermany = vo.value;
+			PlayerStats['4.10.2'] = vo.value;
 
 			// Only first time a checkbox is clicked
 			if(vo.clicked === 1){
@@ -650,7 +651,7 @@ FlowGermany2.prototype.points5 = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
-	var previousChoice = PlayerStats.choiceEndGermany;
+	var previousChoice = PlayerStats['4.10.2'];
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -694,7 +695,7 @@ FlowGermany2.prototype.choose2 = function(trigger) {
 		Delegate.create(function(vo){
 
 			// Choice
-			PlayerStats.choiceEndGermany = vo.value;
+			PlayerStats['4.10.5'] = vo.value;
 
 			// Only first time a checkbox is clicked
 			if(vo.clicked === 1){
@@ -717,7 +718,7 @@ FlowGermany2.prototype.points6 = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
-	var previousChoice = PlayerStats.choiceEndGermany;
+	var previousChoice = PlayerStats['4.10.5'];
 
 	// Pages in/out
 	var previousPage = this.currentPage;

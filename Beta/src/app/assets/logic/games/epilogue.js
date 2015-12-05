@@ -389,6 +389,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 (lib._4113PageRunAway = function() {
 	this.initialize();
 
+	// Layer 2
+	this.text = new cjs.Text("Efterskrift…", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 800;
+	this.text.setTransform(210,38);
+
 	// Player
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,149,1,1,0,0,0,289.5,17);
@@ -397,14 +403,20 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 	this.portrait = new lib.OpenionCloseups();
 	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
 
-	this.addChild(this.portrait,this.player);
+	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 (lib._4112PageIllness = function() {
 	this.initialize();
 
+	// Layer 2
+	this.text = new cjs.Text("Efterskrift…", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 800;
+	this.text.setTransform(210,38);
+
 	// Player
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,149,1,1,0,0,0,289.5,17);
@@ -413,14 +425,20 @@ p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
 	this.portrait = new lib.OpenionCloseups();
 	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
 
-	this.addChild(this.portrait,this.player);
+	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 (lib._4111PageCompensation = function() {
 	this.initialize();
 
+	// Layer 2
+	this.text = new cjs.Text("Efterskrift…", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 800;
+	this.text.setTransform(210,38);
+
 	// Player
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,149,1,1,0,0,0,289.5,17);
@@ -429,9 +447,9 @@ p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
 	this.portrait = new lib.OpenionCloseups();
 	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
 
-	this.addChild(this.portrait,this.player);
+	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 // stage content:

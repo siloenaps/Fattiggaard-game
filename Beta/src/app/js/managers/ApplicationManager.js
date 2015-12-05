@@ -42,7 +42,7 @@ var ApplicationManager = {
 
 		// Go to start
 		FlowManager.gotoPage('0.0');
-		// FlowManager.gotoPage('0.1');
+		// FlowManager.gotoPage('4.0');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},

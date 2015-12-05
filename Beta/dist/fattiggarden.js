@@ -574,6 +574,293 @@ ButtonCustom.prototype.destroy = function(){
 }
 
 createjs.EventDispatcher.initialize(ButtonCustom.prototype);
+var PageIntroSlide = function(container){
+	'use strict';
+	this.container = container;
+	this.id = null; 
+	this.view = null;	
+	this.lib = null;
+	this.slideLib = null;
+	this.playerComponent = null;
+	this.listeners = {};
+	this.trigger = 'start'; 
+	this.currentPage = null;
+	this.currentBackground = null;
+	this.groups = {};
+	// this.portrait = null;
+
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost('skip');
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+};
+PageIntroSlide.prototype.setPortrait = function(image){
+	this.portrait = image;
+}
+PageIntroSlide.prototype.start = function(flowId, slideName){
+	this.id = PlayerStats.poorhouse;
+	this.flowId = flowId;
+	this.slideName = slideName;
+
+	var gameFile;
+
+	console.log('PageIntroSlide:start', slideName+'.js');
+	console.log('PageIntroSlide', this.runonce, slideName+'.js');
+
+	LoadJS.load(
+		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
+		Delegate.create(this.setup, this)
+	);
+};
+PageIntroSlide.prototype.setup = function(){
+	'use strict';
+	console.log('PageIntroSlide::setup:runonce', this.runonce);
+
+	if(this.runonce != null)
+		return;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	// Tick
+	Tick.framerate(15);
+
+	var self = this;
+	var manifest, Clss;	
+
+	// Setup flow
+	this.flow = new SubFlowController();
+	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
+	this.flow.addAction('end', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
+	console.log('PageIntroSlide::setup:flowId', this.flowId);
+	this.lib = gamelib;
+	this.slideLib = slidelib;
+	Clss = this.lib.poorhouse_intro;
+	manifest = this.lib.properties.manifest;
+
+	try{
+		// Background image
+		if(this.flowId === '0.1'){
+			this.bgImage = ImageService.matrix[this.flowId];
+		}else{
+			this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';			
+		}
+		manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
+		
+
+	}catch(err){
+		console.log(PlayerStats.poorhouse, this.bgImage);
+		console.log(err);
+	}	
+	
+	// Load files
+	var onFileLoad = function(event){
+		if (event.item.type === 'image') { 
+			console.log(event.item.id, event.result);
+			images[event.item.id] = event.result; 
+		}
+	};
+	var onLoadComplete = function(event){
+		// Instantiate view
+		self.view = new Clss();
+
+		//Add
+		self.container.addChild(self.view);
+
+		// Set start page
+		self.next();
+
+		console.log('PageIntroSlide:onLoadComplete');
+		self.dispatchEvent(new createjs.Event('ready'));
+	};
+	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+	console.log('manifest:', manifest);
+};
+PageIntroSlide.prototype.next = function(){
+	'use strict';
+	this.flow.next(this.trigger);	
+};
+PageIntroSlide.prototype.onComplete = function(event) {
+	'use strict';
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+	}
+
+	// Set next button active
+	this.continueBtn.activate('next');	
+};
+PageIntroSlide.prototype.onContinue = function(event) {
+	'use strict';
+	
+	console.log('PageIntroSlide::onContinue');
+	
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
+
+	this.next();
+
+	// console.log('this.playerComponent:', this.playerComponent)
+};
+PageIntroSlide.prototype.removeEvents = function() {
+	'use strict';
+	
+	// Remove events
+	this.continueBtn.off('click', this.listeners.continue);
+	this.listeners.continue = null;
+};
+PageIntroSlide.prototype.destroy = function() {
+	'use strict';
+	
+	// Remove events
+	this.removeEvents();
+
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+		this.playerComponent.destroy();	
+		this.playerComponent = null;
+	}			
+	this.view = null;
+	this.lib = null;
+	this.currentPage = null;
+	this.listeners = null;
+	this.flow = null;
+};
+PageIntroSlide.prototype.intro = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set page view
+	this.currentPage = this.view.intro;
+	this.currentPage.x = 0;
+
+	// Set background
+	this.view.bg_container.x = 0;
+
+	// Background
+	var bitmap = new createjs.Bitmap(this.bgImage.src);	
+	this.view.bg_container.addChild(bitmap);
+
+	// Slide. Loading is self contained
+	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+	this.listeners.complete = self.playerComponent.on('complete', function(event){
+		console.log('PageIntroSlide::complete');
+		self.continueBtn.activate('next');
+		Tick.disable();
+	}, self);
+	this.playerComponent.on('ready', function(event){
+		event.remove();		
+		self.continueBtn.activate("skip");
+		// self.dispatchEvent(new createjs.Event('ready'));
+		console.log('PageIntroSlide::ready');
+		// No tick
+		// Tick.disable();
+		console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
+	});
+	// console.log(this.slideLib)
+	this.playerComponent.preload(this.slideName, this.slideLib);
+	
+};
+createjs.EventDispatcher.initialize(PageIntroSlide.prototype);
+
+
+
+var PageIntro = function(view, id){
+	'use strict';
+	//console.log("view.player:", view.player);
+	this.view = view;
+	this.id = id;
+	this.lib = null;
+	this.listeners = {};
+	this.playerComponent = new PlayerSliderComponent(view.player);
+	
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost("skip");
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
+};
+PageIntro.prototype.start = function() {
+	'use strict';
+	LoadJS.load(
+		'../assets/logic/slides/'+"slide_"+this.id+".js", 
+		Delegate.create(this.setup, this)
+	);
+	// Allow tick
+	Tick.enable();
+};
+PageIntro.prototype.setup = function() {
+	'use strict';
+	if(this.runonce != null)
+		return;
+
+	var self = this;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	try{
+		this.lib = slidelib;
+		this.playerComponent.on('ready', function(event){
+			event.remove();
+			// No tick
+			Tick.disable();
+			self.continueBtn.activate("skip");
+			// self.dispatchEvent(new createjs.Event('ready'));
+		});
+		this.playerComponent.preload("slide_"+this.id, this.lib);
+		this.lib = null;
+	}catch(err) {
+   		console.log(err);
+   	}
+};
+PageIntro.prototype.onContinue = function(event) {
+	'use strict';
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.listeners.continue = null;
+
+	// Stop Player
+	if(this.playerComponent !== undefined){
+		this.playerComponent.stop();
+	}
+
+	this.dispatchEvent(new createjs.Event('continue'));
+
+	this.destroy();
+};
+PageIntro.prototype.onComplete = function(event) {
+	'use strict';
+	this.playerComponent.off('complete', this.listeners.complete);	
+	this.listeners.complete = null;
+
+	// Set next button active
+	this.continueBtn.activate("next");
+};
+PageIntro.prototype.destroy = function() {
+	'use strict';
+	if(this.playerComponent != null){
+		this.playerComponent.destroy();	
+	}
+	this.playerComponent = null;
+	this.view = null;
+	this.lib = null;
+};
+createjs.EventDispatcher.initialize(PageIntro.prototype);
 var SubFlowController = function(){
 	'use strict';
 
@@ -2702,30 +2989,31 @@ FlowGermany2.prototype.setup = function(){
 	this.flow.addAction('4.6.3', Delegate.create(this.points4, this), '4.7_split');
 	this.flow.addAction('4.7', Delegate.create(this.warProgresses, this), '4.10.1');
 	this.flow.addAction('4.7_split', Delegate.create(this.statsSplit, this), {type: 'health', threshold:4, triggers:['4.10.4', '4.10.1']});
-	this.flow.addAction('4.11', 
-				Delegate.create(
-					Flow.statsSplit, this), {
-												type: 'health',
-												threshold:4, 
-												value: PlayerStats.health,
-												triggers:['4.10.4', '4.10.1'], 
-												callback: Delegate.create(this.next, this)
-											}
-								);
 	this.flow.addAction('4.10.1', Delegate.create(this.theBomb, this), '4.10.2');
 	this.flow.addAction('4.10.2', Delegate.create(this.choose1, this), '4.10.3');
 	this.flow.addAction('4.10.3', Delegate.create(this.points5, this), '4.10.7');
 	this.flow.addAction('4.10.4', Delegate.create(this.illness, this), '4.10.5');
 	this.flow.addAction('4.10.5', Delegate.create(this.choose2, this), '4.10.6');
 	this.flow.addAction('4.10.6', Delegate.create(this.points6, this), '4.10.7');
-	this.flow.addAction('4.10.7', Delegate.create(this.goingHome, this), '4.11');
-	this.flow.addAction('4.11', Delegate.create(
+	this.flow.addAction('4.10.7', Delegate.create(this.goingHome, this), 'end');
+	this.flow.addAction('end', Delegate.create(
 		function(){
 			self.removeEvents();
 			self.dispatchEvent(new createjs.Event('continue'));
 		}, this)
 	);
 
+
+	// this.flow.addAction('4.11', 
+	// 			Delegate.create(
+	// 				Flow.statsSplit, this), {
+	// 											type: 'health',
+	// 											threshold:4, 
+	// 											value: PlayerStats.health,
+	// 											triggers:['4.10.4', '4.10.1'], 
+	// 											callback: Delegate.create(this.next, this)
+	// 										}
+	// 							);
 
 	try{
 		// Load files for flow	
@@ -3280,7 +3568,7 @@ FlowGermany2.prototype.choose1 = function(trigger) {
 		Delegate.create(function(vo){
 
 			// Choice
-			PlayerStats.choiceEndGermany = vo.value;
+			PlayerStats['4.10.2'] = vo.value;
 
 			// Only first time a checkbox is clicked
 			if(vo.clicked === 1){
@@ -3303,7 +3591,7 @@ FlowGermany2.prototype.points5 = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
-	var previousChoice = PlayerStats.choiceEndGermany;
+	var previousChoice = PlayerStats['4.10.2'];
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -3347,7 +3635,7 @@ FlowGermany2.prototype.choose2 = function(trigger) {
 		Delegate.create(function(vo){
 
 			// Choice
-			PlayerStats.choiceEndGermany = vo.value;
+			PlayerStats['4.10.5'] = vo.value;
 
 			// Only first time a checkbox is clicked
 			if(vo.clicked === 1){
@@ -3370,7 +3658,7 @@ FlowGermany2.prototype.points6 = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
-	var previousChoice = PlayerStats.choiceEndGermany;
+	var previousChoice = PlayerStats['4.10.5'];
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -4129,7 +4417,7 @@ var FlowEpilogue = function(container){
 		currentPage:null,
 		container: container,
 		view: null,
-		trigger: '4.11', // Default start pointer
+		trigger: null, // Default start pointer
 		continueBtn: ContinueButton,
 		listeners: {},
 		start: function(){
@@ -4142,8 +4430,25 @@ var FlowEpilogue = function(container){
 			this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 
 			this.id = 'epilogue';//PlayerStats.poorhouse;
+			
+			// PlayerStats['4.10.2']
+			if(PlayerStats['4.10.2'] !== null && PlayerStats['4.10.2'] !== undefined){
+				if(PlayerStats['4.10.2'] === 'A'){
+					this.trigger = '4.11.3';
+				}else
+				if(PlayerStats['4.10.2'] === 'B'){
+					this.trigger = '4.11.1';
+				}
 
-			// // console.log('FlowEpilogue:start', this.container);
+			// PlayerStats['4.10.5']
+			}else{
+				if(PlayerStats['4.10.5'] === 'A'){
+					this.trigger = '4.11.2';
+				}else
+				if(PlayerStats['4.10.5'] === 'B'){
+					this.trigger = '4.11.4';
+				}
+			}
 
 			LoadJS.load(
 				['../assets/logic/games/epilogue.js'], 
@@ -4167,20 +4472,11 @@ var FlowEpilogue = function(container){
 
 			// Setup flow
 			this.flow = new SubFlowController();
-			// console.log('setup: ', this.flow);
-			this.flow.addAction('4.11', 
-				Delegate.create(
-					Flow.statsSplit, this), {
-												type: 'bool',
-												threshold:false, 
-												value: PlayerStats.bomb,
-												triggers:['4.11.1', '4.11.2'], 
-												callback: Delegate.create(this.next, this)
-											}
-								);
-			this.flow.addAction('4.11.2', Delegate.create(this.illness, this), '4.11.3');
-			this.flow.addAction('4.11.3', Delegate.create(this.runAway, this), '4.11.4');
-			this.flow.addAction('4.11.4', Delegate.create(this.hippopotimus, this), 'end');
+			this.flow.addAction('4.11.1', Delegate.create(this.compensation, this), '4.12');
+			this.flow.addAction('4.11.2', Delegate.create(this.illness, this), '4.12');
+			this.flow.addAction('4.11.3', Delegate.create(this.runAway, this), '4.12');
+			this.flow.addAction('4.11.4', Delegate.create(this.hippopotimus, this), '4.12');
+			this.flow.addAction('4.12', Delegate.create(this.outro, this), 'end');
 			this.flow.addAction('end', Delegate.create(
 				function(){
 					self.removeEvents();
@@ -4424,296 +4720,22 @@ var FlowEpilogue = function(container){
 			this.continueBtn.ghost('skip');
 		},
 
+		outro: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
+
+			// Next
+			this.continueBtn.ghost('skip');
+		},
+
 
 	};	
 }
-var PageIntroSlide = function(container){
-	'use strict';
-	this.container = container;
-	this.id = null; 
-	this.view = null;	
-	this.lib = null;
-	this.slideLib = null;
-	this.playerComponent = null;
-	this.listeners = {};
-	this.trigger = 'start'; 
-	this.currentPage = null;
-	this.currentBackground = null;
-	this.groups = {};
-	// this.portrait = null;
-
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost('skip');
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
-};
-PageIntroSlide.prototype.setPortrait = function(image){
-	this.portrait = image;
-}
-PageIntroSlide.prototype.start = function(flowId, slideName){
-	this.id = PlayerStats.poorhouse;
-	this.flowId = flowId;
-	this.slideName = slideName;
-
-	var gameFile;
-
-	console.log('PageIntroSlide:start', slideName+'.js');
-	console.log('PageIntroSlide', this.runonce, slideName+'.js');
-
-	LoadJS.load(
-		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
-		Delegate.create(this.setup, this)
-	);
-};
-PageIntroSlide.prototype.setup = function(){
-	'use strict';
-	console.log('PageIntroSlide::setup:runonce', this.runonce);
-
-	if(this.runonce != null)
-		return;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	// Tick
-	Tick.framerate(15);
-
-	var self = this;
-	var manifest, Clss;	
-
-	// Setup flow
-	this.flow = new SubFlowController();
-	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
-	this.flow.addAction('end', Delegate.create(
-		function(){
-			self.removeEvents();
-			self.dispatchEvent(new createjs.Event('continue'));
-		}, this)
-	);
-
-	console.log('PageIntroSlide::setup:flowId', this.flowId);
-	this.lib = gamelib;
-	this.slideLib = slidelib;
-	Clss = this.lib.poorhouse_intro;
-	manifest = this.lib.properties.manifest;
-
-	try{
-		// Background image
-		if(this.flowId === '0.1'){
-			this.bgImage = ImageService.matrix[this.flowId];
-		}else{
-			this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';			
-		}
-		manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
-		
-
-	}catch(err){
-		console.log(PlayerStats.poorhouse, this.bgImage);
-		console.log(err);
-	}	
-	
-	// Load files
-	var onFileLoad = function(event){
-		if (event.item.type === 'image') { 
-			console.log(event.item.id, event.result);
-			images[event.item.id] = event.result; 
-		}
-	};
-	var onLoadComplete = function(event){
-		// Instantiate view
-		self.view = new Clss();
-
-		//Add
-		self.container.addChild(self.view);
-
-		// Set start page
-		self.next();
-
-		console.log('PageIntroSlide:onLoadComplete');
-		self.dispatchEvent(new createjs.Event('ready'));
-	};
-	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-	console.log('manifest:', manifest);
-};
-PageIntroSlide.prototype.next = function(){
-	'use strict';
-	this.flow.next(this.trigger);	
-};
-PageIntroSlide.prototype.onComplete = function(event) {
-	'use strict';
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-	}
-
-	// Set next button active
-	this.continueBtn.activate('next');	
-};
-PageIntroSlide.prototype.onContinue = function(event) {
-	'use strict';
-	
-	console.log('PageIntroSlide::onContinue');
-	
-	// Stop player if any
-	if(this.playerComponent != null){
-		this.playerComponent.stop();
-	}
-
-	this.next();
-
-	// console.log('this.playerComponent:', this.playerComponent)
-};
-PageIntroSlide.prototype.removeEvents = function() {
-	'use strict';
-	
-	// Remove events
-	this.continueBtn.off('click', this.listeners.continue);
-	this.listeners.continue = null;
-};
-PageIntroSlide.prototype.destroy = function() {
-	'use strict';
-	
-	// Remove events
-	this.removeEvents();
-
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-		this.playerComponent.destroy();	
-		this.playerComponent = null;
-	}			
-	this.view = null;
-	this.lib = null;
-	this.currentPage = null;
-	this.listeners = null;
-	this.flow = null;
-};
-PageIntroSlide.prototype.intro = function(trigger){
-	'use strict';
-
-	// Next move
-	this.trigger = trigger;
-
-	var self = this;
-
-	// Set page view
-	this.currentPage = this.view.intro;
-	this.currentPage.x = 0;
-
-	// Set background
-	this.view.bg_container.x = 0;
-
-	// Background
-	var bitmap = new createjs.Bitmap(this.bgImage.src);	
-	this.view.bg_container.addChild(bitmap);
-
-	// Slide. Loading is self contained
-	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-	this.listeners.complete = self.playerComponent.on('complete', function(event){
-		console.log('PageIntroSlide::complete');
-		self.continueBtn.activate('next');
-		Tick.disable();
-	}, self);
-	this.playerComponent.on('ready', function(event){
-		event.remove();		
-		self.continueBtn.activate("skip");
-		// self.dispatchEvent(new createjs.Event('ready'));
-		console.log('PageIntroSlide::ready');
-		// No tick
-		// Tick.disable();
-		console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
-	});
-	// console.log(this.slideLib)
-	this.playerComponent.preload(this.slideName, this.slideLib);
-	
-};
-createjs.EventDispatcher.initialize(PageIntroSlide.prototype);
-
-
-
-var PageIntro = function(view, id){
-	'use strict';
-	//console.log("view.player:", view.player);
-	this.view = view;
-	this.id = id;
-	this.lib = null;
-	this.listeners = {};
-	this.playerComponent = new PlayerSliderComponent(view.player);
-	
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost("skip");
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
-};
-PageIntro.prototype.start = function() {
-	'use strict';
-	LoadJS.load(
-		'../assets/logic/slides/'+"slide_"+this.id+".js", 
-		Delegate.create(this.setup, this)
-	);
-	// Allow tick
-	Tick.enable();
-};
-PageIntro.prototype.setup = function() {
-	'use strict';
-	if(this.runonce != null)
-		return;
-
-	var self = this;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	try{
-		this.lib = slidelib;
-		this.playerComponent.on('ready', function(event){
-			event.remove();
-			// No tick
-			Tick.disable();
-			self.continueBtn.activate("skip");
-			// self.dispatchEvent(new createjs.Event('ready'));
-		});
-		this.playerComponent.preload("slide_"+this.id, this.lib);
-		this.lib = null;
-	}catch(err) {
-   		console.log(err);
-   	}
-};
-PageIntro.prototype.onContinue = function(event) {
-	'use strict';
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.listeners.continue = null;
-
-	// Stop Player
-	if(this.playerComponent !== undefined){
-		this.playerComponent.stop();
-	}
-
-	this.dispatchEvent(new createjs.Event('continue'));
-
-	this.destroy();
-};
-PageIntro.prototype.onComplete = function(event) {
-	'use strict';
-	this.playerComponent.off('complete', this.listeners.complete);	
-	this.listeners.complete = null;
-
-	// Set next button active
-	this.continueBtn.activate("next");
-};
-PageIntro.prototype.destroy = function() {
-	'use strict';
-	if(this.playerComponent != null){
-		this.playerComponent.destroy();	
-	}
-	this.playerComponent = null;
-	this.view = null;
-	this.lib = null;
-};
-createjs.EventDispatcher.initialize(PageIntro.prototype);
 (function (lib, img, cjs, ss) {
 
 var p; // shortcut to reference prototypes
@@ -4724,38 +4746,7 @@ lib.properties = {
 	height: 108,
 	fps: 24,
 	color: "#000000",
-	manifest: [
-		{src:"../../assets/images/pool/CharacterCardNickame0001.png", id:"CharacterCardNickame0001"},
-		{src:"../../assets/images/pool/CharacterCardNickame0002.png", id:"CharacterCardNickame0002"},
-		{src:"../../assets/images/pool/CharacterCardNickame0003.png", id:"CharacterCardNickame0003"},
-		{src:"../../assets/images/pool/CharacterCardNickame0004.png", id:"CharacterCardNickame0004"},
-		{src:"../../assets/images/pool/CharacterCardNickame0005.png", id:"CharacterCardNickame0005"},
-		{src:"../../assets/images/pool/CharacterCardNickame0006.png", id:"CharacterCardNickame0006"},
-		{src:"../../assets/images/pool/FotoAD.jpg", id:"FotoAD"},
-		{src:"../../assets/images/pool/FotoAE.jpg", id:"FotoAE"},
-		{src:"../../assets/images/pool/FotoAF.jpg", id:"FotoAF"},
-		{src:"../../assets/images/pool/FotoBD.jpg", id:"FotoBD"},
-		{src:"../../assets/images/pool/FotoBE.jpg", id:"FotoBE"},
-		{src:"../../assets/images/pool/FotoBF.jpg", id:"FotoBF"},
-		{src:"../../assets/images/pool/FotoCD.jpg", id:"FotoCD"},
-		{src:"../../assets/images/pool/FotoCE.jpg", id:"FotoCE"},
-		{src:"../../assets/images/pool/FotoCF.jpg", id:"FotoCF"},
-		{src:"../../assets/images/pool/IntroTextFrame.png", id:"IntroTextFrame"},
-		{src:"../../assets/images/pool/Logo.png", id:"Logo"},
-		{src:"../../assets/images/pool/p1.png", id:"p1"},
-		{src:"../../assets/images/pool/p10.png", id:"p10"},
-		{src:"../../assets/images/pool/p2.png", id:"p2"},
-		{src:"../../assets/images/pool/p3.png", id:"p3"},
-		{src:"../../assets/images/pool/p4.png", id:"p4"},
-		{src:"../../assets/images/pool/p5.png", id:"p5"},
-		{src:"../../assets/images/pool/p6.png", id:"p6"},
-		{src:"../../assets/images/pool/p7.png", id:"p7"},
-		{src:"../../assets/images/pool/p8.png", id:"p8"},
-		{src:"../../assets/images/pool/p9.png", id:"p9"},
-		{src:"../../assets/images/pool/PointBG.png", id:"PointBG"},
-		{src:"../../assets/images/pool/TopBG.jpg", id:"TopBG"},
-		{src:"../../assets/images/pool/TopCard.png", id:"TopCard"}
-	]
+	manifest: []
 };
 
 
@@ -4764,426 +4755,8 @@ lib.properties = {
 
 
 
-(lib.CharacterCardNickame0001 = function() {
-	this.initialize(img.CharacterCardNickame0001);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,212,28);
-
-
-(lib.CharacterCardNickame0002 = function() {
-	this.initialize(img.CharacterCardNickame0002);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,212,28);
-
-
-(lib.CharacterCardNickame0003 = function() {
-	this.initialize(img.CharacterCardNickame0003);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,212,28);
-
-
-(lib.CharacterCardNickame0004 = function() {
-	this.initialize(img.CharacterCardNickame0004);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,212,28);
-
-
-(lib.CharacterCardNickame0005 = function() {
-	this.initialize(img.CharacterCardNickame0005);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,212,28);
-
-
-(lib.CharacterCardNickame0006 = function() {
-	this.initialize(img.CharacterCardNickame0006);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,212,28);
-
-
-(lib.FotoAD = function() {
-	this.initialize(img.FotoAD);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,165,108);
-
-
-(lib.FotoAE = function() {
-	this.initialize(img.FotoAE);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,165,108);
-
-
-(lib.FotoAF = function() {
-	this.initialize(img.FotoAF);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,165,108);
-
-
-(lib.FotoBD = function() {
-	this.initialize(img.FotoBD);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,165,108);
-
-
-(lib.FotoBE = function() {
-	this.initialize(img.FotoBE);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,165,108);
-
-
-(lib.FotoBF = function() {
-	this.initialize(img.FotoBF);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,165,108);
-
-
-(lib.FotoCD = function() {
-	this.initialize(img.FotoCD);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,165,108);
-
-
-(lib.FotoCE = function() {
-	this.initialize(img.FotoCE);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,165,108);
-
-
-(lib.FotoCF = function() {
-	this.initialize(img.FotoCF);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,165,108);
-
-
-(lib.IntroTextFrame = function() {
-	this.initialize(img.IntroTextFrame);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,318,153);
-
-
-(lib.Logo = function() {
-	this.initialize(img.Logo);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,259,118);
-
-
-(lib.p1 = function() {
-	this.initialize(img.p1);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,6,26);
-
-
-(lib.p10 = function() {
-	this.initialize(img.p10);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,6,26);
-
-
-(lib.p2 = function() {
-	this.initialize(img.p2);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,6,26);
-
-
-(lib.p3 = function() {
-	this.initialize(img.p3);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,6,26);
-
-
-(lib.p4 = function() {
-	this.initialize(img.p4);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,6,26);
-
-
-(lib.p5 = function() {
-	this.initialize(img.p5);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,6,26);
-
-
-(lib.p6 = function() {
-	this.initialize(img.p6);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,6,26);
-
-
-(lib.p7 = function() {
-	this.initialize(img.p7);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,6,26);
-
-
-(lib.p8 = function() {
-	this.initialize(img.p8);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,6,26);
-
-
-(lib.p9 = function() {
-	this.initialize(img.p9);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,6,26);
-
-
-(lib.PointBG = function() {
-	this.initialize(img.PointBG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,177,50);
-
-
-(lib.TopBG = function() {
-	this.initialize(img.TopBG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,108);
-
-
-(lib.TopCard = function() {
-	this.initialize(img.TopCard);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,389,108);
-
-
-(lib.IntroTextTopgfx = function() {
-	this.initialize();
-
-	// Layer 1
-	this.instance = new lib.IntroTextFrame();
-
-	this.addChild(this.instance);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,318,153);
-
-
-(lib.BackgroundGFX = function() {
-	this.initialize();
-
-	// Layer 2
-	this.instance = new lib.TopBG();
-
-	this.addChild(this.instance);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,108);
-
-
-(lib.TopbarRealName = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{AD:0,AE:1,AF:2,BD:3,BE:4,BF:5,CD:6,CE:7,CF:8});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(9));
-
-	// Layer 1
-	this.text = new cjs.Text("Arnold Knudsen", "18px 'Special Elite'");
-	this.text.lineHeight = 20;
-	this.text.lineWidth = 176;
-
-	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Albert Rasmussen"},0).wait(1).to({text:"Vilhelm Laursen"},0).wait(1).to({text:"Charles Kræfting"},0).wait(1).to({text:"Viktor Stegemeier"},0).wait(1).to({text:"Georg Wagner"},0).wait(1).to({text:"Marinus Sander"},0).wait(1).to({text:"Ernst Jensenius"},0).wait(1).to({text:"Paul Götzche"},0).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,180,22);
-
-
-(lib.TopbarPhoto = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"AD":0,"AE":1,"AF":2,"BD":3,"BE":4,"BF":5,"CD":6,"CE":7,"CF":8});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(9));
-
-	// Content
-	this.instance = new lib.FotoAD();
-
-	this.instance_1 = new lib.FotoAE();
-
-	this.instance_2 = new lib.FotoAF();
-
-	this.instance_3 = new lib.FotoBD();
-
-	this.instance_4 = new lib.FotoBE();
-
-	this.instance_5 = new lib.FotoBF();
-
-	this.instance_6 = new lib.FotoCD();
-
-	this.instance_7 = new lib.FotoCE();
-
-	this.instance_8 = new lib.FotoCF();
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).to({state:[{t:this.instance_4}]},1).to({state:[{t:this.instance_5}]},1).to({state:[{t:this.instance_6}]},1).to({state:[{t:this.instance_7}]},1).to({state:[{t:this.instance_8}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,165,108);
-
-
-(lib.PointIndicator = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(10));
-
-	// Bar
-	this.instance = new lib.p1();
-	this.instance.setTransform(12,9);
-
-	this.instance_1 = new lib.p2();
-	this.instance_1.setTransform(21,9);
-
-	this.instance_2 = new lib.p3();
-	this.instance_2.setTransform(30,9);
-
-	this.instance_3 = new lib.p4();
-	this.instance_3.setTransform(39,9);
-
-	this.instance_4 = new lib.p5();
-	this.instance_4.setTransform(48,9);
-
-	this.instance_5 = new lib.p6();
-	this.instance_5.setTransform(57,9);
-
-	this.instance_6 = new lib.p7();
-	this.instance_6.setTransform(66,9);
-
-	this.instance_7 = new lib.p8();
-	this.instance_7.setTransform(75,9);
-
-	this.instance_8 = new lib.p9();
-	this.instance_8.setTransform(84,9);
-
-	this.instance_9 = new lib.p10();
-	this.instance_9.setTransform(93,9);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance},{t:this.instance_1}]},1).to({state:[{t:this.instance},{t:this.instance_1},{t:this.instance_2}]},1).to({state:[{t:this.instance},{t:this.instance_1},{t:this.instance_2},{t:this.instance_3}]},1).to({state:[{t:this.instance},{t:this.instance_1},{t:this.instance_2},{t:this.instance_3},{t:this.instance_4}]},1).to({state:[{t:this.instance},{t:this.instance_1},{t:this.instance_2},{t:this.instance_3},{t:this.instance_4},{t:this.instance_5}]},1).to({state:[{t:this.instance},{t:this.instance_1},{t:this.instance_2},{t:this.instance_3},{t:this.instance_4},{t:this.instance_5},{t:this.instance_6}]},1).to({state:[{t:this.instance},{t:this.instance_1},{t:this.instance_2},{t:this.instance_3},{t:this.instance_4},{t:this.instance_5},{t:this.instance_6},{t:this.instance_7}]},1).to({state:[{t:this.instance},{t:this.instance_1},{t:this.instance_2},{t:this.instance_3},{t:this.instance_4},{t:this.instance_5},{t:this.instance_6},{t:this.instance_7},{t:this.instance_8}]},1).to({state:[{t:this.instance},{t:this.instance_1},{t:this.instance_2},{t:this.instance_3},{t:this.instance_4},{t:this.instance_5},{t:this.instance_6},{t:this.instance_7},{t:this.instance_8},{t:this.instance_9}]},1).wait(1));
-
-	// Layer 1
-	this.instance_10 = new lib.PointBG();
-
-	this.timeline.addTween(cjs.Tween.get(this.instance_10).wait(10));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,177,50);
-
-
-(lib.CharacterCardNickame = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(14));
-
-	// Nickname png
-	this.instance = new lib.CharacterCardNickame0001();
-	this.instance.setTransform(3.8,0.7);
-
-	this.instance_1 = new lib.CharacterCardNickame0002();
-	this.instance_1.setTransform(3.8,0.7);
-
-	this.instance_2 = new lib.CharacterCardNickame0003();
-	this.instance_2.setTransform(3.8,0.7);
-
-	this.instance_3 = new lib.CharacterCardNickame0004();
-	this.instance_3.setTransform(3.8,0.7);
-
-	this.instance_4 = new lib.CharacterCardNickame0005();
-	this.instance_4.setTransform(3.8,0.7);
-
-	this.instance_5 = new lib.CharacterCardNickame0006();
-	this.instance_5.setTransform(3.8,0.7);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).to({state:[{t:this.instance_4}]},1).to({state:[{t:this.instance_5}]},1).to({state:[]},1).wait(8));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(3.5,0.6,212.3,28.1);
-
-
-(lib.PointsMood = function() {
-	this.initialize();
-
-	// Layer 1
-	this.text = new cjs.Text("humør", "18px 'BigNoodleTitling'");
-	this.text.lineHeight = 20;
-	this.text.lineWidth = 55;
-	this.text.setTransform(110,10);
-
-	this.points = new lib.PointIndicator();
-	this.points.setTransform(88.5,25,1,1,0,0,0,88.5,25);
-
-	this.addChild(this.points,this.text);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,177,50);
-
-
-(lib.PointsMoney = function() {
-	this.initialize();
-
-	// Layer 1
-	this.text = new cjs.Text("penge", "18px 'BigNoodleTitling'");
-	this.text.lineHeight = 20;
-	this.text.lineWidth = 55;
-	this.text.setTransform(110,10);
-
-	this.points = new lib.PointIndicator();
-	this.points.setTransform(88.5,25,1,1,0,0,0,88.5,25);
-
-	this.addChild(this.points,this.text);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,177,50);
-
-
-(lib.PointsHealth = function() {
-	this.initialize();
-
-	// Layer 1
-	this.text = new cjs.Text("helbred", "18px 'BigNoodleTitling'");
-	this.text.lineHeight = 20;
-	this.text.lineWidth = 55;
-	this.text.setTransform(110,10);
-
-	this.points = new lib.PointIndicator();
-	this.points.setTransform(88.5,25,1,1,0,0,0,88.5,25);
-
-	this.addChild(this.points,this.text);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,177,50);
-
-
-(lib.HUD = function() {
-	this.initialize();
-
-	// Text
-	this.mood = new lib.PointsMood();
-
-	// Points
-	this.money = new lib.PointsMoney();
-	this.money.setTransform(209.7,72.4,1,1,0,0,0,88.5,25);
-
-	this.health = new lib.PointsHealth();
-	this.health.setTransform(268.5,25,1,1,0,0,0,88.5,25);
-
-	this.addChild(this.health,this.money,this.mood);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,357,97.4);
-
-
 (lib.TopBarMain = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{intro:4,character:11,game:19});
+if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{intro:4,character:11,game:19});
 
 	// timeline functions:
 	this.frame_0 = function() {
@@ -5192,36 +4765,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,357,97.4);
 
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(30));
-
-	// Logo
-	this.instance = new lib.Logo();
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(30));
-
-	// Points
-	this.hud = new lib.HUD();
-	this.hud.setTransform(652,9);
-	this.hud._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.hud).wait(19).to({_off:false},0).wait(11));
-
-	// Real Name / Nickname
-	this.nickname = new lib.CharacterCardNickame();
-	this.nickname.setTransform(483,72,0.7,0.7,3.5,0,0,108.6,12.2);
-
-	this.realname = new lib.TopbarRealName();
-	this.realname.setTransform(487,44,1,1,0,0,0,90,11);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[]}).to({state:[{t:this.realname},{t:this.nickname}]},19).wait(11));
-
-	// Photo
-	this.photo = new lib.TopbarPhoto();
-	this.photo.setTransform(301.5,54,1,1,0,0,0,82.5,54);
-
-	this.instance_1 = new lib.TopCard();
-	this.instance_1.setTransform(200,0);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[]}).to({state:[{t:this.instance_1},{t:this.photo}]},19).wait(11));
 
 	// Mask (mask)
 	var mask = new cjs.Shape();
@@ -5243,24 +4786,14 @@ p.nominalBounds = new cjs.Rectangle(0,0,357,97.4);
 
 	this.timeline.addTween(cjs.Tween.get(this.label_intro).wait(4).to({_off:false},0).wait(7).to({text:"hvem er du?"},0).to({_off:true},8).wait(11));
 
-	// Speecbubble
-	this.instance_2 = new lib.IntroTextTopgfx("synched",0);
-	this.instance_2.setTransform(569,82.5,1,1,0,0,0,159,76.5);
-	this.instance_2._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.instance_2).wait(4).to({_off:false},0).to({_off:true},15).wait(11));
-
-	// BG
-	this.instance_3 = new lib.BackgroundGFX("synched",0);
-	this.instance_3.setTransform(512,54,1,1,0,0,0,512,54);
-
-	this.timeline.addTween(cjs.Tween.get(this.instance_3).wait(30));
-
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,118);
 
 
 // stage content:
+
+
+
 (lib.TopbarView = function() {
 	this.initialize();
 
@@ -5270,7 +4803,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,118);
 
 	this.addChild(this.mainClip);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(512,54,1024,118);
+p.nominalBounds = new cjs.Rectangle(512,54,714.9,82.5);
 
 })(lib = lib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var lib, images, createjs, ss;
@@ -6595,7 +6128,7 @@ var ApplicationManager = {
 
 		// Go to start
 		FlowManager.gotoPage('0.0');
-		// FlowManager.gotoPage('0.1');
+		// FlowManager.gotoPage('4.0');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},
@@ -7771,24 +7304,8 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/fonts/BigNoodle/big_noodle_titling-demo.html',
-    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="specimen_files/easytabs.js" type="text/javascript" charset="utf-8"></script><link rel="stylesheet" href="specimen_files/specimen_stylesheet.css" type="text/css" charset="utf-8"><link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8"><style type="text/css">body{\n' +
-    '				font-family: \'bignoodletitlingregular\';\n' +
-    '							}</style><title>BigNoodleTitling Regular Specimen</title><script type="text/javascript">$(document).ready(function() {\n' +
-    '			$(\'#container\').easyTabs({defaultContent:1});\n' +
-    '		});</script></head><body><div id="container"><div id="header">BigNoodleTitling Regular</div><ul class="tabs"><li><a href="#specimen">Specimen</a></li><li><a href="#layout">Sample Layout</a></li><li><a href="#glyphs">Glyphs &amp; Languages</a></li><li><a href="#installing">Installing Webfonts</a></li></ul><div id="main_content"><div id="specimen"><div class="section"><div class="grid12 firstcol"><div class="huge">AaBb</div></div></div><div class="section"><div class="glyph_range">A&#x200B;B&#x200b;C&#x200b;D&#x200b;E&#x200b;F&#x200b;G&#x200b;H&#x200b;I&#x200b;J&#x200b;K&#x200b;L&#x200b;M&#x200b;N&#x200b;O&#x200b;P&#x200b;Q&#x200b;R&#x200b;S&#x200b;T&#x200b;U&#x200b;V&#x200b;W&#x200b;X&#x200b;Y&#x200b;Z&#x200b;a&#x200b;b&#x200b;c&#x200b;d&#x200b;e&#x200b;f&#x200b;g&#x200b;h&#x200b;i&#x200b;j&#x200b;k&#x200b;l&#x200b;m&#x200b;n&#x200b;o&#x200b;p&#x200b;q&#x200b;r&#x200b;s&#x200b;t&#x200b;u&#x200b;v&#x200b;w&#x200b;x&#x200b;y&#x200b;z&#x200b;1&#x200b;2&#x200b;3&#x200b;4&#x200b;5&#x200b;6&#x200b;7&#x200b;8&#x200b;9&#x200b;0&#x200b;&amp;&#x200b;.&#x200b;,&#x200b;?&#x200b;!&#x200b;&#64;&#x200b;(&#x200b;)&#x200b;#&#x200b;$&#x200b;%&#x200b;*&#x200b;+&#x200b;-&#x200b;=&#x200b;:&#x200b;;</div></div><div class="section"><div class="grid12 firstcol"><table class="sample_table"><tr><td>10</td><td class="size10">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>11</td><td class="size11">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>12</td><td class="size12">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>13</td><td class="size13">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>14</td><td class="size14">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>16</td><td class="size16">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>18</td><td class="size18">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>20</td><td class="size20">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>24</td><td class="size24">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>30</td><td class="size30">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>36</td><td class="size36">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>48</td><td class="size48">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>60</td><td class="size60">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>72</td><td class="size72">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>90</td><td class="size90">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr></table></div></div><div class="section" id="bodycomparison"><div id="xheight"><div class="fontbody">&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;body</div><div class="arialbody">body</div><div class="verdanabody">body</div><div class="georgiabody">body</div></div><div class="fontbody" style="z-index:1">body<span>BigNoodleTitling Regular</span></div><div class="arialbody" style="z-index:1">body<span>Arial</span></div><div class="verdanabody" style="z-index:1">body<span>Verdana</span></div><div class="georgiabody" style="z-index:1">body<span>Georgia</span></div></div><div class="section psample psample_row1" id=""><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row2" id=""><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row4" id=""><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row1 fullreverse"><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample psample_row2 fullreverse"><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row4" id="" style="border-bottom: 20px #000 solid"><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div></div><div id="layout"><div class="section"><div class="grid12 firstcol"><h1>Lorem Ipsum Dolor</h1><h2>Etiam porta sem malesuada magna mollis euismod</h2><p class="byline">By <a href="#link">Aenean Lacinia</a></p></div></div><div class="section"><div class="grid8 firstcol"><p class="large">Donec sed odio dui. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><h3>Pellentesque ornare sem</h3><p>Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas faucibus mollis interdum. Donec ullamcorper nulla non metus auctor fringilla. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam id dolor id nibh ultricies vehicula ut id elit.</p><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p><p>Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Aenean lacinia bibendum nulla sed consectetur.</p><p>Nullam quis risus eget urna mollis ornare vel eu leo. Nullam quis risus eget urna mollis ornare vel eu leo. Maecenas sed diam eget risus varius blandit sit amet non magna. Donec ullamcorper nulla non metus auctor fringilla.</p><h3>Cras mattis consectetur</h3><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Aenean lacinia bibendum nulla sed consectetur. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum.</p><p>Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna mollis ornare vel eu leo. Cras mattis consectetur purus sit amet fermentum.</p></div><div class="grid4 sidebar"><div class="box reverse"><p class="last">Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div><p class="caption">Maecenas sed diam eget risus varius.</p><p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Vestibulum id ligula porta felis euismod semper. Sed posuere consectetur est at lobortis. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Aenean lacinia bibendum nulla sed consectetur. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Aenean lacinia bibendum nulla sed consectetur. Nullam quis risus eget urna mollis ornare vel eu leo.</p><p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec ullamcorper nulla non metus auctor fringilla. Maecenas faucibus mollis interdum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p></div></div></div><div id="glyphs"><div class="section"><div class="grid12 firstcol"><h1>Language Support</h1><p>The subset of BigNoodleTitling Regular in this kit supports the following languages:<br></p><h1>Glyph Chart</h1><p>The subset of BigNoodleTitling Regular in this kit includes all the glyphs listed below. Unicode entities are included above each glyph to help you insert individual characters into your layout.</p><div id="glyph_chart"><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#33;</p>&#33;</div><div><p>&amp;#34;</p>&#34;</div><div><p>&amp;#35;</p>&#35;</div><div><p>&amp;#36;</p>&#36;</div><div><p>&amp;#37;</p>&#37;</div><div><p>&amp;#38;</p>&#38;</div><div><p>&amp;#39;</p>&#39;</div><div><p>&amp;#40;</p>&#40;</div><div><p>&amp;#41;</p>&#41;</div><div><p>&amp;#42;</p>&#42;</div><div><p>&amp;#43;</p>&#43;</div><div><p>&amp;#44;</p>&#44;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#46;</p>&#46;</div><div><p>&amp;#47;</p>&#47;</div><div><p>&amp;#48;</p>&#48;</div><div><p>&amp;#49;</p>&#49;</div><div><p>&amp;#50;</p>&#50;</div><div><p>&amp;#51;</p>&#51;</div><div><p>&amp;#52;</p>&#52;</div><div><p>&amp;#53;</p>&#53;</div><div><p>&amp;#54;</p>&#54;</div><div><p>&amp;#55;</p>&#55;</div><div><p>&amp;#56;</p>&#56;</div><div><p>&amp;#57;</p>&#57;</div><div><p>&amp;#58;</p>&#58;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#60;</p>&#60;</div><div><p>&amp;#61;</p>&#61;</div><div><p>&amp;#62;</p>&#62;</div><div><p>&amp;#63;</p>&#63;</div><div><p>&amp;#64;</p>&#64;</div><div><p>&amp;#65;</p>&#65;</div><div><p>&amp;#66;</p>&#66;</div><div><p>&amp;#67;</p>&#67;</div><div><p>&amp;#68;</p>&#68;</div><div><p>&amp;#69;</p>&#69;</div><div><p>&amp;#70;</p>&#70;</div><div><p>&amp;#71;</p>&#71;</div><div><p>&amp;#72;</p>&#72;</div><div><p>&amp;#73;</p>&#73;</div><div><p>&amp;#74;</p>&#74;</div><div><p>&amp;#75;</p>&#75;</div><div><p>&amp;#76;</p>&#76;</div><div><p>&amp;#77;</p>&#77;</div><div><p>&amp;#78;</p>&#78;</div><div><p>&amp;#79;</p>&#79;</div><div><p>&amp;#80;</p>&#80;</div><div><p>&amp;#81;</p>&#81;</div><div><p>&amp;#82;</p>&#82;</div><div><p>&amp;#83;</p>&#83;</div><div><p>&amp;#84;</p>&#84;</div><div><p>&amp;#85;</p>&#85;</div><div><p>&amp;#86;</p>&#86;</div><div><p>&amp;#87;</p>&#87;</div><div><p>&amp;#88;</p>&#88;</div><div><p>&amp;#89;</p>&#89;</div><div><p>&amp;#90;</p>&#90;</div><div><p>&amp;#91;</p>&#91;</div><div><p>&amp;#92;</p>&#92;</div><div><p>&amp;#93;</p>&#93;</div><div><p>&amp;#95;</p>&#95;</div><div><p>&amp;#96;</p>&#96;</div><div><p>&amp;#123;</p>&#123;</div><div><p>&amp;#124;</p>&#124;</div><div><p>&amp;#125;</p>&#125;</div><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#161;</p>&#161;</div><div><p>&amp;#162;</p>&#162;</div><div><p>&amp;#163;</p>&#163;</div><div><p>&amp;#165;</p>&#165;</div><div><p>&amp;#166;</p>&#166;</div><div><p>&amp;#167;</p>&#167;</div><div><p>&amp;#168;</p>&#168;</div><div><p>&amp;#169;</p>&#169;</div><div><p>&amp;#170;</p>&#170;</div><div><p>&amp;#171;</p>&#171;</div><div><p>&amp;#172;</p>&#172;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#174;</p>&#174;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#176;</p>&#176;</div><div><p>&amp;#178;</p>&#178;</div><div><p>&amp;#179;</p>&#179;</div><div><p>&amp;#180;</p>&#180;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#182;</p>&#182;</div><div><p>&amp;#184;</p>&#184;</div><div><p>&amp;#185;</p>&#185;</div><div><p>&amp;#186;</p>&#186;</div><div><p>&amp;#187;</p>&#187;</div><div><p>&amp;#188;</p>&#188;</div><div><p>&amp;#189;</p>&#189;</div><div><p>&amp;#190;</p>&#190;</div><div><p>&amp;#191;</p>&#191;</div><div><p>&amp;#198;</p>&#198;</div><div><p>&amp;#215;</p>&#215;</div><div><p>&amp;#216;</p>&#216;</div><div><p>&amp;#222;</p>&#222;</div><div><p>&amp;#223;</p>&#223;</div><div><p>&amp;#247;</p>&#247;</div><div><p>&amp;#321;</p>&#321;</div><div><p>&amp;#338;</p>&#338;</div><div><p>&amp;#402;</p>&#402;</div><div><p>&amp;#710;</p>&#710;</div><div><p>&amp;#711;</p>&#711;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#728;</p>&#728;</div><div><p>&amp;#729;</p>&#729;</div><div><p>&amp;#730;</p>&#730;</div><div><p>&amp;#731;</p>&#731;</div><div><p>&amp;#732;</p>&#732;</div><div><p>&amp;#733;</p>&#733;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#8211;</p>&#8211;</div><div><p>&amp;#8212;</p>&#8212;</div><div><p>&amp;#8216;</p>&#8216;</div><div><p>&amp;#8217;</p>&#8217;</div><div><p>&amp;#8220;</p>&#8220;</div><div><p>&amp;#8221;</p>&#8221;</div><div><p>&amp;#8224;</p>&#8224;</div><div><p>&amp;#8225;</p>&#8225;</div><div><p>&amp;#8226;</p>&#8226;</div><div><p>&amp;#8240;</p>&#8240;</div><div><p>&amp;#8249;</p>&#8249;</div><div><p>&amp;#8250;</p>&#8250;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#8364;</p>&#8364;</div><div><p>&amp;#8482;</p>&#8482;</div><div><p>&amp;#8722;</p>&#8722;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#64257;</p>&#64257;</div><div><p>&amp;#64258;</p>&#64258;</div></div></div></div></div><div id="specs"></div><div id="installing"><div class="section"><div class="grid7 firstcol"><h1>Installing Webfonts</h1><p>Webfonts are supported by all major browser platforms but not all in the same way. There are currently four different font formats that must be included in order to target all browsers. This includes TTF, WOFF, EOT and SVG.</p><h2>1. Upload your webfonts</h2><p>You must upload your webfont kit to your website. They should be in or near the same directory as your CSS files.</p><h2>2. Include the webfont stylesheet</h2><p>A special CSS @font-face declaration helps the various browsers select the appropriate font it needs without causing you a bunch of headaches. Learn more about this syntax by reading the <a href="http://www.fontspring.com/blog/further-hardening-of-the-bulletproof-syntax">Fontspring blog post</a> about it. The code for it is as follows:</p><code>@font-face{ font-family: \'MyWebFont\'; src: url(\'WebFont.eot\'); src: url(\'WebFont.eot?#iefix\') format(\'embedded-opentype\'), url(\'WebFont.woff\') format(\'woff\'), url(\'WebFont.ttf\') format(\'truetype\'), url(\'WebFont.svg#webfont\') format(\'svg\'); }</code><p>We\'ve already gone ahead and generated the code for you. All you have to do is link to the stylesheet in your HTML, like this:</p><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;stylesheet.css&quot; type=&quot;text/css&quot; charset=&quot;utf-8&quot; /&gt;</code><h2>3. Modify your own stylesheet</h2><p>To take advantage of your new fonts, you must tell your stylesheet to use them. Look at the original @font-face declaration above and find the property called "font-family." The name linked there will be what you use to reference the font. Prepend that webfont name to the font stack in the "font-family" property, inside the selector you want to change. For example:</p><code>p { font-family: \'WebFont\', Arial, sans-serif; }</code><h2>4. Test</h2><p>Getting webfonts to work cross-browser <em>can</em> be tricky. Use the information in the sidebar to help you if you find that fonts aren\'t loading in a particular browser.</p></div><div class="grid5 sidebar"><div class="box"><h2>Troubleshooting<br>Font-Face Problems</h2><p>Having trouble getting your webfonts to load in your new website? Here are some tips to sort out what might be the problem.</p><h3>Fonts not showing in any browser</h3><p>This sounds like you need to work on the plumbing. You either did not upload the fonts to the correct directory, or you did not link the fonts properly in the CSS. If you\'ve confirmed that all this is correct and you still have a problem, take a look at your .htaccess file and see if requests are getting intercepted.</p><h3>Fonts not loading in iPhone or iPad</h3><p>The most common problem here is that you are serving the fonts from an IIS server. IIS refuses to serve files that have unknown MIME types. If that is the case, you must set the MIME type for SVG to "image/svg+xml" in the server settings. Follow these instructions from Microsoft if you need help.</p><h3>Fonts not loading in Firefox</h3><p>The primary reason for this failure? You are still using a version Firefox older than 3.5. So upgrade already! If that isn\'t it, then you are very likely serving fonts from a different domain. Firefox requires that all font assets be served from the same domain. Lastly it is possible that you need to add WOFF to your list of MIME types (if you are serving via IIS.)</p><h3>Fonts not loading in IE</h3><p>Are you looking at Internet Explorer on an actual Windows machine or are you cheating by using a service like Adobe BrowserLab? Many of these screenshot services do not render @font-face for IE. Best to test it on a real machine.</p><h3>Fonts not loading in IE9</h3><p>IE9, like Firefox, requires that fonts be served from the same domain as the website. Make sure that is the case.</p></div></div></div></div></div><div id="footer"><p>&copy;2010-2011 Font Squirrel. All rights reserved.</p></div></div></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
+  $templateCache.put('/fattiggarden/assets/logic/games/epilogue.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>epilogue</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="epilogue.js"></script><script>var canvas, stage, exportRoot;\n' +
     '\n' +
     'function init() {\n' +
     '	canvas = document.getElementById("canvas");\n' +
@@ -7797,7 +7314,7 @@ module.run(['$templateCache', function($templateCache) {
     '	var loader = new createjs.LoadQueue(false);\n' +
     '	loader.addEventListener("fileload", handleFileLoad);\n' +
     '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
     '}\n' +
     '\n' +
     'function handleFileLoad(evt) {\n' +
@@ -7805,15 +7322,16 @@ module.run(['$templateCache', function($templateCache) {
     '}\n' +
     '\n' +
     'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_0_1();\n' +
+    '	exportRoot = new gamelib.epilogue();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +
     '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
     '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
 }]);
 })();
 
@@ -8080,5 +7598,58 @@ module.run(['$templateCache', function($templateCache) {
     '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/fonts/BigNoodle/big_noodle_titling-demo.html',
+    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="specimen_files/easytabs.js" type="text/javascript" charset="utf-8"></script><link rel="stylesheet" href="specimen_files/specimen_stylesheet.css" type="text/css" charset="utf-8"><link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8"><style type="text/css">body{\n' +
+    '				font-family: \'bignoodletitlingregular\';\n' +
+    '							}</style><title>BigNoodleTitling Regular Specimen</title><script type="text/javascript">$(document).ready(function() {\n' +
+    '			$(\'#container\').easyTabs({defaultContent:1});\n' +
+    '		});</script></head><body><div id="container"><div id="header">BigNoodleTitling Regular</div><ul class="tabs"><li><a href="#specimen">Specimen</a></li><li><a href="#layout">Sample Layout</a></li><li><a href="#glyphs">Glyphs &amp; Languages</a></li><li><a href="#installing">Installing Webfonts</a></li></ul><div id="main_content"><div id="specimen"><div class="section"><div class="grid12 firstcol"><div class="huge">AaBb</div></div></div><div class="section"><div class="glyph_range">A&#x200B;B&#x200b;C&#x200b;D&#x200b;E&#x200b;F&#x200b;G&#x200b;H&#x200b;I&#x200b;J&#x200b;K&#x200b;L&#x200b;M&#x200b;N&#x200b;O&#x200b;P&#x200b;Q&#x200b;R&#x200b;S&#x200b;T&#x200b;U&#x200b;V&#x200b;W&#x200b;X&#x200b;Y&#x200b;Z&#x200b;a&#x200b;b&#x200b;c&#x200b;d&#x200b;e&#x200b;f&#x200b;g&#x200b;h&#x200b;i&#x200b;j&#x200b;k&#x200b;l&#x200b;m&#x200b;n&#x200b;o&#x200b;p&#x200b;q&#x200b;r&#x200b;s&#x200b;t&#x200b;u&#x200b;v&#x200b;w&#x200b;x&#x200b;y&#x200b;z&#x200b;1&#x200b;2&#x200b;3&#x200b;4&#x200b;5&#x200b;6&#x200b;7&#x200b;8&#x200b;9&#x200b;0&#x200b;&amp;&#x200b;.&#x200b;,&#x200b;?&#x200b;!&#x200b;&#64;&#x200b;(&#x200b;)&#x200b;#&#x200b;$&#x200b;%&#x200b;*&#x200b;+&#x200b;-&#x200b;=&#x200b;:&#x200b;;</div></div><div class="section"><div class="grid12 firstcol"><table class="sample_table"><tr><td>10</td><td class="size10">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>11</td><td class="size11">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>12</td><td class="size12">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>13</td><td class="size13">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>14</td><td class="size14">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>16</td><td class="size16">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>18</td><td class="size18">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>20</td><td class="size20">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>24</td><td class="size24">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>30</td><td class="size30">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>36</td><td class="size36">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>48</td><td class="size48">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>60</td><td class="size60">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>72</td><td class="size72">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>90</td><td class="size90">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr></table></div></div><div class="section" id="bodycomparison"><div id="xheight"><div class="fontbody">&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;body</div><div class="arialbody">body</div><div class="verdanabody">body</div><div class="georgiabody">body</div></div><div class="fontbody" style="z-index:1">body<span>BigNoodleTitling Regular</span></div><div class="arialbody" style="z-index:1">body<span>Arial</span></div><div class="verdanabody" style="z-index:1">body<span>Verdana</span></div><div class="georgiabody" style="z-index:1">body<span>Georgia</span></div></div><div class="section psample psample_row1" id=""><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row2" id=""><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row4" id=""><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row1 fullreverse"><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample psample_row2 fullreverse"><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row4" id="" style="border-bottom: 20px #000 solid"><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div></div><div id="layout"><div class="section"><div class="grid12 firstcol"><h1>Lorem Ipsum Dolor</h1><h2>Etiam porta sem malesuada magna mollis euismod</h2><p class="byline">By <a href="#link">Aenean Lacinia</a></p></div></div><div class="section"><div class="grid8 firstcol"><p class="large">Donec sed odio dui. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><h3>Pellentesque ornare sem</h3><p>Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas faucibus mollis interdum. Donec ullamcorper nulla non metus auctor fringilla. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam id dolor id nibh ultricies vehicula ut id elit.</p><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p><p>Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Aenean lacinia bibendum nulla sed consectetur.</p><p>Nullam quis risus eget urna mollis ornare vel eu leo. Nullam quis risus eget urna mollis ornare vel eu leo. Maecenas sed diam eget risus varius blandit sit amet non magna. Donec ullamcorper nulla non metus auctor fringilla.</p><h3>Cras mattis consectetur</h3><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Aenean lacinia bibendum nulla sed consectetur. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum.</p><p>Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna mollis ornare vel eu leo. Cras mattis consectetur purus sit amet fermentum.</p></div><div class="grid4 sidebar"><div class="box reverse"><p class="last">Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div><p class="caption">Maecenas sed diam eget risus varius.</p><p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Vestibulum id ligula porta felis euismod semper. Sed posuere consectetur est at lobortis. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Aenean lacinia bibendum nulla sed consectetur. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Aenean lacinia bibendum nulla sed consectetur. Nullam quis risus eget urna mollis ornare vel eu leo.</p><p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec ullamcorper nulla non metus auctor fringilla. Maecenas faucibus mollis interdum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p></div></div></div><div id="glyphs"><div class="section"><div class="grid12 firstcol"><h1>Language Support</h1><p>The subset of BigNoodleTitling Regular in this kit supports the following languages:<br></p><h1>Glyph Chart</h1><p>The subset of BigNoodleTitling Regular in this kit includes all the glyphs listed below. Unicode entities are included above each glyph to help you insert individual characters into your layout.</p><div id="glyph_chart"><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#33;</p>&#33;</div><div><p>&amp;#34;</p>&#34;</div><div><p>&amp;#35;</p>&#35;</div><div><p>&amp;#36;</p>&#36;</div><div><p>&amp;#37;</p>&#37;</div><div><p>&amp;#38;</p>&#38;</div><div><p>&amp;#39;</p>&#39;</div><div><p>&amp;#40;</p>&#40;</div><div><p>&amp;#41;</p>&#41;</div><div><p>&amp;#42;</p>&#42;</div><div><p>&amp;#43;</p>&#43;</div><div><p>&amp;#44;</p>&#44;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#46;</p>&#46;</div><div><p>&amp;#47;</p>&#47;</div><div><p>&amp;#48;</p>&#48;</div><div><p>&amp;#49;</p>&#49;</div><div><p>&amp;#50;</p>&#50;</div><div><p>&amp;#51;</p>&#51;</div><div><p>&amp;#52;</p>&#52;</div><div><p>&amp;#53;</p>&#53;</div><div><p>&amp;#54;</p>&#54;</div><div><p>&amp;#55;</p>&#55;</div><div><p>&amp;#56;</p>&#56;</div><div><p>&amp;#57;</p>&#57;</div><div><p>&amp;#58;</p>&#58;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#60;</p>&#60;</div><div><p>&amp;#61;</p>&#61;</div><div><p>&amp;#62;</p>&#62;</div><div><p>&amp;#63;</p>&#63;</div><div><p>&amp;#64;</p>&#64;</div><div><p>&amp;#65;</p>&#65;</div><div><p>&amp;#66;</p>&#66;</div><div><p>&amp;#67;</p>&#67;</div><div><p>&amp;#68;</p>&#68;</div><div><p>&amp;#69;</p>&#69;</div><div><p>&amp;#70;</p>&#70;</div><div><p>&amp;#71;</p>&#71;</div><div><p>&amp;#72;</p>&#72;</div><div><p>&amp;#73;</p>&#73;</div><div><p>&amp;#74;</p>&#74;</div><div><p>&amp;#75;</p>&#75;</div><div><p>&amp;#76;</p>&#76;</div><div><p>&amp;#77;</p>&#77;</div><div><p>&amp;#78;</p>&#78;</div><div><p>&amp;#79;</p>&#79;</div><div><p>&amp;#80;</p>&#80;</div><div><p>&amp;#81;</p>&#81;</div><div><p>&amp;#82;</p>&#82;</div><div><p>&amp;#83;</p>&#83;</div><div><p>&amp;#84;</p>&#84;</div><div><p>&amp;#85;</p>&#85;</div><div><p>&amp;#86;</p>&#86;</div><div><p>&amp;#87;</p>&#87;</div><div><p>&amp;#88;</p>&#88;</div><div><p>&amp;#89;</p>&#89;</div><div><p>&amp;#90;</p>&#90;</div><div><p>&amp;#91;</p>&#91;</div><div><p>&amp;#92;</p>&#92;</div><div><p>&amp;#93;</p>&#93;</div><div><p>&amp;#95;</p>&#95;</div><div><p>&amp;#96;</p>&#96;</div><div><p>&amp;#123;</p>&#123;</div><div><p>&amp;#124;</p>&#124;</div><div><p>&amp;#125;</p>&#125;</div><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#161;</p>&#161;</div><div><p>&amp;#162;</p>&#162;</div><div><p>&amp;#163;</p>&#163;</div><div><p>&amp;#165;</p>&#165;</div><div><p>&amp;#166;</p>&#166;</div><div><p>&amp;#167;</p>&#167;</div><div><p>&amp;#168;</p>&#168;</div><div><p>&amp;#169;</p>&#169;</div><div><p>&amp;#170;</p>&#170;</div><div><p>&amp;#171;</p>&#171;</div><div><p>&amp;#172;</p>&#172;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#174;</p>&#174;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#176;</p>&#176;</div><div><p>&amp;#178;</p>&#178;</div><div><p>&amp;#179;</p>&#179;</div><div><p>&amp;#180;</p>&#180;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#182;</p>&#182;</div><div><p>&amp;#184;</p>&#184;</div><div><p>&amp;#185;</p>&#185;</div><div><p>&amp;#186;</p>&#186;</div><div><p>&amp;#187;</p>&#187;</div><div><p>&amp;#188;</p>&#188;</div><div><p>&amp;#189;</p>&#189;</div><div><p>&amp;#190;</p>&#190;</div><div><p>&amp;#191;</p>&#191;</div><div><p>&amp;#198;</p>&#198;</div><div><p>&amp;#215;</p>&#215;</div><div><p>&amp;#216;</p>&#216;</div><div><p>&amp;#222;</p>&#222;</div><div><p>&amp;#223;</p>&#223;</div><div><p>&amp;#247;</p>&#247;</div><div><p>&amp;#321;</p>&#321;</div><div><p>&amp;#338;</p>&#338;</div><div><p>&amp;#402;</p>&#402;</div><div><p>&amp;#710;</p>&#710;</div><div><p>&amp;#711;</p>&#711;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#728;</p>&#728;</div><div><p>&amp;#729;</p>&#729;</div><div><p>&amp;#730;</p>&#730;</div><div><p>&amp;#731;</p>&#731;</div><div><p>&amp;#732;</p>&#732;</div><div><p>&amp;#733;</p>&#733;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#8211;</p>&#8211;</div><div><p>&amp;#8212;</p>&#8212;</div><div><p>&amp;#8216;</p>&#8216;</div><div><p>&amp;#8217;</p>&#8217;</div><div><p>&amp;#8220;</p>&#8220;</div><div><p>&amp;#8221;</p>&#8221;</div><div><p>&amp;#8224;</p>&#8224;</div><div><p>&amp;#8225;</p>&#8225;</div><div><p>&amp;#8226;</p>&#8226;</div><div><p>&amp;#8240;</p>&#8240;</div><div><p>&amp;#8249;</p>&#8249;</div><div><p>&amp;#8250;</p>&#8250;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#8364;</p>&#8364;</div><div><p>&amp;#8482;</p>&#8482;</div><div><p>&amp;#8722;</p>&#8722;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#64257;</p>&#64257;</div><div><p>&amp;#64258;</p>&#64258;</div></div></div></div></div><div id="specs"></div><div id="installing"><div class="section"><div class="grid7 firstcol"><h1>Installing Webfonts</h1><p>Webfonts are supported by all major browser platforms but not all in the same way. There are currently four different font formats that must be included in order to target all browsers. This includes TTF, WOFF, EOT and SVG.</p><h2>1. Upload your webfonts</h2><p>You must upload your webfont kit to your website. They should be in or near the same directory as your CSS files.</p><h2>2. Include the webfont stylesheet</h2><p>A special CSS @font-face declaration helps the various browsers select the appropriate font it needs without causing you a bunch of headaches. Learn more about this syntax by reading the <a href="http://www.fontspring.com/blog/further-hardening-of-the-bulletproof-syntax">Fontspring blog post</a> about it. The code for it is as follows:</p><code>@font-face{ font-family: \'MyWebFont\'; src: url(\'WebFont.eot\'); src: url(\'WebFont.eot?#iefix\') format(\'embedded-opentype\'), url(\'WebFont.woff\') format(\'woff\'), url(\'WebFont.ttf\') format(\'truetype\'), url(\'WebFont.svg#webfont\') format(\'svg\'); }</code><p>We\'ve already gone ahead and generated the code for you. All you have to do is link to the stylesheet in your HTML, like this:</p><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;stylesheet.css&quot; type=&quot;text/css&quot; charset=&quot;utf-8&quot; /&gt;</code><h2>3. Modify your own stylesheet</h2><p>To take advantage of your new fonts, you must tell your stylesheet to use them. Look at the original @font-face declaration above and find the property called "font-family." The name linked there will be what you use to reference the font. Prepend that webfont name to the font stack in the "font-family" property, inside the selector you want to change. For example:</p><code>p { font-family: \'WebFont\', Arial, sans-serif; }</code><h2>4. Test</h2><p>Getting webfonts to work cross-browser <em>can</em> be tricky. Use the information in the sidebar to help you if you find that fonts aren\'t loading in a particular browser.</p></div><div class="grid5 sidebar"><div class="box"><h2>Troubleshooting<br>Font-Face Problems</h2><p>Having trouble getting your webfonts to load in your new website? Here are some tips to sort out what might be the problem.</p><h3>Fonts not showing in any browser</h3><p>This sounds like you need to work on the plumbing. You either did not upload the fonts to the correct directory, or you did not link the fonts properly in the CSS. If you\'ve confirmed that all this is correct and you still have a problem, take a look at your .htaccess file and see if requests are getting intercepted.</p><h3>Fonts not loading in iPhone or iPad</h3><p>The most common problem here is that you are serving the fonts from an IIS server. IIS refuses to serve files that have unknown MIME types. If that is the case, you must set the MIME type for SVG to "image/svg+xml" in the server settings. Follow these instructions from Microsoft if you need help.</p><h3>Fonts not loading in Firefox</h3><p>The primary reason for this failure? You are still using a version Firefox older than 3.5. So upgrade already! If that isn\'t it, then you are very likely serving fonts from a different domain. Firefox requires that all font assets be served from the same domain. Lastly it is possible that you need to add WOFF to your list of MIME types (if you are serving via IIS.)</p><h3>Fonts not loading in IE</h3><p>Are you looking at Internet Explorer on an actual Windows machine or are you cheating by using a service like Adobe BrowserLab? Many of these screenshot services do not render @font-face for IE. Best to test it on a real machine.</p><h3>Fonts not loading in IE9</h3><p>IE9, like Firefox, requires that fonts be served from the same domain as the website. Make sure that is the case.</p></div></div></div></div></div><div id="footer"><p>&copy;2010-2011 Font Squirrel. All rights reserved.</p></div></div></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_0_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
 })();
