@@ -4,6 +4,11 @@ var LoadJS = {
 		'use strict';
 		var urlList = [];
 		var tmpList = [];
+
+		$('.preload-wrapper').removeClass('hide');
+		$('.preload-wrapper').addClass('show');
+		$('.preload-wrapper').addClass('full');
+		$('.preloader').addClass('full');
 		
 		//url is URL of external file, code is the code
 	    //to be called from the file, location is the location to 
@@ -31,18 +36,11 @@ var LoadJS = {
 				urlList.push(tmpList[k]);
 			}
     	}
-    	// console.log('LoadJS:', this.cache, ', ', urlList);
 
 	    if(location == null)
 	    	location = document.body;
 
 	    for(var i=0; i<urlList.length; i++){
-	    	// for(var b = 0; b<this.cache.length; b++){
-    		// 	if(this.cache[b] === urlList[i]){
-    		// 		return false;
-    		// 	}
-    		// }
-    		// this.cache.push(urlList[i]);
 
     		// console.log(this.cache);
     		this.cache.push(urlList[i]);
@@ -78,6 +76,9 @@ var LoadJS = {
 
 		    	// Reached this? All files are loaded
 		    	delegate();
+
+		  //   	$('.preload-wrapper').addClass('hide');
+				// $('.preload-wrapper').removeClass('show');
 		    };
 
 		    scriptTag.src = urlList[i];

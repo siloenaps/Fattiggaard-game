@@ -294,7 +294,9 @@ function appFiles () {
     '!./.tmp/src/app/**/*_test.js',
     './src/app/**/*.js',
     '!./src/app/**/*_test.js',
-    '!./src/app/assets/**/*.js'
+    '!./src/app/**/_*.js',
+    '!./src/app/assets/**/*.js',
+    '!./src/app/**/*test*.js',
   ];
   return gulp.src(files)
     .pipe(g.angularFilesort());
