@@ -1,6 +1,7 @@
 var Preloader = {
 	id: 0,
 	imagePath: 'assets/images/preloader.gif',
+	tracker: {},
 
 
 	load: function(manifest, handleFileLoad, handleComplete, clss, keep, factor){
@@ -8,12 +9,9 @@ var Preloader = {
 		this.id++;
 
 		(factor === undefined) ? this.factor = 1 : this.factor = factor;
-		(clss === undefined) ? clss = 'center': //nothing;
+		if(clss === undefined) clss = 'small';
 
-		// clss = 'center'
-		// console.log('factor:', this.factor)
-		console.log('clss:', clss)
-		// clss = 'small'
+		this.tracker[this.id] = false;
 		
 		// If nothing to load exit 
 		if(manifest.length === 0){
@@ -36,11 +34,13 @@ var Preloader = {
 				}				
 			});		
 			loader.addEventListener('complete', function(event){
+				var id = event.target.id;
+				self.tracker[id] = true;
 				if(handleComplete != null){
 					handleComplete(event);
 				}	
-				if(!event.target.keepPreloader){
-					self.remove(event.target.id);
+				if(!event.target.keepPreloader){					
+					self.remove(id);
 				}
 			});
 			loader.addEventListener('progress', function(event){
@@ -57,21 +57,49 @@ var Preloader = {
 	},
 	add: function(clss){
 		'use strict';
-		console.log('add:', clss);
+		console.log('add:', clss, this.id);		
+
+		// this.id = id;
 		$('.preload-wrapper').removeClass('hide');
 		$('.preload-wrapper').addClass('show');
-		$('.preload-wrapper').addClass(clss);
-		$('.preloader').addClass(clss);
-	},
-	remove: function(id){
-		'use strict';
-		$('.preloader').removeClass('full');
-		$('.preloader').removeClass('small');		
-		$('.preload-wrapper').removeClass('show');
+
 		$('.preload-wrapper').removeClass('full');
 		$('.preload-wrapper').removeClass('small');
-		$('.preload-wrapper').addClass('hide');
+		$('.preloader').removeClass('full');
+		$('.preloader').removeClass('small');
+
+		$('.preload-wrapper').addClass(clss);
+		$('.preloader').addClass(clss);
+
+
+		$('.progress-bar').removeClass('hide');
+		$('.progress-bar').removeClass('show');
+		$('.progress-bar').addClass('show');
+		// $('.preloader').removeClass('small');		
 		
+		// $('.preload-wrapper').removeClass('full');
+		// $('.preload-wrapper').removeClass('small');
+
+		// $('.preload-wrapper').removeClass('show');
+
+		
+		// $('.preload-wrapper').addClass(clss);
+		// $('.preloader').addClass(clss);
+	},
+	remove: function(id){
+		'use strict';		
+		
+		
+		// this.tracker[id] = true;
+		for(var t in this.tracker){
+			//console.log('remove', t, this.tracker[t]);	
+			if(this.tracker[t] === false)
+				return;
+		}
+		$('.preload-wrapper').addClass('hide');
+		$('.progress-bar').removeClass('show');
+		$('.progress-bar').removeClass('hide');
+		$('.progress-bar').addClass('hide');
 		
 	}
 };

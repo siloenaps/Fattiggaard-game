@@ -29,8 +29,8 @@ PageIntroSlide.prototype.start = function(flowId, slideName){
 
 	var gameFile;
 
-	console.log('PageIntroSlide:start', slideName+'.js');
-	console.log('PageIntroSlide', this.runonce, slideName+'.js');
+	// console.log('PageIntroSlide:start', slideName+'.js');
+	// console.log('PageIntroSlide', this.runonce, slideName+'.js');
 
 	LoadJS.load(
 		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
@@ -39,7 +39,7 @@ PageIntroSlide.prototype.start = function(flowId, slideName){
 };
 PageIntroSlide.prototype.setup = function(){
 	'use strict';
-	console.log('PageIntroSlide::setup:runonce', this.runonce);
+	// console.log('PageIntroSlide::setup:runonce', this.runonce);
 
 	if(this.runonce != null)
 		return;
@@ -63,7 +63,7 @@ PageIntroSlide.prototype.setup = function(){
 		}, this)
 	);
 
-	console.log('PageIntroSlide::setup:flowId', this.flowId);
+	// console.log('PageIntroSlide::setup:flowId', this.flowId);
 	this.lib = gamelib;
 	this.slideLib = slidelib;
 	Clss = this.lib.poorhouse_intro;
@@ -80,14 +80,14 @@ PageIntroSlide.prototype.setup = function(){
 		
 
 	}catch(err){
-		console.log(PlayerStats.poorhouse, this.bgImage);
-		console.log(err);
+		// console.log(PlayerStats.poorhouse, this.bgImage);
+		// console.log(err);
 	}	
 	
 	// Load files
 	var onFileLoad = function(event){
 		if (event.item.type === 'image') { 
-			console.log(event.item.id, event.result);
+			// console.log(event.item.id, event.result);
 			images[event.item.id] = event.result; 
 		}
 	};
@@ -101,11 +101,11 @@ PageIntroSlide.prototype.setup = function(){
 		// Set start page
 		self.next();
 
-		console.log('PageIntroSlide:onLoadComplete');
+		// console.log('PageIntroSlide:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-	console.log('manifest:', manifest);
+	// console.log('manifest:', manifest);
 };
 PageIntroSlide.prototype.next = function(){
 	'use strict';
@@ -124,7 +124,7 @@ PageIntroSlide.prototype.onComplete = function(event) {
 PageIntroSlide.prototype.onContinue = function(event) {
 	'use strict';
 	
-	console.log('PageIntroSlide::onContinue');
+	// console.log('PageIntroSlide::onContinue');
 	
 	// Stop player if any
 	if(this.playerComponent != null){
@@ -133,7 +133,7 @@ PageIntroSlide.prototype.onContinue = function(event) {
 
 	this.next();
 
-	// console.log('this.playerComponent:', this.playerComponent)
+	// // console.log('this.playerComponent:', this.playerComponent)
 };
 PageIntroSlide.prototype.removeEvents = function() {
 	'use strict';
@@ -182,7 +182,7 @@ PageIntroSlide.prototype.intro = function(trigger){
 	// Slide. Loading is self contained
 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 	this.listeners.complete = self.playerComponent.on('complete', function(event){
-		console.log('PageIntroSlide::complete');
+		// console.log('PageIntroSlide::complete');
 		self.continueBtn.activate('next');
 		Tick.disable();
 	}, self);
@@ -190,12 +190,12 @@ PageIntroSlide.prototype.intro = function(trigger){
 		event.remove();		
 		self.continueBtn.activate("skip");
 		// self.dispatchEvent(new createjs.Event('ready'));
-		console.log('PageIntroSlide::ready');
+		// console.log('PageIntroSlide::ready');
 		// No tick
 		// Tick.disable();
-		console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
+		// console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
 	});
-	// console.log(this.slideLib)
+	// // console.log(this.slideLib)
 	this.playerComponent.preload(this.slideName, this.slideLib);
 	
 };

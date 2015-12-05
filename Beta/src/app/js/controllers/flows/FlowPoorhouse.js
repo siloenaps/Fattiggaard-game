@@ -716,6 +716,8 @@ FlowPoorhouse.prototype.backToPoorhouse = function(trigger) {
 	// Next move
 	this.trigger = trigger;
 
+	var self = this;
+
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_8);
 
@@ -724,7 +726,8 @@ FlowPoorhouse.prototype.backToPoorhouse = function(trigger) {
 
 	// Pages in/out
 	var previousPage = this.currentPage;
-	this.currentPage = this.view.prerecruitment;
+	// this.currentPage = this.view.prerecruitment;
+	this.currentPage = this.view.backtopoorhouse;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){

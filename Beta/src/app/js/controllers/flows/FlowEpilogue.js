@@ -4,7 +4,7 @@ var FlowEpilogue = function(container){
 		currentPage:null,
 		container: container,
 		view: null,
-		trigger: '4.11', // Default start pointer
+		trigger: null, // Default start pointer
 		continueBtn: ContinueButton,
 		listeners: {},
 		start: function(){
@@ -17,8 +17,25 @@ var FlowEpilogue = function(container){
 			this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 
 			this.id = 'epilogue';//PlayerStats.poorhouse;
+			
+			// PlayerStats['4.10.2']
+			if(PlayerStats['4.10.2'] !== null && PlayerStats['4.10.2'] !== undefined){
+				if(PlayerStats['4.10.2'] === 'A'){
+					this.trigger = '4.11.3';
+				}else
+				if(PlayerStats['4.10.2'] === 'B'){
+					this.trigger = '4.11.1';
+				}
 
-			// // console.log('FlowEpilogue:start', this.container);
+			// PlayerStats['4.10.5']
+			}else{
+				if(PlayerStats['4.10.5'] === 'A'){
+					this.trigger = '4.11.2';
+				}else
+				if(PlayerStats['4.10.5'] === 'B'){
+					this.trigger = '4.11.4';
+				}
+			}
 
 			LoadJS.load(
 				['../assets/logic/games/epilogue.js'], 
@@ -42,20 +59,11 @@ var FlowEpilogue = function(container){
 
 			// Setup flow
 			this.flow = new SubFlowController();
-			// console.log('setup: ', this.flow);
-			this.flow.addAction('4.11', 
-				Delegate.create(
-					Flow.statsSplit, this), {
-												type: 'bool',
-												threshold:false, 
-												value: PlayerStats.bomb,
-												triggers:['4.11.1', '4.11.2'], 
-												callback: Delegate.create(this.next, this)
-											}
-								);
-			this.flow.addAction('4.11.2', Delegate.create(this.illness, this), '4.11.3');
-			this.flow.addAction('4.11.3', Delegate.create(this.runAway, this), '4.11.4');
-			this.flow.addAction('4.11.4', Delegate.create(this.hippopotimus, this), 'end');
+			this.flow.addAction('4.11.1', Delegate.create(this.compensation, this), '4.12');
+			this.flow.addAction('4.11.2', Delegate.create(this.illness, this), '4.12');
+			this.flow.addAction('4.11.3', Delegate.create(this.runAway, this), '4.12');
+			this.flow.addAction('4.11.4', Delegate.create(this.hippopotimus, this), '4.12');
+			this.flow.addAction('4.12', Delegate.create(this.outro, this), 'end');
 			this.flow.addAction('end', Delegate.create(
 				function(){
 					self.removeEvents();
@@ -294,6 +302,19 @@ var FlowEpilogue = function(container){
 			// Reuse player component var for sound
 			this.playerComponent = null;
 			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+			// Next
+			this.continueBtn.ghost('skip');
+		},
+
+		outro: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
 
 			// Next
 			this.continueBtn.ghost('skip');

@@ -30,39 +30,44 @@ var FlowManager = {
 
 				ContinueButton.on('click', function(event){
 					event.remove();
-					Library.clearSlide();
-					Library.clearGame();
-					Preloader.load(lib.properties.manifest, onFileLoad, onLoadComplete, 'full', true);
+					self.gotoPage('loadtopbar');					
 				}, this);
-				ContinueButton.activate('next');
+				ContinueButton.activate('next');				
+			break;
 
-				var onFileLoad = function(event){
-					if (event.item.type === 'image') { 
-						images[event.item.id] = event.result; 
-					}
-				};
-				var onLoadComplete = function(event){
-					// Instantiate view
-					self.topbar = new lib.TopbarView();
-
-					//Add
-					self.root.topbarcontainer.addChild(self.topbar);
-
-					// To intro
-					self.gotoPage('0.1');
-					// self.gotoPage('1.0.1'); // TEST
-				};				
+			case 'loadtopbar':
+				Library.clearSlide();
+				Library.clearGame();
+				// Load JS
+				LoadJS.load(
+					['../assets/logic/topbarview.js'], 
+					Delegate.create(function(){						
+						// Load assets
+						Preloader.load(lib.properties.manifest, function(event){
+							//console.log('>>', event.item)
+							if (event.item.type === 'image') { 
+								images[event.item.id] = event.result; 
+							}
+						}, function(event){
+							event.remove();
+							self.topbar = new lib.TopbarView();
+							self.root.topbarcontainer.addChild(self.topbar);
+							self.gotoPage('0.1');
+						}, 'full', true);						
+					}, this)
+				);
 			break;
 
 			// break;
 			case '0.1':	
 				// Intro	
-				
+				this.root.blocker_black.visible = false;
 				this.root.gotoAndStop('start');
 				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
 				try{
+					self.root.topbarcontainer.addChild(self.topbar);
 					Topbar.init(this.topbar.mainClip);
 					Topbar.go('intro');
 				}catch(err){
