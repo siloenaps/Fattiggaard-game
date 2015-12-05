@@ -9,6 +9,9 @@ lib.properties = {
 	fps: 24,
 	color: "#000000",
 	manifest: [
+		{src:"../../../assets/images/pool/_022.jpg", id:"_022"},
+		{src:"../../../assets/images/pool/_023.jpg", id:"_023"},
+		{src:"../../../assets/images/pool/_024.jpg", id:"_024"},
 		{src:"../../../assets/images/pool/_0_2BG.jpg", id:"_0_2BG"},
 		{src:"../../../assets/images/pool/_0_3BG.jpg", id:"_0_3BG"},
 		{src:"../../../assets/images/pool/_0_4BG.jpg", id:"_0_4BG"},
@@ -64,6 +67,24 @@ lib.properties = {
 
 // symbols:
 
+
+
+(lib._022 = function() {
+	this.initialize(img._022);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._023 = function() {
+	this.initialize(img._023);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._024 = function() {
+	this.initialize(img._024);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
 (lib._0_2BG = function() {
@@ -726,7 +747,40 @@ p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib.Background0_2 = function() {
+(lib.Background0_2_4 = function() {
+	this.initialize();
+
+	// Layer 1
+	this.instance = new lib._024();
+
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib.Background0_2_3 = function() {
+	this.initialize();
+
+	// Layer 1
+	this.instance = new lib._023();
+
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib.Background0_2_2 = function() {
+	this.initialize();
+
+	// Layer 1
+	this.instance = new lib._022();
+
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib.Background0_2_1 = function() {
 	this.initialize();
 
 	// Layer 1
@@ -1412,11 +1466,29 @@ if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{sta
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_0_3).wait(24));
 
-	// 0.2
-	this.bg_0_2 = new lib.Background0_2();
-	this.bg_0_2.setTransform(1024,0);
+	// 0.2.4
+	this.bg_0_2_4 = new lib.Background0_2_4();
+	this.bg_0_2_4.setTransform(1024,0);
 
-	this.timeline.addTween(cjs.Tween.get(this.bg_0_2).wait(24));
+	this.timeline.addTween(cjs.Tween.get(this.bg_0_2_4).wait(24));
+
+	// 0.2.3
+	this.bg_0_2_3 = new lib.Background0_2_3();
+	this.bg_0_2_3.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_0_2_3).wait(24));
+
+	// 0.2.2
+	this.bg_0_2_2 = new lib.Background0_2_2();
+	this.bg_0_2_2.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_0_2_2).wait(24));
+
+	// 0.2.1
+	this.bg_0_2_1 = new lib.Background0_2_1();
+	this.bg_0_2_1.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_0_2_1).wait(24));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(1536,252,2261.3,558);

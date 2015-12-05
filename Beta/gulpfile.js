@@ -153,7 +153,7 @@ gulp.task('fonts', function() {
 });
 var uglify = require('gulp-uglify'); 
 gulp.task('logic', function() {
-    return gulp.src('./src/app/assets/logic/**/*.*')    
+    return gulp.src('./src/app/assets/logic/**/*.js')    
     .pipe(uglify({hoist_funs: true, hoist_vars: true}))
     // .pipe(gzip({ append: false }))
     .pipe(gulp.dest('./dist/assets/logic'));

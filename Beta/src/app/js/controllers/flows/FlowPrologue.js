@@ -144,7 +144,7 @@ var FlowPrologue = function(container){
 			var self = this;
 
 			// Set background
-			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_2);
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_2_1);
 
 			// Pages in/out
 			var previousPage = this.currentPage;
@@ -163,6 +163,9 @@ var FlowPrologue = function(container){
 			this.trigger = trigger;
 
 			var self = this;	
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_2_2);
 
 			// Pages in/out
 			var previousPage = this.currentPage;
@@ -203,6 +206,9 @@ var FlowPrologue = function(container){
 			
 			var self = this;
 
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_2_3);
+
 			// Pages in/out
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_family;
@@ -240,6 +246,9 @@ var FlowPrologue = function(container){
 			this.trigger = trigger;
 
 			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_2_4);
 
 			// Pages in/out
 			var previousPage = this.currentPage;

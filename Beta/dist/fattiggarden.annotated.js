@@ -574,526 +574,6 @@ ButtonCustom.prototype.destroy = function(){
 }
 
 createjs.EventDispatcher.initialize(ButtonCustom.prototype);
-var PagePoorhouseIntro = function(container){
-	'use strict';
-	this.container = container;
-	this.id = null; 
-	this.view = null;	
-	this.lib = null;
-	this.slideLib = null;
-	this.playerComponent = null;
-	this.listeners = {};
-	this.trigger = 'start'; 
-	this.currentPage = null;
-	this.currentBackground = null;
-	this.groups = {};
-	// this.portrait = null;
-
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost('skip');
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
-};
-PagePoorhouseIntro.prototype.setPortrait = function(image){
-	this.portrait = image;
-}
-PagePoorhouseIntro.prototype.start = function(flowId, slideName){
-	this.id = PlayerStats.poorhouse;
-	this.flowId = flowId;
-	this.slideName = slideName;
-
-	var gameFile;
-
-	console.log('PagePoorhouseIntro:start', slideName+'.js');
-	console.log('PagePoorhouseIntro', this.runonce, slideName+'.js');
-
-	LoadJS.load(
-		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
-		Delegate.create(this.setup, this)
-	);
-};
-PagePoorhouseIntro.prototype.setup = function(){
-	'use strict';
-	console.log('PagePoorhouseIntro::setup:runonce', this.runonce);
-
-	if(this.runonce != null)
-		return;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	// Tick
-	Tick.framerate(15);
-
-	var self = this;
-	var manifest, Clss;	
-
-	// Setup flow
-	this.flow = new SubFlowController();
-	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
-	this.flow.addAction('end', Delegate.create(
-		function(){
-			self.removeEvents();
-			self.dispatchEvent(new createjs.Event('continue'));
-		}, this)
-	);
-
-	console.log('PagePoorhouseIntro::setup:id', this.id);
-	this.lib = gamelib;
-	this.slideLib = slidelib;
-	Clss = this.lib.poorhouse_intro;
-	manifest = this.lib.properties.manifest;
-	// switch(this.id){
-	// 	case 'horsens':			
-	// 		manifest = this.lib.properties.manifest;
-	// 	break;
-	// 	case 'sundholm':
-	// 		manifest = this.lib.properties.manifest;
-	// 	break;
-	// 	case 'svendborg':				
-	// 		manifest = this.lib.properties.manifest;
-	// 	break;
-	// }
-
-	try{
-		// Background image
-		this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';
-		manifest.push({src: this.bgImage.src, id: this.bgImage.id});
-
-	}catch(err){
-		console.log(PlayerStats.poorhouse, this.bgImage);
-		console.log(err);
-	}	
-	
-	// Load files
-	var onFileLoad = function(event){
-		if (event.item.type === 'image') { 
-			console.log(event.item.id, event.result);
-			images[event.item.id] = event.result; 
-		}
-	};
-	var onLoadComplete = function(event){
-		// Instantiate view
-		self.view = new Clss();
-
-		//Add
-		self.container.addChild(self.view);
-
-		// Set start page
-		self.next();
-
-		console.log('PagePoorhouseIntro:onLoadComplete');
-		self.dispatchEvent(new createjs.Event('ready'));
-	};
-	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-	console.log('manifest:', manifest);
-};
-PagePoorhouseIntro.prototype.next = function(){
-	'use strict';
-	this.flow.next(this.trigger);	
-};
-PagePoorhouseIntro.prototype.onComplete = function(event) {
-	'use strict';
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-	}
-
-	// Set next button active
-	this.continueBtn.activate('next');	
-};
-PagePoorhouseIntro.prototype.onContinue = function(event) {
-	'use strict';
-	
-	console.log('PagePoorhouseIntro::onContinue');
-	
-	// Stop player if any
-	if(this.playerComponent != null){
-		this.playerComponent.stop();
-	}
-
-	this.next();
-
-	// console.log('this.playerComponent:', this.playerComponent)
-};
-PagePoorhouseIntro.prototype.removeEvents = function() {
-	'use strict';
-	
-	// Remove events
-	this.continueBtn.off('click', this.listeners.continue);
-	this.listeners.continue = null;
-};
-PagePoorhouseIntro.prototype.destroy = function() {
-	'use strict';
-	
-	// Remove events
-	this.removeEvents();
-
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-		this.playerComponent.destroy();	
-		this.playerComponent = null;
-	}			
-	this.view = null;
-	this.lib = null;
-	this.currentPage = null;
-	this.listeners = null;
-	this.flow = null;
-};
-PagePoorhouseIntro.prototype.intro = function(trigger){
-	'use strict';
-
-	// Next move
-	this.trigger = trigger;
-
-	var self = this;
-
-	// Set page view
-	this.currentPage = this.view.intro;
-	this.currentPage.x = 0;
-
-	// Set background
-	this.view.bg_container.x = 0;
-
-	// Background
-	var bitmap = new createjs.Bitmap(this.bgImage.src);	
-	this.view.bg_container.addChild(bitmap);
-
-	// Slide. Loading is self contained
-	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-	this.listeners.complete = self.playerComponent.on('complete', function(event){
-		console.log('PagePoorhouseIntro::complete');
-		self.continueBtn.activate('next');
-		Tick.disable();
-	}, self);
-	this.playerComponent.on('ready', function(event){
-		event.remove();		
-		self.continueBtn.activate("skip");
-		// self.dispatchEvent(new createjs.Event('ready'));
-		console.log('PagePoorhouseIntro::ready');
-		// No tick
-		// Tick.disable();
-		console.log('NB. Disabled tick-disablign as test in PagePoorhouseIntro');
-	});
-	// console.log(this.slideLib)
-	this.playerComponent.preload(this.slideName, this.slideLib);
-	
-};
-createjs.EventDispatcher.initialize(PagePoorhouseIntro.prototype);
-
-
-
-var PageOpinion = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.activePlayer = null;
-
-	this.playersCount = 0;
-	this.completed = 0;
-
-	var key = PlayerStats.challenge + PlayerStats.family;
-
-	// Get sound
-	this.soundChallengeObject = SoundService.matrix.oppinion[key];
-
-	// Set Text
-	this.view.charactertext.gotoAndStop(key);
-	this.view.playerlabel.gotoAndStop(key);
-
-
-	// Player - Challenge
-	// view.player.visible = false;
-	if(this.soundChallengeObject != null){
-		// view.player.visible = true;
-		this.challengePlayerComponent = new PlayerSoundComponent(view.player);
-		this.challengePlayerComponent.preload(this.soundChallengeObject.src, this.soundChallengeObject.duration);
-		this.playersCount++;
-
-		this.listeners.challengeStart = this.challengePlayerComponent.on("start", this.onSoundStart, this);
-
-		this.listeners.challenge = this.challengePlayerComponent.on('complete', this.onComplete, this);
-	}
-
-	// Continue/Skip button
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("skip");
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageOpinion.prototype.onSoundStart = function(event) {
-	'use strict';
-	// If there is a player active, pause it
-	if(this.activePlayer != null){
-		if(event.target.id != this.activePlayer.id){
-			this.activePlayer.pause();
-		}
-	}
-
-	// Save activated player
-	this.activePlayer = event.target;
-};
-PageOpinion.prototype.onComplete = function(event){
-	'use strict';
-	this.completed++;
-	if(this.completed >= this.playersCount){
-		if(this.challengePlayerComponent !== undefined){
-			this.challengePlayerComponent.off('complete', this.listeners.challenge);
-		}
-		if(this.familyPlayerComponent !== undefined){
-			this.familyPlayerComponent.off('complete', this.listeners.family);
-		}
-
-		this.continueBtn.activate("next");
-	}
-};
-PageOpinion.prototype.start = function() {
-	'use strict';
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.view.portrait.gotoAndStop(frm);
-};
-PageOpinion.prototype.onContinue = function(event) {
-	'use strict';
-	this.continueBtn.off('click', this.listeners.continue);
-
-	// Stop sound if it still on
-	if(this.challengePlayerComponent !== undefined){
-		this.challengePlayerComponent.stop();
-	}
-
-	if(this.familyPlayerComponent !== undefined){
-		this.familyPlayerComponent.stop();
-	}
-
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageOpinion.prototype.destroy = function() {
-	'use strict';
-	this.view = null;	
-
-	if(this.challengePlayer != null){
-		this.challengePlayer.destroy();
-		this.challengePlayer = null;
-	}
-	if(this.familyPlayerComponent != null){
-		this.familyPlayerComponent.destroy();
-		this.familyPlayerComponent = null;
-	}
-
-	this.activePlayer = null;
-};
-createjs.EventDispatcher.initialize(PageOpinion.prototype);
-var PageMap = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost("next");	
-};
-PageMap.prototype.start = function() {
-	'use strict';
-	var self = this;
-
-	// Allow tick
-	Tick.enable();
-	Tick.framerate(5);
-
-	// Checkboxes
-	var btn1 = new RadioButton(this.view.checkbox1, {value:'horsens'});
-	var btn2 = new RadioButton(this.view.checkbox2, {value:'sundholm'});
-	var btn3 = new RadioButton(this.view.checkbox3, {value:'svendborg'});
-
-	// Group
-	this.group = new ButtonGroup();
-	this.group.add(btn1);
-	this.group.add(btn2);
-	this.group.add(btn3);
-
-	// Events
-	this.listeners.group = this.group.on("click", function(event){
-		// Save chosen "fattiggård"
-		PlayerStats.poorhouse = event.data.value;
-
-		// User may continue
-		self.continueBtn.activate('next');
-		self.continueBtn.on('click', function(e){
-			e.remove();
-			event.remove();
-
-			self.view.info1.off('click', self.listeners['info1']);
-			self.view.info2.off('click', self.listeners['info2']);
-			self.view.info3.off('click', self.listeners['info3']);
-
-			self.dispatchEvent(new createjs.Event('continue'));
-		});
-	}, self);
-
-	// Info popup
-	this.view.infopopup.visible = false;
-	this.infoButtons = [];
-	this.infoButtons.push(this.view.info1);
-	this.infoButtons.push(this.view.info2);
-	this.infoButtons.push(this.view.info3);
-	this.view.info1.id = 0;
-	this.view.info2.id = 1;
-	this.view.info3.id = 2;
-	// Info buttons events
-	this.listeners['info1'] = this.view.info1.on('click', function(event){
-		self.openInfo(event.target.id);
-	}, this);
-	this.listeners['info2'] = this.view.info2.on('click', function(event){
-		self.openInfo(event.target.id);
-	}, this);
-	this.listeners['info3'] = this.view.info3.on('click', function(event){
-		self.openInfo(event.target.id);
-	}, this);
-	// Close button	
-	this.listeners['closebutton'] = this.view.infopopup.closebutton.on('click', function(event){
-		this.closeInfo();
-	}, this);
-};
-PageMap.prototype.openInfo = function(id) {
-	'use strict';
-	this.view.infopopup.gotoAndStop(id);
-	this.view.infopopup.x = 0;
-	this.view.infopopup.visible = true;
-	this.continueBtn.hide();
-};
-PageMap.prototype.closeInfo = function(id) {
-	'use strict';
-	this.view.infopopup.x = 1024;
-	this.view.infopopup.visible = false;
-	this.continueBtn.show();
-};
-PageMap.prototype.destroy = function() {
-	'use strict';
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageMap.prototype);
-var PageIntro = function(view, id){
-	'use strict';
-	//console.log("view.player:", view.player);
-	this.view = view;
-	this.id = id;
-	this.lib = null;
-	this.listeners = {};
-	this.playerComponent = new PlayerSliderComponent(view.player);
-	
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost("skip");
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
-};
-PageIntro.prototype.start = function() {
-	'use strict';
-	LoadJS.load(
-		'../assets/logic/slides/'+"slide_"+this.id+".js", 
-		Delegate.create(this.setup, this)
-	);
-	// Allow tick
-	Tick.enable();
-};
-PageIntro.prototype.setup = function() {
-	'use strict';
-	if(this.runonce != null)
-		return;
-
-	var self = this;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	try{
-		this.lib = slidelib;
-		this.playerComponent.on('ready', function(event){
-			event.remove();
-			// No tick
-			Tick.disable();
-			self.continueBtn.activate("skip");
-			// self.dispatchEvent(new createjs.Event('ready'));
-		});
-		this.playerComponent.preload("slide_"+this.id, this.lib);
-		this.lib = null;
-	}catch(err) {
-   		console.log(err);
-   	}
-};
-PageIntro.prototype.onContinue = function(event) {
-	'use strict';
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.listeners.continue = null;
-
-	// Stop Player
-	if(this.playerComponent !== undefined){
-		this.playerComponent.stop();
-	}
-
-	this.dispatchEvent(new createjs.Event('continue'));
-
-	this.destroy();
-};
-PageIntro.prototype.onComplete = function(event) {
-	'use strict';
-	this.playerComponent.off('complete', this.listeners.complete);	
-	this.listeners.complete = null;
-
-	// Set next button active
-	this.continueBtn.activate("next");
-};
-PageIntro.prototype.destroy = function() {
-	'use strict';
-	if(this.playerComponent != null){
-		this.playerComponent.destroy();	
-	}
-	this.playerComponent = null;
-	this.view = null;
-	this.lib = null;
-};
-createjs.EventDispatcher.initialize(PageIntro.prototype);
-var PageCard = function(view){
-	'use strict';
-	this.view = view;
-	this.listeners = {};
-	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("next");	
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
-};
-PageCard.prototype.start = function() {
-	'use strict';
-	var frm;
-
-
-	// Set portrait a real name
-	frm = PlayerStats.challenge + PlayerStats.family;
-	this.view.portrait.gotoAndStop(frm);
-	this.view.realname.gotoAndStop(frm);
-
-	// Set nickname
-	frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
-	this.view.nickname.gotoAndStop(frm);
-
-	// Set challenge
-	frm = PlayerStats.challenge;
-	this.view.challenge.gotoAndStop(frm);	
-
-	// Set family, kids
-	frm = PlayerStats.family;
-	this.view.family.gotoAndStop(frm);
-	this.view.kids.gotoAndStop(frm);
-};
-PageCard.prototype.onContinue = function(event) {
-	'use strict';
-	this.continueBtn.off('click', this.listeners.continue);	
-	this.dispatchEvent(new createjs.Event('continue'));
-};
-PageCard.prototype.destroy = function() {
-	'use strict';
-	this.view = null;	
-};
-createjs.EventDispatcher.initialize(PageCard.prototype);
 var SubFlowController = function(){
 	'use strict';
 
@@ -1149,23 +629,37 @@ var SubFlowController = function(){
 		}
 	};
 };
-var FlowProloque = function(container){
+var FlowPrologue = function(container){
+
 	return{
 		currentPage:null,
 		container: container,
-		// init: function(view){
-		// 	'use strict';
-		// 	this.view = view;
-		// },
+		view: null,
+		trigger: '0.2.1', // Default start pointer
+		continueBtn: ContinueButton,
+		listeners: {},
 		start: function(){
 			'use strict';
-			this.id = 'prologue';//PlayerStats.poorhouse;
 
-			// console.log('FlowProloque:start', this.view);			
+			// Dispatcher
+			createjs.EventDispatcher.initialize(this);
+
+			// Events
+			this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+
+			this.id = 'epilogue';//PlayerStats.poorhouse;
+
+			// // console.log('FlowPrologue:start', this.container);
+
 			LoadJS.load(
 				['../assets/logic/games/prologue.js'], 
 				Delegate.create(this.setup, this)
 			);
+		},
+		next: function(){
+			// console.log('next: ', this.flow);
+			this.flow.next(this.trigger);
+			
 		},
 		setup: function(){
 			'use strict';
@@ -1177,184 +671,81 @@ var FlowProloque = function(container){
 			// Setup may run ONLY once
 			this.runonce = true;
 
-			// Tick
-			Tick.framerate(15);
+			// Setup flow
+			this.flow = new SubFlowController();
+			// console.log('setup: ', this.flow);
+			this.flow.addAction('4.11', 
+				Delegate.create(
+					Flow.statsSplit, this), {
+												type: 'bool',
+												threshold:false, 
+												value: PlayerStats.bomb,
+												triggers:['4.11.1', '4.11.2'], 
+												callback: Delegate.create(this.next, this)
+											}
+								);
+			this.flow.addAction('0.2.1', Delegate.create(this.intro, this), '0.2.2');
+			this.flow.addAction('0.2.2', Delegate.create(this.challenge, this), '0.2.3');
+			this.flow.addAction('0.2.3', Delegate.create(this.family, this), '0.2.4');
+			this.flow.addAction('0.2.4', Delegate.create(this.nickname, this), '0.3');
+			this.flow.addAction('0.3', Delegate.create(this.card, this), '0.4');
+			this.flow.addAction('0.4', Delegate.create(this.opinion, this), '0.5');
+			this.flow.addAction('0.5', Delegate.create(this.map, this), 'end');
+			this.flow.addAction('end', Delegate.create(
+				function(){
+					self.removeEvents();
+					self.dispatchEvent(new createjs.Event('continue'));
+				}, this)
+			);
 
+			try{
+				// Load files for flow	
+				this.lib = gamelib; //germany1GameLib;
+				var Clss = this.lib.prologue;
+				var manifest = this.lib.properties.manifest;
+				var onFileLoad = function(event){
+					if (event.item.type === 'image') { 
+						// // console.log('result:', event.item.id, event.result);
+						images[event.item.id] = event.result; 
+					}
+				};
+				var onLoadComplete = function(event){
+					// // console.log('onLoadComplete');
 
-			// Load files
-			this.lib = gamelib;
-			var Clss = this.lib.prologue;		
-			var manifest = this.lib.properties.manifest;
+					// Instantiate view
+					self.view = new Clss();
 
-			var onFileLoad = function(event){
-				if (event.item.type === 'image') { 
-					// console.log(event.item.id, event.result);
-					images[event.item.id] = event.result; 
-				}
-			};
-			var onLoadComplete = function(event){
-				// Instantiate view
-				self.view = new Clss();
+					//Add
+					self.container.addChild(self.view);
 
-				//Add
-				self.container.addChild(self.view);
+					// Set start page
+					self.flow.next(self.trigger);
 
-				// Set start page
-				self.next('0.1');
-
-				// Ready
-				FlowProloque.dispatchEvent(new createjs.Event('ready'));
-			};
-			Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-
-			// this.next('0.0');
+					self.dispatchEvent(new createjs.Event('ready'));
+				};
+				Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+			}catch(err) {
+		   		console.log(err);
+		   	}
 		},
-		next: function(page){
+		onContinue: function(event) {
 			'use strict';
-			console.log('next:',page);
-			if(this.currentPage !== null){
-				this.currentPage.destroy();
-				this.currentPage = null;
+			// console.log('FlowPrologue::onContinue');	
+
+			// Stop player if any
+			if(this.playerComponent != null){
+				this.playerComponent.stop();
 			}
-			var self = this;
-			// this.view.gotoAndStop('character_build'); // TEST
-			switch(page){					
-				// break;
-				case '0.1':
-					// Tick.enable();
-					this.view.gotoAndStop('character_build');				
-					this.view.page_intro.x = 0;				
-					this.currentPage = new PageIntro(this.view.page_intro, 'intro'); 
-					this.currentPage.start(); 
 
-					// Topbar
-					Topbar.show();
-					Topbar.go('intro');
-					console.log('FlowProloque:next', page, Topbar);
-
-					// Button to next page
-					this.currentPage.on('continue', function(event){
-						event.remove();
-						self.next('0.2');
-					}, this);				
-				break;
-				case '0.2':				
-					// Tick.enable();
-					// this.view.gotoAndStop('character');
-					this.view.page_intro.x = 1024;
-					this.view.page_character.x = 0;
-					this.currentPage = new FlowCharacter(this.view.page_character); // Id references to flow id '0.1'
-					this.currentPage.start(); 
-
-					
-					// createjs.Tween.get(this.view.page_character)
-					// 	.to({x:0}, 300, createjs.Ease.linear);
-
-					// Topbar
-					Topbar.go('character');
-
-					// Button to next page
-					this.currentPage.on('continue', function(event){
-						event.remove();
-						self.next('0.3');
-					}, this);
-					// Tick.disable();
-				break;
-				case '0.3':
-					Tick.framerate(15);
-					TweenUtil.to(this.view.page_character, {x:-1024}, 300, Delegate.create(function(){
-						Tick.framerate(8);
-					}, this));
-
-					this.currentPage = new PageCard(this.view.page_card); // Id references to flow id '0.1'
-					this.currentPage.start(); 
-
-					this.view.page_card.x = 0;
-					// createjs.Tween.get(this.view.page_card)
-					// 		.to({x:0}, 300, createjs.Ease.linear);
-
-					// Button to next page
-					this.currentPage.on('continue', function(event){
-						event.remove();
-						self.next('0.4');
-					}, this);
-					// Tick.disable();
-				break;
-				case '0.4':
-					Tick.framerate(15);
-					TweenUtil.to(this.view.page_card, {x:-1024}, 300, Delegate.create(function(){
-						Tick.framerate(8);
-					}, this));		
-
-					this.currentPage = new PageOpinion(this.view.page_opinion); // Id references to flow id '0.1'
-					this.currentPage.start(); 
-
-					this.view.page_opinion.x = 0;
-
-					// createjs.Tween.get(this.view.page_opinion)
-					// 		.to({x:0}, 300, createjs.Ease.linear);
-
-					// Button to next page
-					this.currentPage.on('continue', function(event){
-						event.remove();
-						self.next('0.5');
-					}, this);
-					// Tick.disable();
-				break;
-				case '0.5':
-					TweenUtil.to(this.view.page_opinion, {x:-1024}, 300, Delegate.create(function(){
-						//Tick.framerate(8);
-					}, this));				
-
-					this.currentPage = new PageMap(this.view.page_map); // Id references to flow id '0.1'
-					this.currentPage.start(); 
-
-					this.view.page_map.x = 0;
-
-					// Button to next page
-					this.currentPage.on('continue', function(event){
-						event.remove();
-
-						// Clean
-						self.lib = null;
-						self.container.removeAllChildren();
-
-						// From here it a sepereate flow related to chosen poorhouse New page LOADS new content						
-						FlowProloque.dispatchEvent(new createjs.Event('continue'));
-					}, this);
-					// Tick.disable();
-				break;
-				// case '1.0':				
-				// 	this.view.page_map.x = -1024;
-
-				// 	// view frame
-				// 	this.view.gotoAndStop('poorhouse');
-
-				// 	// Topbar
-				// 	Topbar.go('game');
-
-				// 	this.currentPage = new FlowPoorhouse(this.view.poorhouse_container); // Id references to flow id '0.1'
-				// 	this.currentPage.start(); 				
-
-				// 	// Button to next page/flow
-				// 	this.currentPage.on('continue', function(event){
-				// 		event.remove();
-				// 		self.next('2.5');
-				// 	}, this);
-				// 	// Tick.disable();
-				// break;
-				// case '2.5':
-				// 	// view frame
-				// 	this.view.gotoAndStop('germany');
-
-				// 	// Topbar
-				// 	Topbar.go('game');
-
-				// 	this.currentPage = new FlowGermany1(this.view.germany_container); 
-				// 	this.currentPage.start(); 				
-				// 	// Tick.disable();
-				// break;
-			}
+			// Must be set after stopping player
+			this.next();
+		},		
+		removeEvents: function() {
+			'use strict';
+			
+			// Remove events
+			this.continueBtn.off('click', this.listeners.continue);
+			this.listeners.continue = null;
 		},
 		restart: function(){
 			'use strict';
@@ -1363,10 +754,345 @@ var FlowProloque = function(container){
 		destroy: function(){
 			'use strict';
 			this.currentPage = null;
-		}
+			this.flow.destroy();
+			this.flow = null;
+			this.container = null;
+			this.currentBackground = null;
+			this.trigger = null;
+			this.view = null;
+			if(this.playerComponent != null)
+				this.playerComponent.destroy();
+			this.playerComponent = null;
+		},
+
+		// Pages --------------------------------------------------------------------------------------------------------
+		intro: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_2_1);
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.character_intro;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+				Tick.disable();
+			}, this));
+
+			// Next
+			this.continueBtn.activate('next');
+		},
+		challenge: function(trigger){
+			this.continueBtn.ghost("next");
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;	
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_2_2);
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.character_challenge;
+			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+				Tick.framerate(8);
+			}, this));
+
+			// Checkboxes
+			var btn1 = new RadioButton(this.currentPage.checkbox1, {value:'A'});
+			var btn2 = new RadioButton(this.currentPage.checkbox2, {value:'B'});
+			var btn3 = new RadioButton(this.currentPage.checkbox3, {value:'C'});
+
+			// Group
+			this.group = new ButtonGroup();
+			this.group.add(btn1);
+			this.group.add(btn2);
+			this.group.add(btn3);
+
+			// Events
+			this.eventGroupListener = this.group.on("click", function(event){
+				// Save chosen "challenge"
+				PlayerStats.challenge = event.data.value
+
+				// User may continue
+				self.continueBtn.activate('next');
+				self.continueBtn.on('click', function(e){
+					e.remove();
+					event.remove();
+				});
+			}, self);
+		},
+		family: function(trigger){
+			this.continueBtn.ghost("next");
+
+			// Next move
+			this.trigger = trigger;
+			
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_2_3);
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.character_family;
+			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+				Tick.framerate(8);
+			}, this));			
+
+			// Checkboxes
+			var btn1 = new RadioButton(this.currentPage.checkbox1, {value:'D'});
+			var btn2 = new RadioButton(this.currentPage.checkbox2, {value:'E'});
+			var btn3 = new RadioButton(this.currentPage.checkbox3, {value:'F'});
+
+			// Group
+			this.group = new ButtonGroup();
+			this.group.add(btn1);
+			this.group.add(btn2);
+			this.group.add(btn3);
+
+			// Events
+			this.eventGroupListener = this.group.on("click", function(event){
+				// Save chosen "family" state
+				PlayerStats.family = event.data.value
+
+				// User may continue
+				self.continueBtn.activate('next');
+				self.continueBtn.on('click', function(e){
+					e.remove();
+					event.remove();
+				});
+			}, self);
+		},
+		nickname: function(trigger){
+			this.continueBtn.ghost("next");
+
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_2_4);
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.character_nickname;
+			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+				Tick.framerate(8);
+			}, this));	
+
+			// Checkboxes
+			var btn1 = new RadioButton(this.currentPage.checkbox1, {value:1});
+			var btn2 = new RadioButton(this.currentPage.checkbox2, {value:2});
+			var btn3 = new RadioButton(this.currentPage.checkbox3, {value:3});
+			var btn4 = new RadioButton(this.currentPage.checkbox4, {value:4});
+			var btn5 = new RadioButton(this.currentPage.checkbox5, {value:5});
+			var btn6 = new RadioButton(this.currentPage.checkbox6, {value:6});
+
+			// Group
+			this.group = new ButtonGroup();
+			this.group.add(btn1);
+			this.group.add(btn2);
+			this.group.add(btn3);
+			this.group.add(btn4);
+			this.group.add(btn5);
+			this.group.add(btn6);
+
+			// Events
+			this.eventGroupListener = this.group.on("click", function(event){		
+				// Save chosen "nickname"
+				PlayerStats.nickname = event.data.value
+				
+				// User may continue
+				self.continueBtn.activate('next');
+				self.continueBtn.on('click', function(e){
+					e.remove();
+					event.remove();
+				});
+			}, self);
+		},
+		card: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_3);
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.page_card;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+				Tick.disable();
+			}, this));
+
+			// Set portrait a real name
+			var frm = PlayerStats.challenge + PlayerStats.family;
+			this.currentPage.portrait.gotoAndStop(frm);
+			this.currentPage.realname.gotoAndStop(frm);
+
+			// Set nickname
+			frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
+			this.currentPage.nickname.gotoAndStop(frm);
+
+			// Set challenge
+			frm = PlayerStats.challenge;
+			this.currentPage.challenge.gotoAndStop(frm);	
+
+			// Set family, kids
+			frm = PlayerStats.family;
+			this.currentPage.family.gotoAndStop(frm);
+			this.currentPage.kids.gotoAndStop(frm);
+
+			// Next
+			this.continueBtn.activate('next');
+		},
+		opinion: function(trigger){
+			'use strict';
+
+			// Next move
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_4);
+
+			// Get sound
+			var key = PlayerStats.challenge + PlayerStats.family;
+			var sound = SoundService.matrix['0.4'][key];
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.page_opinion;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+				// Sound Player
+				self.listeners.complete = self.playerComponent.on('complete', function(event){
+					self.continueBtn.activate('next');
+					Tick.disable();
+				}, self);
+				self.playerComponent.on('ready', function(event){
+					self.continueBtn.activate('skip');
+					Tick.disable();
+				}, self);
+				self.playerComponent.preload(sound.src, sound.duration);
+			}, this));
+
+			// Set portrait of speaking character
+			var frm = PlayerStats.challenge + PlayerStats.family;
+			this.currentPage.portrait.gotoAndStop(frm);			
+
+			// Reuse player component var for sound
+			this.playerComponent = null;
+			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+			// Next
+			this.continueBtn.ghost('skip');
+		},
+		map: function(trigger){
+			this.continueBtn.ghost("next");
+
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_5);
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.page_map;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+				Tick.framerate(8);
+			}, this));	
+
+			// Checkboxes
+			var btn1 = new RadioButton(this.currentPage.checkbox1, {value:'horsens'});
+			var btn2 = new RadioButton(this.currentPage.checkbox2, {value:'sundholm'});
+			var btn3 = new RadioButton(this.currentPage.checkbox3, {value:'svendborg'});
+
+			// Group
+			this.group = new ButtonGroup();
+			this.group.add(btn1);
+			this.group.add(btn2);
+			this.group.add(btn3);
+
+			// Events
+			this.eventGroupListener = this.group.on("click", function(event){
+				// Save chosen "fattiggård"
+				PlayerStats.poorhouse = event.data.value;
+
+				// User may continue
+				self.continueBtn.activate('next');
+				self.continueBtn.on('click', function(e){
+					e.remove();
+					event.remove();
+
+					// FIXME
+					// self.currentPage.info1.off('click', self.listeners['info1']);
+					// self.currentPage.info2.off('click', self.listeners['info2']);
+					// self.currentPage.info3.off('click', self.listeners['info3']);
+
+					self.dispatchEvent(new createjs.Event('continue'));
+				});
+			}, this);
+
+			// Info popup
+			this.currentPage.infopopup.visible = false;
+			this.infoButtons = [];
+			this.infoButtons.push(this.currentPage.info1);
+			this.infoButtons.push(this.currentPage.info2);
+			this.infoButtons.push(this.currentPage.info3);
+			this.currentPage.info1.id = 0;
+			this.currentPage.info2.id = 1;
+			this.currentPage.info3.id = 2;
+
+
+			var openInfo = function(id) {
+				'use strict';
+				self.currentPage.infopopup.gotoAndStop(id);
+				self.currentPage.infopopup.x = 0;
+				self.currentPage.infopopup.visible = true;
+				self.continueBtn.hide();
+			};
+			var closeInfo = function(id) {
+				'use strict';
+				self.currentPage.infopopup.x = 1024;
+				self.currentPage.infopopup.visible = false;
+				self.continueBtn.show();
+			};
+
+
+			// Info buttons events
+			this.listeners['info1'] = this.currentPage.info1.on('click', function(event){
+				openInfo(event.target.id);
+			}, this);
+			this.listeners['info2'] = this.currentPage.info2.on('click', function(event){
+				openInfo(event.target.id);
+			}, this);
+			this.listeners['info3'] = this.currentPage.info3.on('click', function(event){
+				openInfo(event.target.id);
+			}, this);
+			// Close button	
+			this.listeners['closebutton'] = this.currentPage.infopopup.closebutton.on('click', function(event){
+				closeInfo();
+			}, this);
+
+		},
+
+
 	};	
 }
-createjs.EventDispatcher.initialize(FlowProloque);
 var FlowPoorhouseSecond = function(container, id){
 	'use strict';
 	this.container = container;
@@ -2682,18 +2408,30 @@ FlowPoorhouse.prototype.backToPoorhouse = function(trigger) {
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_8);
 
+	// Get sound
+	var sound = SoundService.matrix['1.8'];
+
 	// Pages in/out
 	var previousPage = this.currentPage;
-	this.currentPage = this.view.backtopoorhouse;
+	this.currentPage = this.view.prerecruitment;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
+		// Sound
+		self.listeners.complete = self.playerComponent.on('complete', function(event){
+			self.continueBtn.activate('next');
+			Tick.disable();
+		}, self);
+		self.playerComponent.on('ready', function(event){
+			self.continueBtn.activate('skip');
+			Tick.disable();
+		}, self);
+		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
 
-	var frm = PlayerStats.challenge + PlayerStats.family;
-	this.currentPage.portrait.gotoAndStop(frm);
+	// Reuse player component var for sound
+	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
-	// Next button
-	this.continueBtn.activate('next');
+	// Next bnutton
+	this.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.preRecruitment = function(trigger) {
 	'use strict';
@@ -4689,207 +4427,293 @@ var FlowEpilogue = function(container){
 
 	};	
 }
-var FlowCharacter = function(view){
+var PageIntroSlide = function(container){
+	'use strict';
+	this.container = container;
+	this.id = null; 
+	this.view = null;	
+	this.lib = null;
+	this.slideLib = null;
+	this.playerComponent = null;
+	this.listeners = {};
+	this.trigger = 'start'; 
+	this.currentPage = null;
+	this.currentBackground = null;
+	this.groups = {};
+	// this.portrait = null;
+
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost('skip');
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+};
+PageIntroSlide.prototype.setPortrait = function(image){
+	this.portrait = image;
+}
+PageIntroSlide.prototype.start = function(flowId, slideName){
+	this.id = PlayerStats.poorhouse;
+	this.flowId = flowId;
+	this.slideName = slideName;
+
+	var gameFile;
+
+	console.log('PageIntroSlide:start', slideName+'.js');
+	console.log('PageIntroSlide', this.runonce, slideName+'.js');
+
+	LoadJS.load(
+		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
+		Delegate.create(this.setup, this)
+	);
+};
+PageIntroSlide.prototype.setup = function(){
+	'use strict';
+	console.log('PageIntroSlide::setup:runonce', this.runonce);
+
+	if(this.runonce != null)
+		return;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	// Tick
+	Tick.framerate(15);
+
+	var self = this;
+	var manifest, Clss;	
+
+	// Setup flow
+	this.flow = new SubFlowController();
+	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
+	this.flow.addAction('end', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
+	console.log('PageIntroSlide::setup:flowId', this.flowId);
+	this.lib = gamelib;
+	this.slideLib = slidelib;
+	Clss = this.lib.poorhouse_intro;
+	manifest = this.lib.properties.manifest;
+
+	try{
+		// Background image
+		if(this.flowId === '0.1'){
+			this.bgImage = ImageService.matrix[this.flowId];
+		}else{
+			this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';			
+		}
+		manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
+		
+
+	}catch(err){
+		console.log(PlayerStats.poorhouse, this.bgImage);
+		console.log(err);
+	}	
+	
+	// Load files
+	var onFileLoad = function(event){
+		if (event.item.type === 'image') { 
+			console.log(event.item.id, event.result);
+			images[event.item.id] = event.result; 
+		}
+	};
+	var onLoadComplete = function(event){
+		// Instantiate view
+		self.view = new Clss();
+
+		//Add
+		self.container.addChild(self.view);
+
+		// Set start page
+		self.next();
+
+		console.log('PageIntroSlide:onLoadComplete');
+		self.dispatchEvent(new createjs.Event('ready'));
+	};
+	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+	console.log('manifest:', manifest);
+};
+PageIntroSlide.prototype.next = function(){
+	'use strict';
+	this.flow.next(this.trigger);	
+};
+PageIntroSlide.prototype.onComplete = function(event) {
+	'use strict';
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+	}
+
+	// Set next button active
+	this.continueBtn.activate('next');	
+};
+PageIntroSlide.prototype.onContinue = function(event) {
+	'use strict';
+	
+	console.log('PageIntroSlide::onContinue');
+	
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
+
+	this.next();
+
+	// console.log('this.playerComponent:', this.playerComponent)
+};
+PageIntroSlide.prototype.removeEvents = function() {
+	'use strict';
+	
+	// Remove events
+	this.continueBtn.off('click', this.listeners.continue);
+	this.listeners.continue = null;
+};
+PageIntroSlide.prototype.destroy = function() {
+	'use strict';
+	
+	// Remove events
+	this.removeEvents();
+
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+		this.playerComponent.destroy();	
+		this.playerComponent = null;
+	}			
+	this.view = null;
+	this.lib = null;
+	this.currentPage = null;
+	this.listeners = null;
+	this.flow = null;
+};
+PageIntroSlide.prototype.intro = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set page view
+	this.currentPage = this.view.intro;
+	this.currentPage.x = 0;
+
+	// Set background
+	this.view.bg_container.x = 0;
+
+	// Background
+	var bitmap = new createjs.Bitmap(this.bgImage.src);	
+	this.view.bg_container.addChild(bitmap);
+
+	// Slide. Loading is self contained
+	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+	this.listeners.complete = self.playerComponent.on('complete', function(event){
+		console.log('PageIntroSlide::complete');
+		self.continueBtn.activate('next');
+		Tick.disable();
+	}, self);
+	this.playerComponent.on('ready', function(event){
+		event.remove();		
+		self.continueBtn.activate("skip");
+		// self.dispatchEvent(new createjs.Event('ready'));
+		console.log('PageIntroSlide::ready');
+		// No tick
+		// Tick.disable();
+		console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
+	});
+	// console.log(this.slideLib)
+	this.playerComponent.preload(this.slideName, this.slideLib);
+	
+};
+createjs.EventDispatcher.initialize(PageIntroSlide.prototype);
+
+
+
+var PageIntro = function(view, id){
 	'use strict';
 	//console.log("view.player:", view.player);
 	this.view = view;
-	this.currentPage = null;
-
-	// this.id = id;
+	this.id = id;
+	this.lib = null;
 	this.listeners = {};
+	this.playerComponent = new PlayerSliderComponent(view.player);
 	
 	this.continueBtn = ContinueButton;
-	this.continueBtn.activate("next");
-
-	this.pagePointer = 0;
+	this.continueBtn.ghost("skip");
 
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);
+	this.listeners.complete = this.playerComponent.on('complete', this.onComplete, this);
 };
-FlowCharacter.prototype.start = function() {
-	this.view.character_intro.x = 
-	this.view.character_challenge.x = 
-	this.view.character_family.x = 
-	this.view.character_nickname.x = 1024;
-
-
-	// Set INTRO
-	this.next();
-
-	// Tick
-	Tick.enable();
-	Tick.framerate(8);
-};
-FlowCharacter.prototype.onContinue = function(event) {
-	if(this.pagePointer > 3){
-		event.remove();
-		this.dispatchEvent(new createjs.Event('continue'));
-	}else{
-		this.next();
-	}	
-};
-
-FlowCharacter.prototype.next = function(pointer){
+PageIntro.prototype.start = function() {
+	'use strict';
+	LoadJS.load(
+		'../assets/logic/slides/'+"slide_"+this.id+".js", 
+		Delegate.create(this.setup, this)
+	);
 	// Allow tick
 	Tick.enable();
-	Tick.framerate(15);
+};
+PageIntro.prototype.setup = function() {
+	'use strict';
+	if(this.runonce != null)
+		return;
 
+	var self = this;
 
-	if(this.currentPage !== null){
-		// Old page out - to left
-		createjs.Tween.get(this.currentPage)
-			.to({x:-1024}, 300);
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	try{
+		this.lib = slidelib;
+		this.playerComponent.on('ready', function(event){
+			event.remove();
+			// No tick
+			Tick.disable();
+			self.continueBtn.activate("skip");
+			// self.dispatchEvent(new createjs.Event('ready'));
+		});
+		this.playerComponent.preload("slide_"+this.id, this.lib);
+		this.lib = null;
+	}catch(err) {
+   		console.log(err);
+   	}
+};
+PageIntro.prototype.onContinue = function(event) {
+	'use strict';
+	this.continueBtn.off('click', this.listeners.continue);	
+	this.listeners.continue = null;
+
+	// Stop Player
+	if(this.playerComponent !== undefined){
+		this.playerComponent.stop();
 	}
 
-	switch(this.pagePointer){
-		case 0:
-			this.intro();
-			this.pagePointer++;
-			break;
-		case 1:
-			this.challenge();
-			this.pagePointer++;
-			break;
-		case 2:
-			this.family();
-			this.pagePointer++;
-			break;
-		case 3:
-			this.nickname();
-			this.pagePointer++;
-			break;
-	}	
+	this.dispatchEvent(new createjs.Event('continue'));
+
+	this.destroy();
 };
-FlowCharacter.prototype.intro = function(){		
-	this.currentPage = this.view.character_intro;
+PageIntro.prototype.onComplete = function(event) {
+	'use strict';
+	this.playerComponent.off('complete', this.listeners.complete);	
+	this.listeners.complete = null;
 
-	TweenUtil.to(this.currentPage, {x:0}, 300, Delegate.create(function(){
-		Tick.disable();
-	}, this));
+	// Set next button active
+	this.continueBtn.activate("next");
 };
-FlowCharacter.prototype.challenge = function(){
-	this.continueBtn.ghost("next");
-
-	this.currentPage = this.view.character_challenge;
-
-
-	TweenUtil.to(this.currentPage, {x:0}, 300, Delegate.create(function(){
-		Tick.framerate(8);
-	}, this));
-	// createjs.Tween.get(this.currentPage)
-	// 	.to({x:0}, 300, createjs.Ease.linear);
-
-	var self = this;	
-
-	// Checkboxes
-	var btn1 = new RadioButton(this.currentPage.checkbox1, {value:'A'});
-	var btn2 = new RadioButton(this.currentPage.checkbox2, {value:'B'});
-	var btn3 = new RadioButton(this.currentPage.checkbox3, {value:'C'});
-
-	// Group
-	this.group = new ButtonGroup();
-	this.group.add(btn1);
-	this.group.add(btn2);
-	this.group.add(btn3);
-
-	// Events
-	this.eventGroupListener = this.group.on("click", function(event){
-		// Save chosen "challenge"
-		PlayerStats.challenge = event.data.value
-
-		// User may continue
-		self.continueBtn.activate('next');
-		self.continueBtn.on('click', function(e){
-			e.remove();
-			event.remove();
-		});
-	}, self);
-};
-FlowCharacter.prototype.family = function(){
-	this.continueBtn.ghost("next");
-
-	this.currentPage = this.view.character_family;
-
-	TweenUtil.to(this.currentPage, {x:0}, 300, Delegate.create(function(){
-		Tick.framerate(8);
-	}, this));
-
-	var self = this;
-
-	// Checkboxes
-	var btn1 = new RadioButton(this.currentPage.checkbox1, {value:'D'});
-	var btn2 = new RadioButton(this.currentPage.checkbox2, {value:'E'});
-	var btn3 = new RadioButton(this.currentPage.checkbox3, {value:'F'});
-
-	// Group
-	this.group = new ButtonGroup();
-	this.group.add(btn1);
-	this.group.add(btn2);
-	this.group.add(btn3);
-
-	// Events
-	this.eventGroupListener = this.group.on("click", function(event){
-		// Save chosen "family" state
-		PlayerStats.family = event.data.value
-
-		// User may continue
-		self.continueBtn.activate('next');
-		self.continueBtn.on('click', function(e){
-			e.remove();
-			event.remove();
-		});
-	}, self);
-};
-
-FlowCharacter.prototype.nickname = function(){
-	this.continueBtn.ghost("next");
-
-	this.currentPage = this.view.character_nickname;
-
-	TweenUtil.to(this.currentPage, {x:0}, 300, Delegate.create(function(){
-		Tick.framerate(8);
-	}, this));
-
-	var self = this;
-
-	// Checkboxes
-	var btn1 = new RadioButton(this.currentPage.checkbox1, {value:1});
-	var btn2 = new RadioButton(this.currentPage.checkbox2, {value:2});
-	var btn3 = new RadioButton(this.currentPage.checkbox3, {value:3});
-	var btn4 = new RadioButton(this.currentPage.checkbox4, {value:4});
-	var btn5 = new RadioButton(this.currentPage.checkbox5, {value:5});
-	var btn6 = new RadioButton(this.currentPage.checkbox6, {value:6});
-
-	// Group
-	this.group = new ButtonGroup();
-	this.group.add(btn1);
-	this.group.add(btn2);
-	this.group.add(btn3);
-	this.group.add(btn4);
-	this.group.add(btn5);
-	this.group.add(btn6);
-
-	// Events
-	this.eventGroupListener = this.group.on("click", function(event){		
-		// Save chosen "nickname"
-		PlayerStats.nickname = event.data.value
-		
-		// User may continue
-		self.continueBtn.activate('next');
-		self.continueBtn.on('click', function(e){
-			e.remove();
-			event.remove();
-		});
-	}, self);
-}
-
-
-FlowCharacter.prototype.destroy = function() {
+PageIntro.prototype.destroy = function() {
+	'use strict';
+	if(this.playerComponent != null){
+		this.playerComponent.destroy();	
+	}
+	this.playerComponent = null;
 	this.view = null;
-	this.continueBtn = null;
-	// createjs.Tween.removeTweens(event.target);
+	this.lib = null;
 };
-createjs.EventDispatcher.initialize(FlowCharacter.prototype);
+createjs.EventDispatcher.initialize(PageIntro.prototype);
 (function (lib, img, cjs, ss) {
 
 var p; // shortcut to reference prototypes
@@ -5454,13 +5278,14 @@ var Topbar = {
 	view: null,
 	soundController: null,
 	init: function(view){
+		// console.log('Topbar::init', view);
 		if(view === undefined || view === null){
 			throw new Error("'view' is undefined");
 		}
 		this.view = view;		
 	},
 	go: function(frm){
-		// console.log(this.view);
+		console.log(this.view);
 		// this.view.label_intro.x = 564 + 300;
 		// createjs.Tween.get(this.view.label_intro)
 		// 	.to({x:564}, 300, createjs.Ease.backIn);
@@ -5767,7 +5592,6 @@ var Preloader = {
 				}
 			});
 			loader.addEventListener('progress', function(event){
-				// console.log(event.loaded);
 				var w = (event.loaded * 400) / self.factor;
 				$(".progress-bar .bar").css("width", w);
 			});	
@@ -5781,25 +5605,22 @@ var Preloader = {
 	},
 	add: function(clss){
 		'use strict';
-		// $('.preload-wrapper').removeClass('hide');
-		// $('.preload-wrapper').addClass('show');
-		$('.progress-bar').removeClass('hide');
-		$('.preload-wrapper').show();
-		
-		// $('body').append(
-		// 	'<div class="preload-wrapper"><div class="preloader '+clss+'">'+
-		// 		'<div class="image">'+					
-		// 		'</div>'+
-		// 		'<div class="progress-bar"><div class="bar"></div></div>'+
-		// 	'</div>'
-		// );
+		console.log('add:', clss);
+		$('.preload-wrapper').removeClass('hide');
+		$('.preload-wrapper').addClass('show');
+		$('.preload-wrapper').addClass(clss);
+		$('.preloader').addClass(clss);
 	},
 	remove: function(id){
 		'use strict';
-		// $('.preload-wrapper').removeClass('show');
-		// $('.preload-wrapper').addClass('hide');
-		// $('.preload-wrapper').hide();
-		// $('.preload-wrapper').remove();
+		$('.preloader').removeClass('full');
+		$('.preloader').removeClass('small');		
+		$('.preload-wrapper').removeClass('show');
+		$('.preload-wrapper').removeClass('full');
+		$('.preload-wrapper').removeClass('small');
+		$('.preload-wrapper').addClass('hide');
+		
+		
 	}
 };
 var LoadJS = {
@@ -6075,6 +5896,7 @@ SoundService.matrix = {
 	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
 	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
 	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },	
+	'1.8': { label:'arrested', src:SoundService.properties.basePath+'1.8.mp3', duration: 37.908 },	
 	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
 	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 },
 	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
@@ -6086,7 +5908,7 @@ SoundService.matrix = {
 	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
 	
 	slides: {
-				'slide_intro': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
+				'slide_0_1': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
 				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
 				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
 				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
@@ -6106,7 +5928,7 @@ SoundService.matrix = {
 				
 				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
 			},
-	oppinion: { // 0.4
+	'0.4': { // oppinion
 			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
 			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
 			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
@@ -6312,6 +6134,7 @@ ImageService.matrix = {
 		'CE': { id: 'CECloseUp', label:'background', src:ImageService.properties.basePath+'CECloseUp.png'},
 		'CF': { id: 'CFCloseUp', label:'background', src:ImageService.properties.basePath+'CFCloseUp.png'}
 	},
+	'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_0_1BG.jpg'},
 	'1.0.1': {
 		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
 		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
@@ -6409,15 +6232,50 @@ var FlowManager = {
 					// To intro
 					self.gotoPage('0.1');
 					// self.gotoPage('1.0.1'); // TEST
-				};	
-			
+				};				
 			break;
-			case '0.1':
+
+			// break;
+			case '0.1':	
+				// Intro	
+				
+				this.root.gotoAndStop('start');
+				this.root.pagecontainer.removeAllChildren();
+
+				// Topbar
+				try{
+					Topbar.init(this.topbar.mainClip);
+					Topbar.go('intro');
+				}catch(err){
+					console.log(err);
+				}
+
+				this.currentPage = null;
+				this.currentPage = new PageIntroSlide(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage.start('0.1', 'slide_0_1');
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page/flow
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('0.2');
+				}, this);
+				// Tick.disable();
+			break;
+
+			case '0.2':
 				// Proloque
 				// Topbar
 				try{
 					Topbar.init(this.topbar.mainClip);
-					Topbar.hide();
+					Topbar.go('intro');
 				}catch(err){
 					console.log(err);
 				}
@@ -6427,17 +6285,17 @@ var FlowManager = {
 
 				// Go to start frame
 				this.root.gotoAndStop('start');
-				this.currentPage = new FlowProloque(this.root.pagecontainer);
+				this.currentPage = new FlowPrologue(this.root.pagecontainer);
 				this.currentPage.start(); 
 
 				// Blocker
-				FlowProloque.on('ready', function(event){
+				this.currentPage.on('ready', function(event){
 					event.remove();					
 					self.root.blocker_black.visible = false;
 				}, this);
 
 				// Button to next page
-				FlowProloque.on('continue', function(event){
+				this.currentPage.on('continue', function(event){
 					event.remove();
 					Library.clearSlide();
 					Library.clearGame();
@@ -6456,7 +6314,7 @@ var FlowManager = {
 				Topbar.go('game');
 
 				this.currentPage = null;
-				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage = new PageIntroSlide(this.root.pagecontainer); // Id references to flow id '0.1'
 				this.currentPage.start('1.0.1', 'slide_1_0_1');
 
 				// Blocker
@@ -6565,7 +6423,7 @@ var FlowManager = {
 				}				
 
 				this.currentPage = null;
-				this.currentPage = new PagePoorhouseIntro(this.root.pagecontainer); // Id references to flow id '0.1'
+				this.currentPage = new PageIntroSlide(this.root.pagecontainer); // Id references to flow id '0.1'
 				// this.currentPage.setPortrait(ImageService.matrix.portrait['AD']);
 				this.currentPage.start('3.0', 'slide_3_0');	
 
@@ -6737,7 +6595,7 @@ var ApplicationManager = {
 
 		// Go to start
 		FlowManager.gotoPage('0.0');
-		// FlowManager.gotoPage('3.1');
+		// FlowManager.gotoPage('0.1');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},
@@ -7269,7 +7127,7 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 				console.log(err);
 			}			
 		},
-		'center'
+		'small'
 	);	
 };
 PlayerSliderComponent.prototype.addLoopEvent = function(){
@@ -7845,11 +7703,6 @@ var canvas;
 					console.log(err);
 				}				
 			};
-
-			// Remove startup preloader div
-			// $('.preload-wrapper').remove();
-			// $('.preload-wrapper').hide();
-
 			// Start preload app
 			Preloader.load($scope.lib.properties.manifest, onFileLoad, onLoadComplete, 'full');
 		}
@@ -7858,118 +7711,21 @@ var canvas;
 	}]);
 	app.factory('Canvas', function() {
 		return {
-			create: function(w, h, ratio) {			    
+			create: function(w, h, ratio) {	
+				var winScale = Environment.winScale;
+				if(winScale > 1) winScale = 1;
+
 			    var canvas = document.createElement('canvas');
 			    canvas.width = w * ratio;
 			    canvas.height = h * ratio;
-			    canvas.style.width = w * Environment.winScale+ 'px';
-			    canvas.style.height = h * Environment.winScale + 'px';
+			    canvas.style.width = w * winScale + 'px';
+			    canvas.style.height = h * winScale + 'px';
 			    canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);	
 			    return canvas;
 			}
 		};
 	});
-
-
-	// app.directive('resize', function ($window) {
-	//     return function (scope, element) {
-	//         var w = angular.element($window);
-	//         scope.getWindowDimensions = function () {
-	//             return {
-	//                 'h': w.height(),
-	//                 'w': w.width()
-	//             };
-	//         };
-	//         scope.$watch(scope.getWindowDimensions, function (newValue, oldValue) {
-	//             scope.windowHeight = newValue.h;
-	//             scope.windowWidth = newValue.w;
-
-	//             scope.style = function () {
-	//                 return {
-	//                     'height': (newValue.h - 100) + 'px',
-	//                         'width': (newValue.w - 100) + 'px'
-	//                 };
-	//             };
-
-	//         }, true);
-
-	//         w.bind('resize', function () {
-	//             scope.$apply();
-	//         });
-	//     }
-	// })
-
-	// app.factory('Device', function(){
-	// 	function ratio(){
-	// 		var ctx = document.createElement('canvas').getContext('2d'),
-	//         dpr = window.devicePixelRatio || 1,
-	//         bsr = ctx.webkitBackingStorePixelRatio ||
-	//               ctx.mozBackingStorePixelRatio ||
-	//               ctx.msBackingStorePixelRatio ||
-	//               ctx.oBackingStorePixelRatio ||
-	//               ctx.backingStorePixelRatio || 1;
-	//     	return dpr / bsr;
-	// 	}
-	// 	return {
-	// 		ratio: ratio()
-	// 	};
-	// });
-	
-	// app.directive('slCanvas', function(Device, Canvas) {	
-	// 	function link(scope){	
-	// 		// Create base canvas
-	// 		scope.canvas = Canvas.create(1024, 648, Device.ratio);
-	// 		scope.canvas.style.background = '#000';
-	// 		document.body.appendChild(scope.canvas);	
-	// 		canvas = scope.canvas;
-	// 	}
-	// 	return {
-	// 		restrict: 'AEC',
-	//     	link: link
-	// 	};
-	// });
-
 })();
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/test.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>test</title><style type="text/css">body{\n' +
-    '		margin: 0;\n' +
-    '	}</style><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="test.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(mainlib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new mainlib.test();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(mainlib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="648" style="width: 982px; background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
 (function(module) {
 try {
   module = angular.module('fattiggarden');
@@ -8021,5 +7777,308 @@ module.run(['$templateCache', function($templateCache) {
     '							}</style><title>BigNoodleTitling Regular Specimen</title><script type="text/javascript">$(document).ready(function() {\n' +
     '			$(\'#container\').easyTabs({defaultContent:1});\n' +
     '		});</script></head><body><div id="container"><div id="header">BigNoodleTitling Regular</div><ul class="tabs"><li><a href="#specimen">Specimen</a></li><li><a href="#layout">Sample Layout</a></li><li><a href="#glyphs">Glyphs &amp; Languages</a></li><li><a href="#installing">Installing Webfonts</a></li></ul><div id="main_content"><div id="specimen"><div class="section"><div class="grid12 firstcol"><div class="huge">AaBb</div></div></div><div class="section"><div class="glyph_range">A&#x200B;B&#x200b;C&#x200b;D&#x200b;E&#x200b;F&#x200b;G&#x200b;H&#x200b;I&#x200b;J&#x200b;K&#x200b;L&#x200b;M&#x200b;N&#x200b;O&#x200b;P&#x200b;Q&#x200b;R&#x200b;S&#x200b;T&#x200b;U&#x200b;V&#x200b;W&#x200b;X&#x200b;Y&#x200b;Z&#x200b;a&#x200b;b&#x200b;c&#x200b;d&#x200b;e&#x200b;f&#x200b;g&#x200b;h&#x200b;i&#x200b;j&#x200b;k&#x200b;l&#x200b;m&#x200b;n&#x200b;o&#x200b;p&#x200b;q&#x200b;r&#x200b;s&#x200b;t&#x200b;u&#x200b;v&#x200b;w&#x200b;x&#x200b;y&#x200b;z&#x200b;1&#x200b;2&#x200b;3&#x200b;4&#x200b;5&#x200b;6&#x200b;7&#x200b;8&#x200b;9&#x200b;0&#x200b;&amp;&#x200b;.&#x200b;,&#x200b;?&#x200b;!&#x200b;&#64;&#x200b;(&#x200b;)&#x200b;#&#x200b;$&#x200b;%&#x200b;*&#x200b;+&#x200b;-&#x200b;=&#x200b;:&#x200b;;</div></div><div class="section"><div class="grid12 firstcol"><table class="sample_table"><tr><td>10</td><td class="size10">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>11</td><td class="size11">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>12</td><td class="size12">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>13</td><td class="size13">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>14</td><td class="size14">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>16</td><td class="size16">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>18</td><td class="size18">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>20</td><td class="size20">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>24</td><td class="size24">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>30</td><td class="size30">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>36</td><td class="size36">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>48</td><td class="size48">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>60</td><td class="size60">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>72</td><td class="size72">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>90</td><td class="size90">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr></table></div></div><div class="section" id="bodycomparison"><div id="xheight"><div class="fontbody">&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;body</div><div class="arialbody">body</div><div class="verdanabody">body</div><div class="georgiabody">body</div></div><div class="fontbody" style="z-index:1">body<span>BigNoodleTitling Regular</span></div><div class="arialbody" style="z-index:1">body<span>Arial</span></div><div class="verdanabody" style="z-index:1">body<span>Verdana</span></div><div class="georgiabody" style="z-index:1">body<span>Georgia</span></div></div><div class="section psample psample_row1" id=""><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row2" id=""><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row4" id=""><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row1 fullreverse"><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample psample_row2 fullreverse"><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row4" id="" style="border-bottom: 20px #000 solid"><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div></div><div id="layout"><div class="section"><div class="grid12 firstcol"><h1>Lorem Ipsum Dolor</h1><h2>Etiam porta sem malesuada magna mollis euismod</h2><p class="byline">By <a href="#link">Aenean Lacinia</a></p></div></div><div class="section"><div class="grid8 firstcol"><p class="large">Donec sed odio dui. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><h3>Pellentesque ornare sem</h3><p>Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas faucibus mollis interdum. Donec ullamcorper nulla non metus auctor fringilla. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam id dolor id nibh ultricies vehicula ut id elit.</p><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p><p>Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Aenean lacinia bibendum nulla sed consectetur.</p><p>Nullam quis risus eget urna mollis ornare vel eu leo. Nullam quis risus eget urna mollis ornare vel eu leo. Maecenas sed diam eget risus varius blandit sit amet non magna. Donec ullamcorper nulla non metus auctor fringilla.</p><h3>Cras mattis consectetur</h3><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Aenean lacinia bibendum nulla sed consectetur. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum.</p><p>Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna mollis ornare vel eu leo. Cras mattis consectetur purus sit amet fermentum.</p></div><div class="grid4 sidebar"><div class="box reverse"><p class="last">Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div><p class="caption">Maecenas sed diam eget risus varius.</p><p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Vestibulum id ligula porta felis euismod semper. Sed posuere consectetur est at lobortis. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Aenean lacinia bibendum nulla sed consectetur. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Aenean lacinia bibendum nulla sed consectetur. Nullam quis risus eget urna mollis ornare vel eu leo.</p><p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec ullamcorper nulla non metus auctor fringilla. Maecenas faucibus mollis interdum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p></div></div></div><div id="glyphs"><div class="section"><div class="grid12 firstcol"><h1>Language Support</h1><p>The subset of BigNoodleTitling Regular in this kit supports the following languages:<br></p><h1>Glyph Chart</h1><p>The subset of BigNoodleTitling Regular in this kit includes all the glyphs listed below. Unicode entities are included above each glyph to help you insert individual characters into your layout.</p><div id="glyph_chart"><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#33;</p>&#33;</div><div><p>&amp;#34;</p>&#34;</div><div><p>&amp;#35;</p>&#35;</div><div><p>&amp;#36;</p>&#36;</div><div><p>&amp;#37;</p>&#37;</div><div><p>&amp;#38;</p>&#38;</div><div><p>&amp;#39;</p>&#39;</div><div><p>&amp;#40;</p>&#40;</div><div><p>&amp;#41;</p>&#41;</div><div><p>&amp;#42;</p>&#42;</div><div><p>&amp;#43;</p>&#43;</div><div><p>&amp;#44;</p>&#44;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#46;</p>&#46;</div><div><p>&amp;#47;</p>&#47;</div><div><p>&amp;#48;</p>&#48;</div><div><p>&amp;#49;</p>&#49;</div><div><p>&amp;#50;</p>&#50;</div><div><p>&amp;#51;</p>&#51;</div><div><p>&amp;#52;</p>&#52;</div><div><p>&amp;#53;</p>&#53;</div><div><p>&amp;#54;</p>&#54;</div><div><p>&amp;#55;</p>&#55;</div><div><p>&amp;#56;</p>&#56;</div><div><p>&amp;#57;</p>&#57;</div><div><p>&amp;#58;</p>&#58;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#60;</p>&#60;</div><div><p>&amp;#61;</p>&#61;</div><div><p>&amp;#62;</p>&#62;</div><div><p>&amp;#63;</p>&#63;</div><div><p>&amp;#64;</p>&#64;</div><div><p>&amp;#65;</p>&#65;</div><div><p>&amp;#66;</p>&#66;</div><div><p>&amp;#67;</p>&#67;</div><div><p>&amp;#68;</p>&#68;</div><div><p>&amp;#69;</p>&#69;</div><div><p>&amp;#70;</p>&#70;</div><div><p>&amp;#71;</p>&#71;</div><div><p>&amp;#72;</p>&#72;</div><div><p>&amp;#73;</p>&#73;</div><div><p>&amp;#74;</p>&#74;</div><div><p>&amp;#75;</p>&#75;</div><div><p>&amp;#76;</p>&#76;</div><div><p>&amp;#77;</p>&#77;</div><div><p>&amp;#78;</p>&#78;</div><div><p>&amp;#79;</p>&#79;</div><div><p>&amp;#80;</p>&#80;</div><div><p>&amp;#81;</p>&#81;</div><div><p>&amp;#82;</p>&#82;</div><div><p>&amp;#83;</p>&#83;</div><div><p>&amp;#84;</p>&#84;</div><div><p>&amp;#85;</p>&#85;</div><div><p>&amp;#86;</p>&#86;</div><div><p>&amp;#87;</p>&#87;</div><div><p>&amp;#88;</p>&#88;</div><div><p>&amp;#89;</p>&#89;</div><div><p>&amp;#90;</p>&#90;</div><div><p>&amp;#91;</p>&#91;</div><div><p>&amp;#92;</p>&#92;</div><div><p>&amp;#93;</p>&#93;</div><div><p>&amp;#95;</p>&#95;</div><div><p>&amp;#96;</p>&#96;</div><div><p>&amp;#123;</p>&#123;</div><div><p>&amp;#124;</p>&#124;</div><div><p>&amp;#125;</p>&#125;</div><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#161;</p>&#161;</div><div><p>&amp;#162;</p>&#162;</div><div><p>&amp;#163;</p>&#163;</div><div><p>&amp;#165;</p>&#165;</div><div><p>&amp;#166;</p>&#166;</div><div><p>&amp;#167;</p>&#167;</div><div><p>&amp;#168;</p>&#168;</div><div><p>&amp;#169;</p>&#169;</div><div><p>&amp;#170;</p>&#170;</div><div><p>&amp;#171;</p>&#171;</div><div><p>&amp;#172;</p>&#172;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#174;</p>&#174;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#176;</p>&#176;</div><div><p>&amp;#178;</p>&#178;</div><div><p>&amp;#179;</p>&#179;</div><div><p>&amp;#180;</p>&#180;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#182;</p>&#182;</div><div><p>&amp;#184;</p>&#184;</div><div><p>&amp;#185;</p>&#185;</div><div><p>&amp;#186;</p>&#186;</div><div><p>&amp;#187;</p>&#187;</div><div><p>&amp;#188;</p>&#188;</div><div><p>&amp;#189;</p>&#189;</div><div><p>&amp;#190;</p>&#190;</div><div><p>&amp;#191;</p>&#191;</div><div><p>&amp;#198;</p>&#198;</div><div><p>&amp;#215;</p>&#215;</div><div><p>&amp;#216;</p>&#216;</div><div><p>&amp;#222;</p>&#222;</div><div><p>&amp;#223;</p>&#223;</div><div><p>&amp;#247;</p>&#247;</div><div><p>&amp;#321;</p>&#321;</div><div><p>&amp;#338;</p>&#338;</div><div><p>&amp;#402;</p>&#402;</div><div><p>&amp;#710;</p>&#710;</div><div><p>&amp;#711;</p>&#711;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#728;</p>&#728;</div><div><p>&amp;#729;</p>&#729;</div><div><p>&amp;#730;</p>&#730;</div><div><p>&amp;#731;</p>&#731;</div><div><p>&amp;#732;</p>&#732;</div><div><p>&amp;#733;</p>&#733;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#8211;</p>&#8211;</div><div><p>&amp;#8212;</p>&#8212;</div><div><p>&amp;#8216;</p>&#8216;</div><div><p>&amp;#8217;</p>&#8217;</div><div><p>&amp;#8220;</p>&#8220;</div><div><p>&amp;#8221;</p>&#8221;</div><div><p>&amp;#8224;</p>&#8224;</div><div><p>&amp;#8225;</p>&#8225;</div><div><p>&amp;#8226;</p>&#8226;</div><div><p>&amp;#8240;</p>&#8240;</div><div><p>&amp;#8249;</p>&#8249;</div><div><p>&amp;#8250;</p>&#8250;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#8364;</p>&#8364;</div><div><p>&amp;#8482;</p>&#8482;</div><div><p>&amp;#8722;</p>&#8722;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#64257;</p>&#64257;</div><div><p>&amp;#64258;</p>&#64258;</div></div></div></div></div><div id="specs"></div><div id="installing"><div class="section"><div class="grid7 firstcol"><h1>Installing Webfonts</h1><p>Webfonts are supported by all major browser platforms but not all in the same way. There are currently four different font formats that must be included in order to target all browsers. This includes TTF, WOFF, EOT and SVG.</p><h2>1. Upload your webfonts</h2><p>You must upload your webfont kit to your website. They should be in or near the same directory as your CSS files.</p><h2>2. Include the webfont stylesheet</h2><p>A special CSS @font-face declaration helps the various browsers select the appropriate font it needs without causing you a bunch of headaches. Learn more about this syntax by reading the <a href="http://www.fontspring.com/blog/further-hardening-of-the-bulletproof-syntax">Fontspring blog post</a> about it. The code for it is as follows:</p><code>@font-face{ font-family: \'MyWebFont\'; src: url(\'WebFont.eot\'); src: url(\'WebFont.eot?#iefix\') format(\'embedded-opentype\'), url(\'WebFont.woff\') format(\'woff\'), url(\'WebFont.ttf\') format(\'truetype\'), url(\'WebFont.svg#webfont\') format(\'svg\'); }</code><p>We\'ve already gone ahead and generated the code for you. All you have to do is link to the stylesheet in your HTML, like this:</p><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;stylesheet.css&quot; type=&quot;text/css&quot; charset=&quot;utf-8&quot; /&gt;</code><h2>3. Modify your own stylesheet</h2><p>To take advantage of your new fonts, you must tell your stylesheet to use them. Look at the original @font-face declaration above and find the property called "font-family." The name linked there will be what you use to reference the font. Prepend that webfont name to the font stack in the "font-family" property, inside the selector you want to change. For example:</p><code>p { font-family: \'WebFont\', Arial, sans-serif; }</code><h2>4. Test</h2><p>Getting webfonts to work cross-browser <em>can</em> be tricky. Use the information in the sidebar to help you if you find that fonts aren\'t loading in a particular browser.</p></div><div class="grid5 sidebar"><div class="box"><h2>Troubleshooting<br>Font-Face Problems</h2><p>Having trouble getting your webfonts to load in your new website? Here are some tips to sort out what might be the problem.</p><h3>Fonts not showing in any browser</h3><p>This sounds like you need to work on the plumbing. You either did not upload the fonts to the correct directory, or you did not link the fonts properly in the CSS. If you\'ve confirmed that all this is correct and you still have a problem, take a look at your .htaccess file and see if requests are getting intercepted.</p><h3>Fonts not loading in iPhone or iPad</h3><p>The most common problem here is that you are serving the fonts from an IIS server. IIS refuses to serve files that have unknown MIME types. If that is the case, you must set the MIME type for SVG to "image/svg+xml" in the server settings. Follow these instructions from Microsoft if you need help.</p><h3>Fonts not loading in Firefox</h3><p>The primary reason for this failure? You are still using a version Firefox older than 3.5. So upgrade already! If that isn\'t it, then you are very likely serving fonts from a different domain. Firefox requires that all font assets be served from the same domain. Lastly it is possible that you need to add WOFF to your list of MIME types (if you are serving via IIS.)</p><h3>Fonts not loading in IE</h3><p>Are you looking at Internet Explorer on an actual Windows machine or are you cheating by using a service like Adobe BrowserLab? Many of these screenshot services do not render @font-face for IE. Best to test it on a real machine.</p><h3>Fonts not loading in IE9</h3><p>IE9, like Firefox, requires that fonts be served from the same domain as the website. Make sure that is the case.</p></div></div></div></div></div><div id="footer"><p>&copy;2010-2011 Font Squirrel. All rights reserved.</p></div></div></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_0_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/germany1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>germany1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="germany1.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.germany_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/horsens.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>horsens</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="horsens.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.horsens();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/horsens_second.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>horsens_second</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="horsens_second.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.horsens_second();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/sundholm.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>sundholm</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="sundholm.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.sundholm();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/sundholm_second.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>sundholm_second</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="sundholm_second.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.sundholm_second();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/svendborg.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>svendborg</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="svendborg.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.svendborg();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/games/svendborg_second.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>svendborg_second</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="svendborg_second.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(gamelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new gamelib.svendborg_second();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '	stage.enableMouseOver();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
 }]);
 })();
