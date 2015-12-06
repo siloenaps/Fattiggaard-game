@@ -126,9 +126,9 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 	}
 
 	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(2137));
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(2326));
 
-	// Layer 2
+	// Layer 4
 	this.instance = new lib.Intro_1();
 
 	this.instance_1 = new lib.Intro_2();
@@ -158,7 +158,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 
 	this.instance_13 = new lib.Intro_16();
 
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},211).to({state:[{t:this.instance_2}]},75).to({state:[{t:this.instance_3}]},111).to({state:[{t:this.instance_4}]},162).to({state:[{t:this.instance_5}]},52).to({state:[{t:this.instance_6}]},91).to({state:[{t:this.instance_7}]},188).to({state:[{t:this.instance_8}]},193).to({state:[{t:this.instance_9}]},145).to({state:[{t:this.instance_10}]},169).to({state:[{t:this.instance_11}]},296).to({state:[{t:this.instance_12}]},269).to({state:[{t:this.instance_13}]},174).wait(1));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},444).to({state:[{t:this.instance_2}]},97).to({state:[{t:this.instance_3}]},99).to({state:[{t:this.instance_4}]},141).to({state:[{t:this.instance_5}]},73).to({state:[{t:this.instance_6}]},91).to({state:[{t:this.instance_7}]},178).to({state:[{t:this.instance_8}]},203).to({state:[{t:this.instance_9}]},146).to({state:[{t:this.instance_10}]},168).to({state:[{t:this.instance_11}]},279).to({state:[{t:this.instance_12}]},336).to({state:[{t:this.instance_13}]},70).wait(1));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(290,202,580,404);
