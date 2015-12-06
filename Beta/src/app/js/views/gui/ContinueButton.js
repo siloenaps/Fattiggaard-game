@@ -84,9 +84,21 @@ var ContinueButton = {
 	},
 	onClick: function(event){
 		'use strict';
+		// console.log(event.target);
+		// event.target.goto('out');
 		var e = new createjs.Event('click');
  		this.dispatchEvent(e);
 	},
+	// onMouseDown: function(event){
+	// 	'use strict';
+	// 	// console.log(event.target);
+	// 	event.target.goto('click');
+	// },
+	// onMouseUp: function(event){
+	// 	'use strict';
+	// 	console.log(event.target);
+	// 	event.target.goto('out');
+	// },
 	destroy: function(){
 		'use strict';
 		if(this.listners !== undefined){

@@ -5,10 +5,10 @@ var LoadJS = {
 		var urlList = [];
 		var tmpList = [];
 
-		$('.preload-wrapper').removeClass('hide');
-		$('.preload-wrapper').addClass('show');
-		$('.preload-wrapper').addClass('full');
-		$('.preloader').addClass('full');
+		// $('.preload-wrapper').removeClass('hide');
+		// $('.preload-wrapper').addClass('show');
+		// $('.preload-wrapper').addClass('full');
+		// $('.preloader').addClass('full');
 		
 		//url is URL of external file, code is the code
 	    //to be called from the file, location is the location to 

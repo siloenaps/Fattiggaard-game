@@ -63,28 +63,18 @@ var Preloader = {
 		$('.preload-wrapper').removeClass('hide');
 		$('.preload-wrapper').addClass('show');
 
-		$('.preload-wrapper').removeClass('full');
-		$('.preload-wrapper').removeClass('small');
-		$('.preloader').removeClass('full');
-		$('.preloader').removeClass('small');
+		// $('.preload-wrapper').removeClass('full');
+		// $('.preload-wrapper').removeClass('small');
+		// $('.preloader').removeClass('full');
+		// $('.preloader').removeClass('small');
 
-		$('.preload-wrapper').addClass(clss);
-		$('.preloader').addClass(clss);
+		// $('.preload-wrapper').addClass(clss);
+		// $('.preloader').addClass(clss);
 
 
 		$('.progress-bar').removeClass('hide');
 		$('.progress-bar').removeClass('show');
-		$('.progress-bar').addClass('show');
-		// $('.preloader').removeClass('small');		
-		
-		// $('.preload-wrapper').removeClass('full');
-		// $('.preload-wrapper').removeClass('small');
-
-		// $('.preload-wrapper').removeClass('show');
-
-		
-		// $('.preload-wrapper').addClass(clss);
-		// $('.preloader').addClass(clss);
+		// $('.progress-bar').addClass('show');
 	},
 	remove: function(id){
 		'use strict';		
@@ -96,10 +86,12 @@ var Preloader = {
 			if(this.tracker[t] === false)
 				return;
 		}
+
+		$('.preload-wrapper').removeClass('show');
 		$('.preload-wrapper').addClass('hide');
 		$('.progress-bar').removeClass('show');
 		$('.progress-bar').removeClass('hide');
-		$('.progress-bar').addClass('hide');
+		// $('.progress-bar').addClass('hide');
 		
 	}
 };

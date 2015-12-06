@@ -33,7 +33,8 @@ var canvas;
 					stage.addChild($scope.exportRoot);
 					
 					// Do cursor
-					stage.enableMouseOver(10);
+					stage.enableMouseOver(20);
+					createjs.Touch.enable(stage);
 
 					// Scale canvas according to ratio
 					stage.scaleX = stage.scaleY = Environment.ratio;
