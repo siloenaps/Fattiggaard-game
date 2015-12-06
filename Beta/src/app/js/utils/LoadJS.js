@@ -5,6 +5,8 @@ var LoadJS = {
 		var urlList = [];
 		var tmpList = [];
 
+		PreloadGFX.hide();
+
 		// $('.preload-wrapper').removeClass('hide');
 		// $('.preload-wrapper').addClass('show');
 		// $('.preload-wrapper').addClass('full');

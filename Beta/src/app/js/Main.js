@@ -9,7 +9,8 @@ lib.properties = {
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../assets/images/pool/_0_0Frontpage.jpg", id:"_0_0Frontpage"}
+		{src:"../assets/images/pool/_0_0Frontpage.jpg", id:"_0_0Frontpage"},
+		{src:"../assets/images/pool/Bitmap33.jpg", id:"Bitmap33"}
 	]
 };
 
@@ -23,6 +24,12 @@ lib.properties = {
 	this.initialize(img._0_0Frontpage);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
+
+
+(lib.Bitmap33 = function() {
+	this.initialize(img.Bitmap33);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,641,270);
 
 
 (lib.PageContainerEmpty = function() {
@@ -176,6 +183,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,96,96);
 	this.instance._off = true;
 
 	this.timeline.addTween(cjs.Tween.get(this.instance).wait(14).to({_off:false},0).to({_off:true},10).wait(60));
+
+	// Layer 1
+	this.instance_1 = new lib.Bitmap33();
+	this.instance_1.setTransform(171,137);
+
+	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(84));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(502,324,1044,768);

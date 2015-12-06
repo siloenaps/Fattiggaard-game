@@ -21,10 +21,7 @@ var Preloader = {
 
 		var self = this;
 
-		// if(clss == null)
-		// 	clss = 'center';
-
-		var loader = new createjs.LoadQueue(false);
+		var loader = new createjs.LoadQueue(true);
 		loader.id = this.id;
 		(keep === undefined) ? loader.keepPreloader = false : loader.keepPreloader = keep;
 		if(handleFileLoad != null)
@@ -57,28 +54,16 @@ var Preloader = {
 	},
 	add: function(clss){
 		'use strict';
-		console.log('add:', clss, this.id);		
-
+		PreloadGFX.show();
+		// console.log('add:', clss, this.id);	
 		// this.id = id;
-		$('.preload-wrapper').removeClass('hide');
-		$('.preload-wrapper').addClass('show');
-
-		// $('.preload-wrapper').removeClass('full');
-		// $('.preload-wrapper').removeClass('small');
-		// $('.preloader').removeClass('full');
-		// $('.preloader').removeClass('small');
-
-		// $('.preload-wrapper').addClass(clss);
-		// $('.preloader').addClass(clss);
-
-
-		$('.progress-bar').removeClass('hide');
-		$('.progress-bar').removeClass('show');
-		// $('.progress-bar').addClass('show');
+		// $('.preload-wrapper').removeClass('hide');
+		// $('.preload-wrapper').addClass('show');
+		// $('.progress-bar').removeClass('hide');
+		// $('.progress-bar').removeClass('show');
 	},
 	remove: function(id){
 		'use strict';		
-		
 		
 		// this.tracker[id] = true;
 		for(var t in this.tracker){
@@ -86,12 +71,11 @@ var Preloader = {
 			if(this.tracker[t] === false)
 				return;
 		}
-
-		$('.preload-wrapper').removeClass('show');
-		$('.preload-wrapper').addClass('hide');
-		$('.progress-bar').removeClass('show');
-		$('.progress-bar').removeClass('hide');
-		// $('.progress-bar').addClass('hide');
+		PreloadGFX.hide();
+		// $('.preload-wrapper').removeClass('show');
+		// $('.preload-wrapper').addClass('hide');
+		// $('.progress-bar').removeClass('show');
+		// $('.progress-bar').removeClass('hide');
 		
 	}
 };

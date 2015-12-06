@@ -8,6 +8,8 @@ var FlowManager = {
 			throw new Error("'root' is", root);
 		}
 		this.root = root;
+		PreloadGFX.blocker = this.root.blocker_black;
+		console.log('this.root.blocker_black', this.root.blocker_black)
 	},
 	clearLib: function(){
 		lib = null;
@@ -25,8 +27,8 @@ var FlowManager = {
 		// this.root.gotoAndStop('character_build'); // TEST
 		switch(page){
 			case '0.0':
-				this.root.gotoAndStop('frontpage');	
-				this.root.blocker_black.visible = false;
+				this.root.gotoAndStop('frontpage');					
+				PreloadGFX.blocker.visible = false;
 
 				ContinueButton.on('click', function(event){
 					event.remove();

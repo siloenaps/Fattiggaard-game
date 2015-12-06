@@ -41,12 +41,13 @@ SoundController.prototype = {
 		    self.complete = true;
 		    self.dispatcher(new createjs.Event('complete'));
 		  },
-		  onload: function() {
-		    console.log('Loaded!');
-		    // self.dispatchEvent(new createjs.Event('ready'));
+		  onload: function() {		    
 		    self.dispatcher(new createjs.Event('ready'));
+		    PreloadGFX.hide();
 		  }
 		}); 
+
+		PreloadGFX.show(false);
 	},
 	volume: function(value) {
 		'use strict';
