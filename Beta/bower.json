@@ -22,9 +22,10 @@
     "angular": "~1.2.14",
     "angular-route": "~1.2.14",
     "browser-detection": "browserdetection#~0.3.3",
-    "requirejs": "~2.1.20"
+    "howler.js": "howler#~1.1.28"
   },
   "devDependencies": {
-    "angular-mocks": "~1.2.14"
+    "angular-mocks": "~1.2.14",
+    "ion-sound": "ionsound#~3.0.6"
   }
 }

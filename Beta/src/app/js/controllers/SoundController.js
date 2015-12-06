@@ -1,41 +1,34 @@
 /**
 	Controller uses the browser's AUDIO element as play back for sound
 */
-function SoundController(audioPath, duration, loop) {
+function SoundController(audioPath, doloop) {
 	'use strict';
 
 	var self = this;
 
-	if(loop === undefined || loop === null)
-		loop = false;
+	if(doloop === undefined || doloop === null)
+		doloop = false;
 	
-	this.sndObj = document.createElement('AUDIO');		
-	this.sndObj.src = audioPath;
-	this.sndObj.loop = loop;
-	this.duration = duration;
-
-
-	// Firefox does not invoke the audio load method?! But setting load automated seems to work
-	if(Environment.browser.firefox){
-		this.sndObj.preload = 'auto';
-	}else{
-		this.sndObj.preload = 'none';
-	}
-
-	// LIsten for sound being ready 
-	this.sndObj.addEventListener('canplaythrough', function(event){
-		var e = new createjs.Event('ready');
- 		self.dispatchEvent(e);
-	}, false);
-	this.sndObj.addEventListener('ended', function(event){
- 		this.complete = true;
-	}, false);
+	// Howler
+	this.sndObj = new Howl({
+	  urls: [audioPath],
+	  autoplay: false,
+	  loop: doloop,
+	  volume: 1,
+	  onend: function() {
+	    self.complete = true;
+	    self.dispatchEvent(new createjs.Event('complete'));
+	  },
+	  onload: function() {
+	    // console.log('Loaded!');
+	    self.dispatchEvent(new createjs.Event('ready'));
+	  }
+	}); 	
 }
 
 SoundController.prototype = {
 	sndObj: null,
 	currentSndPosition: 0,
-	duration: 0,
 	paused: false,
 	self: this,
 	complete: false,
@@ -66,14 +59,14 @@ SoundController.prototype = {
 	},
 	stop: function() {
 		'use strict';
-		this.sndObj.pause();
-		this.sndObj.currentTime = 0;
+		this.sndObj.stop();
+		// this.sndObj.currentTime = 0;
 		this.paused = false;
 		this.sndObj.state = 'stop';
 	},
 	pause: function() {
 		'use strict';
-		this.currentSndPosition = this.sndObj.currentTime;
+		// this.currentSndPosition = this.sndObj.currentTime;
 		this.sndObj.pause();
 		this.paused = true;
 		this.sndObj.state = 'pause';
@@ -84,7 +77,8 @@ SoundController.prototype = {
 	},
 	progress: function(){
 		'use strict';
-		var num = this.sndObj.currentTime / this.duration;
+		var num = this.sndObj.pos() / this.sndObj._duration;
+		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
 		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
 	},
 	isComplete: function(){

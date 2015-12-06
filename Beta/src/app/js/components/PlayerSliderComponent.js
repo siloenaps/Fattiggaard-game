@@ -76,8 +76,7 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 			}
 			try{
 				var snd = SoundService.getSlideSoundById(self.slideId);
-				self.soundController = new SoundController(snd.src, snd.duration);
-				//self.soundController = new SoundController(SoundService.getSlideSoundpathById(self.slideId), SoundService.getSlideDurationById(self.slideId));
+				self.soundController = new SoundController(snd.src);
 				self.soundController.on('ready', function(event){
 					event.remove(); // Only run once. Otherwise it will run every time player has ended and starts slide after it played to the end
 					// Enable buttons
@@ -86,6 +85,18 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 
 					// Dispatch event 
 					self.dispatchEvent(new createjs.Event('ready'));
+				}, self);
+				self.soundController.on('complete', function(event){
+					// event.remove();
+					console.log('complete');
+					// Swap Play/Pause visibility
+					this.pauseBtn.visible(false);
+					this.playBtn.visible(true);
+
+					self.removeLoopEvent();
+
+					// Dispatch event 
+					self.dispatchEvent(new createjs.Event('complete'));
 				}, self);
 				self.soundController.load();
 			}catch(err){
@@ -108,51 +119,12 @@ PlayerSliderComponent.prototype.removeLoopEvent = function(){
 };
 PlayerSliderComponent.prototype.loop = function(){
 	'use strict';	
-	// var progression = this.progress();
 	var sndProgression = this.soundController.progress();
-
-	// Reached end of slide
-	if(sndProgression >= 1){
-		// Remove tick
-		this.removeLoopEvent();
-
-		// Set slide timeline back to start
-		this.slide.stop();
-
-		// Swap Play/Pause visibility
-		this.pauseBtn.visible(false);
-		this.playBtn.visible(true);
-
-		this.paused = false;
-
-		// Dispacth event 
-		this.dispatchEvent(new createjs.Event('complete'));
-	}else{
-		var sndIsComplete = this.soundController.isComplete();				
-		if(!sndIsComplete){
-
-			// Calculate in which frame the timeline shold be related to soudn progression
-			var desiredFrame = Math.round(this.duration * sndProgression) + this.offset;			
-
-			// Just a fail safe making sure that we do NOT play a frame already shown
-			if(desiredFrame > this.previousFrame){
-				this.slide.gotoAndPlay(desiredFrame);
-				this.previousFrame = desiredFrame;
-			}
-			
-			// Sound
-			if(this.soundOffset > 0){
-				if(this.soundController.state !== 'play'){
-					if(this.slide.currentFrame >= this.soundOffset){						
-						this.listeners.auto = this.dispatchEvent(new createjs.Event('autoplay'));
-					}
-				}				
-			}
-		}
-	}
+	
+	var desiredFrame = Math.round(this.duration * sndProgression) + this.soundOffset;
+	this.slide.gotoAndPlay(desiredFrame);
 
 	// Progression bar
-	// this.progressionBar.scaleX = sndProgression;
 	this.progressionBar.scaleX = this.progress()
 };
 PlayerSliderComponent.prototype.play = function(){
@@ -190,10 +162,6 @@ PlayerSliderComponent.prototype.play = function(){
 	
 	// Timeline
 	this.addLoopEvent('tick');
-	this.slide.play();
-
-	// Sound
-	// this.soundController.play();
 
 	// Set this last
 	this.paused = false;

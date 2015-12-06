@@ -2,8 +2,8 @@ var HUDController = {
 	init: function(view){
 		this.view = view;		
 		this.update();
-		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src, SoundService.matrix.points.plus.duration);
-		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src, SoundService.matrix.points.minus.duration);
+		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src);
+		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src);
 	},
 	update: function(){
 		if(this.view === undefined || this.view === null){

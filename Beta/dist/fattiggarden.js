@@ -6131,27 +6131,46 @@ function SoundController(audioPath, duration, loop) {
 	if(loop === undefined || loop === null)
 		loop = false;
 	
-	this.sndObj = document.createElement('AUDIO');		
-	this.sndObj.src = audioPath;
-	this.sndObj.loop = loop;
-	this.duration = duration;
+	// this.sndObj = document.createElement('AUDIO');		
+	// this.sndObj.src = audioPath;
+	// this.sndObj.loop = loop;
+	// this.duration = duration;
+
+
+	// Howler
+	this.sndObj = new Howl({
+	  urls: [audioPath],
+	  autoplay: false,
+	  loop: loop,
+	  volume: 1,
+	  onend: function() {
+	    console.log('Finished!');
+	    self.complete = true;
+	  },
+	  onload: function() {
+	    console.log('Loaded!');
+	    self.dispatchEvent(new createjs.Event('ready'));
+	  }
+	});
 
 
 	// Firefox does not invoke the audio load method?! But setting load automated seems to work
-	if(Environment.browser.firefox){
-		this.sndObj.preload = 'auto';
-	}else{
-		this.sndObj.preload = 'none';
-	}
+	// if(Environment.browser.firefox){
+	// 	this.sndObj.preload = 'auto';
+	// }else{
+	// 	this.sndObj.preload = 'none';
+	// }
 
 	// LIsten for sound being ready 
-	this.sndObj.addEventListener('canplaythrough', function(event){
-		var e = new createjs.Event('ready');
- 		self.dispatchEvent(e);
-	}, false);
-	this.sndObj.addEventListener('ended', function(event){
- 		this.complete = true;
-	}, false);
+	// this.sndObj.addEventListener('canplaythrough', function(event){
+	// 	var e = new createjs.Event('ready');
+ // 		self.dispatchEvent(e);
+	// }, false);
+	// this.sndObj.addEventListener('ended', function(event){
+ // 		this.complete = true;
+	// }, false);
+
+ 	
 }
 
 SoundController.prototype = {
@@ -6188,14 +6207,14 @@ SoundController.prototype = {
 	},
 	stop: function() {
 		'use strict';
-		this.sndObj.pause();
-		this.sndObj.currentTime = 0;
+		this.sndObj.stop();
+		// this.sndObj.currentTime = 0;
 		this.paused = false;
 		this.sndObj.state = 'stop';
 	},
 	pause: function() {
 		'use strict';
-		this.currentSndPosition = this.sndObj.currentTime;
+		// this.currentSndPosition = this.sndObj.currentTime;
 		this.sndObj.pause();
 		this.paused = true;
 		this.sndObj.state = 'pause';
@@ -6206,7 +6225,9 @@ SoundController.prototype = {
 	},
 	progress: function(){
 		'use strict';
-		var num = this.sndObj.currentTime / this.duration;
+		var num = this.sndObj.pos() / this.sndObj._duration;
+		// $('.debug').text(this.sndObj.pos);
+		console.log(num);
 		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
 	},
 	isComplete: function(){
@@ -7041,6 +7062,43 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_0_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/fattiggarden/assets/logic/games/epilogue.html',
     '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>epilogue</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="epilogue.js"></script><script>var canvas, stage, exportRoot;\n' +
     '\n' +
@@ -7335,42 +7393,5 @@ module.run(['$templateCache', function($templateCache) {
     '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_0_1();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
 })();

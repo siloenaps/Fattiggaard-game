@@ -2,6 +2,13 @@ body, html {
   margin: 0;
   background: #000; }
 
+.debug {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  font-size: 36px;
+  z-index: 1200; }
+
 .show {
   visibility: visible; }
 
