@@ -63,24 +63,24 @@ SoundService.matrix = {
 	'1.8': { label:'arrested', src:SoundService.properties.basePath+'1.8.mp3' },	
 	'2.2.1': { src:SoundService.properties.basePath+'2.2.1.mp3' },
 	'2.2.3': { src:SoundService.properties.basePath+'2.2.3.mp3' },
-	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3' },
-	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3' },
+	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1.mp3' },
+	// '2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3' },
 	'2.10.2': {
-		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3' },
-		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3' }
+		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2.a.mp3' },
+		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2.b.mp3' }
 	},
-	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3' },
+	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1.mp3' },
 	
 	slides: {
 				'slide_0_1': { src:SoundService.properties.basePath+'film01medmusik_mixdown.mp3' },
 				'slide_1_0_1': { src:SoundService.properties.basePath+'film10_mixdown.mp3' },
 				'slide_2_5': { src:SoundService.properties.basePath+'2.5_mixdown.mp3' },
-				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3' },
+				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'2.7.1.vaaben_mixdown.mp3' },
 				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'2.7.1.slagt_mixdown.mp3' },
 				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'2.7.1.mine_mixdown.mp3' },
-				'slide_home1A': { src:SoundService.properties.basePath+'2.7.1.vaaben_mixdown.mp3' },
-				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3' },
-				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3' },
+				// 'slide_home1A': { src:SoundService.properties.basePath+'2.7.1.vaaben_mixdown.mp3' },
+				// 'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3' },
+				'slide_3_0': { src:SoundService.properties.basePath+'3.0_mixdown.mp3' },
 				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
 				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
 				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
