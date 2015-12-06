@@ -1,13 +1,16 @@
 body, html {
   margin: 0;
-  background: #000; }
+  background: #000;
+  background-image: url("/assets/images/Logo_wait.jpg");
+  background-repeat: no-repeat; }
 
 .debug {
   position: absolute;
   left: 20px;
   top: 20px;
   font-size: 36px;
-  z-index: 1200; }
+  z-index: 1200;
+  color: #CCC; }
 
 .show {
   visibility: visible; }
@@ -26,39 +29,29 @@ body, html {
   left: 0;
   top: 0;
   width: 100vw;
-  height: 100vh; }
+  height: 100vh;
+  max-width: 1024px;
+  max-height: 648px;
+  padding: 10px 0 0 10px; }
+  .preload-wrapper .image-wrapper {
+    position: absolute; }
+    .preload-wrapper .image-wrapper img {
+      width: 40px; }
   .preload-wrapper.small {
     background: none; }
-  .preload-wrapper .preloader .progress-bar {
-    position: relative;
-    transform: translateY(350px);
-    margin: auto;
-    position: relative;
-    height: 10px;
+  .preload-wrapper .progress-wrapper {
+    height: inherit;
     width: 400px;
-    border: 1px solid #FFF; }
-    .preload-wrapper .preloader .progress-bar .bar {
-      height: inherit;
-      width: inherit;
-      background-color: rgba(255, 255, 255, 0.5); }
-  .preload-wrapper .preloader.full, .preload-wrapper .preloader.small {
-    width: 1024px;
-    height: 648px; }
-    .preload-wrapper .preloader.full .image-wrapper, .preload-wrapper .preloader.small .image-wrapper {
-      top: 50%;
-      margin: 0 auto;
-      position: relative;
-      width: 3vw;
-      height: 3vw; }
-      .preload-wrapper .preloader.full .image-wrapper img, .preload-wrapper .preloader.small .image-wrapper img {
-        transform: translateY(-50%);
-        width: 3vw;
-        height: 3vw; }
-  .preload-wrapper .preloader.full {
-    background-image: url("/assets/images/Logo_wait.jpg");
-    background-repeat: no-repeat; }
-  .preload-wrapper .preloader.small {
-    background: none; }
+    margin: auto;
+    transform: translateY(50%); }
+    .preload-wrapper .progress-wrapper .progress-bar {
+      height: 10px;
+      width: 400px;
+      border: 1px solid #FFF; }
+      .preload-wrapper .progress-wrapper .progress-bar .bar {
+        height: inherit;
+        width: inherit;
+        background-color: rgba(255, 255, 255, 0.5); }
 
 .loader {
   position: relative;

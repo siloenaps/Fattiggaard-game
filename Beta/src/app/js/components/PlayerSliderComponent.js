@@ -37,15 +37,10 @@ var PlayerSliderComponent = function(view, soundOffset){
 };
 PlayerSliderComponent.prototype.preload = function(slideId, lib){
 	'use strict';
+	
 	var self = this;
 	this.slideId = slideId;
 
-	// console.log("preload: ", slideId);
-
-	// Flash sliders lib referecne due to id
-	// var lib = eval('libslide'+slideId);
-	// var lib = new Function('libslide_'+slideId);
-	
 	// Load assets	
 	Preloader.load(lib.properties.manifest, 
 		function(event){

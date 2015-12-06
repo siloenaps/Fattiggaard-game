@@ -344,9 +344,21 @@ var ContinueButton = {
 	},
 	onClick: function(event){
 		'use strict';
+		// console.log(event.target);
+		// event.target.goto('out');
 		var e = new createjs.Event('click');
  		this.dispatchEvent(e);
 	},
+	// onMouseDown: function(event){
+	// 	'use strict';
+	// 	// console.log(event.target);
+	// 	event.target.goto('click');
+	// },
+	// onMouseUp: function(event){
+	// 	'use strict';
+	// 	console.log(event.target);
+	// 	event.target.goto('out');
+	// },
 	destroy: function(){
 		'use strict';
 		if(this.listners !== undefined){
@@ -507,6 +519,8 @@ var ButtonCustom = function(view){
 
 	// Events
 	this.view.on('click', this.onClick, this);
+	// this.view.on('mousedown', this.onDown, this);
+	// this.view.on('pressup', this.onUp, this);
 	this.view.on('mouseover', this.onOver, this);
 	this.view.on('mouseout', this.onOut, this);
 
@@ -519,6 +533,10 @@ var ButtonCustom = function(view){
 
 	// ID
 	this.id = ButtonCustom.counter;
+};
+ButtonCustom.prototype.goto = function(frm){
+	'use strict';
+	this.view.gotoAndStop(frm);
 };
 ButtonCustom.prototype.visible = function(state){
 	'use strict';
@@ -568,6 +586,27 @@ ButtonCustom.prototype.onOut = function(event){
 	// exportRoot.cursor = 'auto';
 	Cursor.out();
 };
+// ButtonCustom.prototype.onDown = function(event){
+// 	'use strict';
+// 	if(!this.active){
+// 		return false;
+// 	}
+
+// 	// Dispatch event
+// 	var e = new createjs.Event('mousedown');
+//  	this.dispatchEvent(e);
+// };
+// ButtonCustom.prototype.onUp = function(event){
+// 	'use strict';
+// 	if(!this.active){
+// 		return false;
+// 	}
+// 	console.log('up');
+
+// 	// Dispatch event
+// 	var e = new createjs.Event('pressup');
+//  	this.dispatchEvent(e);
+// };
 ButtonCustom.prototype.destroy = function(){
 	'use strict';
 	this.view = null;
@@ -4994,28 +5033,18 @@ var Preloader = {
 		$('.preload-wrapper').removeClass('hide');
 		$('.preload-wrapper').addClass('show');
 
-		$('.preload-wrapper').removeClass('full');
-		$('.preload-wrapper').removeClass('small');
-		$('.preloader').removeClass('full');
-		$('.preloader').removeClass('small');
+		// $('.preload-wrapper').removeClass('full');
+		// $('.preload-wrapper').removeClass('small');
+		// $('.preloader').removeClass('full');
+		// $('.preloader').removeClass('small');
 
-		$('.preload-wrapper').addClass(clss);
-		$('.preloader').addClass(clss);
+		// $('.preload-wrapper').addClass(clss);
+		// $('.preloader').addClass(clss);
 
 
 		$('.progress-bar').removeClass('hide');
 		$('.progress-bar').removeClass('show');
-		$('.progress-bar').addClass('show');
-		// $('.preloader').removeClass('small');		
-		
-		// $('.preload-wrapper').removeClass('full');
-		// $('.preload-wrapper').removeClass('small');
-
-		// $('.preload-wrapper').removeClass('show');
-
-		
-		// $('.preload-wrapper').addClass(clss);
-		// $('.preloader').addClass(clss);
+		// $('.progress-bar').addClass('show');
 	},
 	remove: function(id){
 		'use strict';		
@@ -5027,10 +5056,12 @@ var Preloader = {
 			if(this.tracker[t] === false)
 				return;
 		}
+
+		$('.preload-wrapper').removeClass('show');
 		$('.preload-wrapper').addClass('hide');
 		$('.progress-bar').removeClass('show');
 		$('.progress-bar').removeClass('hide');
-		$('.progress-bar').addClass('hide');
+		// $('.progress-bar').addClass('hide');
 		
 	}
 };
@@ -5041,10 +5072,10 @@ var LoadJS = {
 		var urlList = [];
 		var tmpList = [];
 
-		$('.preload-wrapper').removeClass('hide');
-		$('.preload-wrapper').addClass('show');
-		$('.preload-wrapper').addClass('full');
-		$('.preloader').addClass('full');
+		// $('.preload-wrapper').removeClass('hide');
+		// $('.preload-wrapper').addClass('show');
+		// $('.preload-wrapper').addClass('full');
+		// $('.preloader').addClass('full');
 		
 		//url is URL of external file, code is the code
 	    //to be called from the file, location is the location to 
@@ -5241,15 +5272,6 @@ var SoundService = function(){
 	'use strict';
 }
 
-// SoundService.getPathByKey = function(key){
-// 	'use strict';
-// 	return SoundService.properties.basePath + this.matrix[key].file;
-// };
-// SoundService.getDurationByKey = function(key){
-// 	'use strict';
-// 	return this.matrix[key].duration;
-// };
-
 SoundService.getSlideDurationById = function(id){
 	'use strict';
 	return this.matrix.slides[id].duration;
@@ -5273,141 +5295,111 @@ SoundService.properties = {
 };
 SoundService.matrix = {
 	effects: {
-		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', duration: null },
-		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3', duration: null }
+		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3' },
+		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3' }
 	},
 	'1.1.1' :{
-		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
-		sundholm: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
-		svendborg: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 }
+		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3' },
+		sundholm: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3' },
+		svendborg: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3' }
 	},
 	points: {
-		plus: { src:SoundService.properties.basePath+'Point_plus.mp3', duration: 2.208 },
-		minus: { src:SoundService.properties.basePath+'Point_minus.mp3', duration: 1.128 }
+		plus: { src:SoundService.properties.basePath+'Point_plus.mp3' },
+		minus: { src:SoundService.properties.basePath+'Point_minus.mp3' }
 	},
-	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
-	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
-	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
+	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3' },
+	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3' },
+	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3' },
 	'1.2.1': {
 		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
+						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3' }
 					},
 		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
+						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' }						
 					},
 		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
+						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3' }
 					},
 	},
-	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
-	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
-	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },	
-	'1.8': { label:'arrested', src:SoundService.properties.basePath+'1.8.mp3', duration: 37.908 },	
-	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
-	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 },
-	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
-	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
+	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3' },
+	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3' },
+	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3' },	
+	'1.8': { label:'arrested', src:SoundService.properties.basePath+'1.8.mp3' },	
+	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3' },
+	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3' },
+	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3' },
+	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3' },
 	'2.10.2': {
-		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3', duration: 52.881 },
-		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3', duration: 53.265 }
+		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3' },
+		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3' }
 	},
-	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
+	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3' },
 	
 	slides: {
-				'slide_0_1': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
-				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
-				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
-				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
-				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3', duration: 61.208 },
-				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3', duration: 48.573 },
-				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3', duration: 48.573 },
-				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 },
-				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3', duration: 69.641 },
-				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_7': { src:SoundService.properties.basePath+'4.7_krigenskriderfrem.mp3', duration: 81.350 }
-				
-				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
+				'slide_0_1': { src:SoundService.properties.basePath+'slide_intro.mp3' },
+				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3' },
+				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3' },
+				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3' },
+				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3' },
+				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3' },
+				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3' },
+				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3' },
+				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3' },
+				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
+				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
+				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
+				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
+				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
+				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
+				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
+				'slide_4_7': { src:SoundService.properties.basePath+'4.7_krigenskriderfrem.mp3' }				
 			},
 	'0.4': { // oppinion
-			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'BE': { label: 'dovenskab, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
-			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 }
+			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
+			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
+			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
+			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
+			'BE': { label: 'dovenskab, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
+			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
+			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3' },
+			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
+			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3' }
 		},
 	'3.2.1': {
 		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
+						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3' }
 					},
 		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
+						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' }						
 					},
 		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
+						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3' }
 					},
 	},
-	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3', duration: 54.282 },
-	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3', duration: 15.531 },
-	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3', duration: 13.543 },
-	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3', duration: 30.561 },
-	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1_moede.mp3', duration: 42.563 },
-	'4.10.1': { label:'dansk front', src:SoundService.properties.basePath+'4.10.1_bombe.mp3', duration: 45.637 },
-	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4_sygdom.mp3', duration: 44.285 },
-	'4.10.7': { label:'illness', src:SoundService.properties.basePath+'4.10.7_pavejhjem.mp3', duration: 51.754 },
-	'4.11.1': { label:'compensation', src:SoundService.properties.basePath+'4.11.1.mp3', duration: 80 },
-	'4.11.2': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	'4.11.3': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	'4.11.4': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	
-	
-	
-	
-	// challenge: {
-	// 			// 'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
-	// 			// 'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
-	// 			// 'C': { label: 'manager', src:SoundService.properties.basePath+'weakness.mp3', duration: 1.815 }
-	// 			'A': { label: 'manager', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
-	// 			'B': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-	// 			'C': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 }
-	// 		},
-	// family: {
-	// 			'D': null,
-	// 			'E': { label: 'daughter', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-	// 			'F': null
-	// 		}
-	// characters: {
-	// 			'AD': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'AE': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'AF': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'BD': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'BE': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'BF': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'CD': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ],
-	// 			'CE': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'CF': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ]
-	// 		}
+	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3' },
+	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3' },
+	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3' },
+	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3' },
+	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1_moede.mp3' },
+	'4.10.1': { label:'dansk front', src:SoundService.properties.basePath+'4.10.1_bombe.mp3' },
+	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4_sygdom.mp3' },
+	'4.10.7': { label:'illness', src:SoundService.properties.basePath+'4.10.7_pavejhjem.mp3' },
+	'4.11.1': { label:'compensation', src:SoundService.properties.basePath+'4.11.1.mp3' },
+	'4.11.2': { src:SoundService.properties.basePath+'typewriter.mp3' },
+	'4.11.3': { src:SoundService.properties.basePath+'typewriter.mp3' },
+	'4.11.4': { src:SoundService.properties.basePath+'typewriter.mp3' },
 };
 var PlayerStats = {
 	challenge: 'B',			// Default test value
@@ -6123,74 +6115,52 @@ createjs.EventDispatcher.initialize(SoundEffect.prototype);
 /**
 	Controller uses the browser's AUDIO element as play back for sound
 */
-function SoundController(audioPath, duration, loop) {
+function SoundController(audioPath, loopCount) {
 	'use strict';
 
 	var self = this;
 
-	if(loop === undefined || loop === null)
-		loop = false;
-	
-	// this.sndObj = document.createElement('AUDIO');		
-	// this.sndObj.src = audioPath;
-	// this.sndObj.loop = loop;
-	// this.duration = duration;
+	this.loopCount = loopCount;
+	if(loopCount === undefined || loopCount === null)
+		this.loopCount = false;	
 
-
-	// Howler
-	this.sndObj = new Howl({
-	  urls: [audioPath],
-	  autoplay: false,
-	  loop: loop,
-	  volume: 1,
-	  onend: function() {
-	    console.log('Finished!');
-	    self.complete = true;
-	  },
-	  onload: function() {
-	    console.log('Loaded!');
-	    self.dispatchEvent(new createjs.Event('ready'));
-	  }
-	});
-
-
-	// Firefox does not invoke the audio load method?! But setting load automated seems to work
-	// if(Environment.browser.firefox){
-	// 	this.sndObj.preload = 'auto';
-	// }else{
-	// 	this.sndObj.preload = 'none';
-	// }
-
-	// LIsten for sound being ready 
-	// this.sndObj.addEventListener('canplaythrough', function(event){
-	// 	var e = new createjs.Event('ready');
- // 		self.dispatchEvent(e);
-	// }, false);
-	// this.sndObj.addEventListener('ended', function(event){
- // 		this.complete = true;
-	// }, false);
-
- 	
+	this.audioPath = audioPath;
 }
-
+// SoundController.prototype.dispatcher = function(event){
+// 	this.dispatchEvent(event);
+// }
 SoundController.prototype = {
 	sndObj: null,
 	currentSndPosition: 0,
-	duration: 0,
 	paused: false,
 	self: this,
 	complete: false,
-
+	dispatcher: function(event){
+		this.dispatchEvent(event);
+	},
 	getState: function(){
 		return this.sndObj.state;
 	},
 	load: function(){
 		'use strict';
-		// Firefox does not invoke the audio load function?! 
-		// So load has been set 'auto' so we don't need to invoke the load method
-		if(!Environment.browser.firefox){			
-			this.sndObj.load();
-		}
+		var self = this;
+		// Howler
+		this.sndObj = new Howl({
+		  urls: [this.audioPath],
+		  autoplay: false,
+		  loop: this.loopCount,
+		  volume: 1,
+		  buffer: true,
+		  onend: function() {
+		    self.complete = true;
+		    self.dispatcher(new createjs.Event('complete'));
+		  },
+		  onload: function() {
+		    console.log('Loaded!');
+		    // self.dispatchEvent(new createjs.Event('ready'));
+		    self.dispatcher(new createjs.Event('ready'));
+		  }
+		}); 
 	},
 	volume: function(value) {
 		'use strict';
@@ -6226,8 +6196,7 @@ SoundController.prototype = {
 	progress: function(){
 		'use strict';
 		var num = this.sndObj.pos() / this.sndObj._duration;
-		// $('.debug').text(this.sndObj.pos);
-		console.log(num);
+		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
 		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
 	},
 	isComplete: function(){
@@ -6247,8 +6216,8 @@ var HUDController = {
 	init: function(view){
 		this.view = view;		
 		this.update();
-		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src, SoundService.matrix.points.plus.duration);
-		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src, SoundService.matrix.points.minus.duration);
+		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src);
+		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src);
 	},
 	update: function(){
 		if(this.view === undefined || this.view === null){
@@ -6287,8 +6256,6 @@ var PlayerSoundComponent = function(view){
 
 	PlayerSoundComponent.counter++;
 	this.id = PlayerSoundComponent.counter;
-
-	// console.log('PlayerSoundComponent');
 
 	this.view = view;
 	this.paused = false;
@@ -6330,7 +6297,7 @@ PlayerSoundComponent.prototype.preload = function(src, duration){
 		self.soundController.destroy();
 		self.soundController = null;
 	}
-	self.soundController = new SoundController(src, duration);
+	self.soundController = new SoundController(src);
 	self.soundController.on('ready', function(event){
 		event.remove();
 		// Enable buttons
@@ -6339,6 +6306,16 @@ PlayerSoundComponent.prototype.preload = function(src, duration){
 
 		// Dispatch event 
 		self.dispatchEvent(new createjs.Event('ready'));
+	}, self);
+	self.soundController.on('complete', function(event){
+		// Swap Play/Pause visibility
+		this.pauseBtn.visible(false);
+		this.playBtn.visible(true);
+
+		self.removeLoopEvent();
+
+		// Dispatch event 
+		self.dispatchEvent(new createjs.Event('complete'));
 	}, self);
 	self.soundController.load();
 };
@@ -6355,22 +6332,8 @@ PlayerSoundComponent.prototype.removeLoopEvent = function(){
 };
 PlayerSoundComponent.prototype.loop = function(){
 	'use strict';	
-	// var progression = this.progress();
 	var sndProgression = this.soundController.progress();
-
-	// Reached end of slide
-	if(sndProgression >= 1){
-		// Remove tick
-		this.removeLoopEvent();
-
-		// Swap Play/Pause visibility
-		this.pauseBtn.visible(false);
-		this.playBtn.visible(true);
-
-		// Dispacth event 
-		this.dispatchEvent(new createjs.Event('complete'));
-	}
-
+	
 	// Progression bar
 	this.progressionBar.scaleX = sndProgression;
 };
@@ -6510,15 +6473,10 @@ var PlayerSliderComponent = function(view, soundOffset){
 };
 PlayerSliderComponent.prototype.preload = function(slideId, lib){
 	'use strict';
+	
 	var self = this;
 	this.slideId = slideId;
 
-	// console.log("preload: ", slideId);
-
-	// Flash sliders lib referecne due to id
-	// var lib = eval('libslide'+slideId);
-	// var lib = new Function('libslide_'+slideId);
-	
 	// Load assets	
 	Preloader.load(lib.properties.manifest, 
 		function(event){
@@ -6549,8 +6507,7 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 			}
 			try{
 				var snd = SoundService.getSlideSoundById(self.slideId);
-				self.soundController = new SoundController(snd.src, snd.duration);
-				//self.soundController = new SoundController(SoundService.getSlideSoundpathById(self.slideId), SoundService.getSlideDurationById(self.slideId));
+				self.soundController = new SoundController(snd.src);
 				self.soundController.on('ready', function(event){
 					event.remove(); // Only run once. Otherwise it will run every time player has ended and starts slide after it played to the end
 					// Enable buttons
@@ -6559,6 +6516,18 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 
 					// Dispatch event 
 					self.dispatchEvent(new createjs.Event('ready'));
+				}, self);
+				self.soundController.on('complete', function(event){
+					// event.remove();
+					console.log('complete');
+					// Swap Play/Pause visibility
+					this.pauseBtn.visible(false);
+					this.playBtn.visible(true);
+
+					self.removeLoopEvent();
+
+					// Dispatch event 
+					self.dispatchEvent(new createjs.Event('complete'));
 				}, self);
 				self.soundController.load();
 			}catch(err){
@@ -6581,51 +6550,12 @@ PlayerSliderComponent.prototype.removeLoopEvent = function(){
 };
 PlayerSliderComponent.prototype.loop = function(){
 	'use strict';	
-	// var progression = this.progress();
 	var sndProgression = this.soundController.progress();
-
-	// Reached end of slide
-	if(sndProgression >= 1){
-		// Remove tick
-		this.removeLoopEvent();
-
-		// Set slide timeline back to start
-		this.slide.stop();
-
-		// Swap Play/Pause visibility
-		this.pauseBtn.visible(false);
-		this.playBtn.visible(true);
-
-		this.paused = false;
-
-		// Dispacth event 
-		this.dispatchEvent(new createjs.Event('complete'));
-	}else{
-		var sndIsComplete = this.soundController.isComplete();				
-		if(!sndIsComplete){
-
-			// Calculate in which frame the timeline shold be related to soudn progression
-			var desiredFrame = Math.round(this.duration * sndProgression) + this.offset;			
-
-			// Just a fail safe making sure that we do NOT play a frame already shown
-			if(desiredFrame > this.previousFrame){
-				this.slide.gotoAndPlay(desiredFrame);
-				this.previousFrame = desiredFrame;
-			}
-			
-			// Sound
-			if(this.soundOffset > 0){
-				if(this.soundController.state !== 'play'){
-					if(this.slide.currentFrame >= this.soundOffset){						
-						this.listeners.auto = this.dispatchEvent(new createjs.Event('autoplay'));
-					}
-				}				
-			}
-		}
-	}
+	
+	var desiredFrame = Math.round(this.duration * sndProgression) + this.soundOffset;
+	this.slide.gotoAndPlay(desiredFrame);
 
 	// Progression bar
-	// this.progressionBar.scaleX = sndProgression;
 	this.progressionBar.scaleX = this.progress()
 };
 PlayerSliderComponent.prototype.play = function(){
@@ -6663,10 +6593,6 @@ PlayerSliderComponent.prototype.play = function(){
 	
 	// Timeline
 	this.addLoopEvent('tick');
-	this.slide.play();
-
-	// Sound
-	// this.soundController.play();
 
 	// Set this last
 	this.paused = false;
@@ -6962,7 +6888,8 @@ var canvas;
 					stage.addChild($scope.exportRoot);
 					
 					// Do cursor
-					stage.enableMouseOver(10);
+					stage.enableMouseOver(20);
+					createjs.Touch.enable(stage);
 
 					// Scale canvas according to ratio
 					stage.scaleX = stage.scaleY = Environment.ratio;
@@ -7052,43 +6979,6 @@ module.run(['$templateCache', function($templateCache) {
     '							}</style><title>BigNoodleTitling Regular Specimen</title><script type="text/javascript">$(document).ready(function() {\n' +
     '			$(\'#container\').easyTabs({defaultContent:1});\n' +
     '		});</script></head><body><div id="container"><div id="header">BigNoodleTitling Regular</div><ul class="tabs"><li><a href="#specimen">Specimen</a></li><li><a href="#layout">Sample Layout</a></li><li><a href="#glyphs">Glyphs &amp; Languages</a></li><li><a href="#installing">Installing Webfonts</a></li></ul><div id="main_content"><div id="specimen"><div class="section"><div class="grid12 firstcol"><div class="huge">AaBb</div></div></div><div class="section"><div class="glyph_range">A&#x200B;B&#x200b;C&#x200b;D&#x200b;E&#x200b;F&#x200b;G&#x200b;H&#x200b;I&#x200b;J&#x200b;K&#x200b;L&#x200b;M&#x200b;N&#x200b;O&#x200b;P&#x200b;Q&#x200b;R&#x200b;S&#x200b;T&#x200b;U&#x200b;V&#x200b;W&#x200b;X&#x200b;Y&#x200b;Z&#x200b;a&#x200b;b&#x200b;c&#x200b;d&#x200b;e&#x200b;f&#x200b;g&#x200b;h&#x200b;i&#x200b;j&#x200b;k&#x200b;l&#x200b;m&#x200b;n&#x200b;o&#x200b;p&#x200b;q&#x200b;r&#x200b;s&#x200b;t&#x200b;u&#x200b;v&#x200b;w&#x200b;x&#x200b;y&#x200b;z&#x200b;1&#x200b;2&#x200b;3&#x200b;4&#x200b;5&#x200b;6&#x200b;7&#x200b;8&#x200b;9&#x200b;0&#x200b;&amp;&#x200b;.&#x200b;,&#x200b;?&#x200b;!&#x200b;&#64;&#x200b;(&#x200b;)&#x200b;#&#x200b;$&#x200b;%&#x200b;*&#x200b;+&#x200b;-&#x200b;=&#x200b;:&#x200b;;</div></div><div class="section"><div class="grid12 firstcol"><table class="sample_table"><tr><td>10</td><td class="size10">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>11</td><td class="size11">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>12</td><td class="size12">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>13</td><td class="size13">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>14</td><td class="size14">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>16</td><td class="size16">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>18</td><td class="size18">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>20</td><td class="size20">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>24</td><td class="size24">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>30</td><td class="size30">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>36</td><td class="size36">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>48</td><td class="size48">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>60</td><td class="size60">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>72</td><td class="size72">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>90</td><td class="size90">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr></table></div></div><div class="section" id="bodycomparison"><div id="xheight"><div class="fontbody">&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;body</div><div class="arialbody">body</div><div class="verdanabody">body</div><div class="georgiabody">body</div></div><div class="fontbody" style="z-index:1">body<span>BigNoodleTitling Regular</span></div><div class="arialbody" style="z-index:1">body<span>Arial</span></div><div class="verdanabody" style="z-index:1">body<span>Verdana</span></div><div class="georgiabody" style="z-index:1">body<span>Georgia</span></div></div><div class="section psample psample_row1" id=""><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row2" id=""><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row4" id=""><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row1 fullreverse"><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample psample_row2 fullreverse"><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row4" id="" style="border-bottom: 20px #000 solid"><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div></div><div id="layout"><div class="section"><div class="grid12 firstcol"><h1>Lorem Ipsum Dolor</h1><h2>Etiam porta sem malesuada magna mollis euismod</h2><p class="byline">By <a href="#link">Aenean Lacinia</a></p></div></div><div class="section"><div class="grid8 firstcol"><p class="large">Donec sed odio dui. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><h3>Pellentesque ornare sem</h3><p>Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas faucibus mollis interdum. Donec ullamcorper nulla non metus auctor fringilla. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam id dolor id nibh ultricies vehicula ut id elit.</p><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p><p>Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Aenean lacinia bibendum nulla sed consectetur.</p><p>Nullam quis risus eget urna mollis ornare vel eu leo. Nullam quis risus eget urna mollis ornare vel eu leo. Maecenas sed diam eget risus varius blandit sit amet non magna. Donec ullamcorper nulla non metus auctor fringilla.</p><h3>Cras mattis consectetur</h3><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Aenean lacinia bibendum nulla sed consectetur. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum.</p><p>Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna mollis ornare vel eu leo. Cras mattis consectetur purus sit amet fermentum.</p></div><div class="grid4 sidebar"><div class="box reverse"><p class="last">Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div><p class="caption">Maecenas sed diam eget risus varius.</p><p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Vestibulum id ligula porta felis euismod semper. Sed posuere consectetur est at lobortis. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Aenean lacinia bibendum nulla sed consectetur. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Aenean lacinia bibendum nulla sed consectetur. Nullam quis risus eget urna mollis ornare vel eu leo.</p><p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec ullamcorper nulla non metus auctor fringilla. Maecenas faucibus mollis interdum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p></div></div></div><div id="glyphs"><div class="section"><div class="grid12 firstcol"><h1>Language Support</h1><p>The subset of BigNoodleTitling Regular in this kit supports the following languages:<br></p><h1>Glyph Chart</h1><p>The subset of BigNoodleTitling Regular in this kit includes all the glyphs listed below. Unicode entities are included above each glyph to help you insert individual characters into your layout.</p><div id="glyph_chart"><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#33;</p>&#33;</div><div><p>&amp;#34;</p>&#34;</div><div><p>&amp;#35;</p>&#35;</div><div><p>&amp;#36;</p>&#36;</div><div><p>&amp;#37;</p>&#37;</div><div><p>&amp;#38;</p>&#38;</div><div><p>&amp;#39;</p>&#39;</div><div><p>&amp;#40;</p>&#40;</div><div><p>&amp;#41;</p>&#41;</div><div><p>&amp;#42;</p>&#42;</div><div><p>&amp;#43;</p>&#43;</div><div><p>&amp;#44;</p>&#44;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#46;</p>&#46;</div><div><p>&amp;#47;</p>&#47;</div><div><p>&amp;#48;</p>&#48;</div><div><p>&amp;#49;</p>&#49;</div><div><p>&amp;#50;</p>&#50;</div><div><p>&amp;#51;</p>&#51;</div><div><p>&amp;#52;</p>&#52;</div><div><p>&amp;#53;</p>&#53;</div><div><p>&amp;#54;</p>&#54;</div><div><p>&amp;#55;</p>&#55;</div><div><p>&amp;#56;</p>&#56;</div><div><p>&amp;#57;</p>&#57;</div><div><p>&amp;#58;</p>&#58;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#60;</p>&#60;</div><div><p>&amp;#61;</p>&#61;</div><div><p>&amp;#62;</p>&#62;</div><div><p>&amp;#63;</p>&#63;</div><div><p>&amp;#64;</p>&#64;</div><div><p>&amp;#65;</p>&#65;</div><div><p>&amp;#66;</p>&#66;</div><div><p>&amp;#67;</p>&#67;</div><div><p>&amp;#68;</p>&#68;</div><div><p>&amp;#69;</p>&#69;</div><div><p>&amp;#70;</p>&#70;</div><div><p>&amp;#71;</p>&#71;</div><div><p>&amp;#72;</p>&#72;</div><div><p>&amp;#73;</p>&#73;</div><div><p>&amp;#74;</p>&#74;</div><div><p>&amp;#75;</p>&#75;</div><div><p>&amp;#76;</p>&#76;</div><div><p>&amp;#77;</p>&#77;</div><div><p>&amp;#78;</p>&#78;</div><div><p>&amp;#79;</p>&#79;</div><div><p>&amp;#80;</p>&#80;</div><div><p>&amp;#81;</p>&#81;</div><div><p>&amp;#82;</p>&#82;</div><div><p>&amp;#83;</p>&#83;</div><div><p>&amp;#84;</p>&#84;</div><div><p>&amp;#85;</p>&#85;</div><div><p>&amp;#86;</p>&#86;</div><div><p>&amp;#87;</p>&#87;</div><div><p>&amp;#88;</p>&#88;</div><div><p>&amp;#89;</p>&#89;</div><div><p>&amp;#90;</p>&#90;</div><div><p>&amp;#91;</p>&#91;</div><div><p>&amp;#92;</p>&#92;</div><div><p>&amp;#93;</p>&#93;</div><div><p>&amp;#95;</p>&#95;</div><div><p>&amp;#96;</p>&#96;</div><div><p>&amp;#123;</p>&#123;</div><div><p>&amp;#124;</p>&#124;</div><div><p>&amp;#125;</p>&#125;</div><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#161;</p>&#161;</div><div><p>&amp;#162;</p>&#162;</div><div><p>&amp;#163;</p>&#163;</div><div><p>&amp;#165;</p>&#165;</div><div><p>&amp;#166;</p>&#166;</div><div><p>&amp;#167;</p>&#167;</div><div><p>&amp;#168;</p>&#168;</div><div><p>&amp;#169;</p>&#169;</div><div><p>&amp;#170;</p>&#170;</div><div><p>&amp;#171;</p>&#171;</div><div><p>&amp;#172;</p>&#172;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#174;</p>&#174;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#176;</p>&#176;</div><div><p>&amp;#178;</p>&#178;</div><div><p>&amp;#179;</p>&#179;</div><div><p>&amp;#180;</p>&#180;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#182;</p>&#182;</div><div><p>&amp;#184;</p>&#184;</div><div><p>&amp;#185;</p>&#185;</div><div><p>&amp;#186;</p>&#186;</div><div><p>&amp;#187;</p>&#187;</div><div><p>&amp;#188;</p>&#188;</div><div><p>&amp;#189;</p>&#189;</div><div><p>&amp;#190;</p>&#190;</div><div><p>&amp;#191;</p>&#191;</div><div><p>&amp;#198;</p>&#198;</div><div><p>&amp;#215;</p>&#215;</div><div><p>&amp;#216;</p>&#216;</div><div><p>&amp;#222;</p>&#222;</div><div><p>&amp;#223;</p>&#223;</div><div><p>&amp;#247;</p>&#247;</div><div><p>&amp;#321;</p>&#321;</div><div><p>&amp;#338;</p>&#338;</div><div><p>&amp;#402;</p>&#402;</div><div><p>&amp;#710;</p>&#710;</div><div><p>&amp;#711;</p>&#711;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#728;</p>&#728;</div><div><p>&amp;#729;</p>&#729;</div><div><p>&amp;#730;</p>&#730;</div><div><p>&amp;#731;</p>&#731;</div><div><p>&amp;#732;</p>&#732;</div><div><p>&amp;#733;</p>&#733;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#8211;</p>&#8211;</div><div><p>&amp;#8212;</p>&#8212;</div><div><p>&amp;#8216;</p>&#8216;</div><div><p>&amp;#8217;</p>&#8217;</div><div><p>&amp;#8220;</p>&#8220;</div><div><p>&amp;#8221;</p>&#8221;</div><div><p>&amp;#8224;</p>&#8224;</div><div><p>&amp;#8225;</p>&#8225;</div><div><p>&amp;#8226;</p>&#8226;</div><div><p>&amp;#8240;</p>&#8240;</div><div><p>&amp;#8249;</p>&#8249;</div><div><p>&amp;#8250;</p>&#8250;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#8364;</p>&#8364;</div><div><p>&amp;#8482;</p>&#8482;</div><div><p>&amp;#8722;</p>&#8722;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#64257;</p>&#64257;</div><div><p>&amp;#64258;</p>&#64258;</div></div></div></div></div><div id="specs"></div><div id="installing"><div class="section"><div class="grid7 firstcol"><h1>Installing Webfonts</h1><p>Webfonts are supported by all major browser platforms but not all in the same way. There are currently four different font formats that must be included in order to target all browsers. This includes TTF, WOFF, EOT and SVG.</p><h2>1. Upload your webfonts</h2><p>You must upload your webfont kit to your website. They should be in or near the same directory as your CSS files.</p><h2>2. Include the webfont stylesheet</h2><p>A special CSS @font-face declaration helps the various browsers select the appropriate font it needs without causing you a bunch of headaches. Learn more about this syntax by reading the <a href="http://www.fontspring.com/blog/further-hardening-of-the-bulletproof-syntax">Fontspring blog post</a> about it. The code for it is as follows:</p><code>@font-face{ font-family: \'MyWebFont\'; src: url(\'WebFont.eot\'); src: url(\'WebFont.eot?#iefix\') format(\'embedded-opentype\'), url(\'WebFont.woff\') format(\'woff\'), url(\'WebFont.ttf\') format(\'truetype\'), url(\'WebFont.svg#webfont\') format(\'svg\'); }</code><p>We\'ve already gone ahead and generated the code for you. All you have to do is link to the stylesheet in your HTML, like this:</p><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;stylesheet.css&quot; type=&quot;text/css&quot; charset=&quot;utf-8&quot; /&gt;</code><h2>3. Modify your own stylesheet</h2><p>To take advantage of your new fonts, you must tell your stylesheet to use them. Look at the original @font-face declaration above and find the property called "font-family." The name linked there will be what you use to reference the font. Prepend that webfont name to the font stack in the "font-family" property, inside the selector you want to change. For example:</p><code>p { font-family: \'WebFont\', Arial, sans-serif; }</code><h2>4. Test</h2><p>Getting webfonts to work cross-browser <em>can</em> be tricky. Use the information in the sidebar to help you if you find that fonts aren\'t loading in a particular browser.</p></div><div class="grid5 sidebar"><div class="box"><h2>Troubleshooting<br>Font-Face Problems</h2><p>Having trouble getting your webfonts to load in your new website? Here are some tips to sort out what might be the problem.</p><h3>Fonts not showing in any browser</h3><p>This sounds like you need to work on the plumbing. You either did not upload the fonts to the correct directory, or you did not link the fonts properly in the CSS. If you\'ve confirmed that all this is correct and you still have a problem, take a look at your .htaccess file and see if requests are getting intercepted.</p><h3>Fonts not loading in iPhone or iPad</h3><p>The most common problem here is that you are serving the fonts from an IIS server. IIS refuses to serve files that have unknown MIME types. If that is the case, you must set the MIME type for SVG to "image/svg+xml" in the server settings. Follow these instructions from Microsoft if you need help.</p><h3>Fonts not loading in Firefox</h3><p>The primary reason for this failure? You are still using a version Firefox older than 3.5. So upgrade already! If that isn\'t it, then you are very likely serving fonts from a different domain. Firefox requires that all font assets be served from the same domain. Lastly it is possible that you need to add WOFF to your list of MIME types (if you are serving via IIS.)</p><h3>Fonts not loading in IE</h3><p>Are you looking at Internet Explorer on an actual Windows machine or are you cheating by using a service like Adobe BrowserLab? Many of these screenshot services do not render @font-face for IE. Best to test it on a real machine.</p><h3>Fonts not loading in IE9</h3><p>IE9, like Firefox, requires that fonts be served from the same domain as the website. Make sure that is the case.</p></div></div></div></div></div><div id="footer"><p>&copy;2010-2011 Font Squirrel. All rights reserved.</p></div></div></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_0_1();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
 })();
 
@@ -7393,5 +7283,42 @@ module.run(['$templateCache', function($templateCache) {
     '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_0_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
 })();

@@ -1,48 +1,52 @@
 /**
 	Controller uses the browser's AUDIO element as play back for sound
 */
-function SoundController(audioPath, doloop) {
+function SoundController(audioPath, loopCount) {
 	'use strict';
 
 	var self = this;
 
-	if(doloop === undefined || doloop === null)
-		doloop = false;
-	
-	// Howler
-	this.sndObj = new Howl({
-	  urls: [audioPath],
-	  autoplay: false,
-	  loop: doloop,
-	  volume: 1,
-	  onend: function() {
-	    self.complete = true;
-	    self.dispatchEvent(new createjs.Event('complete'));
-	  },
-	  onload: function() {
-	    // console.log('Loaded!');
-	    self.dispatchEvent(new createjs.Event('ready'));
-	  }
-	}); 	
-}
+	this.loopCount = loopCount;
+	if(loopCount === undefined || loopCount === null)
+		this.loopCount = false;	
 
+	this.audioPath = audioPath;
+}
+// SoundController.prototype.dispatcher = function(event){
+// 	this.dispatchEvent(event);
+// }
 SoundController.prototype = {
 	sndObj: null,
 	currentSndPosition: 0,
 	paused: false,
 	self: this,
 	complete: false,
-
+	dispatcher: function(event){
+		this.dispatchEvent(event);
+	},
 	getState: function(){
 		return this.sndObj.state;
 	},
 	load: function(){
 		'use strict';
-		// Firefox does not invoke the audio load function?! 
-		// So load has been set 'auto' so we don't need to invoke the load method
-		if(!Environment.browser.firefox){			
-			this.sndObj.load();
-		}
+		var self = this;
+		// Howler
+		this.sndObj = new Howl({
+		  urls: [this.audioPath],
+		  autoplay: false,
+		  loop: this.loopCount,
+		  volume: 1,
+		  buffer: true,
+		  onend: function() {
+		    self.complete = true;
+		    self.dispatcher(new createjs.Event('complete'));
+		  },
+		  onload: function() {
+		    console.log('Loaded!');
+		    // self.dispatchEvent(new createjs.Event('ready'));
+		    self.dispatcher(new createjs.Event('ready'));
+		  }
+		}); 
 	},
 	volume: function(value) {
 		'use strict';
