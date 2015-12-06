@@ -9,7 +9,6 @@ var FlowManager = {
 		}
 		this.root = root;
 		PreloadGFX.blocker = this.root.blocker_black;
-		console.log('this.root.blocker_black', this.root.blocker_black)
 	},
 	clearLib: function(){
 		lib = null;

@@ -29,40 +29,40 @@ SoundService.matrix = {
 		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3' }
 	},
 	'1.1.1' :{
-		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3' },
-		sundholm: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3' },
-		svendborg: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3' }
+		horsens: { src:SoundService.properties.basePath+'1.1.1_horsens.mp3' },
+		sundholm: { src:SoundService.properties.basePath+'1.1.1_sundholm.mp3' },
+		svendborg: { src:SoundService.properties.basePath+'1.1.1_svendborg.mp3' }
 	},
 	points: {
 		plus: { src:SoundService.properties.basePath+'Point_plus.mp3' },
 		minus: { src:SoundService.properties.basePath+'Point_minus.mp3' }
 	},
-	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3' },
-	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3' },
-	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3' },
+	dormitry: { src:SoundService.properties.basePath+'2.6.1.mp3' },
+	drunk: { src:SoundService.properties.basePath+'1.5.1.mp3' },
+	constable: { src:SoundService.properties.basePath+'1.6.1.mp3' },
 	'1.2.1': {
 		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3' }
+						'A': { src:SoundService.properties.basePath+'1.1.2_pashaven.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_goerrent.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.1.2_fletmaatter.mp3' }
 					},
 		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3' },
+						'A': { src:SoundService.properties.basePath+'1.1.2_hugbraende.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_pasgrise.mp3' },
 						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' }						
 					},
 		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3' }
+						'A': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_vaevmaatter.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.1.2_pilorm.mp3' }
 					},
 	},
-	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3' },
-	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3' },
-	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3' },	
+	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2.mp3' },
+	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_indsat.mp3' },
+	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4.mp3' },	
 	'1.8': { label:'arrested', src:SoundService.properties.basePath+'1.8.mp3' },	
-	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3' },
-	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3' },
+	'2.2.1': { src:SoundService.properties.basePath+'2.2.1.mp3' },
+	'2.2.3': { src:SoundService.properties.basePath+'2.2.3.mp3' },
 	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3' },
 	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3' },
 	'2.10.2': {
@@ -73,12 +73,12 @@ SoundService.matrix = {
 	
 	slides: {
 				'slide_0_1': { src:SoundService.properties.basePath+'film01medmusik_mixdown.mp3' },
-				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3' },
-				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3' },
+				'slide_1_0_1': { src:SoundService.properties.basePath+'film10_mixdown.mp3' },
+				'slide_2_5': { src:SoundService.properties.basePath+'2.5_mixdown.mp3' },
 				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3' },
-				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3' },
-				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3' },
-				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3' },
+				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'2.7.1.slagt_mixdown.mp3' },
+				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'2.7.1.mine_mixdown.mp3' },
+				'slide_home1A': { src:SoundService.properties.basePath+'2.7.1.vaaben_mixdown.mp3' },
 				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3' },
 				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3' },
 				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
@@ -91,15 +91,15 @@ SoundService.matrix = {
 				'slide_4_7': { src:SoundService.properties.basePath+'4.7_krigenskriderfrem.mp3' }				
 			},
 	'0.4': { // oppinion
-			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
+			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_forvalteren.mp3' },
 			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
-			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
-			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
+			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_forvalteren.mp3' },
+			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_kone.mp3' },
 			'BE': { label: 'dovenskab, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
-			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
-			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3' },
+			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_andenindlagt.mp3' },
+			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_kone.mp3' },
 			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
-			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3' }
+			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_andenindlagt.mp3' }
 		},
 	'3.2.1': {
 		'horsens': {

@@ -56,18 +56,18 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 	}
 
 	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(1359));
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(2036));
 
 	// Layer 1
-	this.instance = new lib.mine01();
+	this.instance = new lib.mine03();
 
 	this.instance_1 = new lib.mine02();
 
 	this.instance_2 = new lib.mine04();
 
-	this.instance_3 = new lib.mine03();
+	this.instance_3 = new lib.mine01();
 
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},334).to({state:[{t:this.instance_2}]},336).to({state:[{t:this.instance_3}]},266).wait(423));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},330).to({state:[{t:this.instance_2}]},786).to({state:[{t:this.instance_3}]},281).wait(639));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(290,202,580,404);

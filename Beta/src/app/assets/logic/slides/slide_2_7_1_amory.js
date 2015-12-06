@@ -49,7 +49,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 	}
 
 	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(709));
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(1736));
 
 	// Layer 1
 	this.instance = new lib.weapon03();
@@ -58,7 +58,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 
 	this.instance_2 = new lib.weapon02();
 
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},211).to({state:[{t:this.instance_2}]},186).to({state:[{t:this.instance}]},162).wait(150));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},386).to({state:[{t:this.instance_2}]},293).to({state:[{t:this.instance}]},153).wait(904));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(290,202,580,404);

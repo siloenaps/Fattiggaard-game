@@ -744,6 +744,10 @@ FlowPoorhouse.prototype.backToPoorhouse = function(trigger) {
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
 	// Next bnutton
 	this.continueBtn.ghost('skip');
 };

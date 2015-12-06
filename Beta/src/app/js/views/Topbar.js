@@ -6,7 +6,9 @@ var Topbar = {
 		if(view === undefined || view === null){
 			throw new Error("'view' is undefined");
 		}
-		this.view = view;		
+		this.view = view;	
+
+		HUDController.init();	
 	},
 	go: function(frm){
 		// console.log('Topbar:',this.view);
@@ -26,7 +28,7 @@ var Topbar = {
 			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
 
 			// Points
-			HUDController.init(this.view.hud);
+			HUDController.setView(this.view.hud);
 		}
 	},
 	pointsUpdate: function(){
