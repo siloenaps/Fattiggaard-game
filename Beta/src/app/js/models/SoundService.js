@@ -72,7 +72,7 @@ SoundService.matrix = {
 	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3' },
 	
 	slides: {
-				'slide_0_1': { src:SoundService.properties.basePath+'slide_intro.mp3' },
+				'slide_0_1': { src:SoundService.properties.basePath+'film01medmusik_mixdown.mp3' },
 				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3' },
 				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3' },
 				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3' },
