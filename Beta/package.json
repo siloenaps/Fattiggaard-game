@@ -18,7 +18,7 @@
     "gulp-csslint": "~0.1.4",
     "gulp-embedlr": "~0.5.2",
     "gulp-gzip": "^1.2.0",
-    "gulp-header": "^1.0.2",
+    "gulp-header": "^1.7.1",
     "gulp-htmlmin": "^1.1.4",
     "gulp-imagemin": "^2.3.0",
     "gulp-inject": "^1.0.1",
