@@ -613,6 +613,211 @@ ButtonCustom.prototype.destroy = function(){
 }
 
 createjs.EventDispatcher.initialize(ButtonCustom.prototype);
+var PageIntroSlide = function(container){
+	'use strict';
+	this.container = container;
+	this.id = null; 
+	this.view = null;	
+	this.lib = null;
+	this.slideLib = null;
+	this.playerComponent = null;
+	this.listeners = {};
+	this.trigger = 'start'; 
+	this.currentPage = null;
+	this.currentBackground = null;
+	this.groups = {};
+	// this.portrait = null;
+
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost('skip');
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+};
+PageIntroSlide.prototype.setPortrait = function(image){
+	this.portrait = image;
+}
+PageIntroSlide.prototype.start = function(flowId, slideName){
+	this.id = PlayerStats.poorhouse;
+	this.flowId = flowId;
+	this.slideName = slideName;
+
+	var gameFile;
+
+	// console.log('PageIntroSlide:start', slideName+'.js');
+	// console.log('PageIntroSlide', this.runonce, slideName+'.js');
+
+	LoadJS.load(
+		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
+		Delegate.create(this.setup, this)
+	);
+};
+PageIntroSlide.prototype.setup = function(){
+	'use strict';
+	// console.log('PageIntroSlide::setup:runonce', this.runonce);
+
+	if(this.runonce != null)
+		return;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	// Tick
+	Tick.framerate(Tick.high);
+
+	var self = this;
+	var manifest, Clss;	
+
+	// Setup flow
+	this.flow = new SubFlowController();
+	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
+	this.flow.addAction('end', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
+	// console.log('PageIntroSlide::setup:flowId', this.flowId);
+	this.lib = gamelib;
+	this.slideLib = slidelib;
+	Clss = this.lib.poorhouse_intro;
+	manifest = this.lib.properties.manifest;
+
+	try{
+		// Background image
+		if(this.flowId === '0.1'){
+			this.bgImage = ImageService.matrix[this.flowId];
+		}else{
+			this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';			
+		}
+		manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
+		
+
+	}catch(err){
+		// console.log(PlayerStats.poorhouse, this.bgImage);
+		// console.log(err);
+	}	
+	
+	// Load files
+	var onFileLoad = function(event){
+		if (event.item.type === 'image') { 
+			// console.log(event.item.id, event.result);
+			images[event.item.id] = event.result; 
+		}
+	};
+	var onLoadComplete = function(event){
+		// Instantiate view
+		self.view = new Clss();
+
+		//Add
+		self.container.addChild(self.view);
+
+		// Set start page
+		self.next();
+
+		// console.log('PageIntroSlide:onLoadComplete');
+		self.dispatchEvent(new createjs.Event('ready'));
+	};
+	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+	// console.log('manifest:', manifest);
+};
+PageIntroSlide.prototype.next = function(){
+	'use strict';
+	this.flow.next(this.trigger);	
+};
+PageIntroSlide.prototype.onComplete = function(event) {
+	'use strict';
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+	}
+
+	// Set next button active
+	this.continueBtn.activate('next');	
+};
+PageIntroSlide.prototype.onContinue = function(event) {
+	'use strict';
+	
+	// console.log('PageIntroSlide::onContinue');
+	
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
+
+	this.next();
+
+	// // console.log('this.playerComponent:', this.playerComponent)
+};
+PageIntroSlide.prototype.removeEvents = function() {
+	'use strict';
+	
+	// Remove events
+	this.continueBtn.off('click', this.listeners.continue);
+	this.listeners.continue = null;
+};
+PageIntroSlide.prototype.destroy = function() {
+	'use strict';
+	
+	// Remove events
+	this.removeEvents();
+
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+		this.playerComponent.destroy();	
+		this.playerComponent = null;
+	}			
+	this.view = null;
+	this.lib = null;
+	this.currentPage = null;
+	this.listeners = null;
+	this.flow = null;
+};
+PageIntroSlide.prototype.intro = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set page view
+	this.currentPage = this.view.intro;
+	this.currentPage.x = 0;
+
+	// Set background
+	this.view.bg_container.x = 0;
+
+	// Background
+	var bitmap = new createjs.Bitmap(this.bgImage.src);	
+	this.view.bg_container.addChild(bitmap);
+
+	// Slide. Loading is self contained
+	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+	this.listeners.complete = self.playerComponent.on('complete', function(event){
+		// console.log('PageIntroSlide::complete');
+		self.continueBtn.activate('next');
+		Tick.framerate(Tick.low);
+	}, self);
+	this.playerComponent.on('ready', function(event){
+		event.remove();		
+		self.continueBtn.activate("skip");
+		// self.dispatchEvent(new createjs.Event('ready'));
+		// console.log('PageIntroSlide::ready');
+		// No tick
+		// Tick.framerate(Tick.low);
+		// console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
+	});
+	// // console.log(this.slideLib)
+	this.playerComponent.preload(this.slideName, this.slideLib);
+	
+};
+createjs.EventDispatcher.initialize(PageIntroSlide.prototype);
+
+
+
 var SubFlowController = function(){
 	'use strict';
 
@@ -2928,7 +3133,7 @@ FlowGermany2.prototype.traveling = function(trigger){
 				Delegate.create(function(){
 					// Slide. Loading is self contained
 					self.slideLib = slidelib;	
-					self.playerComponent = new PlayerSliderComponent(self.currentPage.player, 13); // Added delay of sound start (frame 14)
+					self.playerComponent = new PlayerSliderComponent(self.currentPage.player); // Added delay of sound start (frame 14)
 					self.listeners.complete = self.playerComponent.on('complete', function(event){
 						self.continueBtn.activate('next');
 					}, self);
@@ -4452,211 +4657,6 @@ var FlowEpilogue = function(container){
 
 	};	
 }
-var PageIntroSlide = function(container){
-	'use strict';
-	this.container = container;
-	this.id = null; 
-	this.view = null;	
-	this.lib = null;
-	this.slideLib = null;
-	this.playerComponent = null;
-	this.listeners = {};
-	this.trigger = 'start'; 
-	this.currentPage = null;
-	this.currentBackground = null;
-	this.groups = {};
-	// this.portrait = null;
-
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost('skip');
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
-};
-PageIntroSlide.prototype.setPortrait = function(image){
-	this.portrait = image;
-}
-PageIntroSlide.prototype.start = function(flowId, slideName){
-	this.id = PlayerStats.poorhouse;
-	this.flowId = flowId;
-	this.slideName = slideName;
-
-	var gameFile;
-
-	// console.log('PageIntroSlide:start', slideName+'.js');
-	// console.log('PageIntroSlide', this.runonce, slideName+'.js');
-
-	LoadJS.load(
-		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
-		Delegate.create(this.setup, this)
-	);
-};
-PageIntroSlide.prototype.setup = function(){
-	'use strict';
-	// console.log('PageIntroSlide::setup:runonce', this.runonce);
-
-	if(this.runonce != null)
-		return;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	// Tick
-	Tick.framerate(Tick.high);
-
-	var self = this;
-	var manifest, Clss;	
-
-	// Setup flow
-	this.flow = new SubFlowController();
-	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
-	this.flow.addAction('end', Delegate.create(
-		function(){
-			self.removeEvents();
-			self.dispatchEvent(new createjs.Event('continue'));
-		}, this)
-	);
-
-	// console.log('PageIntroSlide::setup:flowId', this.flowId);
-	this.lib = gamelib;
-	this.slideLib = slidelib;
-	Clss = this.lib.poorhouse_intro;
-	manifest = this.lib.properties.manifest;
-
-	try{
-		// Background image
-		if(this.flowId === '0.1'){
-			this.bgImage = ImageService.matrix[this.flowId];
-		}else{
-			this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';			
-		}
-		manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
-		
-
-	}catch(err){
-		// console.log(PlayerStats.poorhouse, this.bgImage);
-		// console.log(err);
-	}	
-	
-	// Load files
-	var onFileLoad = function(event){
-		if (event.item.type === 'image') { 
-			// console.log(event.item.id, event.result);
-			images[event.item.id] = event.result; 
-		}
-	};
-	var onLoadComplete = function(event){
-		// Instantiate view
-		self.view = new Clss();
-
-		//Add
-		self.container.addChild(self.view);
-
-		// Set start page
-		self.next();
-
-		// console.log('PageIntroSlide:onLoadComplete');
-		self.dispatchEvent(new createjs.Event('ready'));
-	};
-	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-	// console.log('manifest:', manifest);
-};
-PageIntroSlide.prototype.next = function(){
-	'use strict';
-	this.flow.next(this.trigger);	
-};
-PageIntroSlide.prototype.onComplete = function(event) {
-	'use strict';
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-	}
-
-	// Set next button active
-	this.continueBtn.activate('next');	
-};
-PageIntroSlide.prototype.onContinue = function(event) {
-	'use strict';
-	
-	// console.log('PageIntroSlide::onContinue');
-	
-	// Stop player if any
-	if(this.playerComponent != null){
-		this.playerComponent.stop();
-	}
-
-	this.next();
-
-	// // console.log('this.playerComponent:', this.playerComponent)
-};
-PageIntroSlide.prototype.removeEvents = function() {
-	'use strict';
-	
-	// Remove events
-	this.continueBtn.off('click', this.listeners.continue);
-	this.listeners.continue = null;
-};
-PageIntroSlide.prototype.destroy = function() {
-	'use strict';
-	
-	// Remove events
-	this.removeEvents();
-
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-		this.playerComponent.destroy();	
-		this.playerComponent = null;
-	}			
-	this.view = null;
-	this.lib = null;
-	this.currentPage = null;
-	this.listeners = null;
-	this.flow = null;
-};
-PageIntroSlide.prototype.intro = function(trigger){
-	'use strict';
-
-	// Next move
-	this.trigger = trigger;
-
-	var self = this;
-
-	// Set page view
-	this.currentPage = this.view.intro;
-	this.currentPage.x = 0;
-
-	// Set background
-	this.view.bg_container.x = 0;
-
-	// Background
-	var bitmap = new createjs.Bitmap(this.bgImage.src);	
-	this.view.bg_container.addChild(bitmap);
-
-	// Slide. Loading is self contained
-	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-	this.listeners.complete = self.playerComponent.on('complete', function(event){
-		// console.log('PageIntroSlide::complete');
-		self.continueBtn.activate('next');
-		Tick.framerate(Tick.low);
-	}, self);
-	this.playerComponent.on('ready', function(event){
-		event.remove();		
-		self.continueBtn.activate("skip");
-		// self.dispatchEvent(new createjs.Event('ready'));
-		// console.log('PageIntroSlide::ready');
-		// No tick
-		// Tick.framerate(Tick.low);
-		// console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
-	});
-	// // console.log(this.slideLib)
-	this.playerComponent.preload(this.slideName, this.slideLib);
-	
-};
-createjs.EventDispatcher.initialize(PageIntroSlide.prototype);
-
-
-
 var Topbar = {
 	view: null,
 	soundController: null,
@@ -7007,265 +7007,6 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_0_1();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_1_0_1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_1_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_1_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_1_0_1();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_5.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_5</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_5.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_5();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_amory.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_amory</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_amory.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_7_1_amory();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_butcher.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_butcher</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_butcher.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_7_1_butcher();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_mine.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_mine</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_mine.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_7_1_mine();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_4_3.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_4_3</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_4_3.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_4_3();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/fattiggarden/assets/logic/games/epilogue.html',
     '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>epilogue</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="epilogue.js"></script><script>var canvas, stage, exportRoot;\n' +
     '\n' +
@@ -7560,5 +7301,264 @@ module.run(['$templateCache', function($templateCache) {
     '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_0_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_1_0_1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_1_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_1_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_1_0_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_5.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_5</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_5.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_5();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_amory.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_amory</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_amory.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_amory();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_butcher.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_butcher</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_butcher.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_butcher();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_mine.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_mine</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_mine.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_mine();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_4_3.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_4_3</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_4_3.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_4_3();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
 })();
