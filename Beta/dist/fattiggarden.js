@@ -613,211 +613,6 @@ ButtonCustom.prototype.destroy = function(){
 }
 
 createjs.EventDispatcher.initialize(ButtonCustom.prototype);
-var PageIntroSlide = function(container){
-	'use strict';
-	this.container = container;
-	this.id = null; 
-	this.view = null;	
-	this.lib = null;
-	this.slideLib = null;
-	this.playerComponent = null;
-	this.listeners = {};
-	this.trigger = 'start'; 
-	this.currentPage = null;
-	this.currentBackground = null;
-	this.groups = {};
-	// this.portrait = null;
-
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost('skip');
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
-};
-PageIntroSlide.prototype.setPortrait = function(image){
-	this.portrait = image;
-}
-PageIntroSlide.prototype.start = function(flowId, slideName){
-	this.id = PlayerStats.poorhouse;
-	this.flowId = flowId;
-	this.slideName = slideName;
-
-	var gameFile;
-
-	// console.log('PageIntroSlide:start', slideName+'.js');
-	// console.log('PageIntroSlide', this.runonce, slideName+'.js');
-
-	LoadJS.load(
-		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
-		Delegate.create(this.setup, this)
-	);
-};
-PageIntroSlide.prototype.setup = function(){
-	'use strict';
-	// console.log('PageIntroSlide::setup:runonce', this.runonce);
-
-	if(this.runonce != null)
-		return;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	// Tick
-	Tick.framerate(15);
-
-	var self = this;
-	var manifest, Clss;	
-
-	// Setup flow
-	this.flow = new SubFlowController();
-	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
-	this.flow.addAction('end', Delegate.create(
-		function(){
-			self.removeEvents();
-			self.dispatchEvent(new createjs.Event('continue'));
-		}, this)
-	);
-
-	// console.log('PageIntroSlide::setup:flowId', this.flowId);
-	this.lib = gamelib;
-	this.slideLib = slidelib;
-	Clss = this.lib.poorhouse_intro;
-	manifest = this.lib.properties.manifest;
-
-	try{
-		// Background image
-		if(this.flowId === '0.1'){
-			this.bgImage = ImageService.matrix[this.flowId];
-		}else{
-			this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';			
-		}
-		manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
-		
-
-	}catch(err){
-		// console.log(PlayerStats.poorhouse, this.bgImage);
-		// console.log(err);
-	}	
-	
-	// Load files
-	var onFileLoad = function(event){
-		if (event.item.type === 'image') { 
-			// console.log(event.item.id, event.result);
-			images[event.item.id] = event.result; 
-		}
-	};
-	var onLoadComplete = function(event){
-		// Instantiate view
-		self.view = new Clss();
-
-		//Add
-		self.container.addChild(self.view);
-
-		// Set start page
-		self.next();
-
-		// console.log('PageIntroSlide:onLoadComplete');
-		self.dispatchEvent(new createjs.Event('ready'));
-	};
-	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-	// console.log('manifest:', manifest);
-};
-PageIntroSlide.prototype.next = function(){
-	'use strict';
-	this.flow.next(this.trigger);	
-};
-PageIntroSlide.prototype.onComplete = function(event) {
-	'use strict';
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-	}
-
-	// Set next button active
-	this.continueBtn.activate('next');	
-};
-PageIntroSlide.prototype.onContinue = function(event) {
-	'use strict';
-	
-	// console.log('PageIntroSlide::onContinue');
-	
-	// Stop player if any
-	if(this.playerComponent != null){
-		this.playerComponent.stop();
-	}
-
-	this.next();
-
-	// // console.log('this.playerComponent:', this.playerComponent)
-};
-PageIntroSlide.prototype.removeEvents = function() {
-	'use strict';
-	
-	// Remove events
-	this.continueBtn.off('click', this.listeners.continue);
-	this.listeners.continue = null;
-};
-PageIntroSlide.prototype.destroy = function() {
-	'use strict';
-	
-	// Remove events
-	this.removeEvents();
-
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-		this.playerComponent.destroy();	
-		this.playerComponent = null;
-	}			
-	this.view = null;
-	this.lib = null;
-	this.currentPage = null;
-	this.listeners = null;
-	this.flow = null;
-};
-PageIntroSlide.prototype.intro = function(trigger){
-	'use strict';
-
-	// Next move
-	this.trigger = trigger;
-
-	var self = this;
-
-	// Set page view
-	this.currentPage = this.view.intro;
-	this.currentPage.x = 0;
-
-	// Set background
-	this.view.bg_container.x = 0;
-
-	// Background
-	var bitmap = new createjs.Bitmap(this.bgImage.src);	
-	this.view.bg_container.addChild(bitmap);
-
-	// Slide. Loading is self contained
-	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-	this.listeners.complete = self.playerComponent.on('complete', function(event){
-		// console.log('PageIntroSlide::complete');
-		self.continueBtn.activate('next');
-		Tick.disable();
-	}, self);
-	this.playerComponent.on('ready', function(event){
-		event.remove();		
-		self.continueBtn.activate("skip");
-		// self.dispatchEvent(new createjs.Event('ready'));
-		// console.log('PageIntroSlide::ready');
-		// No tick
-		// Tick.disable();
-		// console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
-	});
-	// // console.log(this.slideLib)
-	this.playerComponent.preload(this.slideName, this.slideLib);
-	
-};
-createjs.EventDispatcher.initialize(PageIntroSlide.prototype);
-
-
-
 var SubFlowController = function(){
 	'use strict';
 
@@ -839,7 +634,7 @@ var SubFlowController = function(){
 		
 			// Allow tick
 			Tick.enable();
-			Tick.framerate(15);
+			Tick.framerate(Tick.high);
 
 
 			var action = this.actions[trigger];
@@ -1025,7 +820,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_intro;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			}, this));
 
 			// Next
@@ -1046,7 +841,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_challenge;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));
 
 			// Checkboxes
@@ -1088,7 +883,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_family;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));			
 
 			// Checkboxes
@@ -1129,7 +924,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_nickname;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));	
 
 			// Checkboxes
@@ -1177,7 +972,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.page_card;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			}, this));
 
 			// Set portrait a real name
@@ -1223,11 +1018,11 @@ var FlowPrologue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -1257,7 +1052,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.page_map;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));	
 
 			// Checkboxes
@@ -1401,7 +1196,7 @@ FlowPoorhouseSecond.prototype.setup = function(){
 	this.runonce = true;
 
 	// Tick
-	Tick.framerate(15);
+	Tick.framerate(Tick.high);
 
 	var self = this;
 	var manifest, Clss;	
@@ -1550,7 +1345,7 @@ FlowPoorhouseSecond.prototype.chooseJob = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosework;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Desactivate continue button
@@ -1599,16 +1394,16 @@ FlowPoorhouseSecond.prototype.work = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.work;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		// Tick.disable();
+		// Tick.framerate(Tick.low);
 
 		// Sound	
 		self.listeners.complete = this.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 
@@ -1631,7 +1426,7 @@ FlowPoorhouseSecond.prototype.points1 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -1648,7 +1443,7 @@ FlowPoorhouseSecond.prototype.getout = function(trigger) {
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_3);
 
 	// Get sound
-	var sound = SoundService.matrix[currentTrigger];
+	var sound = SoundService.matrix[currentTrigger][this.id];
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -1657,11 +1452,11 @@ FlowPoorhouseSecond.prototype.getout = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -1673,7 +1468,7 @@ FlowPoorhouseSecond.prototype.getout = function(trigger) {
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.currentPage.portrait.gotoAndStop(frm);
 
-	this.continueBtn.activate('next');
+	self.continueBtn.ghost('skip');
 };
 FlowPoorhouseSecond.prototype.playAdvice = function(trigger) {
 	'use strict';
@@ -1703,11 +1498,11 @@ FlowPoorhouseSecond.prototype.playAdvice = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -1729,7 +1524,7 @@ FlowPoorhouseSecond.prototype.chooseWayOut = function(triggers) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosewayout;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Desactivate continue button
@@ -1777,7 +1572,7 @@ FlowPoorhouseSecond.prototype.farmWork = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.farmwork;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Set portrait
@@ -1797,7 +1592,7 @@ FlowPoorhouseSecond.prototype.points2 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -1823,11 +1618,11 @@ FlowPoorhouseSecond.prototype.farmworkEnded = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -1839,7 +1634,7 @@ FlowPoorhouseSecond.prototype.farmworkEnded = function(trigger) {
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.currentPage.portrait.gotoAndStop(frm);
 
-	this.continueBtn.activate('next');
+	self.continueBtn.ghost('skip');
 };
 FlowPoorhouseSecond.prototype.points3 = function(trigger) {
 	'use strict';
@@ -1853,7 +1648,7 @@ FlowPoorhouseSecond.prototype.points3 = function(trigger) {
 		PlayerStats.append('money', -1);
 		PlayerStats.append('mood', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -1868,7 +1663,7 @@ FlowPoorhouseSecond.prototype.letterWrite = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.letterwrite;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Dropdowns
@@ -1921,7 +1716,7 @@ FlowPoorhouseSecond.prototype.points4 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('mood', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -1940,16 +1735,12 @@ var FlowPoorhouse = function(container){
 	this.playerComponent = null;
 	this.listeners = {};
 	this.trigger = '1.0.2'; // Default start pointer
-	// this.pagesTotal = 12;
 	this.currentPage = null;
 	this.currentBackground = null;
 	this.groups = {};
 
 	this.continueBtn = ContinueButton;
 	this.continueBtn.ghost('skip');
-
-	// TEST
-	// this.id = 'svendborg';
 
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
@@ -1983,7 +1774,7 @@ FlowPoorhouse.prototype.start = function(){
 	this.id = PlayerStats.poorhouse;
 	var gameFile;
 
-	console.log('FlowPoorhouse:start');
+	// console.log('FlowPoorhouse:start');
 
 	LoadJS.load(
 		['../assets/logic/games/'+this.id+'.js'], 
@@ -1999,17 +1790,14 @@ FlowPoorhouse.prototype.setup = function(){
 	this.runonce = true;
 
 	// Tick
-	Tick.framerate(15);
+	Tick.framerate(Tick.high);
 
 	var self = this;
 	var manifest, Clss;	
 
 	// Setup flow
 	this.flow = new SubFlowController();
-	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
-	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '2.4'); // TEST
 	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
-	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.5'); // TEST
 	this.flow.addAction('1.1.1', Delegate.create(this.caretaker, this), '1.1.2');
 	this.flow.addAction('1.1.2', Delegate.create(this.chooseJob, this), '1.2.1');
 	this.flow.addAction('1.2.1', Delegate.create(this.work, this), '1.2.2');
@@ -2040,7 +1828,7 @@ FlowPoorhouse.prototype.setup = function(){
 	);
 
 	// this.id = 'svendborg';
-	console.log('FlowPoorhouse:setup', this.id);
+	// console.log('FlowPoorhouse:setup', this.id);
 
 	this.lib = gamelib;
 	switch(this.id){
@@ -2078,7 +1866,7 @@ FlowPoorhouse.prototype.setup = function(){
 		// Set start page
 		self.next();
 
-		console.log('FlowPoorhouse:onLoadComplete');
+		// console.log('FlowPoorhouse:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
@@ -2088,7 +1876,7 @@ FlowPoorhouse.prototype.next = function(){
 
 	// // Allow tick
 	// Tick.enable();
-	// Tick.framerate(15);
+	// Tick.framerate(Tick.high);
 
 	this.flow.next(this.trigger);	
 };
@@ -2144,39 +1932,6 @@ FlowPoorhouse.prototype.destroy = function() {
 	this.listeners = null;
 	this.flow = null;
 };
-// FlowPoorhouse.prototype.intro = function(trigger){
-// 	'use strict';
-
-
-// 	// Next move
-// 	this.trigger = trigger;
-
-// 	var self = this;
-
-// 	// Set page view
-// 	this.currentPage = this.view.intro;
-// 	this.currentPage.x = 0;
-
-// 	// Set background
-// 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
-	
-// 	// Slide. Loading is self contained
-// 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-// 	this.listeners.complete = self.playerComponent.on('complete', function(event){
-// 		self.continueBtn.activate('next');
-// 		Tick.disable();
-// 	}, self);
-// 	this.playerComponent.on('ready', function(event){
-// 		event.remove();
-// 		// No tick
-// 		Tick.disable();
-// 		self.continueBtn.activate("skip");
-// 		// self.dispatchEvent(new createjs.Event('ready'));
-// 	});
-// 	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
-// 	// this.playerComponent.preload('slide_intro', this.slideLib);
-	
-// };
 FlowPoorhouse.prototype.points1 = function(trigger) {
 	'use strict';
 
@@ -2184,18 +1939,15 @@ FlowPoorhouse.prototype.points1 = function(trigger) {
 	this.trigger = trigger;
 
 	// 	// Set background
-		this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.points1;
 	this.currentPage.x = 0;
-	// Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-	// 	PlayerStats.append('mood', -1);
-	// 	PlayerStats.append('health', 1);
-	// 	Topbar.pointsUpdate();
-	// 	Tick.disable();
-	// }, this));
+	PlayerStats.append('mood', -1);
+	PlayerStats.append('health', 1);
+	Topbar.pointsUpdate();
 	
 	this.continueBtn.activate('next');
 };
@@ -2221,11 +1973,11 @@ FlowPoorhouse.prototype.caretaker = function(trigger) {
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2247,7 +1999,7 @@ FlowPoorhouse.prototype.chooseJob = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosework;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Desactivate continue button
@@ -2298,16 +2050,16 @@ FlowPoorhouse.prototype.work = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.work;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		// Tick.disable();
+		// Tick.framerate(Tick.low);
 
 		// Sound	
 		self.listeners.complete = this.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 
@@ -2330,7 +2082,7 @@ FlowPoorhouse.prototype.points2 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -2349,7 +2101,7 @@ FlowPoorhouse.prototype.points3 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', -2);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -2373,11 +2125,11 @@ FlowPoorhouse.prototype.getout = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2389,7 +2141,7 @@ FlowPoorhouse.prototype.getout = function(trigger) {
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.currentPage.portrait.gotoAndStop(frm);
 
-	this.continueBtn.activate('next');
+	self.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	'use strict';
@@ -2419,11 +2171,11 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2445,7 +2197,7 @@ FlowPoorhouse.prototype.chooseWayOut = function(triggers) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosewayout;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Desactivate continue button
@@ -2495,11 +2247,11 @@ FlowPoorhouse.prototype.drunk = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2526,7 +2278,7 @@ FlowPoorhouse.prototype.points7 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('mood', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 		console.log('QUE');
 	}, this));
 
@@ -2553,11 +2305,11 @@ FlowPoorhouse.prototype.constable = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2578,7 +2330,7 @@ FlowPoorhouse.prototype.report = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.report;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Sound effect
@@ -2598,7 +2350,7 @@ FlowPoorhouse.prototype.points6 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 		PlayerStats.append('mood', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next button
@@ -2665,11 +2417,11 @@ FlowPoorhouse.prototype.backToPoorhouse = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2704,11 +2456,11 @@ FlowPoorhouse.prototype.preRecruitment = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2729,7 +2481,7 @@ FlowPoorhouse.prototype.recruimentOffice = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementoffice;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next in flow
@@ -2753,11 +2505,11 @@ FlowPoorhouse.prototype.jobInterviewPart1 = function(trigger){
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2777,7 +2529,7 @@ FlowPoorhouse.prototype.chooseJobGermany = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosejob;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next in flow
@@ -2821,11 +2573,11 @@ FlowPoorhouse.prototype.jobInterviewPart2 = function(trigger){
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2846,7 +2598,7 @@ FlowPoorhouse.prototype.points8 = function(trigger){
 		PlayerStats.append('money', 2);
 		PlayerStats.append('mood', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next button
@@ -2862,7 +2614,7 @@ FlowPoorhouse.prototype.recruitementLetter = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementletter;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Dropdowns
@@ -2892,7 +2644,7 @@ FlowPoorhouse.prototype.points9 = function(trigger){
 		PlayerStats.append('money', -1);
 		PlayerStats.append('mood', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next button
@@ -3074,7 +2826,7 @@ FlowGermany2.prototype.chooseJobGermany = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosejob;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next in flow
@@ -3117,7 +2869,7 @@ FlowGermany2.prototype.recruitementLetter = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementletter;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Dropdowns
@@ -3149,7 +2901,7 @@ FlowGermany2.prototype.points1 = function(trigger) {
 		PlayerStats.append('money', 1);
 		PlayerStats.append('mood', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3260,7 +3012,7 @@ FlowGermany2.prototype.points2 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 2);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3276,7 +3028,7 @@ FlowGermany2.prototype.points3 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 		PlayerStats.append('money', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3302,11 +3054,11 @@ FlowGermany2.prototype.danskFront = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -3333,7 +3085,7 @@ FlowGermany2.prototype.chooseParticipation = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.chooseparticipation;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -3380,7 +3132,7 @@ FlowGermany2.prototype.points4 = function(trigger) {
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3448,11 +3200,11 @@ FlowGermany2.prototype.theBomb = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -3489,11 +3241,11 @@ FlowGermany2.prototype.illness = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -3522,7 +3274,7 @@ FlowGermany2.prototype.choose1 = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choose1;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -3571,7 +3323,7 @@ FlowGermany2.prototype.points5 = function(trigger) {
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3589,7 +3341,7 @@ FlowGermany2.prototype.choose2 = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choose1;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -3638,7 +3390,7 @@ FlowGermany2.prototype.points6 = function(trigger) {
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3664,11 +3416,11 @@ FlowGermany2.prototype.goingHome = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -3842,12 +3594,12 @@ FlowGermany1.prototype.traveling = function(trigger){
 		this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 		this.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		this.playerComponent.on('ready', function(event){
 			event.remove();
 			// No tick
-			Tick.disable();
+			Tick.framerate(Tick.low);
 			self.continueBtn.activate("skip");
 		});
 		this.playerComponent.preload('slide_2_5', this.slideLib);
@@ -3884,11 +3636,11 @@ FlowGermany1.prototype.dormitry = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -3912,7 +3664,7 @@ FlowGermany1.prototype.points1 = function(trigger) {
 		PlayerStats.append('mood', 1);
 		PlayerStats.append('health', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3988,7 +3740,7 @@ FlowGermany1.prototype.points2 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 2);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -4004,7 +3756,7 @@ FlowGermany1.prototype.points3 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -4030,11 +3782,11 @@ FlowGermany1.prototype.getPaid = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -4062,7 +3814,7 @@ FlowGermany1.prototype.chooseSpending = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosespending;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Checkboxes
@@ -4126,7 +3878,7 @@ FlowGermany1.prototype.points4 = function(trigger) {
 			break;
 		}			
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -4142,7 +3894,7 @@ FlowGermany1.prototype.facts = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.facts;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 
@@ -4161,7 +3913,7 @@ FlowGermany1.prototype.chooseWhatNow = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosewhatnow;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Checkboxes
@@ -4211,11 +3963,11 @@ FlowGermany1.prototype.whatNow = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -4254,7 +4006,7 @@ FlowGermany1.prototype.points6 = function(trigger) {
 			break;
 		}			
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 console.log('points6', PlayerStats.whatnow, this.currentPage);
 	this.continueBtn.activate('next');
@@ -4280,11 +4032,11 @@ FlowGermany1.prototype.homeComming = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -4325,7 +4077,7 @@ FlowGermany1.prototype.points5 = function(trigger) {
 			break;
 		}			
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next
@@ -4350,7 +4102,7 @@ FlowGermany1.prototype.intermezzo = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosewhatnow;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	
@@ -4360,12 +4112,12 @@ FlowGermany1.prototype.intermezzo = function(trigger){
 		this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 		this.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		this.playerComponent.on('ready', function(event){
 			event.remove();
 			// No tick
-			Tick.disable();
+			Tick.framerate(Tick.low);
 			self.continueBtn.activate("skip");
 		});
 		this.playerComponent.preload('slide_2_5', this.slideLib);
@@ -4538,11 +4290,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -4579,11 +4331,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -4621,11 +4373,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -4663,11 +4415,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -4700,6 +4452,211 @@ var FlowEpilogue = function(container){
 
 	};	
 }
+var PageIntroSlide = function(container){
+	'use strict';
+	this.container = container;
+	this.id = null; 
+	this.view = null;	
+	this.lib = null;
+	this.slideLib = null;
+	this.playerComponent = null;
+	this.listeners = {};
+	this.trigger = 'start'; 
+	this.currentPage = null;
+	this.currentBackground = null;
+	this.groups = {};
+	// this.portrait = null;
+
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost('skip');
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+};
+PageIntroSlide.prototype.setPortrait = function(image){
+	this.portrait = image;
+}
+PageIntroSlide.prototype.start = function(flowId, slideName){
+	this.id = PlayerStats.poorhouse;
+	this.flowId = flowId;
+	this.slideName = slideName;
+
+	var gameFile;
+
+	// console.log('PageIntroSlide:start', slideName+'.js');
+	// console.log('PageIntroSlide', this.runonce, slideName+'.js');
+
+	LoadJS.load(
+		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
+		Delegate.create(this.setup, this)
+	);
+};
+PageIntroSlide.prototype.setup = function(){
+	'use strict';
+	// console.log('PageIntroSlide::setup:runonce', this.runonce);
+
+	if(this.runonce != null)
+		return;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	// Tick
+	Tick.framerate(Tick.high);
+
+	var self = this;
+	var manifest, Clss;	
+
+	// Setup flow
+	this.flow = new SubFlowController();
+	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
+	this.flow.addAction('end', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
+	// console.log('PageIntroSlide::setup:flowId', this.flowId);
+	this.lib = gamelib;
+	this.slideLib = slidelib;
+	Clss = this.lib.poorhouse_intro;
+	manifest = this.lib.properties.manifest;
+
+	try{
+		// Background image
+		if(this.flowId === '0.1'){
+			this.bgImage = ImageService.matrix[this.flowId];
+		}else{
+			this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';			
+		}
+		manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
+		
+
+	}catch(err){
+		// console.log(PlayerStats.poorhouse, this.bgImage);
+		// console.log(err);
+	}	
+	
+	// Load files
+	var onFileLoad = function(event){
+		if (event.item.type === 'image') { 
+			// console.log(event.item.id, event.result);
+			images[event.item.id] = event.result; 
+		}
+	};
+	var onLoadComplete = function(event){
+		// Instantiate view
+		self.view = new Clss();
+
+		//Add
+		self.container.addChild(self.view);
+
+		// Set start page
+		self.next();
+
+		// console.log('PageIntroSlide:onLoadComplete');
+		self.dispatchEvent(new createjs.Event('ready'));
+	};
+	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+	// console.log('manifest:', manifest);
+};
+PageIntroSlide.prototype.next = function(){
+	'use strict';
+	this.flow.next(this.trigger);	
+};
+PageIntroSlide.prototype.onComplete = function(event) {
+	'use strict';
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+	}
+
+	// Set next button active
+	this.continueBtn.activate('next');	
+};
+PageIntroSlide.prototype.onContinue = function(event) {
+	'use strict';
+	
+	// console.log('PageIntroSlide::onContinue');
+	
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
+
+	this.next();
+
+	// // console.log('this.playerComponent:', this.playerComponent)
+};
+PageIntroSlide.prototype.removeEvents = function() {
+	'use strict';
+	
+	// Remove events
+	this.continueBtn.off('click', this.listeners.continue);
+	this.listeners.continue = null;
+};
+PageIntroSlide.prototype.destroy = function() {
+	'use strict';
+	
+	// Remove events
+	this.removeEvents();
+
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+		this.playerComponent.destroy();	
+		this.playerComponent = null;
+	}			
+	this.view = null;
+	this.lib = null;
+	this.currentPage = null;
+	this.listeners = null;
+	this.flow = null;
+};
+PageIntroSlide.prototype.intro = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set page view
+	this.currentPage = this.view.intro;
+	this.currentPage.x = 0;
+
+	// Set background
+	this.view.bg_container.x = 0;
+
+	// Background
+	var bitmap = new createjs.Bitmap(this.bgImage.src);	
+	this.view.bg_container.addChild(bitmap);
+
+	// Slide. Loading is self contained
+	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+	this.listeners.complete = self.playerComponent.on('complete', function(event){
+		// console.log('PageIntroSlide::complete');
+		self.continueBtn.activate('next');
+		Tick.framerate(Tick.low);
+	}, self);
+	this.playerComponent.on('ready', function(event){
+		event.remove();		
+		self.continueBtn.activate("skip");
+		// self.dispatchEvent(new createjs.Event('ready'));
+		// console.log('PageIntroSlide::ready');
+		// No tick
+		// Tick.framerate(Tick.low);
+		// console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
+	});
+	// // console.log(this.slideLib)
+	this.playerComponent.preload(this.slideName, this.slideLib);
+	
+};
+createjs.EventDispatcher.initialize(PageIntroSlide.prototype);
+
+
+
 var Topbar = {
 	view: null,
 	soundController: null,
@@ -4886,6 +4843,10 @@ var Tick = {
 	stage: null,
 	enabled: false,
 	debug: false,
+	low: 4,
+	medium: 8,
+	high: 15,
+	perfect: 24,
 	init: function(stage, framerate){
 		this.stage = stage;
 		// createjs.Ticker.setFPS(framerate);
@@ -5057,13 +5018,19 @@ var Preloader = {
 };
 PreloadGFX = {
 	blocker: null,
+	shown: 0,
 	show: function(progress){
+		// if(this.shown < 0)
+		// 	this.shown = 0;
+		
+		this.shown++;
+		console.log('show', this.shown);
+
 		(progress === undefined || progress === null)? progress = true : progress = progress;
 		$('.preload-wrapper').removeClass('hide');
 		$('.preload-wrapper').addClass('show');
 		$('.progress-bar').removeClass('hide');
 
-		// console.log('PreloadGFX',progress);
 		if(progress)
 			$('.progress-bar').removeClass('show');
 		else
@@ -5072,10 +5039,19 @@ PreloadGFX = {
 		if(PreloadGFX.blocker !== null && progress){
 			PreloadGFX.blocker.visible = true;
 			PreloadGFX.blocker.alpha = .3;	
-		}
-		
+		}		
 	},
 	hide: function(){
+		this.shown--;
+
+		// if(this.shown < 0)
+		// 	this.shown = 0;
+
+		// console.log('hide', this.shown);
+
+		// if(this.shown > 0)
+		// 	return;
+
 		$('.preload-wrapper').removeClass('show');
 		$('.preload-wrapper').addClass('hide');
 		$('.progress-bar').removeClass('show');
@@ -5410,9 +5386,13 @@ SoundService.matrix = {
 						'C': { src:SoundService.properties.basePath+'1.1.2_pilorm.mp3' }
 					},
 	},
-	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3' },
-	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3' },
-	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3' },
+	'3.3' : {
+		'horsens': { src:SoundService.properties.basePath+'3.3.horsens.svendborg.mp3' },
+		'sundholm': { src:SoundService.properties.basePath+'3.3.sundholm.mp3' },
+		'svendborg': { src:SoundService.properties.basePath+'3.3.horsens.svendborg.mp3' }
+	},
+	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4.1.mp3' },
+	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4.2.mp3' },
 	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3' },
 	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1.mp3' },
 	'4.10.1': { label:'bombe', src:SoundService.properties.basePath+'4.10.1.mp3' },
@@ -5516,7 +5496,7 @@ var PlayerStats = {
 var Library = {
 	clearSlide: function(){
 		'use strict';
-		console.log('clearSlide');
+		// console.log('clearSlide');
 		try{
 			slidelib = null;
 		}catch(err){
@@ -5525,7 +5505,7 @@ var Library = {
 	},
 	clearGame: function(){
 		'use strict';
-		console.log('clearGame');		
+		// console.log('clearGame');		
 		try{
 			gamelib = null;
 		}catch(err){
@@ -5534,7 +5514,7 @@ var Library = {
 	},
 	clearMain: function(){
 		'use strict';
-		console.log('clearMain');		
+		// console.log('clearMain');		
 		try{
 			mainlib = null;
 		}catch(err){
@@ -5699,7 +5679,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('0.2');
 				}, this);
-				// Tick.disable();
+				// Tick.framerate(Tick.low);
 			break;
 
 			case '0.2':
@@ -5712,7 +5692,7 @@ var FlowManager = {
 					console.log(err);
 				}
 
-				// Tick.disable();
+				// Tick.framerate(Tick.low);
 				var self = this;
 
 				// Go to start frame
@@ -5733,7 +5713,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('1.0.1');
 				}, this);				
-				// Tick.disable();	
+				// Tick.framerate(Tick.low);	
 				
 			break;
 			case '1.0.1':	
@@ -5762,7 +5742,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('1.0.2');
 				}, this);
-				// Tick.disable();
+				// Tick.framerate(Tick.low);
 			break;
 			case '1.0.2':	
 				// Poor House		
@@ -5792,7 +5772,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('2.5');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 			case '2.5':
 				// Germany 1.
@@ -5825,7 +5805,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('3.0');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 			case '3.0':	
 				// Poor House 2. time
@@ -5907,7 +5887,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('4.0');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 			case '4.0':	
 				// Germany 2.	
@@ -5939,7 +5919,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('4.11');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 			case '4.11':	
 
@@ -5970,7 +5950,7 @@ var FlowManager = {
 				// 	Library.clearGame();
 				// 	self.gotoPage('4.10');
 				// }, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 		}
 	},
@@ -6237,12 +6217,8 @@ SoundController.prototype = {
 createjs.EventDispatcher.initialize(SoundController.prototype);
 var HUDController = {
 	init: function(){
-		console.log('HUDController::init');
-		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src);
-		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src);
-
-		this.soundControllerPlus.load();
-		this.soundControllerMinus.load();
+		this.soundControllerPlus = new SoundEffect(SoundService.matrix.points.plus.src, false);	
+		this.soundControllerMinus = new SoundEffect(SoundService.matrix.points.minus.src, false);	
 	},
 	setView: function(view){
 		this.view = view;		
@@ -7015,6 +6991,281 @@ try {
   module = angular.module('fattiggarden', []);
 }
 module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/fonts/BigNoodle/big_noodle_titling-demo.html',
+    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="specimen_files/easytabs.js" type="text/javascript" charset="utf-8"></script><link rel="stylesheet" href="specimen_files/specimen_stylesheet.css" type="text/css" charset="utf-8"><link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8"><style type="text/css">body{\n' +
+    '				font-family: \'bignoodletitlingregular\';\n' +
+    '							}</style><title>BigNoodleTitling Regular Specimen</title><script type="text/javascript">$(document).ready(function() {\n' +
+    '			$(\'#container\').easyTabs({defaultContent:1});\n' +
+    '		});</script></head><body><div id="container"><div id="header">BigNoodleTitling Regular</div><ul class="tabs"><li><a href="#specimen">Specimen</a></li><li><a href="#layout">Sample Layout</a></li><li><a href="#glyphs">Glyphs &amp; Languages</a></li><li><a href="#installing">Installing Webfonts</a></li></ul><div id="main_content"><div id="specimen"><div class="section"><div class="grid12 firstcol"><div class="huge">AaBb</div></div></div><div class="section"><div class="glyph_range">A&#x200B;B&#x200b;C&#x200b;D&#x200b;E&#x200b;F&#x200b;G&#x200b;H&#x200b;I&#x200b;J&#x200b;K&#x200b;L&#x200b;M&#x200b;N&#x200b;O&#x200b;P&#x200b;Q&#x200b;R&#x200b;S&#x200b;T&#x200b;U&#x200b;V&#x200b;W&#x200b;X&#x200b;Y&#x200b;Z&#x200b;a&#x200b;b&#x200b;c&#x200b;d&#x200b;e&#x200b;f&#x200b;g&#x200b;h&#x200b;i&#x200b;j&#x200b;k&#x200b;l&#x200b;m&#x200b;n&#x200b;o&#x200b;p&#x200b;q&#x200b;r&#x200b;s&#x200b;t&#x200b;u&#x200b;v&#x200b;w&#x200b;x&#x200b;y&#x200b;z&#x200b;1&#x200b;2&#x200b;3&#x200b;4&#x200b;5&#x200b;6&#x200b;7&#x200b;8&#x200b;9&#x200b;0&#x200b;&amp;&#x200b;.&#x200b;,&#x200b;?&#x200b;!&#x200b;&#64;&#x200b;(&#x200b;)&#x200b;#&#x200b;$&#x200b;%&#x200b;*&#x200b;+&#x200b;-&#x200b;=&#x200b;:&#x200b;;</div></div><div class="section"><div class="grid12 firstcol"><table class="sample_table"><tr><td>10</td><td class="size10">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>11</td><td class="size11">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>12</td><td class="size12">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>13</td><td class="size13">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>14</td><td class="size14">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>16</td><td class="size16">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>18</td><td class="size18">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>20</td><td class="size20">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>24</td><td class="size24">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>30</td><td class="size30">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>36</td><td class="size36">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>48</td><td class="size48">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>60</td><td class="size60">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>72</td><td class="size72">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>90</td><td class="size90">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr></table></div></div><div class="section" id="bodycomparison"><div id="xheight"><div class="fontbody">&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;body</div><div class="arialbody">body</div><div class="verdanabody">body</div><div class="georgiabody">body</div></div><div class="fontbody" style="z-index:1">body<span>BigNoodleTitling Regular</span></div><div class="arialbody" style="z-index:1">body<span>Arial</span></div><div class="verdanabody" style="z-index:1">body<span>Verdana</span></div><div class="georgiabody" style="z-index:1">body<span>Georgia</span></div></div><div class="section psample psample_row1" id=""><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row2" id=""><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row4" id=""><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row1 fullreverse"><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample psample_row2 fullreverse"><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row4" id="" style="border-bottom: 20px #000 solid"><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div></div><div id="layout"><div class="section"><div class="grid12 firstcol"><h1>Lorem Ipsum Dolor</h1><h2>Etiam porta sem malesuada magna mollis euismod</h2><p class="byline">By <a href="#link">Aenean Lacinia</a></p></div></div><div class="section"><div class="grid8 firstcol"><p class="large">Donec sed odio dui. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><h3>Pellentesque ornare sem</h3><p>Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas faucibus mollis interdum. Donec ullamcorper nulla non metus auctor fringilla. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam id dolor id nibh ultricies vehicula ut id elit.</p><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p><p>Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Aenean lacinia bibendum nulla sed consectetur.</p><p>Nullam quis risus eget urna mollis ornare vel eu leo. Nullam quis risus eget urna mollis ornare vel eu leo. Maecenas sed diam eget risus varius blandit sit amet non magna. Donec ullamcorper nulla non metus auctor fringilla.</p><h3>Cras mattis consectetur</h3><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Aenean lacinia bibendum nulla sed consectetur. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum.</p><p>Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna mollis ornare vel eu leo. Cras mattis consectetur purus sit amet fermentum.</p></div><div class="grid4 sidebar"><div class="box reverse"><p class="last">Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div><p class="caption">Maecenas sed diam eget risus varius.</p><p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Vestibulum id ligula porta felis euismod semper. Sed posuere consectetur est at lobortis. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Aenean lacinia bibendum nulla sed consectetur. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Aenean lacinia bibendum nulla sed consectetur. Nullam quis risus eget urna mollis ornare vel eu leo.</p><p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec ullamcorper nulla non metus auctor fringilla. Maecenas faucibus mollis interdum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p></div></div></div><div id="glyphs"><div class="section"><div class="grid12 firstcol"><h1>Language Support</h1><p>The subset of BigNoodleTitling Regular in this kit supports the following languages:<br></p><h1>Glyph Chart</h1><p>The subset of BigNoodleTitling Regular in this kit includes all the glyphs listed below. Unicode entities are included above each glyph to help you insert individual characters into your layout.</p><div id="glyph_chart"><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#33;</p>&#33;</div><div><p>&amp;#34;</p>&#34;</div><div><p>&amp;#35;</p>&#35;</div><div><p>&amp;#36;</p>&#36;</div><div><p>&amp;#37;</p>&#37;</div><div><p>&amp;#38;</p>&#38;</div><div><p>&amp;#39;</p>&#39;</div><div><p>&amp;#40;</p>&#40;</div><div><p>&amp;#41;</p>&#41;</div><div><p>&amp;#42;</p>&#42;</div><div><p>&amp;#43;</p>&#43;</div><div><p>&amp;#44;</p>&#44;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#46;</p>&#46;</div><div><p>&amp;#47;</p>&#47;</div><div><p>&amp;#48;</p>&#48;</div><div><p>&amp;#49;</p>&#49;</div><div><p>&amp;#50;</p>&#50;</div><div><p>&amp;#51;</p>&#51;</div><div><p>&amp;#52;</p>&#52;</div><div><p>&amp;#53;</p>&#53;</div><div><p>&amp;#54;</p>&#54;</div><div><p>&amp;#55;</p>&#55;</div><div><p>&amp;#56;</p>&#56;</div><div><p>&amp;#57;</p>&#57;</div><div><p>&amp;#58;</p>&#58;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#60;</p>&#60;</div><div><p>&amp;#61;</p>&#61;</div><div><p>&amp;#62;</p>&#62;</div><div><p>&amp;#63;</p>&#63;</div><div><p>&amp;#64;</p>&#64;</div><div><p>&amp;#65;</p>&#65;</div><div><p>&amp;#66;</p>&#66;</div><div><p>&amp;#67;</p>&#67;</div><div><p>&amp;#68;</p>&#68;</div><div><p>&amp;#69;</p>&#69;</div><div><p>&amp;#70;</p>&#70;</div><div><p>&amp;#71;</p>&#71;</div><div><p>&amp;#72;</p>&#72;</div><div><p>&amp;#73;</p>&#73;</div><div><p>&amp;#74;</p>&#74;</div><div><p>&amp;#75;</p>&#75;</div><div><p>&amp;#76;</p>&#76;</div><div><p>&amp;#77;</p>&#77;</div><div><p>&amp;#78;</p>&#78;</div><div><p>&amp;#79;</p>&#79;</div><div><p>&amp;#80;</p>&#80;</div><div><p>&amp;#81;</p>&#81;</div><div><p>&amp;#82;</p>&#82;</div><div><p>&amp;#83;</p>&#83;</div><div><p>&amp;#84;</p>&#84;</div><div><p>&amp;#85;</p>&#85;</div><div><p>&amp;#86;</p>&#86;</div><div><p>&amp;#87;</p>&#87;</div><div><p>&amp;#88;</p>&#88;</div><div><p>&amp;#89;</p>&#89;</div><div><p>&amp;#90;</p>&#90;</div><div><p>&amp;#91;</p>&#91;</div><div><p>&amp;#92;</p>&#92;</div><div><p>&amp;#93;</p>&#93;</div><div><p>&amp;#95;</p>&#95;</div><div><p>&amp;#96;</p>&#96;</div><div><p>&amp;#123;</p>&#123;</div><div><p>&amp;#124;</p>&#124;</div><div><p>&amp;#125;</p>&#125;</div><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#161;</p>&#161;</div><div><p>&amp;#162;</p>&#162;</div><div><p>&amp;#163;</p>&#163;</div><div><p>&amp;#165;</p>&#165;</div><div><p>&amp;#166;</p>&#166;</div><div><p>&amp;#167;</p>&#167;</div><div><p>&amp;#168;</p>&#168;</div><div><p>&amp;#169;</p>&#169;</div><div><p>&amp;#170;</p>&#170;</div><div><p>&amp;#171;</p>&#171;</div><div><p>&amp;#172;</p>&#172;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#174;</p>&#174;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#176;</p>&#176;</div><div><p>&amp;#178;</p>&#178;</div><div><p>&amp;#179;</p>&#179;</div><div><p>&amp;#180;</p>&#180;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#182;</p>&#182;</div><div><p>&amp;#184;</p>&#184;</div><div><p>&amp;#185;</p>&#185;</div><div><p>&amp;#186;</p>&#186;</div><div><p>&amp;#187;</p>&#187;</div><div><p>&amp;#188;</p>&#188;</div><div><p>&amp;#189;</p>&#189;</div><div><p>&amp;#190;</p>&#190;</div><div><p>&amp;#191;</p>&#191;</div><div><p>&amp;#198;</p>&#198;</div><div><p>&amp;#215;</p>&#215;</div><div><p>&amp;#216;</p>&#216;</div><div><p>&amp;#222;</p>&#222;</div><div><p>&amp;#223;</p>&#223;</div><div><p>&amp;#247;</p>&#247;</div><div><p>&amp;#321;</p>&#321;</div><div><p>&amp;#338;</p>&#338;</div><div><p>&amp;#402;</p>&#402;</div><div><p>&amp;#710;</p>&#710;</div><div><p>&amp;#711;</p>&#711;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#728;</p>&#728;</div><div><p>&amp;#729;</p>&#729;</div><div><p>&amp;#730;</p>&#730;</div><div><p>&amp;#731;</p>&#731;</div><div><p>&amp;#732;</p>&#732;</div><div><p>&amp;#733;</p>&#733;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#8211;</p>&#8211;</div><div><p>&amp;#8212;</p>&#8212;</div><div><p>&amp;#8216;</p>&#8216;</div><div><p>&amp;#8217;</p>&#8217;</div><div><p>&amp;#8220;</p>&#8220;</div><div><p>&amp;#8221;</p>&#8221;</div><div><p>&amp;#8224;</p>&#8224;</div><div><p>&amp;#8225;</p>&#8225;</div><div><p>&amp;#8226;</p>&#8226;</div><div><p>&amp;#8240;</p>&#8240;</div><div><p>&amp;#8249;</p>&#8249;</div><div><p>&amp;#8250;</p>&#8250;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#8364;</p>&#8364;</div><div><p>&amp;#8482;</p>&#8482;</div><div><p>&amp;#8722;</p>&#8722;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#64257;</p>&#64257;</div><div><p>&amp;#64258;</p>&#64258;</div></div></div></div></div><div id="specs"></div><div id="installing"><div class="section"><div class="grid7 firstcol"><h1>Installing Webfonts</h1><p>Webfonts are supported by all major browser platforms but not all in the same way. There are currently four different font formats that must be included in order to target all browsers. This includes TTF, WOFF, EOT and SVG.</p><h2>1. Upload your webfonts</h2><p>You must upload your webfont kit to your website. They should be in or near the same directory as your CSS files.</p><h2>2. Include the webfont stylesheet</h2><p>A special CSS @font-face declaration helps the various browsers select the appropriate font it needs without causing you a bunch of headaches. Learn more about this syntax by reading the <a href="http://www.fontspring.com/blog/further-hardening-of-the-bulletproof-syntax">Fontspring blog post</a> about it. The code for it is as follows:</p><code>@font-face{ font-family: \'MyWebFont\'; src: url(\'WebFont.eot\'); src: url(\'WebFont.eot?#iefix\') format(\'embedded-opentype\'), url(\'WebFont.woff\') format(\'woff\'), url(\'WebFont.ttf\') format(\'truetype\'), url(\'WebFont.svg#webfont\') format(\'svg\'); }</code><p>We\'ve already gone ahead and generated the code for you. All you have to do is link to the stylesheet in your HTML, like this:</p><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;stylesheet.css&quot; type=&quot;text/css&quot; charset=&quot;utf-8&quot; /&gt;</code><h2>3. Modify your own stylesheet</h2><p>To take advantage of your new fonts, you must tell your stylesheet to use them. Look at the original @font-face declaration above and find the property called "font-family." The name linked there will be what you use to reference the font. Prepend that webfont name to the font stack in the "font-family" property, inside the selector you want to change. For example:</p><code>p { font-family: \'WebFont\', Arial, sans-serif; }</code><h2>4. Test</h2><p>Getting webfonts to work cross-browser <em>can</em> be tricky. Use the information in the sidebar to help you if you find that fonts aren\'t loading in a particular browser.</p></div><div class="grid5 sidebar"><div class="box"><h2>Troubleshooting<br>Font-Face Problems</h2><p>Having trouble getting your webfonts to load in your new website? Here are some tips to sort out what might be the problem.</p><h3>Fonts not showing in any browser</h3><p>This sounds like you need to work on the plumbing. You either did not upload the fonts to the correct directory, or you did not link the fonts properly in the CSS. If you\'ve confirmed that all this is correct and you still have a problem, take a look at your .htaccess file and see if requests are getting intercepted.</p><h3>Fonts not loading in iPhone or iPad</h3><p>The most common problem here is that you are serving the fonts from an IIS server. IIS refuses to serve files that have unknown MIME types. If that is the case, you must set the MIME type for SVG to "image/svg+xml" in the server settings. Follow these instructions from Microsoft if you need help.</p><h3>Fonts not loading in Firefox</h3><p>The primary reason for this failure? You are still using a version Firefox older than 3.5. So upgrade already! If that isn\'t it, then you are very likely serving fonts from a different domain. Firefox requires that all font assets be served from the same domain. Lastly it is possible that you need to add WOFF to your list of MIME types (if you are serving via IIS.)</p><h3>Fonts not loading in IE</h3><p>Are you looking at Internet Explorer on an actual Windows machine or are you cheating by using a service like Adobe BrowserLab? Many of these screenshot services do not render @font-face for IE. Best to test it on a real machine.</p><h3>Fonts not loading in IE9</h3><p>IE9, like Firefox, requires that fonts be served from the same domain as the website. Make sure that is the case.</p></div></div></div></div></div><div id="footer"><p>&copy;2010-2011 Font Squirrel. All rights reserved.</p></div></div></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_0_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_1_0_1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_1_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_1_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_1_0_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_5.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_5</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_5.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_5();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_amory.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_amory</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_amory.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_amory();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_butcher.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_butcher</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_butcher.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_butcher();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_mine.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_mine</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_mine.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_mine();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_4_3.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_4_3</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_4_3.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_4_3();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/fattiggarden/assets/logic/games/epilogue.html',
     '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>epilogue</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="epilogue.js"></script><script>var canvas, stage, exportRoot;\n' +
     '\n' +
@@ -7309,280 +7560,5 @@ module.run(['$templateCache', function($templateCache) {
     '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
     '	createjs.Ticker.addEventListener("tick", stage);\n' +
     '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/fonts/BigNoodle/big_noodle_titling-demo.html',
-    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="specimen_files/easytabs.js" type="text/javascript" charset="utf-8"></script><link rel="stylesheet" href="specimen_files/specimen_stylesheet.css" type="text/css" charset="utf-8"><link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8"><style type="text/css">body{\n' +
-    '				font-family: \'bignoodletitlingregular\';\n' +
-    '							}</style><title>BigNoodleTitling Regular Specimen</title><script type="text/javascript">$(document).ready(function() {\n' +
-    '			$(\'#container\').easyTabs({defaultContent:1});\n' +
-    '		});</script></head><body><div id="container"><div id="header">BigNoodleTitling Regular</div><ul class="tabs"><li><a href="#specimen">Specimen</a></li><li><a href="#layout">Sample Layout</a></li><li><a href="#glyphs">Glyphs &amp; Languages</a></li><li><a href="#installing">Installing Webfonts</a></li></ul><div id="main_content"><div id="specimen"><div class="section"><div class="grid12 firstcol"><div class="huge">AaBb</div></div></div><div class="section"><div class="glyph_range">A&#x200B;B&#x200b;C&#x200b;D&#x200b;E&#x200b;F&#x200b;G&#x200b;H&#x200b;I&#x200b;J&#x200b;K&#x200b;L&#x200b;M&#x200b;N&#x200b;O&#x200b;P&#x200b;Q&#x200b;R&#x200b;S&#x200b;T&#x200b;U&#x200b;V&#x200b;W&#x200b;X&#x200b;Y&#x200b;Z&#x200b;a&#x200b;b&#x200b;c&#x200b;d&#x200b;e&#x200b;f&#x200b;g&#x200b;h&#x200b;i&#x200b;j&#x200b;k&#x200b;l&#x200b;m&#x200b;n&#x200b;o&#x200b;p&#x200b;q&#x200b;r&#x200b;s&#x200b;t&#x200b;u&#x200b;v&#x200b;w&#x200b;x&#x200b;y&#x200b;z&#x200b;1&#x200b;2&#x200b;3&#x200b;4&#x200b;5&#x200b;6&#x200b;7&#x200b;8&#x200b;9&#x200b;0&#x200b;&amp;&#x200b;.&#x200b;,&#x200b;?&#x200b;!&#x200b;&#64;&#x200b;(&#x200b;)&#x200b;#&#x200b;$&#x200b;%&#x200b;*&#x200b;+&#x200b;-&#x200b;=&#x200b;:&#x200b;;</div></div><div class="section"><div class="grid12 firstcol"><table class="sample_table"><tr><td>10</td><td class="size10">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>11</td><td class="size11">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>12</td><td class="size12">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>13</td><td class="size13">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>14</td><td class="size14">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>16</td><td class="size16">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>18</td><td class="size18">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>20</td><td class="size20">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>24</td><td class="size24">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>30</td><td class="size30">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>36</td><td class="size36">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>48</td><td class="size48">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>60</td><td class="size60">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>72</td><td class="size72">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>90</td><td class="size90">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr></table></div></div><div class="section" id="bodycomparison"><div id="xheight"><div class="fontbody">&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;body</div><div class="arialbody">body</div><div class="verdanabody">body</div><div class="georgiabody">body</div></div><div class="fontbody" style="z-index:1">body<span>BigNoodleTitling Regular</span></div><div class="arialbody" style="z-index:1">body<span>Arial</span></div><div class="verdanabody" style="z-index:1">body<span>Verdana</span></div><div class="georgiabody" style="z-index:1">body<span>Georgia</span></div></div><div class="section psample psample_row1" id=""><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row2" id=""><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row4" id=""><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row1 fullreverse"><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample psample_row2 fullreverse"><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row4" id="" style="border-bottom: 20px #000 solid"><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div></div><div id="layout"><div class="section"><div class="grid12 firstcol"><h1>Lorem Ipsum Dolor</h1><h2>Etiam porta sem malesuada magna mollis euismod</h2><p class="byline">By <a href="#link">Aenean Lacinia</a></p></div></div><div class="section"><div class="grid8 firstcol"><p class="large">Donec sed odio dui. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><h3>Pellentesque ornare sem</h3><p>Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas faucibus mollis interdum. Donec ullamcorper nulla non metus auctor fringilla. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam id dolor id nibh ultricies vehicula ut id elit.</p><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p><p>Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Aenean lacinia bibendum nulla sed consectetur.</p><p>Nullam quis risus eget urna mollis ornare vel eu leo. Nullam quis risus eget urna mollis ornare vel eu leo. Maecenas sed diam eget risus varius blandit sit amet non magna. Donec ullamcorper nulla non metus auctor fringilla.</p><h3>Cras mattis consectetur</h3><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Aenean lacinia bibendum nulla sed consectetur. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum.</p><p>Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna mollis ornare vel eu leo. Cras mattis consectetur purus sit amet fermentum.</p></div><div class="grid4 sidebar"><div class="box reverse"><p class="last">Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div><p class="caption">Maecenas sed diam eget risus varius.</p><p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Vestibulum id ligula porta felis euismod semper. Sed posuere consectetur est at lobortis. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Aenean lacinia bibendum nulla sed consectetur. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Aenean lacinia bibendum nulla sed consectetur. Nullam quis risus eget urna mollis ornare vel eu leo.</p><p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec ullamcorper nulla non metus auctor fringilla. Maecenas faucibus mollis interdum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p></div></div></div><div id="glyphs"><div class="section"><div class="grid12 firstcol"><h1>Language Support</h1><p>The subset of BigNoodleTitling Regular in this kit supports the following languages:<br></p><h1>Glyph Chart</h1><p>The subset of BigNoodleTitling Regular in this kit includes all the glyphs listed below. Unicode entities are included above each glyph to help you insert individual characters into your layout.</p><div id="glyph_chart"><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#33;</p>&#33;</div><div><p>&amp;#34;</p>&#34;</div><div><p>&amp;#35;</p>&#35;</div><div><p>&amp;#36;</p>&#36;</div><div><p>&amp;#37;</p>&#37;</div><div><p>&amp;#38;</p>&#38;</div><div><p>&amp;#39;</p>&#39;</div><div><p>&amp;#40;</p>&#40;</div><div><p>&amp;#41;</p>&#41;</div><div><p>&amp;#42;</p>&#42;</div><div><p>&amp;#43;</p>&#43;</div><div><p>&amp;#44;</p>&#44;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#46;</p>&#46;</div><div><p>&amp;#47;</p>&#47;</div><div><p>&amp;#48;</p>&#48;</div><div><p>&amp;#49;</p>&#49;</div><div><p>&amp;#50;</p>&#50;</div><div><p>&amp;#51;</p>&#51;</div><div><p>&amp;#52;</p>&#52;</div><div><p>&amp;#53;</p>&#53;</div><div><p>&amp;#54;</p>&#54;</div><div><p>&amp;#55;</p>&#55;</div><div><p>&amp;#56;</p>&#56;</div><div><p>&amp;#57;</p>&#57;</div><div><p>&amp;#58;</p>&#58;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#60;</p>&#60;</div><div><p>&amp;#61;</p>&#61;</div><div><p>&amp;#62;</p>&#62;</div><div><p>&amp;#63;</p>&#63;</div><div><p>&amp;#64;</p>&#64;</div><div><p>&amp;#65;</p>&#65;</div><div><p>&amp;#66;</p>&#66;</div><div><p>&amp;#67;</p>&#67;</div><div><p>&amp;#68;</p>&#68;</div><div><p>&amp;#69;</p>&#69;</div><div><p>&amp;#70;</p>&#70;</div><div><p>&amp;#71;</p>&#71;</div><div><p>&amp;#72;</p>&#72;</div><div><p>&amp;#73;</p>&#73;</div><div><p>&amp;#74;</p>&#74;</div><div><p>&amp;#75;</p>&#75;</div><div><p>&amp;#76;</p>&#76;</div><div><p>&amp;#77;</p>&#77;</div><div><p>&amp;#78;</p>&#78;</div><div><p>&amp;#79;</p>&#79;</div><div><p>&amp;#80;</p>&#80;</div><div><p>&amp;#81;</p>&#81;</div><div><p>&amp;#82;</p>&#82;</div><div><p>&amp;#83;</p>&#83;</div><div><p>&amp;#84;</p>&#84;</div><div><p>&amp;#85;</p>&#85;</div><div><p>&amp;#86;</p>&#86;</div><div><p>&amp;#87;</p>&#87;</div><div><p>&amp;#88;</p>&#88;</div><div><p>&amp;#89;</p>&#89;</div><div><p>&amp;#90;</p>&#90;</div><div><p>&amp;#91;</p>&#91;</div><div><p>&amp;#92;</p>&#92;</div><div><p>&amp;#93;</p>&#93;</div><div><p>&amp;#95;</p>&#95;</div><div><p>&amp;#96;</p>&#96;</div><div><p>&amp;#123;</p>&#123;</div><div><p>&amp;#124;</p>&#124;</div><div><p>&amp;#125;</p>&#125;</div><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#161;</p>&#161;</div><div><p>&amp;#162;</p>&#162;</div><div><p>&amp;#163;</p>&#163;</div><div><p>&amp;#165;</p>&#165;</div><div><p>&amp;#166;</p>&#166;</div><div><p>&amp;#167;</p>&#167;</div><div><p>&amp;#168;</p>&#168;</div><div><p>&amp;#169;</p>&#169;</div><div><p>&amp;#170;</p>&#170;</div><div><p>&amp;#171;</p>&#171;</div><div><p>&amp;#172;</p>&#172;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#174;</p>&#174;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#176;</p>&#176;</div><div><p>&amp;#178;</p>&#178;</div><div><p>&amp;#179;</p>&#179;</div><div><p>&amp;#180;</p>&#180;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#182;</p>&#182;</div><div><p>&amp;#184;</p>&#184;</div><div><p>&amp;#185;</p>&#185;</div><div><p>&amp;#186;</p>&#186;</div><div><p>&amp;#187;</p>&#187;</div><div><p>&amp;#188;</p>&#188;</div><div><p>&amp;#189;</p>&#189;</div><div><p>&amp;#190;</p>&#190;</div><div><p>&amp;#191;</p>&#191;</div><div><p>&amp;#198;</p>&#198;</div><div><p>&amp;#215;</p>&#215;</div><div><p>&amp;#216;</p>&#216;</div><div><p>&amp;#222;</p>&#222;</div><div><p>&amp;#223;</p>&#223;</div><div><p>&amp;#247;</p>&#247;</div><div><p>&amp;#321;</p>&#321;</div><div><p>&amp;#338;</p>&#338;</div><div><p>&amp;#402;</p>&#402;</div><div><p>&amp;#710;</p>&#710;</div><div><p>&amp;#711;</p>&#711;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#728;</p>&#728;</div><div><p>&amp;#729;</p>&#729;</div><div><p>&amp;#730;</p>&#730;</div><div><p>&amp;#731;</p>&#731;</div><div><p>&amp;#732;</p>&#732;</div><div><p>&amp;#733;</p>&#733;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#8211;</p>&#8211;</div><div><p>&amp;#8212;</p>&#8212;</div><div><p>&amp;#8216;</p>&#8216;</div><div><p>&amp;#8217;</p>&#8217;</div><div><p>&amp;#8220;</p>&#8220;</div><div><p>&amp;#8221;</p>&#8221;</div><div><p>&amp;#8224;</p>&#8224;</div><div><p>&amp;#8225;</p>&#8225;</div><div><p>&amp;#8226;</p>&#8226;</div><div><p>&amp;#8240;</p>&#8240;</div><div><p>&amp;#8249;</p>&#8249;</div><div><p>&amp;#8250;</p>&#8250;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#8364;</p>&#8364;</div><div><p>&amp;#8482;</p>&#8482;</div><div><p>&amp;#8722;</p>&#8722;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#64257;</p>&#64257;</div><div><p>&amp;#64258;</p>&#64258;</div></div></div></div></div><div id="specs"></div><div id="installing"><div class="section"><div class="grid7 firstcol"><h1>Installing Webfonts</h1><p>Webfonts are supported by all major browser platforms but not all in the same way. There are currently four different font formats that must be included in order to target all browsers. This includes TTF, WOFF, EOT and SVG.</p><h2>1. Upload your webfonts</h2><p>You must upload your webfont kit to your website. They should be in or near the same directory as your CSS files.</p><h2>2. Include the webfont stylesheet</h2><p>A special CSS @font-face declaration helps the various browsers select the appropriate font it needs without causing you a bunch of headaches. Learn more about this syntax by reading the <a href="http://www.fontspring.com/blog/further-hardening-of-the-bulletproof-syntax">Fontspring blog post</a> about it. The code for it is as follows:</p><code>@font-face{ font-family: \'MyWebFont\'; src: url(\'WebFont.eot\'); src: url(\'WebFont.eot?#iefix\') format(\'embedded-opentype\'), url(\'WebFont.woff\') format(\'woff\'), url(\'WebFont.ttf\') format(\'truetype\'), url(\'WebFont.svg#webfont\') format(\'svg\'); }</code><p>We\'ve already gone ahead and generated the code for you. All you have to do is link to the stylesheet in your HTML, like this:</p><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;stylesheet.css&quot; type=&quot;text/css&quot; charset=&quot;utf-8&quot; /&gt;</code><h2>3. Modify your own stylesheet</h2><p>To take advantage of your new fonts, you must tell your stylesheet to use them. Look at the original @font-face declaration above and find the property called "font-family." The name linked there will be what you use to reference the font. Prepend that webfont name to the font stack in the "font-family" property, inside the selector you want to change. For example:</p><code>p { font-family: \'WebFont\', Arial, sans-serif; }</code><h2>4. Test</h2><p>Getting webfonts to work cross-browser <em>can</em> be tricky. Use the information in the sidebar to help you if you find that fonts aren\'t loading in a particular browser.</p></div><div class="grid5 sidebar"><div class="box"><h2>Troubleshooting<br>Font-Face Problems</h2><p>Having trouble getting your webfonts to load in your new website? Here are some tips to sort out what might be the problem.</p><h3>Fonts not showing in any browser</h3><p>This sounds like you need to work on the plumbing. You either did not upload the fonts to the correct directory, or you did not link the fonts properly in the CSS. If you\'ve confirmed that all this is correct and you still have a problem, take a look at your .htaccess file and see if requests are getting intercepted.</p><h3>Fonts not loading in iPhone or iPad</h3><p>The most common problem here is that you are serving the fonts from an IIS server. IIS refuses to serve files that have unknown MIME types. If that is the case, you must set the MIME type for SVG to "image/svg+xml" in the server settings. Follow these instructions from Microsoft if you need help.</p><h3>Fonts not loading in Firefox</h3><p>The primary reason for this failure? You are still using a version Firefox older than 3.5. So upgrade already! If that isn\'t it, then you are very likely serving fonts from a different domain. Firefox requires that all font assets be served from the same domain. Lastly it is possible that you need to add WOFF to your list of MIME types (if you are serving via IIS.)</p><h3>Fonts not loading in IE</h3><p>Are you looking at Internet Explorer on an actual Windows machine or are you cheating by using a service like Adobe BrowserLab? Many of these screenshot services do not render @font-face for IE. Best to test it on a real machine.</p><h3>Fonts not loading in IE9</h3><p>IE9, like Firefox, requires that fonts be served from the same domain as the website. Make sure that is the case.</p></div></div></div></div></div><div id="footer"><p>&copy;2010-2011 Font Squirrel. All rights reserved.</p></div></div></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_0_1();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_1_0_1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_1_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_1_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_1_0_1();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_5.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_5</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_5.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_5();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_amory.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_amory</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_amory.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_7_1_amory();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_butcher.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_butcher</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_butcher.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_7_1_butcher();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_mine.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_mine</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_mine.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_2_7_1_mine();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_4_3.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_4_3</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_4_3.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_4_3();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
 }]);
 })();
