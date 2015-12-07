@@ -25,7 +25,7 @@ SoundService.properties = {
 };
 SoundService.matrix = {
 	effects: {
-		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3' },
+		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', volume: 0.4 },
 		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3' }
 	},
 	'1.1.1' :{
@@ -118,9 +118,13 @@ SoundService.matrix = {
 						'C': { src:SoundService.properties.basePath+'1.1.2_pilorm.mp3' }
 					},
 	},
-	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3' },
-	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3' },
-	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3' },
+	'3.3' : {
+		'horsens': { src:SoundService.properties.basePath+'3.3.horsens.svendborg.mp3' },
+		'sundholm': { src:SoundService.properties.basePath+'3.3.sundholm.mp3' },
+		'svendborg': { src:SoundService.properties.basePath+'3.3.horsens.svendborg.mp3' }
+	},
+	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4.1.mp3' },
+	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4.2.mp3' },
 	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3' },
 	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1.mp3' },
 	'4.10.1': { label:'bombe', src:SoundService.properties.basePath+'4.10.1.mp3' },

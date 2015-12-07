@@ -1,26 +1,25 @@
-var SoundEffect = function(src, duration, loop){
+var SoundEffect = function(src, loop, volume){
 	'use strict';
 	if(SoundEffect.counter == null)
 		SoundEffect.counter = 0;
 
+	(volume === undefined) ? volume = 1 : volume = volume;
+
 	SoundEffect.counter++;
 	this.id = SoundEffect.counter;
 	this.paused = false;
-	this.duration = duration;
 	this.src = src;
 	this.loop = loop;
 	this.preloaded = false;
 	this.listeners = {tick:null, play:null, pause:null, stop:null};
-
-
-	this.soundController = new SoundController(src, duration, loop);
+	this.soundController = new SoundController(src, loop);
 };
-SoundEffect.prototype.preload = function(src, duration, loop, callback){
+SoundEffect.prototype.preload = function(src, loop, callback){
 	'use strict';
 	
 	var self = this;
 
-	//self.soundController = new SoundController(src, duration, this.loop);
+	//self.soundController = new SoundController(src, this.loop);
 	this.soundController.on('ready', function(event){
 		event.remove();
 		self.preloaded = true;
@@ -56,7 +55,7 @@ SoundEffect.prototype.play = function(){
 	}
 
 	if(!this.preloaded){		
-		this.preload(this.src, this.duration, this.loop, function(){
+		this.preload(this.src, this.loop, function(){
 			doPlay();
 		});
 	}else{

@@ -7,16 +7,12 @@ var FlowPoorhouse = function(container){
 	this.playerComponent = null;
 	this.listeners = {};
 	this.trigger = '1.0.2'; // Default start pointer
-	// this.pagesTotal = 12;
 	this.currentPage = null;
 	this.currentBackground = null;
 	this.groups = {};
 
 	this.continueBtn = ContinueButton;
 	this.continueBtn.ghost('skip');
-
-	// TEST
-	// this.id = 'svendborg';
 
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
@@ -30,8 +26,8 @@ FlowPoorhouse.prototype.soundEffectPlay = function(sound){
 
 	try{
 		// var sound = SoundService.matrix.effects.typewriter;
-		this.soundEffect = new SoundEffect(sound.src, sound.duration, true);	
-		this.soundEffect.volume(.6);
+		this.soundEffect = new SoundEffect(sound.src, true);	
+		this.soundEffect.volume(sound.volume);
 		this.soundEffect.play();
 	}catch(err){
 		console.log(err);
@@ -50,7 +46,7 @@ FlowPoorhouse.prototype.start = function(){
 	this.id = PlayerStats.poorhouse;
 	var gameFile;
 
-	console.log('FlowPoorhouse:start');
+	// console.log('FlowPoorhouse:start');
 
 	LoadJS.load(
 		['../assets/logic/games/'+this.id+'.js'], 
@@ -73,10 +69,7 @@ FlowPoorhouse.prototype.setup = function(){
 
 	// Setup flow
 	this.flow = new SubFlowController();
-	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
-	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '2.4'); // TEST
 	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
-	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.5'); // TEST
 	this.flow.addAction('1.1.1', Delegate.create(this.caretaker, this), '1.1.2');
 	this.flow.addAction('1.1.2', Delegate.create(this.chooseJob, this), '1.2.1');
 	this.flow.addAction('1.2.1', Delegate.create(this.work, this), '1.2.2');
@@ -107,7 +100,7 @@ FlowPoorhouse.prototype.setup = function(){
 	);
 
 	// this.id = 'svendborg';
-	console.log('FlowPoorhouse:setup', this.id);
+	// console.log('FlowPoorhouse:setup', this.id);
 
 	this.lib = gamelib;
 	switch(this.id){
@@ -145,7 +138,7 @@ FlowPoorhouse.prototype.setup = function(){
 		// Set start page
 		self.next();
 
-		console.log('FlowPoorhouse:onLoadComplete');
+		// console.log('FlowPoorhouse:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
@@ -211,39 +204,6 @@ FlowPoorhouse.prototype.destroy = function() {
 	this.listeners = null;
 	this.flow = null;
 };
-// FlowPoorhouse.prototype.intro = function(trigger){
-// 	'use strict';
-
-
-// 	// Next move
-// 	this.trigger = trigger;
-
-// 	var self = this;
-
-// 	// Set page view
-// 	this.currentPage = this.view.intro;
-// 	this.currentPage.x = 0;
-
-// 	// Set background
-// 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
-	
-// 	// Slide. Loading is self contained
-// 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-// 	this.listeners.complete = self.playerComponent.on('complete', function(event){
-// 		self.continueBtn.activate('next');
-// 		Tick.disable();
-// 	}, self);
-// 	this.playerComponent.on('ready', function(event){
-// 		event.remove();
-// 		// No tick
-// 		Tick.disable();
-// 		self.continueBtn.activate("skip");
-// 		// self.dispatchEvent(new createjs.Event('ready'));
-// 	});
-// 	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
-// 	// this.playerComponent.preload('slide_intro', this.slideLib);
-	
-// };
 FlowPoorhouse.prototype.points1 = function(trigger) {
 	'use strict';
 
@@ -251,18 +211,15 @@ FlowPoorhouse.prototype.points1 = function(trigger) {
 	this.trigger = trigger;
 
 	// 	// Set background
-		this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.points1;
 	this.currentPage.x = 0;
-	// Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-	// 	PlayerStats.append('mood', -1);
-	// 	PlayerStats.append('health', 1);
-	// 	Topbar.pointsUpdate();
-	// 	Tick.disable();
-	// }, this));
+	PlayerStats.append('mood', -1);
+	PlayerStats.append('health', 1);
+	Topbar.pointsUpdate();
 	
 	this.continueBtn.activate('next');
 };
@@ -649,7 +606,7 @@ FlowPoorhouse.prototype.report = function(trigger) {
 	}, this));
 
 	// Sound effect
-	// soundEffect(SoundService.matrix.effects.typewriter);
+	this.soundEffectPlay(SoundService.matrix.effects.typewriter);
 
 	// Next button
 	this.continueBtn.activate('next');

@@ -1,11 +1,16 @@
 var HUDController = {
 	init: function(){
 		console.log('HUDController::init');
-		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src);
-		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src);
+		// this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src);
+		// this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src);
 
-		this.soundControllerPlus.load();
-		this.soundControllerMinus.load();
+		// this.soundControllerPlus.load();
+		// this.soundControllerMinus.load();
+		this.soundControllerPlus = new SoundEffect(SoundService.matrix.points.plus.src, false);	
+		// this.soundControllerPlus.play();
+
+		this.soundControllerMinus = new SoundEffect(SoundService.matrix.points.minus.src, false);	
+		// this.soundControllerMinus.play();
 	},
 	setView: function(view){
 		this.view = view;		

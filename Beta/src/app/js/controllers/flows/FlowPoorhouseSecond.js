@@ -26,7 +26,7 @@ FlowPoorhouseSecond.prototype.soundEffectPlay = function(sound){
 
 	try{
 		// var sound = SoundService.matrix.effects.typewriter;
-		this.soundEffect = new SoundEffect(sound.src, sound.duration, true);	
+		this.soundEffect = new SoundEffect(sound.src, true);	
 		this.soundEffect.volume(.6);
 		this.soundEffect.play();
 	}catch(err){
@@ -309,7 +309,7 @@ FlowPoorhouseSecond.prototype.getout = function(trigger) {
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_3);
 
 	// Get sound
-	var sound = SoundService.matrix[currentTrigger];
+	var sound = SoundService.matrix[currentTrigger][this.id];
 
 	// Pages in/out
 	var previousPage = this.currentPage;

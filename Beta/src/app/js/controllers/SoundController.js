@@ -36,7 +36,7 @@ SoundController.prototype = {
 		  autoplay: false,
 		  loop: this.loopCount,
 		  volume: 1,
-		  buffer: true,
+		  buffer: false,
 		  onend: function() {
 		    self.complete = true;
 		    self.dispatcher(new createjs.Event('complete'));
