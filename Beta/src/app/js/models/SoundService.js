@@ -82,12 +82,12 @@ SoundService.matrix = {
 				// 'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3' },
 				'slide_3_0': { src:SoundService.properties.basePath+'3.0_mixdown.mp3' },
 				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
+				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.5.1.mine_mixdown.mp3' },
+				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.5.1hud_efter_vaaben_mixdown.mp3' },
+				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.5.1.vaaben_efter kul_mixdown.mp3' },
+				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.5.1hud_efter_mine_mixdown.mp3' },
+				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.5.1.vaaben_efter hud_mixdown.mp3' },
+				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.5.1.mine_mixdown.mp3' },
 				'slide_4_7': { src:SoundService.properties.basePath+'4.7_krigenskriderfrem.mp3' }				
 			},
 	'0.4': { // oppinion
@@ -103,19 +103,19 @@ SoundService.matrix = {
 		},
 	'3.2.1': {
 		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3' }
+						'A': { src:SoundService.properties.basePath+'1.1.2_pashaven.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_goerrent.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.1.2_fletmaatter.mp3' }
 					},
 		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3' },
+						'A': { src:SoundService.properties.basePath+'1.1.2_hugbraende.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_pasgrise.mp3' },
 						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' }						
 					},
 		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3' }
+						'A': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_vaevmaatter.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.1.2_pilorm.mp3' }
 					},
 	},
 	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3' },
