@@ -170,7 +170,7 @@ FlowGermany2.prototype.chooseJobGermany = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosejob;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next in flow
@@ -213,7 +213,7 @@ FlowGermany2.prototype.recruitementLetter = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementletter;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Dropdowns
@@ -245,7 +245,7 @@ FlowGermany2.prototype.points1 = function(trigger) {
 		PlayerStats.append('money', 1);
 		PlayerStats.append('mood', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -356,7 +356,7 @@ FlowGermany2.prototype.points2 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 2);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -372,7 +372,7 @@ FlowGermany2.prototype.points3 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 		PlayerStats.append('money', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -398,11 +398,11 @@ FlowGermany2.prototype.danskFront = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -429,7 +429,7 @@ FlowGermany2.prototype.chooseParticipation = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.chooseparticipation;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -476,7 +476,7 @@ FlowGermany2.prototype.points4 = function(trigger) {
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -544,11 +544,11 @@ FlowGermany2.prototype.theBomb = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -585,11 +585,11 @@ FlowGermany2.prototype.illness = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -618,7 +618,7 @@ FlowGermany2.prototype.choose1 = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choose1;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -667,7 +667,7 @@ FlowGermany2.prototype.points5 = function(trigger) {
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -685,7 +685,7 @@ FlowGermany2.prototype.choose2 = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choose1;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -734,7 +734,7 @@ FlowGermany2.prototype.points6 = function(trigger) {
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -760,11 +760,11 @@ FlowGermany2.prototype.goingHome = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));

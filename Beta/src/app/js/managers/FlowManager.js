@@ -92,7 +92,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('0.2');
 				}, this);
-				// Tick.disable();
+				// Tick.framerate(Tick.low);
 			break;
 
 			case '0.2':
@@ -105,7 +105,7 @@ var FlowManager = {
 					console.log(err);
 				}
 
-				// Tick.disable();
+				// Tick.framerate(Tick.low);
 				var self = this;
 
 				// Go to start frame
@@ -126,7 +126,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('1.0.1');
 				}, this);				
-				// Tick.disable();	
+				// Tick.framerate(Tick.low);	
 				
 			break;
 			case '1.0.1':	
@@ -155,7 +155,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('1.0.2');
 				}, this);
-				// Tick.disable();
+				// Tick.framerate(Tick.low);
 			break;
 			case '1.0.2':	
 				// Poor House		
@@ -185,7 +185,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('2.5');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 			case '2.5':
 				// Germany 1.
@@ -218,7 +218,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('3.0');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 			case '3.0':	
 				// Poor House 2. time
@@ -300,7 +300,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('4.0');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 			case '4.0':	
 				// Germany 2.	
@@ -332,7 +332,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('4.11');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 			case '4.11':	
 
@@ -363,7 +363,7 @@ var FlowManager = {
 				// 	Library.clearGame();
 				// 	self.gotoPage('4.10');
 				// }, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 		}
 	},

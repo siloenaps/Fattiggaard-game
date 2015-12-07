@@ -62,7 +62,7 @@ FlowPoorhouse.prototype.setup = function(){
 	this.runonce = true;
 
 	// Tick
-	Tick.framerate(15);
+	Tick.framerate(Tick.high);
 
 	var self = this;
 	var manifest, Clss;	
@@ -148,7 +148,7 @@ FlowPoorhouse.prototype.next = function(){
 
 	// // Allow tick
 	// Tick.enable();
-	// Tick.framerate(15);
+	// Tick.framerate(Tick.high);
 
 	this.flow.next(this.trigger);	
 };
@@ -245,11 +245,11 @@ FlowPoorhouse.prototype.caretaker = function(trigger) {
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -271,7 +271,7 @@ FlowPoorhouse.prototype.chooseJob = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosework;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Desactivate continue button
@@ -322,16 +322,16 @@ FlowPoorhouse.prototype.work = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.work;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		// Tick.disable();
+		// Tick.framerate(Tick.low);
 
 		// Sound	
 		self.listeners.complete = this.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 
@@ -354,7 +354,7 @@ FlowPoorhouse.prototype.points2 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -373,7 +373,7 @@ FlowPoorhouse.prototype.points3 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', -2);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -397,11 +397,11 @@ FlowPoorhouse.prototype.getout = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -413,7 +413,7 @@ FlowPoorhouse.prototype.getout = function(trigger) {
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.currentPage.portrait.gotoAndStop(frm);
 
-	this.continueBtn.activate('next');
+	self.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	'use strict';
@@ -443,11 +443,11 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -469,7 +469,7 @@ FlowPoorhouse.prototype.chooseWayOut = function(triggers) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosewayout;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Desactivate continue button
@@ -519,11 +519,11 @@ FlowPoorhouse.prototype.drunk = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -550,7 +550,7 @@ FlowPoorhouse.prototype.points7 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('mood', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 		console.log('QUE');
 	}, this));
 
@@ -577,11 +577,11 @@ FlowPoorhouse.prototype.constable = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -602,7 +602,7 @@ FlowPoorhouse.prototype.report = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.report;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Sound effect
@@ -622,7 +622,7 @@ FlowPoorhouse.prototype.points6 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 		PlayerStats.append('mood', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next button
@@ -689,11 +689,11 @@ FlowPoorhouse.prototype.backToPoorhouse = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -728,11 +728,11 @@ FlowPoorhouse.prototype.preRecruitment = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -753,7 +753,7 @@ FlowPoorhouse.prototype.recruimentOffice = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementoffice;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next in flow
@@ -777,11 +777,11 @@ FlowPoorhouse.prototype.jobInterviewPart1 = function(trigger){
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -801,7 +801,7 @@ FlowPoorhouse.prototype.chooseJobGermany = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosejob;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next in flow
@@ -845,11 +845,11 @@ FlowPoorhouse.prototype.jobInterviewPart2 = function(trigger){
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -870,7 +870,7 @@ FlowPoorhouse.prototype.points8 = function(trigger){
 		PlayerStats.append('money', 2);
 		PlayerStats.append('mood', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next button
@@ -886,7 +886,7 @@ FlowPoorhouse.prototype.recruitementLetter = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementletter;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Dropdowns
@@ -916,7 +916,7 @@ FlowPoorhouse.prototype.points9 = function(trigger){
 		PlayerStats.append('money', -1);
 		PlayerStats.append('mood', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next button

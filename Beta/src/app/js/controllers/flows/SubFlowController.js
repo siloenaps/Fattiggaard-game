@@ -19,7 +19,7 @@ var SubFlowController = function(){
 		
 			// Allow tick
 			Tick.enable();
-			Tick.framerate(15);
+			Tick.framerate(Tick.high);
 
 
 			var action = this.actions[trigger];

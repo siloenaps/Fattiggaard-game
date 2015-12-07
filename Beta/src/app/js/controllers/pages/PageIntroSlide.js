@@ -48,7 +48,7 @@ PageIntroSlide.prototype.setup = function(){
 	this.runonce = true;
 
 	// Tick
-	Tick.framerate(15);
+	Tick.framerate(Tick.high);
 
 	var self = this;
 	var manifest, Clss;	
@@ -184,7 +184,7 @@ PageIntroSlide.prototype.intro = function(trigger){
 	this.listeners.complete = self.playerComponent.on('complete', function(event){
 		// console.log('PageIntroSlide::complete');
 		self.continueBtn.activate('next');
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, self);
 	this.playerComponent.on('ready', function(event){
 		event.remove();		
@@ -192,7 +192,7 @@ PageIntroSlide.prototype.intro = function(trigger){
 		// self.dispatchEvent(new createjs.Event('ready'));
 		// console.log('PageIntroSlide::ready');
 		// No tick
-		// Tick.disable();
+		// Tick.framerate(Tick.low);
 		// console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
 	});
 	// // console.log(this.slideLib)

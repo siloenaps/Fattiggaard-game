@@ -38,7 +38,7 @@ PageIntro.prototype.setup = function() {
 		this.playerComponent.on('ready', function(event){
 			event.remove();
 			// No tick
-			Tick.disable();
+			Tick.framerate(Tick.low);
 			self.continueBtn.activate("skip");
 			// self.dispatchEvent(new createjs.Event('ready'));
 		});

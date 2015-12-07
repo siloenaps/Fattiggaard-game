@@ -150,7 +150,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_intro;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			}, this));
 
 			// Next
@@ -171,7 +171,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_challenge;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));
 
 			// Checkboxes
@@ -213,7 +213,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_family;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));			
 
 			// Checkboxes
@@ -254,7 +254,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_nickname;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));	
 
 			// Checkboxes
@@ -302,7 +302,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.page_card;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			}, this));
 
 			// Set portrait a real name
@@ -348,11 +348,11 @@ var FlowPrologue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -382,7 +382,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.page_map;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));	
 
 			// Checkboxes

@@ -161,11 +161,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -202,11 +202,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -244,11 +244,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -286,11 +286,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
