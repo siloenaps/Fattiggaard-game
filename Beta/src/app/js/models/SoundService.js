@@ -88,7 +88,7 @@ SoundService.matrix = {
 				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.5.1hud_efter_mine_mixdown.mp3' },
 				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.5.1.vaaben_efter hud_mixdown.mp3' },
 				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.5.1.mine_mixdown.mp3' },
-				'slide_4_7': { src:SoundService.properties.basePath+'4.7_krigenskriderfrem.mp3' }				
+				'slide_4_7': { src:SoundService.properties.basePath+'4.7_mixdown.mp3' }				
 			},
 	'0.4': { // oppinion
 			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_forvalteren.mp3' },
@@ -122,12 +122,12 @@ SoundService.matrix = {
 	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3' },
 	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3' },
 	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3' },
-	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1_moede.mp3' },
-	'4.10.1': { label:'dansk front', src:SoundService.properties.basePath+'4.10.1_bombe.mp3' },
-	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4_sygdom.mp3' },
-	'4.10.7': { label:'illness', src:SoundService.properties.basePath+'4.10.7_pavejhjem.mp3' },
-	'4.11.1': { label:'compensation', src:SoundService.properties.basePath+'4.11.1.mp3' },
-	'4.11.2': { src:SoundService.properties.basePath+'typewriter.mp3' },
-	'4.11.3': { src:SoundService.properties.basePath+'typewriter.mp3' },
-	'4.11.4': { src:SoundService.properties.basePath+'typewriter.mp3' },
+	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1.mp3' },
+	'4.10.1': { label:'bombe', src:SoundService.properties.basePath+'4.10.1.mp3' },
+	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4.mp3' },
+	'4.10.7': { label:'going home', src:SoundService.properties.basePath+'4.10.7.mp3' },
+	'4.11.1': { label:'post script', src:SoundService.properties.basePath+'14_11_1efterskrift_red_musik.mp3' },
+	'4.11.2': { label:'post script',src:SoundService.properties.basePath+'14_11_2efterskrift_red_musik.mp3' },
+	'4.11.3': { label:'post script',src:SoundService.properties.basePath+'14_11_3efterskrift_red_musik.mp3' },
+	'4.11.4': { label:'post script',src:SoundService.properties.basePath+'14_11_4efterskrift_red_musik.mp3' },
 };

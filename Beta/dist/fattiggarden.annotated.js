@@ -2677,6 +2677,10 @@ FlowPoorhouse.prototype.backToPoorhouse = function(trigger) {
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
+
 	// Next bnutton
 	this.continueBtn.ghost('skip');
 };
@@ -4696,6 +4700,53 @@ var FlowEpilogue = function(container){
 
 	};	
 }
+var Topbar = {
+	view: null,
+	soundController: null,
+	init: function(view){
+		// console.log('Topbar::init', view);
+		if(view === undefined || view === null){
+			throw new Error("'view' is undefined");
+		}
+		this.view = view;	
+
+		HUDController.init();	
+	},
+	go: function(frm){
+		// console.log('Topbar:',this.view);
+		// this.view.label_intro.x = 564 + 300;
+		// createjs.Tween.get(this.view.label_intro)
+		// 	.to({x:564}, 300, createjs.Ease.backIn);
+
+		if(this.view === undefined || this.view === null){
+			throw new Error("'view' is undefined");
+		}
+		this.view.gotoAndStop(frm);
+
+		// Setup for game related to user's choices
+		if(frm === 'game'){
+			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
+
+			// Points
+			HUDController.setView(this.view.hud);
+		}
+	},
+	pointsUpdate: function(){
+		try{
+			HUDController.update();
+		}catch(err){
+			console.log(err);			
+		}		
+	},
+	show: function(){
+		this.view.visible = true;
+	},
+	hide: function(){
+		this.view.visible = false;	
+	}
+}
 'use strict';
 var TweenUtil = {
 	to: function(element, options, delay, delegate){
@@ -5239,51 +5290,6 @@ Array.prototype.shuffle = function(index){
     }
     return this;
 }
-var Topbar = {
-	view: null,
-	soundController: null,
-	init: function(view){
-		// console.log('Topbar::init', view);
-		if(view === undefined || view === null){
-			throw new Error("'view' is undefined");
-		}
-		this.view = view;		
-	},
-	go: function(frm){
-		// console.log('Topbar:',this.view);
-		// this.view.label_intro.x = 564 + 300;
-		// createjs.Tween.get(this.view.label_intro)
-		// 	.to({x:564}, 300, createjs.Ease.backIn);
-
-		if(this.view === undefined || this.view === null){
-			throw new Error("'view' is undefined");
-		}
-		this.view.gotoAndStop(frm);
-
-		// Setup for game related to user's choices
-		if(frm === 'game'){
-			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
-
-			// Points
-			HUDController.init(this.view.hud);
-		}
-	},
-	pointsUpdate: function(){
-		try{
-			HUDController.update();
-		}catch(err){
-			console.log(err);			
-		}		
-	},
-	show: function(){
-		this.view.visible = true;
-	},
-	hide: function(){
-		this.view.visible = false;	
-	}
-}
 var SoundService = function(){
 	'use strict';
 }
@@ -5315,107 +5321,107 @@ SoundService.matrix = {
 		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3' }
 	},
 	'1.1.1' :{
-		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3' },
-		sundholm: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3' },
-		svendborg: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3' }
+		horsens: { src:SoundService.properties.basePath+'1.1.1_horsens.mp3' },
+		sundholm: { src:SoundService.properties.basePath+'1.1.1_sundholm.mp3' },
+		svendborg: { src:SoundService.properties.basePath+'1.1.1_svendborg.mp3' }
 	},
 	points: {
 		plus: { src:SoundService.properties.basePath+'Point_plus.mp3' },
 		minus: { src:SoundService.properties.basePath+'Point_minus.mp3' }
 	},
-	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3' },
-	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3' },
-	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3' },
+	dormitry: { src:SoundService.properties.basePath+'2.6.1.mp3' },
+	drunk: { src:SoundService.properties.basePath+'1.5.1.mp3' },
+	constable: { src:SoundService.properties.basePath+'1.6.1.mp3' },
 	'1.2.1': {
 		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3' }
+						'A': { src:SoundService.properties.basePath+'1.1.2_pashaven.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_goerrent.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.1.2_fletmaatter.mp3' }
 					},
 		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3' },
+						'A': { src:SoundService.properties.basePath+'1.1.2_hugbraende.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_pasgrise.mp3' },
 						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' }						
 					},
 		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3' }
+						'A': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_vaevmaatter.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.1.2_pilorm.mp3' }
 					},
 	},
-	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3' },
-	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3' },
-	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3' },	
+	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2.mp3' },
+	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_indsat.mp3' },
+	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4.mp3' },	
 	'1.8': { label:'arrested', src:SoundService.properties.basePath+'1.8.mp3' },	
-	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3' },
-	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3' },
-	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3' },
-	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3' },
+	'2.2.1': { src:SoundService.properties.basePath+'2.2.1.mp3' },
+	'2.2.3': { src:SoundService.properties.basePath+'2.2.3.mp3' },
+	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1.mp3' },
+	// '2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3' },
 	'2.10.2': {
-		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3' },
-		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3' }
+		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2.a.mp3' },
+		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2.b.mp3' }
 	},
-	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3' },
+	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1.mp3' },
 	
 	slides: {
-				'slide_0_1': { src:SoundService.properties.basePath+'slide_intro.mp3' },
-				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3' },
-				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3' },
-				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3' },
-				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3' },
-				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3' },
-				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3' },
-				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3' },
-				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3' },
+				'slide_0_1': { src:SoundService.properties.basePath+'film01medmusik_mixdown.mp3' },
+				'slide_1_0_1': { src:SoundService.properties.basePath+'film10_mixdown.mp3' },
+				'slide_2_5': { src:SoundService.properties.basePath+'2.5_mixdown.mp3' },
+				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'2.7.1.vaaben_mixdown.mp3' },
+				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'2.7.1.slagt_mixdown.mp3' },
+				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'2.7.1.mine_mixdown.mp3' },
+				// 'slide_home1A': { src:SoundService.properties.basePath+'2.7.1.vaaben_mixdown.mp3' },
+				// 'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3' },
+				'slide_3_0': { src:SoundService.properties.basePath+'3.0_mixdown.mp3' },
 				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
-				'slide_4_7': { src:SoundService.properties.basePath+'4.7_krigenskriderfrem.mp3' }				
+				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.5.1.mine_mixdown.mp3' },
+				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.5.1hud_efter_vaaben_mixdown.mp3' },
+				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.5.1.vaaben_efter kul_mixdown.mp3' },
+				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.5.1hud_efter_mine_mixdown.mp3' },
+				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.5.1.vaaben_efter hud_mixdown.mp3' },
+				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.5.1.mine_mixdown.mp3' },
+				'slide_4_7': { src:SoundService.properties.basePath+'4.7_mixdown.mp3' }				
 			},
 	'0.4': { // oppinion
-			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
+			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_forvalteren.mp3' },
 			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
-			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
-			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
+			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_forvalteren.mp3' },
+			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_kone.mp3' },
 			'BE': { label: 'dovenskab, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
-			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3' },
-			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3' },
+			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_andenindlagt.mp3' },
+			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_kone.mp3' },
 			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
-			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3' }
+			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_andenindlagt.mp3' }
 		},
 	'3.2.1': {
 		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3' }
+						'A': { src:SoundService.properties.basePath+'1.1.2_pashaven.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_goerrent.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.1.2_fletmaatter.mp3' }
 					},
 		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3' },
+						'A': { src:SoundService.properties.basePath+'1.1.2_hugbraende.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_pasgrise.mp3' },
 						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' }						
 					},
 		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3' }
+						'A': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' },
+						'B': { src:SoundService.properties.basePath+'1.1.2_vaevmaatter.mp3' },
+						'C': { src:SoundService.properties.basePath+'1.1.2_pilorm.mp3' }
 					},
 	},
 	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3' },
 	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3' },
 	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3' },
 	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3' },
-	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1_moede.mp3' },
-	'4.10.1': { label:'dansk front', src:SoundService.properties.basePath+'4.10.1_bombe.mp3' },
-	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4_sygdom.mp3' },
-	'4.10.7': { label:'illness', src:SoundService.properties.basePath+'4.10.7_pavejhjem.mp3' },
-	'4.11.1': { label:'compensation', src:SoundService.properties.basePath+'4.11.1.mp3' },
-	'4.11.2': { src:SoundService.properties.basePath+'typewriter.mp3' },
-	'4.11.3': { src:SoundService.properties.basePath+'typewriter.mp3' },
-	'4.11.4': { src:SoundService.properties.basePath+'typewriter.mp3' },
+	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1.mp3' },
+	'4.10.1': { label:'bombe', src:SoundService.properties.basePath+'4.10.1.mp3' },
+	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4.mp3' },
+	'4.10.7': { label:'going home', src:SoundService.properties.basePath+'4.10.7.mp3' },
+	'4.11.1': { label:'post script', src:SoundService.properties.basePath+'14_11_1efterskrift_red_musik.mp3' },
+	'4.11.2': { label:'post script',src:SoundService.properties.basePath+'14_11_2efterskrift_red_musik.mp3' },
+	'4.11.3': { label:'post script',src:SoundService.properties.basePath+'14_11_3efterskrift_red_musik.mp3' },
+	'4.11.4': { label:'post script',src:SoundService.properties.basePath+'14_11_4efterskrift_red_musik.mp3' },
 };
 var PlayerStats = {
 	challenge: 'B',			// Default test value
@@ -5610,7 +5616,6 @@ var FlowManager = {
 		}
 		this.root = root;
 		PreloadGFX.blocker = this.root.blocker_black;
-		console.log('this.root.blocker_black', this.root.blocker_black)
 	},
 	clearLib: function(){
 		lib = null;
@@ -6232,11 +6237,17 @@ SoundController.prototype = {
 };
 createjs.EventDispatcher.initialize(SoundController.prototype);
 var HUDController = {
-	init: function(view){
-		this.view = view;		
-		this.update();
+	init: function(){
+		console.log('HUDController::init');
 		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src);
 		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src);
+
+		this.soundControllerPlus.load();
+		this.soundControllerMinus.load();
+	},
+	setView: function(view){
+		this.view = view;		
+		this.update();
 	},
 	update: function(){
 		if(this.view === undefined || this.view === null){
@@ -6255,12 +6266,12 @@ var HUDController = {
 				setTimeout(function(){ 
 					self.soundControllerPlus.play();
 				}, delay);
-				delay += 1000;
+				delay += 500;
 			}else if(PlayerStats.pointsDiff[key] < 0){
 				setTimeout(function(){ 
 					self.soundControllerMinus.play();
 				}, delay);
-				delay += 1000;
+				delay += 500;
 			}
 		}
 
@@ -7040,6 +7051,228 @@ module.run(['$templateCache', function($templateCache) {
     '\n' +
     'function handleComplete(evt) {\n' +
     '	exportRoot = new slidelib.slide_0_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_1_0_1.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_1_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_1_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_1_0_1();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_5.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_5</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_5.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_5();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_amory.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_amory</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_amory.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_amory();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_butcher.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_butcher</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_butcher.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_butcher();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_2_7_1_mine.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_2_7_1_mine</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_2_7_1_mine.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_2_7_1_mine();\n' +
+    '\n' +
+    '	stage = new createjs.Stage(canvas);\n' +
+    '	stage.addChild(exportRoot);\n' +
+    '	stage.update();\n' +
+    '\n' +
+    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
+    '	createjs.Ticker.addEventListener("tick", stage);\n' +
+    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('fattiggarden');
+} catch (e) {
+  module = angular.module('fattiggarden', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/fattiggarden/assets/logic/slides/slide_4_3.html',
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_4_3</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_4_3.js"></script><script>var canvas, stage, exportRoot;\n' +
+    '\n' +
+    'function init() {\n' +
+    '	canvas = document.getElementById("canvas");\n' +
+    '	images = images||{};\n' +
+    '\n' +
+    '	var loader = new createjs.LoadQueue(false);\n' +
+    '	loader.addEventListener("fileload", handleFileLoad);\n' +
+    '	loader.addEventListener("complete", handleComplete);\n' +
+    '	loader.loadManifest(slidelib.properties.manifest);\n' +
+    '}\n' +
+    '\n' +
+    'function handleFileLoad(evt) {\n' +
+    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
+    '}\n' +
+    '\n' +
+    'function handleComplete(evt) {\n' +
+    '	exportRoot = new slidelib.slide_4_3();\n' +
     '\n' +
     '	stage = new createjs.Stage(canvas);\n' +
     '	stage.addChild(exportRoot);\n' +

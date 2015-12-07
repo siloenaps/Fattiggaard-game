@@ -91,7 +91,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 	}
 
 	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(1959));
+	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(2000));
 
 	// Layer 2
 	this.instance = new lib._4_7_5();
@@ -112,7 +112,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,580,404);
 
 	this.instance_8 = new lib._4_7_10();
 
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},115).to({state:[{t:this.instance_2}]},207).to({state:[{t:this.instance_3}]},180).to({state:[{t:this.instance_4}]},170).to({state:[{t:this.instance_5}]},176).to({state:[{t:this.instance_6}]},474).to({state:[{t:this.instance_7}]},344).to({state:[{t:this.instance_8}]},190).wait(103));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},140).to({state:[{t:this.instance_2}]},166).to({state:[{t:this.instance_3}]},203).to({state:[{t:this.instance_4}]},139).to({state:[{t:this.instance_5}]},209).to({state:[{t:this.instance_6}]},478).to({state:[{t:this.instance_7}]},299).to({state:[{t:this.instance_8}]},186).wait(180));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(290,202,580,404);
