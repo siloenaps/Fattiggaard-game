@@ -18,6 +18,7 @@ var FlowPoorhouse = function(container){
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 };
 FlowPoorhouse.prototype.soundEffectPlay = function(sound){
+	var self = this;
 	// Sound effect
 	if(this.soundEffect != null){
 		this.soundEffect.destroy();
@@ -26,9 +27,13 @@ FlowPoorhouse.prototype.soundEffectPlay = function(sound){
 
 	try{
 		// var sound = SoundService.matrix.effects.typewriter;
-		this.soundEffect = new SoundEffect(sound.src, true);	
+		this.soundEffect = new SoundController(sound.src, true);	
 		this.soundEffect.volume(sound.volume);
-		this.soundEffect.play();
+		this.soundEffect.on('ready', Delegate.create(function(event){
+			event.remove();
+			this.soundEffect.play();
+		}, this));		
+		this.soundEffect.load();
 	}catch(err){
 		console.log(err);
 	}
@@ -551,7 +556,6 @@ FlowPoorhouse.prototype.points7 = function(trigger) {
 		PlayerStats.append('mood', 1);
 		Topbar.pointsUpdate();
 		Tick.framerate(Tick.low);
-		console.log('QUE');
 	}, this));
 
 	// Next button

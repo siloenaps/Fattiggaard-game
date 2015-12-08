@@ -17,31 +17,6 @@ var FlowPoorhouseSecond = function(container, id){
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 };
-FlowPoorhouseSecond.prototype.soundEffectPlay = function(sound){
-	// Sound effect
-	if(this.soundEffect != null){
-		this.soundEffect.destroy();
-		this.soundEffect = null;
-	}
-
-	try{
-		// var sound = SoundService.matrix.effects.typewriter;
-		this.soundEffect = new SoundEffect(sound.src, true);	
-		this.soundEffect.volume(.6);
-		this.soundEffect.play();
-	}catch(err){
-		console.log(err);
-	}
-	
-};
-FlowPoorhouseSecond.prototype.soundEffectStop = function(sound){
-	// Sound effect
-	if(this.soundEffect != null){
-		this.soundEffect.stop();
-		this.soundEffect.destroy();
-		this.soundEffect = null;
-	}
-};
 FlowPoorhouseSecond.prototype.start = function(){
 	this.id = PlayerStats.poorhouse;
 	var gameFile;
@@ -159,9 +134,6 @@ FlowPoorhouseSecond.prototype.onContinue = function(event) {
 		this.playerComponent.stop();
 	}
 
-	// Sound effect - stop
-	this.soundEffectStop();
-
 	this.next();
 
 	// console.log('this.playerComponent:', this.playerComponent)
@@ -251,7 +223,6 @@ FlowPoorhouseSecond.prototype.work = function(trigger) {
 
 	// Get sound
 	var sound = SoundService.matrix['3.2.1'][this.id][PlayerStats.job]; // "svendborg/A"	
-	// this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
 	
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view['bg_3_2_1'+PlayerStats.job]);
