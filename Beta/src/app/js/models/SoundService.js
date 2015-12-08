@@ -49,7 +49,7 @@ SoundService.matrix = {
 		'sundholm': {
 						'A': { src:SoundService.properties.basePath+'1.1.2_hugbraende.mp3' },
 						'B': { src:SoundService.properties.basePath+'1.1.2_pasgrise.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' }						
+						'C': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' }						
 					},
 		'svendborg': {
 						'A': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' },
@@ -81,7 +81,7 @@ SoundService.matrix = {
 				// 'slide_home1A': { src:SoundService.properties.basePath+'2.7.1.vaaben_mixdown.mp3' },
 				// 'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3' },
 				'slide_3_0': { src:SoundService.properties.basePath+'3.0_mixdown.mp3' },
-				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3' },
+				'slide_4_3': { src:SoundService.properties.basePath+'4.3_mixdown.mp3' },
 				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.5.1.mine_mixdown.mp3' },
 				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.5.1hud_efter_vaaben_mixdown.mp3' },
 				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.5.1.vaaben_efter kul_mixdown.mp3' },
@@ -110,7 +110,7 @@ SoundService.matrix = {
 		'sundholm': {
 						'A': { src:SoundService.properties.basePath+'1.1.2_hugbraende.mp3' },
 						'B': { src:SoundService.properties.basePath+'1.1.2_pasgrise.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3' }						
+						'C': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' }						
 					},
 		'svendborg': {
 						'A': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' },
@@ -125,7 +125,7 @@ SoundService.matrix = {
 	},
 	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4.1.mp3' },
 	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4.2.mp3' },
-	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3' },
+	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1.mp3' },
 	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1.mp3' },
 	'4.10.1': { label:'bombe', src:SoundService.properties.basePath+'4.10.1.mp3' },
 	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4.mp3' },

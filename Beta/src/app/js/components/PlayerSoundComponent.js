@@ -108,6 +108,7 @@ PlayerSoundComponent.prototype.play = function(){
 
 	// Tick
 	Tick.enable();
+	Tick.framerate(Tick.perfect);
 };
 PlayerSoundComponent.prototype.pause = function(){
 	'use strict';

@@ -58,8 +58,8 @@ var FlowPrologue = function(container){
 			this.flow.addAction('0.2.3', Delegate.create(this.family, this), '0.2.4');
 			this.flow.addAction('0.2.4', Delegate.create(this.nickname, this), '0.3');
 			this.flow.addAction('0.3', Delegate.create(this.card, this), '0.4');
-			this.flow.addAction('0.4', Delegate.create(this.opinion, this), '0.5');
-			this.flow.addAction('0.5', Delegate.create(this.map, this), 'end');
+			this.flow.addAction('0.4', Delegate.create(this.opinion, this), 'end');
+			// this.flow.addAction('0.5', Delegate.create(this.map, this), 'end');
 			this.flow.addAction('end', Delegate.create(
 				function(){
 					self.removeEvents();
@@ -357,9 +357,10 @@ var FlowPrologue = function(container){
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
 
-			// Set portrait of speaking character
+			// Set portrait + text realted to speaking character
 			var frm = PlayerStats.challenge + PlayerStats.family;
-			this.currentPage.portrait.gotoAndStop(frm);			
+			this.currentPage.portrait.gotoAndStop(frm);	
+			this.currentPage.playerlabel.gotoAndStop(frm);	
 
 			// Reuse player component var for sound
 			this.playerComponent = null;

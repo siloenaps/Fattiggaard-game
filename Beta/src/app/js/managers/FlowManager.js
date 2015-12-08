@@ -35,7 +35,6 @@ var FlowManager = {
 				}, this);
 				ContinueButton.activate('next');				
 			break;
-
 			case 'loadtopbar':
 				Library.clearSlide();
 				Library.clearGame();
@@ -58,7 +57,6 @@ var FlowManager = {
 					}, this)
 				);
 			break;
-
 			// break;
 			case '0.1':	
 				// Intro	
@@ -94,7 +92,6 @@ var FlowManager = {
 				}, this);
 				// Tick.framerate(Tick.low);
 			break;
-
 			case '0.2':
 				// Proloque
 				// Topbar
@@ -124,10 +121,41 @@ var FlowManager = {
 					event.remove();
 					Library.clearSlide();
 					Library.clearGame();
+					self.gotoPage('0.5');
+				}, this);				
+				// Tick.framerate(Tick.low);				
+			break;
+			case '0.5':
+				// Map
+				// Topbar
+				try{
+					Topbar.init(this.topbar.mainClip);
+					Topbar.go('intro');
+				}catch(err){
+					console.log(err);
+				}
+
+				var self = this;
+
+				// Go to start frame
+				this.root.gotoAndStop('start');
+				this.currentPage = new PageMap(this.root.pagecontainer);
+				this.currentPage.start(); 
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
 					self.gotoPage('1.0.1');
 				}, this);				
-				// Tick.framerate(Tick.low);	
-				
+				// Tick.framerate(Tick.low);				
 			break;
 			case '1.0.1':	
 				// Poor House Intro	
@@ -136,7 +164,11 @@ var FlowManager = {
 				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
-				Topbar.go('game');
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}
 
 				this.currentPage = null;
 				this.currentPage = new PageIntroSlide(this.root.pagecontainer); // Id references to flow id '0.1'
@@ -164,7 +196,11 @@ var FlowManager = {
 				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
-				Topbar.go('game');
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}
 				
 
 				this.currentPage = null;
@@ -216,26 +252,44 @@ var FlowManager = {
 					event.remove();
 					Library.clearSlide();
 					Library.clearGame();
-					self.gotoPage('3.0');
+					self.gotoPage('2.12');
 				}, this);
 				Tick.framerate(Tick.low);
 			break;
-			case '3.0':	
-				// Poor House 2. time
-
-				// Get id for next poorhouse
-				var newId;
-				var list = ['horsens', 'sundholm', 'svendborg'];
-				list = list.shuffle();
-				for(var i=0; i<list.length; i++){
-					if(list[i] !== PlayerStats.poorhouse){
-						PlayerStats.poorhouse = list[i];
-						break;
-					}
+			case '2.12':
+				// Map
+				// Topbar
+				try{
+					Topbar.init(this.topbar.mainClip);
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
 				}
 
-				// TEST
-				// PlayerStats.poorhouse = 'svendborg';
+				var self = this;
+
+				// Go to start frame
+				this.root.gotoAndStop('start');
+				this.currentPage = new PageMap(this.root.pagecontainer);
+				this.currentPage.start(); 
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('3.0');
+				}, this);				
+				// Tick.framerate(Tick.low);				
+			break;
+			case '3.0':	
+				// Poor House 2. time
 				
 				this.root.gotoAndStop('start');
 				this.root.pagecontainer.removeAllChildren();

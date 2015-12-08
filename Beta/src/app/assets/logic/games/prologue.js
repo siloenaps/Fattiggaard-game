@@ -15,12 +15,6 @@ lib.properties = {
 		{src:"../../../assets/images/pool/_0_2BG.jpg", id:"_0_2BG"},
 		{src:"../../../assets/images/pool/_0_3BG.jpg", id:"_0_3BG"},
 		{src:"../../../assets/images/pool/_0_4BG.jpg", id:"_0_4BG"},
-		{src:"../../../assets/images/pool/_0_5_1_close_bt.png", id:"_0_5_1_close_bt"},
-		{src:"../../../assets/images/pool/_0_5_infobt.png", id:"_0_5_infobt"},
-		{src:"../../../assets/images/pool/_0_5BG.jpg", id:"_0_5BG"},
-		{src:"../../../assets/images/pool/_1_0BGhorsens.jpg", id:"_1_0BGhorsens"},
-		{src:"../../../assets/images/pool/_1_0BGsundholm.jpg", id:"_1_0BGsundholm"},
-		{src:"../../../assets/images/pool/_1_0BGsvendborg.jpg", id:"_1_0BGsvendborg"},
 		{src:"../../../assets/images/pool/ansat_2.png", id:"ansat_2"},
 		{src:"../../../assets/images/pool/CharacterCardChallenge0001.png", id:"CharacterCardChallenge0001"},
 		{src:"../../../assets/images/pool/CharacterCardChallenge0002.png", id:"CharacterCardChallenge0002"},
@@ -58,8 +52,7 @@ lib.properties = {
 		{src:"../../../assets/images/pool/PersonCardBF.png", id:"PersonCardBF"},
 		{src:"../../../assets/images/pool/PersonCardCD.png", id:"PersonCardCD"},
 		{src:"../../../assets/images/pool/PersonCardCE.png", id:"PersonCardCE"},
-		{src:"../../../assets/images/pool/PersonCardCF.png", id:"PersonCardCF"},
-		{src:"../../../assets/images/pool/tekst_bg_sort.png", id:"tekst_bg_sort"}
+		{src:"../../../assets/images/pool/PersonCardCF.png", id:"PersonCardCF"}
 	]
 };
 
@@ -101,42 +94,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 (lib._0_4BG = function() {
 	this.initialize(img._0_4BG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._0_5_1_close_bt = function() {
-	this.initialize(img._0_5_1_close_bt);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,37,37);
-
-
-(lib._0_5_infobt = function() {
-	this.initialize(img._0_5_infobt);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,35,35);
-
-
-(lib._0_5BG = function() {
-	this.initialize(img._0_5BG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._1_0BGhorsens = function() {
-	this.initialize(img._1_0BGhorsens);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._1_0BGsundholm = function() {
-	this.initialize(img._1_0BGsundholm);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._1_0BGsvendborg = function() {
-	this.initialize(img._1_0BGsvendborg);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -369,12 +326,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,326,426);
 p.nominalBounds = new cjs.Rectangle(0,0,326,426);
 
 
-(lib.tekst_bg_sort = function() {
-	this.initialize(img.tekst_bg_sort);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,737,343);
-
-
 (lib.ProgressionBar = function() {
 	this.initialize();
 
@@ -447,18 +398,6 @@ if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{"AD
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(2,18,401,540);
-
-
-(lib.InfoButton = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.instance = new lib._0_5_infobt();
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(4));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,35,35);
 
 
 (lib.Page04CharacterText = function(mode,startPosition,loop) {
@@ -698,18 +637,6 @@ p.nominalBounds = new cjs.Rectangle(2.3,2.1,36.1,22.5);
 p.nominalBounds = new cjs.Rectangle(-2.3,0,195.5,34.5);
 
 
-(lib.CloseButton = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{});
-
-	// Layer 1
-	this.instance = new lib._0_5_1_close_bt();
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(4));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,37,37);
-
-
 (lib.BlockerButton = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{});
 
@@ -723,17 +650,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,37,37);
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = null;
-
-
-(lib.BlackTextBG = function() {
-	this.initialize();
-
-	// Layer 1
-	this.instance = new lib.tekst_bg_sort();
-
-	this.addChild(this.instance);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 
 
 (lib.Background0_3 = function() {
@@ -791,17 +707,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib.Background0_5 = function() {
-	this.initialize();
-
-	// Layer 1
-	this.instance = new lib._0_5BG();
-
-	this.addChild(this.instance);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
 (lib.Background0_4 = function() {
 	this.initialize();
 
@@ -813,95 +718,8 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib.InfoPopup = function(mode,startPosition,loop) {
-if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
-
-	// Close Button
-	this.closebutton = new lib.CloseButton();
-	this.closebutton.setTransform(995.5,28.5,1,1,0,0,0,18.5,18.5);
-	new cjs.ButtonHelper(this.closebutton, 0, 1, 2, false, new lib.CloseButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.closebutton).wait(3));
-
-	// Text
-	this.text = new cjs.Text("Horsens Forsørgelsesanstalt er en fattiganstalt med plads til i alt 74\npersoner, 52 mænd og 22 kvinder. Mænd og kvinder holdes adskilt. Horsens\nForsørgelsesanstalt består af en arbejdsafdeling en forsørgelsesafdeling\nog en sygeafdeling. Arbejdsdygtige individer, alkoholister og forsømmelige\nforsørgere bliver indlagt på arbejdsafdelingen. Der er mure langs anstaltens\ngårdarealer. Anstaltens chef er Forvalteren, det er ham, der bestemmer over\nde indlagte og har det overordnede ansvar for, at stedets regler bliver\noverholdt. Opsynsmændene er forvalterens forlængede arm. ", "28px 'BigNoodleTitling'", "#B9961D");
-	this.text.lineHeight = 30;
-	this.text.lineWidth = 822;
-	this.text.setTransform(219,135.3);
-
-	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Sundholm er en kæmpe stor fattiganstalt på Amager med plads til op mod\n750 indlagte. Mænd og kvinder holdes adskilt. Sundholm består af en\narbejdsanstalt, en forsørgelsesanstalt og en tvangsarbejdsanstalt. \nArbejdsdygtige individer bliver indlagt på arbejdsanstalten eller tvangs-\narbejdsanstalten, da man mener, at de selv bærer hovedansvaret for deres \nfattigdom. Rundt om Sundholm har man gravet en fire meter dyb voldgrav.\nPå kanten af voldgraven står et to meter højt pigtrådshegn. Pigtrådshegnet\ner ca. 1400 meter langt. Anstaltens chef er Forvalteren, det er ham, der\nbestemmer over de indlagte og har det overordnede ansvar for, at stedets\nregler bliver overholdt. Opsynsmændene er forvalterens forlængede arm. ",lineWidth:898},0).wait(1).to({text:"Svendborg Fattiggård er en anstalt med plads til 51 indlagte. Svendborg \nfattiggård indeholder en arbejdsafdeling, en forsørgelsesafdeling og en \nsygeafdeling. Mænd og kvinder holdes adskilt. Arbejdsdygtige individer \nbliver indlagt på arbejdsafdelingen, da man mener, at de er dovne og \narbejdssky, og derfor selv bærer hovedansvaret for deres fattigdom. \nLangs fattiggårdens bygninger er der høje mure med pigtråd på toppen. \nAnstaltens chef er Forvalteren, det er ham, der bestemmer over de indlagte \nog har det overordnede ansvar for, at stedets regler bliver overholdt.",lineWidth:908},0).wait(1));
-
-	// Text BG
-	this.instance = new lib.BlackTextBG("synched",0);
-	this.instance.setTransform(164,108,1.039,1,0,0,0,-0.4,0.1);
-	this.instance.alpha = 0.391;
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(1).to({scaleX:1.02,scaleY:1.11},0).wait(1).to({scaleX:1.01,scaleY:0.97},0).wait(1));
-
-	// BG
-	this.instance_1 = new lib._1_0BGhorsens();
-
-	this.instance_2 = new lib._1_0BGsundholm();
-
-	this.instance_3 = new lib._1_0BGsvendborg();
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance_1}]}).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,1045,540);
-
-
-(lib.CheckBoxsmall = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{inactive:0,active:9});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(20));
-
-	// Hitarea
-	this.instance = new lib.BlockerButton();
-	this.instance.setTransform(0,0,3.8,0.999);
-	new cjs.ButtonHelper(this.instance, 0, 1, 2, false, new lib.BlockerButton(), 3);
-
-	this.timeline.addTween(cjs.Tween.get(this.instance).wait(20));
-
-	// Checked
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#FFFFFF").s().p("AhtBjQg0g6gWgQQADgLAIgJIAHgFQAQABAnAdIAsAfQAyhXA/g/QBAg9BJggQhWBYhFCGQghBFghBKQgggogogsg");
-	this.shape.setTransform(25.5,24.2);
-	this.shape._off = true;
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(9).to({_off:false},0).wait(11));
-
-	// BG
-	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.f().s("#F1EBDD").ss(3,2,0,3).p("AjvjvIHfAAIAAHfInfAAg");
-	this.shape_1.setTransform(24,24);
-
-	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.f("#B9961D").s().p("AjvDvIAAneIHeAAIAAHeg");
-	this.shape_2.setTransform(24,24);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_1}]}).to({state:[{t:this.shape_2},{t:this.shape_1}]},9).wait(11));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,191.5,51.5);
-
-
 (lib.CheckBoxshort = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"inactive":0,"active":9});
+	this.initialize(mode,startPosition,loop,{inactive:0,active:9});
 
 	// timeline functions:
 	this.frame_0 = function() {
@@ -980,51 +798,6 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,296.5,61.5);
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,421.4,61.5);
-
-
-(lib._05Map = function() {
-	this.initialize();
-
-	// Info Popup
-	this.infopopup = new lib.InfoPopup();
-	this.infopopup.setTransform(1024,0);
-
-	// Info Buttons
-	this.info3 = new lib.InfoButton();
-	this.info3.setTransform(672,433.5);
-	new cjs.ButtonHelper(this.info3, 0, 1, 2, false, new lib.InfoButton(), 3);
-
-	this.info2 = new lib.InfoButton();
-	this.info2.setTransform(843,342.5);
-	new cjs.ButtonHelper(this.info2, 0, 1, 2, false, new lib.InfoButton(), 3);
-
-	this.info1 = new lib.InfoButton();
-	this.info1.setTransform(578,306);
-	new cjs.ButtonHelper(this.info1, 0, 1, 2, false, new lib.InfoButton(), 3);
-
-	// Checkboxes
-	this.checkbox3 = new lib.CheckBoxsmall();
-	this.checkbox3.setTransform(481.6,425);
-
-	this.checkbox2 = new lib.CheckBoxsmall();
-	this.checkbox2.setTransform(660.5,333.8);
-
-	this.checkbox1 = new lib.CheckBoxsmall();
-	this.checkbox1.setTransform(415.4,298.8);
-
-	// Text
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#B9961D").s().p("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");
-	this.shape.setTransform(658.7,386.7);
-
-	this.text = new cjs.Text("Vælg hvor du starter", "48px 'Special Elite'", "#FFFFFF");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 777;
-	this.text.setTransform(210,38);
-
-	this.addChild(this.text,this.shape,this.checkbox1,this.checkbox2,this.checkbox3,this.info1,this.info2,this.info3,this.infopopup);
-}).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,0,1859,540);
 
 
 (lib._03CardMain = function() {
@@ -1405,12 +1178,6 @@ if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{sta
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(24));
 
-	// 0.5 Map
-	this.page_map = new lib._05Map();
-	this.page_map.setTransform(1024,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.page_map).wait(24));
-
 	// 0.4 Opinion
 	this.page_opinion = new lib._04OpinionMain();
 	this.page_opinion.setTransform(1024,0);
@@ -1447,12 +1214,6 @@ if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{sta
 	this.character_intro.cache(210,130,602,397);
 
 	this.timeline.addTween(cjs.Tween.get(this.character_intro).wait(24));
-
-	// 0.5
-	this.bg_0_5 = new lib.Background0_5();
-	this.bg_0_5.setTransform(1024,0);
-
-	this.timeline.addTween(cjs.Tween.get(this.bg_0_5).wait(24));
 
 	// 0.4
 	this.bg_0_4 = new lib.Background0_4();

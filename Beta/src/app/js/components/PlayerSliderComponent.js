@@ -83,12 +83,18 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 				}, self);
 				self.soundController.on('complete', function(event){
 					// event.remove();
-					console.log('complete');
+					// console.log('complete');
+
+					// Stop on last frame
+					this.slide.gotoAndStop(this.slide.totalFrames-1);
+
 					// Swap Play/Pause visibility
 					this.pauseBtn.visible(false);
 					this.playBtn.visible(true);
 
 					self.removeLoopEvent();
+
+					this.state = 'complete';
 
 					// Dispatch event 
 					self.dispatchEvent(new createjs.Event('complete'));
@@ -127,7 +133,8 @@ PlayerSliderComponent.prototype.play = function(){
 	// console.log('play');
 	var self = this;
 
-	this.previousFrame = 0;
+	if(this.state === 'complete')
+		this.slide.gotoAndStop(0);
 
 	// Swap Play/Pause visibility
 	this.pauseBtn.visible(true);
@@ -163,7 +170,8 @@ PlayerSliderComponent.prototype.play = function(){
 	this.state = 'play';
 
 	// Tick
-	Tick.enable();	
+	Tick.enable();
+	Tick.framerate(Tick.perfect);
 };
 PlayerSliderComponent.prototype.pause = function(){
 	'use strict';

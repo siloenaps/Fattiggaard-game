@@ -525,6 +525,9 @@ FlowPoorhouseSecond.prototype.letterWrite = function(trigger) {
 
 	self.trigger = trigger;
 
+	// Change background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_8);
+
 	// Pages in/out
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.letterwrite;

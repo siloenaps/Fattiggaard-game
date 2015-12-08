@@ -22,7 +22,7 @@ lib.properties = {
 		{src:"../../../assets/images/pool/_1_2BGsvendborgA.jpg", id:"_1_2BGsvendborgA"},
 		{src:"../../../assets/images/pool/_1_2BGsvendborgB.jpg", id:"_1_2BGsvendborgB"},
 		{src:"../../../assets/images/pool/_1_2BGsvendborgC.jpg", id:"_1_2BGsvendborgC"},
-		{src:"../../../assets/images/pool/_1_3BGsundholm.jpg", id:"_1_3BGsundholm"},
+		{src:"../../../assets/images/pool/_1_3BGhorsensNY.jpg", id:"_1_3BGhorsensNY"},
 		{src:"../../../assets/images/pool/_1_3BGsvendborg.jpg", id:"_1_3BGsvendborg"},
 		{src:"../../../assets/images/pool/_1_4BG.jpg", id:"_1_4BG"},
 		{src:"../../../assets/images/pool/_1_5BGsvendborg2.jpg", id:"_1_5BGsvendborg2"},
@@ -143,8 +143,8 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._1_3BGsundholm = function() {
-	this.initialize(img._1_3BGsundholm);
+(lib._1_3BGhorsensNY = function() {
+	this.initialize(img._1_3BGhorsensNY);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -989,7 +989,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib._1_3BGsundholm();
+	this.instance = new lib._1_3BGhorsensNY();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
