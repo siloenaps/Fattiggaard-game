@@ -1,3 +1,12 @@
 node_modules/
 bower_components/
 .tmp/
+
+# vim tmp files
+*.swp
+*.un~
+
+app/ngmin
+app/ngAnnotate
+app/dist
+
