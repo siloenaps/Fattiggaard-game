@@ -23,6 +23,7 @@ var htmlminOpts = {
   removeRedundantAttributes: true
 };
 
+console.log(bowerFiles());
 
 /**
  * GZIP
@@ -84,20 +85,20 @@ gulp.task('csslint', ['styles'], function () {
 /**
  * Scripts
  */
-gulp.task('scripts-dist', ['templates-dist'], function () {
+gulp.task('scripts-dist', [], function () {
   return appFiles().pipe(dist('js', bower.name, {ngAnnotate: true}));
 });
 
 /**
  * Templates
  */
-gulp.task('templates', function () {
-  return templateFiles().pipe(buildTemplates());
-});
+// gulp.task('templates', function () {
+//   return templateFiles().pipe(buildTemplates());
+// });
 
-gulp.task('templates-dist', function () {
-  return templateFiles({min: true}).pipe(buildTemplates());
-});
+// gulp.task('templates-dist', function () {
+//   return templateFiles({min: true}).pipe(buildTemplates());
+// });
 
 /**
  * Vendors
@@ -120,7 +121,7 @@ gulp.task('vendors', function () {
  * Index
  */
 gulp.task('index', index);
-gulp.task('build-all', ['styles', 'templates'], index);
+gulp.task('build-all', ['styles'], index);
 
 function index () {
   var opt = {read: false};
@@ -217,7 +218,7 @@ gulp.task('watch', ['statics', 'default'], function () {
     }
   });
   gulp.watch('./src/app/index.html', ['index']);
-  gulp.watch(['./src/app/**/*.html', '!./src/app/index.html'], ['templates']);
+  gulp.watch(['./src/app/**/*.html', '!./src/app/index.html']);
   gulp.watch(['./src/app/**/*.scss'], ['csslint']).on('change', function (evt) {
     if (evt.type !== 'changed') {
       gulp.start('index');
@@ -240,7 +241,7 @@ gulp.task('lint', ['jshint', 'csslint']);
 /**
  * Test
  */
-gulp.task('test', ['templates'], function () {
+gulp.task('test', [], function () {
   return testFiles()
     .pipe(g.karma({
       configFile: 'karma.conf.js',
@@ -252,7 +253,7 @@ gulp.task('test', ['templates'], function () {
  * Inject all files for tests into karma.conf.js
  * to be able to run `karma` without gulp.
  */
-gulp.task('karma-conf', ['templates'], function () {
+gulp.task('karma-conf', [], function () {
   return gulp.src('./karma.conf.js')
     .pipe(g.inject(testFiles(), {
       starttag: 'files: [',
@@ -289,7 +290,7 @@ function cssFiles (opt) {
  */
 function appFiles () {
   var files = [
-    './.tmp/' + bower.name + '-templates.js',
+    // './.tmp/' + bower.name + '-templates.js',
     './.tmp/src/app/**/*.js',
     '!./.tmp/src/app/**/*_test.js',
     './src/app/**/*.js',
@@ -316,25 +317,25 @@ function logicFiles () {
 /**
  * All AngularJS templates/partials as a stream
  */
-function templateFiles (opt) {
-  return gulp.src(['./src/app/**/*.html', '!./src/app/index.html'], opt)
-    .pipe(opt && opt.min ? g.htmlmin(htmlminOpts) : noop());
-}
+// function templateFiles (opt) {
+//   return gulp.src(['./src/app/**/*.html', '!./src/app/index.html'], opt)
+//     .pipe(opt && opt.min ? g.htmlmin(htmlminOpts) : noop());
+// }
 
 /**
  * Build AngularJS templates/partials
  */
-function buildTemplates () {
-  return lazypipe()
-    .pipe(g.ngHtml2js, {
-      moduleName: bower.name,
-      prefix: '/' + bower.name + '/',
-      stripPrefix: '/src/app'
-    })
-    .pipe(g.concat, bower.name + '-templates.js')
-    .pipe(gulp.dest, './.tmp')
-    .pipe(livereload)();
-}
+// function buildTemplates () {
+//   return lazypipe()
+//     .pipe(g.ngHtml2js, {
+//       moduleName: bower.name,
+//       prefix: '/' + bower.name + '/',
+//       stripPrefix: '/src/app'
+//     })
+//     .pipe(g.concat, bower.name + '-templates.js')
+//     .pipe(gulp.dest, './.tmp')
+//     .pipe(livereload)();
+// }
 
 /**
  * Filter an array of files according to file type

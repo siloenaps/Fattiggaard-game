@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html ng-app="fattiggarden">
+  <head>
+    <meta charset="utf-8"/>
+    <title>fattiggarden</title>
+
+    <!-- inject:vendor:css -->
+    <!-- endinject -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="/css/app.css">
+    <!-- endinject -->
+  </head>
+  <body ng-controller="MainController">    
+    
+    <div class="preload-wrapper small">
+        <div class="image-wrapper">
+            <img src="/assets/images/preloader.gif">
+        </div>
+        <div class="progress-wrapper">
+            <div class="progress-bar hide">
+                <div class="bar"></div>
+            </div>
+        </div>        
+    </div>
+
+    <div class="content"></div>
+    <div class="debug"></div>
+
+    <link href='https://fonts.googleapis.com/css?family=Special+Elite' rel='stylesheet' type='text/css'>
+    <link href='/assets/fonts/BigNoodle/stylesheet.css' rel='stylesheet' type='text/css'>
+    <script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script>
+    <script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script>
+    <script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script>
+    <script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+
+    <!-- <ng-view></ng-view> -->
+    <!-- inject:vendor:js -->
+    <script src="/angular/angular.js"></script>
+    <script src="/angular-route/angular-route.js"></script>
+    <script src="/browser-detection/src/browser-detection.js"></script>
+    <script src="/howler.js/howler.js"></script>
+    <!-- endinject -->
+    <!-- inject:js -->
+    <script src="/js/views/gui/RadioButton.js"></script>
+    <script src="/js/views/gui/Dropdown.js"></script>
+    <script src="/js/views/gui/Cursor.js"></script>
+    <script src="/js/views/gui/ContinueButton.js"></script>
+    <script src="/js/views/gui/CheckboxGroup.js"></script>
+    <script src="/js/views/gui/ButtonGroup.js"></script>
+    <script src="/js/views/gui/ButtonCustom.js"></script>
+    <script src="/js/controllers/flows/SubFlowController.js"></script>
+    <script src="/js/controllers/flows/FlowPrologue.js"></script>
+    <script src="/js/controllers/flows/FlowPoorhouseSecond.js"></script>
+    <script src="/js/controllers/flows/FlowPoorhouse.js"></script>
+    <script src="/js/controllers/flows/FlowGermany2.js"></script>
+    <script src="/js/controllers/flows/FlowGermany1.js"></script>
+    <script src="/js/controllers/flows/FlowEpilogue.js"></script>
+    <script src="/js/controllers/pages/PageMap.js"></script>
+    <script src="/js/controllers/pages/PageIntroSlide.js"></script>
+    <script src="/js/views/Topbar.js"></script>
+    <script src="/js/utils/TweenUtil.js"></script>
+    <script src="/js/utils/Transitions.js"></script>
+    <script src="/js/utils/Tick.js"></script>
+    <script src="/js/utils/Textfield.js"></script>
+    <script src="/js/utils/Random.js"></script>
+    <script src="/js/utils/Preloader.js"></script>
+    <script src="/js/utils/PreloadGFX.js"></script>
+    <script src="/js/utils/LoadJS.js"></script>
+    <script src="/js/utils/Font.js"></script>
+    <script src="/js/utils/Flow.js"></script>
+    <script src="/js/utils/Environment.js"></script>
+    <script src="/js/utils/Delegate.js"></script>
+    <script src="/js/utils/Array2.js"></script>
+    <script src="/js/models/SoundService.js"></script>
+    <script src="/js/models/PlayerStats.js"></script>
+    <script src="/js/models/Library.js"></script>
+    <script src="/js/models/ImageService.js"></script>
+    <script src="/js/models/FlowData.js"></script>
+    <script src="/js/models/Assets.js"></script>
+    <script src="/js/managers/GameManager.js"></script>
+    <script src="/js/managers/FlowManager.js"></script>
+    <script src="/js/managers/ApplicationManager.js"></script>
+    <script src="/js/controllers/SoundController.js"></script>
+    <script src="/js/controllers/HUDController.js"></script>
+    <script src="/js/components/PlayerSoundComponent.js"></script>
+    <script src="/js/components/PlayerSliderComponent.js"></script>
+    <script src="/js/Main.js"></script>
+    <script src="/app.js"></script>
+    <script src="/fattiggarden-templates.js"></script>
+    <!-- endinject -->
+
+
+
+  </body>
+</html>

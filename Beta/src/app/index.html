@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="fattiggarden">
+<html>
   <head>
     <meta charset="utf-8"/>
     <title>fattiggarden</title>
@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/css/app.css">
     <!-- endinject -->
   </head>
-  <body ng-controller="MainController">    
+  <body>    
     
     <div class="preload-wrapper small">
         <div class="image-wrapper">
@@ -37,8 +37,6 @@
 
     <!-- <ng-view></ng-view> -->
     <!-- inject:vendor:js -->
-    <script src="/angular/angular.js"></script>
-    <script src="/angular-route/angular-route.js"></script>
     <script src="/browser-detection/src/browser-detection.js"></script>
     <script src="/howler.js/howler.js"></script>
     <!-- endinject -->
@@ -50,6 +48,8 @@
     <script src="/js/views/gui/CheckboxGroup.js"></script>
     <script src="/js/views/gui/ButtonGroup.js"></script>
     <script src="/js/views/gui/ButtonCustom.js"></script>
+    <script src="/js/controllers/pages/PageMap.js"></script>
+    <script src="/js/controllers/pages/PageIntroSlide.js"></script>
     <script src="/js/controllers/flows/SubFlowController.js"></script>
     <script src="/js/controllers/flows/FlowPrologue.js"></script>
     <script src="/js/controllers/flows/FlowPoorhouseSecond.js"></script>
@@ -57,8 +57,6 @@
     <script src="/js/controllers/flows/FlowGermany2.js"></script>
     <script src="/js/controllers/flows/FlowGermany1.js"></script>
     <script src="/js/controllers/flows/FlowEpilogue.js"></script>
-    <script src="/js/controllers/pages/PageMap.js"></script>
-    <script src="/js/controllers/pages/PageIntroSlide.js"></script>
     <script src="/js/views/Topbar.js"></script>
     <script src="/js/utils/TweenUtil.js"></script>
     <script src="/js/utils/Transitions.js"></script>
@@ -72,6 +70,7 @@
     <script src="/js/utils/Flow.js"></script>
     <script src="/js/utils/Environment.js"></script>
     <script src="/js/utils/Delegate.js"></script>
+    <script src="/js/utils/Canvas.js"></script>
     <script src="/js/utils/Array2.js"></script>
     <script src="/js/models/SoundService.js"></script>
     <script src="/js/models/PlayerStats.js"></script>
@@ -87,8 +86,7 @@
     <script src="/js/components/PlayerSoundComponent.js"></script>
     <script src="/js/components/PlayerSliderComponent.js"></script>
     <script src="/js/Main.js"></script>
-    <script src="/app.js"></script>
-    <script src="/fattiggarden-templates.js"></script>
+    <script src="/bootstrapper.js"></script>
     <!-- endinject -->
 
 
