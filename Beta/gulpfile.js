@@ -13,6 +13,7 @@ var gulp = require('gulp'),
     bower = require('./bower'),
     imagemin = require('gulp-imagemin'),
     ftp = require( 'vinyl-ftp' ),
+    // replace = require('gulp-replace'),
     isWatching = false;
 
 var htmlminOpts = {
@@ -23,7 +24,12 @@ var htmlminOpts = {
   removeRedundantAttributes: true
 };
 
-console.log(bowerFiles());
+// gulp.task('replace', function(){
+//   return gulp.src(['./src/app/assets/logic/**/*.js'])
+//       .pipe(replace('', ''))
+//       .pipe(gulp.dest('./app/js/Main.js'));
+// });
+
 
 /**
  * GZIP
@@ -313,29 +319,6 @@ function logicFiles () {
   return gulp.src(files)
     .pipe(g.angularFilesort());
 }
-
-/**
- * All AngularJS templates/partials as a stream
- */
-// function templateFiles (opt) {
-//   return gulp.src(['./src/app/**/*.html', '!./src/app/index.html'], opt)
-//     .pipe(opt && opt.min ? g.htmlmin(htmlminOpts) : noop());
-// }
-
-/**
- * Build AngularJS templates/partials
- */
-// function buildTemplates () {
-//   return lazypipe()
-//     .pipe(g.ngHtml2js, {
-//       moduleName: bower.name,
-//       prefix: '/' + bower.name + '/',
-//       stripPrefix: '/src/app'
-//     })
-//     .pipe(g.concat, bower.name + '-templates.js')
-//     .pipe(gulp.dest, './.tmp')
-//     .pipe(livereload)();
-// }
 
 /**
  * Filter an array of files according to file type

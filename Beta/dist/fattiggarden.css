@@ -1,7 +1,7 @@
 body, html {
   margin: 0;
   background: #000;
-  background-image: url("/assets/images/Logo_wait.jpg");
+  background-image: url("./assets/images/Logo_wait.jpg");
   background-repeat: no-repeat; }
 
 .debug {

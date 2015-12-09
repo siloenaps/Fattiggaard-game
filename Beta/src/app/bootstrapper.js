@@ -5,13 +5,13 @@ $(function() {
 
 	// Init Environment info
 	Environment.init();
-console.log(images)
+
 	vm.lib = mainlib;
 	vm.imagesContainer = images;
 
 	vm.canvas = Canvas.create(1024, 648, Environment.ratio);
 	vm.canvas.style.background = '#000';
-	$('.content').append(vm.canvas);
+	$('.canvas').append(vm.canvas);
 
 	// Device.ratio = 1;
 	// Load files
