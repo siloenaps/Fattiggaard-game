@@ -5,8 +5,8 @@ PreloadGFX = {
 		// if(this.shown < 0)
 		// 	this.shown = 0;
 		
-		// this.shown++;
-		// console.log('show', this.shown);
+		this.shown++;
+		console.log('show', this.shown);
 
 		(progress === undefined || progress === null)? progress = true : progress = progress;
 		$('.preload-wrapper').removeClass('hide');
@@ -24,12 +24,12 @@ PreloadGFX = {
 		}		
 	},
 	hide: function(){
-		// this.shown--;
+		this.shown--;
 
 		// if(this.shown < 0)
 		// 	this.shown = 0;
 
-		// console.log('hide', this.shown);
+		console.log('hide', this.shown);
 
 		// if(this.shown > 0)
 		// 	return;

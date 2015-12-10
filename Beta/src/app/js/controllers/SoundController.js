@@ -43,6 +43,7 @@ SoundController.prototype = {
 		  },
 		  onload: function() {		    
 		    self.dispatcher(new createjs.Event('ready'));
+		    console.log('SoundController.onload');
 		    PreloadGFX.hide();
 		  }
 		}); 

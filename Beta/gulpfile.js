@@ -33,18 +33,23 @@ gulp.task('move-files-locally', function () {
             'cp dist/*.js ../../Fattiggaard-web/app/assets/game/'
           ]));
 });
-
-
-gulp.task('deploy-local', function(){
-  runSequence('dist-code', 'move-files-locally');
-});
-
-gulp.task('basepath', function(){
+gulp.task('set-basepath', function(){
   var src = './src/app/js/utils/';
   return gulp.src([src+'Environment.js'])
-      .pipe(replace('gameBasePath: \'/\'', 'gameBasePath: \'/assets/game/\''))
+      .pipe(replace('gameBasePath: undefined', 'gameBasePath: \'/assets/game/\''))     
       .pipe(gulp.dest(src));
 });
+gulp.task('reset-basepath', function(){
+  var src = './src/app/js/utils/';
+  return gulp.src([src+'Environment.js'])
+      .pipe(replace('gameBasePath: \'/assets/game/\'', 'gameBasePath: undefined'))     
+      .pipe(gulp.dest(src));
+});
+gulp.task('deploy-local', function(){
+  runSequence('set-basepath', 'dist-code', 'move-files-locally', 'reset-basepath');
+});
+
+
 
 
 /**

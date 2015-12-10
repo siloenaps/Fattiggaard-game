@@ -4,6 +4,8 @@ var ApplicationManager = {
 		'use strict';
 		this.root = root;
 
+		// PreloadGFX.hide();
+
 		// // Init Environment info
 		// Environment.init();
 		ImageService.init();

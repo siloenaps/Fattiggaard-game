@@ -5,7 +5,7 @@ var LoadJS = {
 		var urlList = [];
 		var tmpList = [];
 
-		PreloadGFX.hide();
+		PreloadGFX.show();
 
 		// $('.preload-wrapper').removeClass('hide');
 		// $('.preload-wrapper').addClass('show');
@@ -78,6 +78,7 @@ var LoadJS = {
 
 		    	// Reached this? All files are loaded
 		    	delegate();
+		    	PreloadGFX.hide();
 
 		  //   	$('.preload-wrapper').addClass('hide');
 				// $('.preload-wrapper').removeClass('show');

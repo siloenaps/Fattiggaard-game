@@ -3,8 +3,7 @@
 	Wrapped in order to enable change of lib if nessesary
 */
 var Environment = {	
-	// gameBasePath: '/',
-	gameBasePath: '/assets/game/',
+	gameBasePath: undefined,
 	data: null,
 	browser: {},
 	os: null,
@@ -38,6 +37,9 @@ var Environment = {
 		this.winScale = wf();
 	},
 	basePath: function(){		
+		// console.log('this.gameBasePath', this.gameBasePath);
+		if(this.gameBasePath === undefined)
+			this.gameBasePath = '/'; // Default local usage
 		return this.gameBasePath;
 	}
 };

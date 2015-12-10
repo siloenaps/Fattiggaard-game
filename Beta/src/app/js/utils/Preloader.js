@@ -8,16 +8,22 @@ var Preloader = {
 		'use strict';
 		this.id++;
 
-		(factor === undefined) ? this.factor = 1 : this.factor = factor;
-		if(clss === undefined) clss = 'small';
+		console.log('Preloader:load', this.id, manifest.length);
 
-		this.tracker[this.id] = false;
 		
+		// FIXME
+		// Should not happen trying to load an empty manifest
 		// If nothing to load exit 
 		if(manifest.length === 0){
 			handleComplete(null);
 			return;
 		}
+
+
+		(factor === undefined) ? this.factor = 1 : this.factor = factor;
+		if(clss === undefined) clss = 'small';
+
+		this.tracker[this.id] = false;
 
 		var self = this;
 
@@ -33,6 +39,7 @@ var Preloader = {
 			loader.addEventListener('complete', function(event){
 				var id = event.target.id;
 				self.tracker[id] = true;
+				console.log('Preloader:complete', id);
 				if(handleComplete != null){
 					handleComplete(event);
 				}	
@@ -43,6 +50,9 @@ var Preloader = {
 			loader.addEventListener('progress', function(event){
 				var w = (event.loaded * 400) / self.factor;
 				$(".progress-bar .bar").css("width", w);
+			});	
+			loader.addEventListener('error', function(event){
+				console.log('Preloader:error', event);
 			});	
 
 		// self.add('preloader small');
@@ -57,8 +67,8 @@ var Preloader = {
 		PreloadGFX.show();
 	},
 	remove: function(id){
-		'use strict';		
-		
+		'use strict';	
+
 		// this.tracker[id] = true;
 		for(var t in this.tracker){
 			//console.log('remove', t, this.tracker[t]);	
