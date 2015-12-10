@@ -35,7 +35,7 @@ var LoadJS = {
 				}				
 			}
 			if(may){
-				urlList.push(tmpList[k]);
+				urlList.push(Path.adjustUrl(tmpList[k]));
 			}
     	}
 

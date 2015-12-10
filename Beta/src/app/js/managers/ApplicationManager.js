@@ -6,6 +6,9 @@ var ApplicationManager = {
 
 		// // Init Environment info
 		// Environment.init();
+		ImageService.init();
+		SoundService.init();
+
 
 		// Cursor init
 		Cursor.root = root;

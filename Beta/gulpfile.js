@@ -13,7 +13,9 @@ var gulp = require('gulp'),
     bower = require('./bower'),
     imagemin = require('gulp-imagemin'),
     ftp = require( 'vinyl-ftp' ),
-    // replace = require('gulp-replace'),
+    replace = require('gulp-replace'),
+    shell = require('gulp-shell'),
+    runSequence = require('run-sequence'),
     isWatching = false;
 
 var htmlminOpts = {
@@ -24,11 +26,25 @@ var htmlminOpts = {
   removeRedundantAttributes: true
 };
 
-// gulp.task('replace', function(){
-//   return gulp.src(['./src/app/assets/logic/**/*.js'])
-//       .pipe(replace('', ''))
-//       .pipe(gulp.dest('./app/js/Main.js'));
-// });
+gulp.task('move-files-locally', function () {
+  return  gulp.src('*.js', {read: false})
+          .pipe(shell([
+            'cd /Users/str/Projects/TripleDesign/Forsorgsmuseet/Work/Fattiggaard/Beta',
+            'cp dist/*.js ../../Fattiggaard-web/app/assets/game/'
+          ]));
+});
+
+
+gulp.task('deploy-local', function(){
+  runSequence('dist-code', 'move-files-locally');
+});
+
+gulp.task('basepath', function(){
+  var src = './src/app/js/utils/';
+  return gulp.src([src+'Environment.js'])
+      .pipe(replace('gameBasePath: \'/\'', 'gameBasePath: \'/assets/game/\''))
+      .pipe(gulp.dest(src));
+});
 
 
 /**
@@ -215,7 +231,7 @@ gulp.task('serve', ['watch']);
 gulp.task('watch', ['statics', 'default'], function () {
   isWatching = true;
   // Initiate livereload server:
-  g.livereload.listen();
+  g.livereload.listen(23456);
   gulp.watch('./src/app/**/*.js', ['jshint']).on('change', function (evt) {
     if (evt.type !== 'changed') {
       gulp.start('index');

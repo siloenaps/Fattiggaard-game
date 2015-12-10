@@ -613,438 +613,6 @@ ButtonCustom.prototype.destroy = function(){
 }
 
 createjs.EventDispatcher.initialize(ButtonCustom.prototype);
-var PageMap = function(container){
-
-	return{
-		currentPage:null,
-		container: container,
-		view: null,
-		trigger: 'map', // Default start pointer
-		continueBtn: ContinueButton,
-		listeners: {},
-		start: function(){
-			'use strict';
-
-			// Dispatcher
-			createjs.EventDispatcher.initialize(this);
-
-			// Events
-			this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
-
-			this.id = 'map';//PlayerStats.poorhouse;
-
-			LoadJS.load(
-				['../assets/logic/map.js'], 
-				Delegate.create(this.setup, this)
-			);
-		},
-		next: function(){
-			// console.log('next: ', this.flow);
-			this.flow.next(this.trigger);
-			
-		},
-		setup: function(){
-			'use strict';
-			if(this.runonce != null)
-				return;
-
-			var self = this;
-
-			// Setup may run ONLY once
-			this.runonce = true;
-
-			// Setup flow
-			this.flow = new SubFlowController();
-			this.flow.addAction('map', Delegate.create(this.map, this), 'end');
-			this.flow.addAction('end', Delegate.create(
-				function(){
-					self.removeEvents();
-					self.dispatchEvent(new createjs.Event('continue'));
-				}, this)
-			);
-
-			try{
-				// Load files for flow	
-				this.lib = lib;
-				var Clss = this.lib.map;
-				var manifest = this.lib.properties.manifest;
-				var onFileLoad = function(event){
-					if (event.item.type === 'image') { 
-						// // console.log('result:', event.item.id, event.result);
-						images[event.item.id] = event.result; 
-					}
-				};
-				var onLoadComplete = function(event){
-					// // console.log('onLoadComplete');
-
-					// Instantiate view
-					self.view = new Clss();
-
-					//Add
-					self.container.addChild(self.view);
-
-					// Set start page
-					self.flow.next(self.trigger);
-
-					self.dispatchEvent(new createjs.Event('ready'));
-				};
-				Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-			}catch(err) {
-		   		console.log(err);
-		   	}
-		},
-		onContinue: function(event) {
-			'use strict';
-			// console.log('PageMap::onContinue');	
-
-			// Stop player if any
-			if(this.playerComponent != null){
-				this.playerComponent.stop();
-			}
-
-			// Must be set after stopping player
-			this.next();
-		},		
-		removeEvents: function() {
-			'use strict';
-			
-			// Remove events
-			this.continueBtn.off('click', this.listeners.continue);
-			this.listeners.continue = null;
-		},
-		restart: function(){
-			'use strict';
-			this.currentPage = null;
-		},
-		destroy: function(){
-			'use strict';
-			this.currentPage = null;
-			this.flow.destroy();
-			this.flow = null;
-			this.container = null;
-			this.currentBackground = null;
-			this.trigger = null;
-			this.view = null;
-			if(this.playerComponent != null)
-				this.playerComponent.destroy();
-			this.playerComponent = null;
-		},
-
-		// Pages --------------------------------------------------------------------------------------------------------
-		
-		map: function(trigger){
-			this.continueBtn.ghost("next");
-
-			this.trigger = trigger;
-
-			var self = this;
-
-			// Set background
-			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_5);
-
-			// Pages in/out
-			var previousPage = this.currentPage;
-			this.currentPage = this.view.page_map;
-			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-				Tick.framerate(Tick.medium);
-			}, this));	
-
-			// Checkboxes
-			var btn1 = new RadioButton(this.currentPage.checkbox1, {value:'horsens'});
-			var btn2 = new RadioButton(this.currentPage.checkbox2, {value:'sundholm'});
-			var btn3 = new RadioButton(this.currentPage.checkbox3, {value:'svendborg'});
-
-			// Group
-			this.group = new ButtonGroup();
-			this.group.add(btn1);
-			this.group.add(btn2);
-			this.group.add(btn3);
-
-			// Events
-			this.eventGroupListener = this.group.on("click", function(event){
-				// Save chosen "fattiggård"
-				PlayerStats.poorhouse = event.data.value;
-
-				// User may continue
-				self.continueBtn.activate('next');
-				self.continueBtn.on('click', function(e){
-					e.remove();
-					event.remove();
-
-					// FIXME
-					// self.currentPage.info1.off('click', self.listeners['info1']);
-					// self.currentPage.info2.off('click', self.listeners['info2']);
-					// self.currentPage.info3.off('click', self.listeners['info3']);
-
-					self.dispatchEvent(new createjs.Event('continue'));
-				});
-			}, this);
-			
-			
-
-			// Info popup
-			this.currentPage.infopopup.visible = false;
-			var infoButtons = {};
-			infoButtons.horsens = new ButtonCustom(this.currentPage.info1);
-			infoButtons.sundholm = new ButtonCustom(this.currentPage.info2);
-			infoButtons.svendborg = new ButtonCustom(this.currentPage.info3);
-			infoButtons.horsens.id = 0;
-			infoButtons.sundholm.id = 1;
-			infoButtons.svendborg.id = 2;
-
-			var openInfo = function(id) {
-				'use strict';
-				self.currentPage.infopopup.gotoAndStop(id);
-				self.currentPage.infopopup.x = 0;
-				self.currentPage.infopopup.visible = true;
-				self.continueBtn.hide();
-			};
-			var closeInfo = function(id) {
-				'use strict';
-				self.currentPage.infopopup.x = 1024;
-				self.currentPage.infopopup.visible = false;
-				self.continueBtn.show();
-			};
-
-			// Info buttons events
-			this.listeners['horsens'] = infoButtons.horsens.on('click', function(event){
-				console.log(event)
-				openInfo(event.target.id);
-			}, this);
-			this.listeners['sundholm'] = infoButtons.sundholm.on('click', function(event){
-				openInfo(event.target.id);
-			}, this);
-			this.listeners['svendborg'] = infoButtons.svendborg.on('click', function(event){
-				openInfo(event.target.id);
-			}, this);
-
-			// Disable buttons
-			if(PlayerStats.poorhouse !== null && PlayerStats.poorhouse !== undefined){
-				this.group.disableByValue(PlayerStats.poorhouse);
-				infoButtons[PlayerStats.poorhouse].setActive(false);			
-				infoButtons[PlayerStats.poorhouse].off('click', this.listeners[PlayerStats.poorhouse]);
-			}			
-
-			// infoButtons[PlayerStats.poorhouse].off('click', this.listeners[PlayerStats.poorhouse]);
-			// infoButtons[PlayerStats.poorhouse].alpha = .2;
-			// infoButtons[PlayerStats.poorhouse].buttonEnabled = false;
-
-
-			// Close button	
-			this.listeners['closebutton'] = this.currentPage.infopopup.closebutton.on('click', function(event){
-				closeInfo();
-			}, this);
-
-		},
-
-
-	};	
-}
-var PageIntroSlide = function(container){
-	'use strict';
-	this.container = container;
-	this.id = null; 
-	this.view = null;	
-	this.lib = null;
-	this.slideLib = null;
-	this.playerComponent = null;
-	this.listeners = {};
-	this.trigger = 'start'; 
-	this.currentPage = null;
-	this.currentBackground = null;
-	this.groups = {};
-	// this.portrait = null;
-
-	this.continueBtn = ContinueButton;
-	this.continueBtn.ghost('skip');
-
-	// Events
-	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
-};
-PageIntroSlide.prototype.setPortrait = function(image){
-	this.portrait = image;
-}
-PageIntroSlide.prototype.start = function(flowId, slideName){
-	this.id = PlayerStats.poorhouse;
-	this.flowId = flowId;
-	this.slideName = slideName;
-
-	var gameFile;
-
-	// console.log('PageIntroSlide:start', slideName+'.js');
-	// console.log('PageIntroSlide', this.runonce, slideName+'.js');
-
-	LoadJS.load(
-		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
-		Delegate.create(this.setup, this)
-	);
-};
-PageIntroSlide.prototype.setup = function(){
-	'use strict';
-	// console.log('PageIntroSlide::setup:runonce', this.runonce);
-
-	if(this.runonce != null)
-		return;
-
-	// Setup may run ONLY once
-	this.runonce = true;
-
-	// Tick
-	Tick.framerate(Tick.high);
-
-	var self = this;
-	var manifest, Clss;	
-
-	// Setup flow
-	this.flow = new SubFlowController();
-	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
-	this.flow.addAction('end', Delegate.create(
-		function(){
-			self.removeEvents();
-			self.dispatchEvent(new createjs.Event('continue'));
-		}, this)
-	);
-
-	// console.log('PageIntroSlide::setup:flowId', this.flowId);
-	this.lib = gamelib;
-	this.slideLib = slidelib;
-	Clss = this.lib.poorhouse_intro;
-	manifest = this.lib.properties.manifest;
-
-	try{
-		// Background image
-		if(this.flowId === '0.1'){
-			this.bgImage = ImageService.matrix[this.flowId];
-		}else{
-			this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';			
-		}
-		manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
-		
-
-	}catch(err){
-		// console.log(PlayerStats.poorhouse, this.bgImage);
-		// console.log(err);
-	}	
-	
-	// Load files
-	var onFileLoad = function(event){
-		if (event.item.type === 'image') { 
-			// console.log(event.item.id, event.result);
-			images[event.item.id] = event.result; 
-		}
-	};
-	var onLoadComplete = function(event){
-		// Instantiate view
-		self.view = new Clss();
-
-		//Add
-		self.container.addChild(self.view);
-
-		// Set start page
-		self.next();
-
-		// console.log('PageIntroSlide:onLoadComplete');
-		self.dispatchEvent(new createjs.Event('ready'));
-	};
-	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-	// console.log('manifest:', manifest);
-};
-PageIntroSlide.prototype.next = function(){
-	'use strict';
-	this.flow.next(this.trigger);	
-};
-PageIntroSlide.prototype.onComplete = function(event) {
-	'use strict';
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-	}
-
-	// Set next button active
-	this.continueBtn.activate('next');	
-};
-PageIntroSlide.prototype.onContinue = function(event) {
-	'use strict';
-	
-	// console.log('PageIntroSlide::onContinue');
-	
-	// Stop player if any
-	if(this.playerComponent != null){
-		this.playerComponent.stop();
-	}
-
-	this.next();
-
-	// // console.log('this.playerComponent:', this.playerComponent)
-};
-PageIntroSlide.prototype.removeEvents = function() {
-	'use strict';
-	
-	// Remove events
-	this.continueBtn.off('click', this.listeners.continue);
-	this.listeners.continue = null;
-};
-PageIntroSlide.prototype.destroy = function() {
-	'use strict';
-	
-	// Remove events
-	this.removeEvents();
-
-	// Remove events
-	if(this.playerComponent != null){
-		this.playerComponent.off('complete', this.listeners.complete);	
-		this.playerComponent.destroy();	
-		this.playerComponent = null;
-	}			
-	this.view = null;
-	this.lib = null;
-	this.currentPage = null;
-	this.listeners = null;
-	this.flow = null;
-};
-PageIntroSlide.prototype.intro = function(trigger){
-	'use strict';
-
-	// Next move
-	this.trigger = trigger;
-
-	var self = this;
-
-	// Set page view
-	this.currentPage = this.view.intro;
-	this.currentPage.x = 0;
-
-	// Set background
-	this.view.bg_container.x = 0;
-
-	// Background
-	var bitmap = new createjs.Bitmap(this.bgImage.src);	
-	this.view.bg_container.addChild(bitmap);
-
-	// Slide. Loading is self contained
-	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-	this.listeners.complete = self.playerComponent.on('complete', function(event){
-		// console.log('PageIntroSlide::complete');
-		self.continueBtn.activate('next');
-		Tick.framerate(Tick.low);
-	}, self);
-	this.playerComponent.on('ready', function(event){
-		event.remove();		
-		self.continueBtn.activate("skip");
-		// self.dispatchEvent(new createjs.Event('ready'));
-		// console.log('PageIntroSlide::ready');
-		// No tick
-		// Tick.framerate(Tick.low);
-		// console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
-	});
-	// // console.log(this.slideLib)
-	this.playerComponent.preload(this.slideName, this.slideLib);
-	
-};
-createjs.EventDispatcher.initialize(PageIntroSlide.prototype);
-
-
-
 var SubFlowController = function(){
 	'use strict';
 
@@ -4880,53 +4448,991 @@ var FlowEpilogue = function(container){
 
 	};	
 }
-var Topbar = {
-	view: null,
-	soundController: null,
-	init: function(view){
-		// console.log('Topbar::init', view);
-		if(view === undefined || view === null){
-			throw new Error("'view' is undefined");
+var PageMap = function(container){
+
+	return{
+		currentPage:null,
+		container: container,
+		view: null,
+		trigger: 'map', // Default start pointer
+		continueBtn: ContinueButton,
+		listeners: {},
+		start: function(){
+			'use strict';
+
+			// Dispatcher
+			createjs.EventDispatcher.initialize(this);
+
+			// Events
+			this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+
+			this.id = 'map';//PlayerStats.poorhouse;
+
+			LoadJS.load(
+				['../assets/logic/map.js'], 
+				Delegate.create(this.setup, this)
+			);
+		},
+		next: function(){
+			// console.log('next: ', this.flow);
+			this.flow.next(this.trigger);
+			
+		},
+		setup: function(){
+			'use strict';
+			if(this.runonce != null)
+				return;
+
+			var self = this;
+
+			// Setup may run ONLY once
+			this.runonce = true;
+
+			// Setup flow
+			this.flow = new SubFlowController();
+			this.flow.addAction('map', Delegate.create(this.map, this), 'end');
+			this.flow.addAction('end', Delegate.create(
+				function(){
+					self.removeEvents();
+					self.dispatchEvent(new createjs.Event('continue'));
+				}, this)
+			);
+
+			try{
+				// Load files for flow	
+				this.lib = lib;
+				var Clss = this.lib.map;
+				var manifest = this.lib.properties.manifest;
+				var onFileLoad = function(event){
+					if (event.item.type === 'image') { 
+						// // console.log('result:', event.item.id, event.result);
+						images[event.item.id] = event.result; 
+					}
+				};
+				var onLoadComplete = function(event){
+					// // console.log('onLoadComplete');
+
+					// Instantiate view
+					self.view = new Clss();
+
+					//Add
+					self.container.addChild(self.view);
+
+					// Set start page
+					self.flow.next(self.trigger);
+
+					self.dispatchEvent(new createjs.Event('ready'));
+				};
+				Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+			}catch(err) {
+		   		console.log(err);
+		   	}
+		},
+		onContinue: function(event) {
+			'use strict';
+			// console.log('PageMap::onContinue');	
+
+			// Stop player if any
+			if(this.playerComponent != null){
+				this.playerComponent.stop();
+			}
+
+			// Must be set after stopping player
+			this.next();
+		},		
+		removeEvents: function() {
+			'use strict';
+			
+			// Remove events
+			this.continueBtn.off('click', this.listeners.continue);
+			this.listeners.continue = null;
+		},
+		restart: function(){
+			'use strict';
+			this.currentPage = null;
+		},
+		destroy: function(){
+			'use strict';
+			this.currentPage = null;
+			this.flow.destroy();
+			this.flow = null;
+			this.container = null;
+			this.currentBackground = null;
+			this.trigger = null;
+			this.view = null;
+			if(this.playerComponent != null)
+				this.playerComponent.destroy();
+			this.playerComponent = null;
+		},
+
+		// Pages --------------------------------------------------------------------------------------------------------
+		
+		map: function(trigger){
+			this.continueBtn.ghost("next");
+
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_5);
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.page_map;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+				Tick.framerate(Tick.medium);
+			}, this));	
+
+			// Checkboxes
+			var btn1 = new RadioButton(this.currentPage.checkbox1, {value:'horsens'});
+			var btn2 = new RadioButton(this.currentPage.checkbox2, {value:'sundholm'});
+			var btn3 = new RadioButton(this.currentPage.checkbox3, {value:'svendborg'});
+
+			// Group
+			this.group = new ButtonGroup();
+			this.group.add(btn1);
+			this.group.add(btn2);
+			this.group.add(btn3);
+
+			// Events
+			this.eventGroupListener = this.group.on("click", function(event){
+				// Save chosen "fattiggård"
+				PlayerStats.poorhouse = event.data.value;
+
+				// User may continue
+				self.continueBtn.activate('next');
+				self.continueBtn.on('click', function(e){
+					e.remove();
+					event.remove();
+
+					// FIXME
+					// self.currentPage.info1.off('click', self.listeners['info1']);
+					// self.currentPage.info2.off('click', self.listeners['info2']);
+					// self.currentPage.info3.off('click', self.listeners['info3']);
+
+					self.dispatchEvent(new createjs.Event('continue'));
+				});
+			}, this);
+			
+			
+
+			// Info popup
+			this.currentPage.infopopup.visible = false;
+			var infoButtons = {};
+			infoButtons.horsens = new ButtonCustom(this.currentPage.info1);
+			infoButtons.sundholm = new ButtonCustom(this.currentPage.info2);
+			infoButtons.svendborg = new ButtonCustom(this.currentPage.info3);
+			infoButtons.horsens.id = 0;
+			infoButtons.sundholm.id = 1;
+			infoButtons.svendborg.id = 2;
+
+			var openInfo = function(id) {
+				'use strict';
+				self.currentPage.infopopup.gotoAndStop(id);
+				self.currentPage.infopopup.x = 0;
+				self.currentPage.infopopup.visible = true;
+				self.continueBtn.hide();
+			};
+			var closeInfo = function(id) {
+				'use strict';
+				self.currentPage.infopopup.x = 1024;
+				self.currentPage.infopopup.visible = false;
+				self.continueBtn.show();
+			};
+
+			// Info buttons events
+			this.listeners['horsens'] = infoButtons.horsens.on('click', function(event){
+				console.log(event)
+				openInfo(event.target.id);
+			}, this);
+			this.listeners['sundholm'] = infoButtons.sundholm.on('click', function(event){
+				openInfo(event.target.id);
+			}, this);
+			this.listeners['svendborg'] = infoButtons.svendborg.on('click', function(event){
+				openInfo(event.target.id);
+			}, this);
+
+			// Disable buttons
+			if(PlayerStats.poorhouse !== null && PlayerStats.poorhouse !== undefined){
+				this.group.disableByValue(PlayerStats.poorhouse);
+				infoButtons[PlayerStats.poorhouse].setActive(false);			
+				infoButtons[PlayerStats.poorhouse].off('click', this.listeners[PlayerStats.poorhouse]);
+			}			
+
+			// infoButtons[PlayerStats.poorhouse].off('click', this.listeners[PlayerStats.poorhouse]);
+			// infoButtons[PlayerStats.poorhouse].alpha = .2;
+			// infoButtons[PlayerStats.poorhouse].buttonEnabled = false;
+
+
+			// Close button	
+			this.listeners['closebutton'] = this.currentPage.infopopup.closebutton.on('click', function(event){
+				closeInfo();
+			}, this);
+
+		},
+
+
+	};	
+}
+var PageIntroSlide = function(container){
+	'use strict';
+	this.container = container;
+	this.id = null; 
+	this.view = null;	
+	this.lib = null;
+	this.slideLib = null;
+	this.playerComponent = null;
+	this.listeners = {};
+	this.trigger = 'start'; 
+	this.currentPage = null;
+	this.currentBackground = null;
+	this.groups = {};
+	// this.portrait = null;
+
+	this.continueBtn = ContinueButton;
+	this.continueBtn.ghost('skip');
+
+	// Events
+	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+};
+PageIntroSlide.prototype.setPortrait = function(image){
+	this.portrait = image;
+}
+PageIntroSlide.prototype.start = function(flowId, slideName){
+	this.id = PlayerStats.poorhouse;
+	this.flowId = flowId;
+	this.slideName = slideName;
+
+	var gameFile;
+
+	// console.log('PageIntroSlide:start', slideName+'.js');
+	// console.log('PageIntroSlide', this.runonce, slideName+'.js');
+
+	LoadJS.load(
+		['../assets/logic/games/poorhouse_intro.js', '../assets/logic/slides/'+slideName+'.js'], 
+		Delegate.create(this.setup, this)
+	);
+};
+PageIntroSlide.prototype.setup = function(){
+	'use strict';
+	console.log('PageIntroSlide::setup:runonce', this.container);
+
+	if(this.runonce != null)
+		return;
+
+	// Setup may run ONLY once
+	this.runonce = true;
+
+	// Tick
+	Tick.framerate(Tick.high);
+
+	var self = this;
+	var manifest, Clss;	
+
+	// Setup flow
+	this.flow = new SubFlowController();
+	this.flow.addAction('start', Delegate.create(this.intro, this), 'end');
+	this.flow.addAction('end', Delegate.create(
+		function(){
+			self.removeEvents();
+			self.dispatchEvent(new createjs.Event('continue'));
+		}, this)
+	);
+
+	this.addContent();
+	// Set background image
+	// this.addBgImage();
+	// this.dispatchEvent(new createjs.Event('ready'));
+	
+};
+// PageIntroSlide.prototype.addContent = function(){
+// 	// console.log('PageIntroSlide::setup:flowId', this.flowId);
+// 	this.lib = gamelib;
+// 	this.slideLib = slidelib;
+// 	Clss = this.lib.poorhouse_intro;
+// 	manifest = this.lib.properties.manifest;
+
+// 	// Instantiate view
+// 	this.view = new Clss();
+
+// 	//Add
+// 	this.container.addChild(self.view);
+// }
+PageIntroSlide.prototype.addContent = function(){
+	// console.log('PageIntroSlide::setup:flowId', this.flowId);
+	var self = this;
+	this.lib = gamelib;
+	this.slideLib = slidelib;
+	Clss = this.lib.poorhouse_intro;
+	manifest = this.lib.properties.manifest;
+
+	try{
+		// Background image
+		if(this.flowId === '0.1'){
+			this.bgImage = ImageService.matrix[this.flowId];
+		}else{
+			this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';			
 		}
-		this.view = view;	
 
-		HUDController.init();	
-	},
-	go: function(frm){
-		// console.log('Topbar:',this.view);
-		// this.view.label_intro.x = 564 + 300;
-		// createjs.Tween.get(this.view.label_intro)
-		// 	.to({x:564}, 300, createjs.Ease.backIn);
+		var tmpList = this.bgImage.src.split('/');	// SPlit url into an array
+		var filename = tmpList[tmpList.length-1];	// Get filename
+		var fileId = filename.split('.')[0];		// Filename without postfix 
 
-		if(this.view === undefined || this.view === null){
-			throw new Error("'view' is undefined");
+		// manifest.push({src: this.bgImage.src, id: fileId});	
+		// manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
+
+		// for(var i in manifest){
+		// 	console.log('manifest: ', manifest[i].id, manifest[i].src)
+		// }
+		// for(var i in images){
+		// 	console.log('images: ', images[i])
+		// }
+
+	}catch(err){
+		// console.log(PlayerStats.poorhouse, this.bgImage);
+		// console.log(err);
+	}	
+	
+	// Load files
+	var onFileLoad = function(event){
+		if (event.item.type === 'image') { 
+			// console.log(event.item.id, event.result);
+			images[event.item.id] = event.result; 
 		}
-		this.view.gotoAndStop(frm);
+	};
+	var onLoadComplete = function(event){
+		console.log('onLoadComplete');
+		// Instantiate view
+		self.view = new Clss();
 
-		// Setup for game related to user's choices
-		if(frm === 'game'){
-			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
+		//Add
+		self.container.addChild(self.view);
 
-			// Points
-			HUDController.setView(this.view.hud);
+		// Set start page
+		self.next();
+
+		// console.log('PageIntroSlide:onLoadComplete');
+		self.dispatchEvent(new createjs.Event('ready'));
+	};
+
+	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+}
+PageIntroSlide.prototype.next = function(){
+	'use strict';
+	this.flow.next(this.trigger);	
+};
+PageIntroSlide.prototype.onComplete = function(event) {
+	'use strict';
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+	}
+
+	// Set next button active
+	this.continueBtn.activate('next');	
+};
+PageIntroSlide.prototype.onContinue = function(event) {
+	'use strict';
+	
+	// console.log('PageIntroSlide::onContinue');
+	
+	// Stop player if any
+	if(this.playerComponent != null){
+		this.playerComponent.stop();
+	}
+
+	this.next();
+
+	// // console.log('this.playerComponent:', this.playerComponent)
+};
+PageIntroSlide.prototype.removeEvents = function() {
+	'use strict';
+	
+	// Remove events
+	this.continueBtn.off('click', this.listeners.continue);
+	this.listeners.continue = null;
+};
+PageIntroSlide.prototype.destroy = function() {
+	'use strict';
+	
+	// Remove events
+	this.removeEvents();
+
+	// Remove events
+	if(this.playerComponent != null){
+		this.playerComponent.off('complete', this.listeners.complete);	
+		this.playerComponent.destroy();	
+		this.playerComponent = null;
+	}			
+	this.view = null;
+	this.lib = null;
+	this.currentPage = null;
+	this.listeners = null;
+	this.flow = null;
+};
+PageIntroSlide.prototype.intro = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set page view
+	this.currentPage = this.view.intro;
+	this.currentPage.x = 0;
+
+	// Set background
+	this.view.bg_container.x = 0;
+
+	// Background
+	console.log('this.bgImage.src:', this.bgImage.src);
+	var bitmap = new createjs.Bitmap(this.bgImage.src);	
+	this.view.bg_container.addChild(bitmap);
+
+	// Slide. Loading is self contained
+	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
+	this.listeners.complete = self.playerComponent.on('complete', function(event){
+		// console.log('PageIntroSlide::complete');
+		self.continueBtn.activate('next');
+		Tick.framerate(Tick.low);
+	}, self);
+	this.playerComponent.on('ready', function(event){
+		event.remove();		
+		self.continueBtn.activate("skip");
+		// self.dispatchEvent(new createjs.Event('ready'));
+		// console.log('PageIntroSlide::ready');
+		// No tick
+		// Tick.framerate(Tick.low);
+		// console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
+	});
+	// // console.log(this.slideLib)
+	this.playerComponent.preload(this.slideName, this.slideLib);
+	
+};
+createjs.EventDispatcher.initialize(PageIntroSlide.prototype);
+
+
+
+var SoundService = {
+	init: function(){
+		'use strict';
+		console.log('SoundService.init');
+		var recursive = function(obj){
+			for (var i in obj) {
+				if(typeof obj[i] === 'object'){
+					// console.log(obj[i].src);
+					if(obj[i].src !== undefined){
+						obj[i].src = SoundService.basePath() + obj[i].src;
+					}
+					recursive(obj[i]);
+				}
+			};
 		}
+		recursive(this.matrix);
 	},
-	pointsUpdate: function(){
-		try{
-			HUDController.update();
-		}catch(err){
-			console.log(err);			
-		}		
+	getSlideDurationById: function(id){
+		'use strict';
+		return this.matrix.slides[id].duration;
 	},
-	show: function(){
-		this.view.visible = true;
+	getSlideSoundpathById: function(id){
+		'use strict';
+		return SoundService.properties.slidePath + id+'.mp3';
 	},
-	hide: function(){
-		this.view.visible = false;	
+	getSlideSoundById: function(id){
+		'use strict';
+		return SoundService.matrix.slides[id]
+	},
+	basePath: function(){
+		'use strict';
+		return Environment.basePath() + 'assets/sounds/';
+	},
+	matrix: {
+		effects: {
+			typewriter: { src:'typewriter.mp3', volume: 0.4 },
+			woodchopper: { src:'1.2.1_hugbraende_lydeffekt.mp3' }
+		},
+		'1.1.1' :{
+			horsens: { src:'1.1.1_horsens.mp3' },
+			sundholm: { src:'1.1.1_sundholm.mp3' },
+			svendborg: { src:'1.1.1_svendborg.mp3' }
+		},
+		points: {
+			plus: { src:'Point_plus.mp3' },
+			minus: { src:'Point_minus.mp3' }
+		},
+		dormitry: { src:'2.6.1.mp3' },
+		drunk: { src:'1.5.1.mp3' },
+		constable: { src:'1.6.1.mp3' },
+		'1.2.1': {
+			'horsens': {
+							'A': { src:'1.1.2_pashaven.mp3' },
+							'B': { src:'1.1.2_goerrent.mp3' },
+							'C': { src:'1.1.2_fletmaatter.mp3' }
+						},
+			'sundholm': {
+							'A': { src:'1.1.2_hugbraende.mp3' },
+							'B': { src:'1.1.2_pasgrise.mp3' },
+							'C': { src:'1.1.2_skaerver.mp3' }						
+						},
+			'svendborg': {
+							'A': { src:'1.1.2_skaerver.mp3' },
+							'B': { src:'1.1.2_vaevmaatter.mp3' },
+							'C': { src:'1.1.2_pilorm.mp3' }
+						},
+		},
+		'1.3.2': { label:'wants out', src:'1.3.2.mp3' },
+		'1.3.3': { label:'inmate', src:'1.3.3_indsat.mp3' },
+		'1.3.4': { label:'employee', src:'1.3.4.mp3' },	
+		'1.8': { label:'arrested', src:'1.8.mp3' },	
+		'2.2.1': { src:'2.2.1.mp3' },
+		'2.2.3': { src:'2.2.3.mp3' },
+		'2.8.1': { description:'get paid', src:'2.8.1.mp3' },
+		// '2.10.1': { description:'what now', src:'2.10.1_kontraktudlob.mp3' },
+		'2.10.2': {
+			'A': { description:'Finnish contract', src:'2.10.2.a.mp3' },
+			'B': { description:'Go home', src:'2.10.2.b.mp3' }
+		},
+		'2.11.1': { description:'home comming', src:'2.11.1.mp3' },
+		
+		slides: {
+					'slide_0_1': { src:'film01medmusik_mixdown.mp3' },
+					'slide_1_0_1': { src:'film10_mixdown.mp3' },
+					'slide_2_5': { src:'2.5_mixdown.mp3' },
+					'slide_2_7_1_amory': { src:'2.7.1.vaaben_mixdown.mp3' },
+					'slide_2_7_1_butcher': { src:'2.7.1.slagt_mixdown.mp3' },
+					'slide_2_7_1_mine': { src:'2.7.1.mine_mixdown.mp3' },
+					// 'slide_home1A': { src:'2.7.1.vaaben_mixdown.mp3' },
+					// 'slide_home1B': { src:'slide_home1_B.mp3' },
+					'slide_3_0': { src:'3.0_mixdown.mp3' },
+					'slide_4_3': { src:'4.3_mixdown.mp3' },
+					'slide_4_5_1_AB': { src:'4.5.1.mine_mixdown.mp3' },
+					'slide_4_5_1_AC': { src:'4.5.1hud_efter_vaaben_mixdown.mp3' },
+					'slide_4_5_1_BA': { src:'4.5.1.vaaben_efter kul_mixdown.mp3' },
+					'slide_4_5_1_BC': { src:'4.5.1hud_efter_mine_mixdown.mp3' },
+					'slide_4_5_1_CA': { src:'4.5.1.vaaben_efter hud_mixdown.mp3' },
+					'slide_4_5_1_CB': { src:'4.5.1.mine_mixdown.mp3' },
+					'slide_4_7': { src:'4.7_mixdown.mp3' }				
+				},
+		'0.4': { // oppinion
+				'AD': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+				'AE': { label: 'alkoholiker, børn', src:'0.4_datter.mp3' },
+				'AF': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+				'BD': { label: 'dovenskab', src:'0.4_kone.mp3' },
+				'BE': { label: 'dovenskab, børn', src:'0.4_datter.mp3' },
+				'BF': { label: 'dovenskab', src:'0.4_andenindlagt.mp3' },
+				'CD': { label: 'svækkelse', src:'0.4_kone.mp3' },
+				'CE': { label: 'svækkelse, børn', src:'0.4_datter.mp3' },
+				'CF': { label: 'svækkelse', src:'0.4_andenindlagt.mp3' }
+			},
+		'3.2.1': {
+			'horsens': {
+							'A': { src:'1.1.2_pashaven.mp3' },
+							'B': { src:'1.1.2_goerrent.mp3' },
+							'C': { src:'1.1.2_fletmaatter.mp3' }
+						},
+			'sundholm': {
+							'A': { src:'1.1.2_hugbraende.mp3' },
+							'B': { src:'1.1.2_pasgrise.mp3' },
+							'C': { src:'1.1.2_skaerver.mp3' }						
+						},
+			'svendborg': {
+							'A': { src:'1.1.2_skaerver.mp3' },
+							'B': { src:'1.1.2_vaevmaatter.mp3' },
+							'C': { src:'1.1.2_pilorm.mp3' }
+						},
+		},
+		'3.3' : {
+			'horsens': { src:'3.3.horsens.svendborg.mp3' },
+			'sundholm': { src:'3.3.sundholm.mp3' },
+			'svendborg': { src:'3.3.horsens.svendborg.mp3' }
+		},
+		'3.4.1': { label:'employee', src:'3.4.1.mp3' },
+		'3.4.2': { label:'inmate', src:'3.4.2.mp3' },
+		'3.7.1': { label:'work over', src:'3.7.1.mp3' },
+		'4.6.1': { label:'dansk front', src:'4.6.1.mp3' },
+		'4.10.1': { label:'bombe', src:'4.10.1.mp3' },
+		'4.10.4': { label:'illness', src:'4.10.4.mp3' },
+		'4.10.7': { label:'going home', src:'4.10.7.mp3' },
+		'4.11.1': { label:'post script', src:'14_11_1efterskrift_red_musik.mp3' },
+		'4.11.2': { label:'post script',src:'14_11_2efterskrift_red_musik.mp3' },
+		'4.11.3': { label:'post script',src:'14_11_3efterskrift_red_musik.mp3' },
+		'4.11.4': { label:'post script',src:'14_11_4efterskrift_red_musik.mp3' },
 	}
 }
+
+// console.log('SoundService');
+// var SoundService = function(){
+// 	'use strict';
+// }
+// SoundService.init = function(){
+// 	console.log('SoundService.init');
+// 	var recursive = function(obj){
+// 		for (var i in obj) {
+// 			if(typeof obj[i] === 'object'){
+// 				// console.log(obj[i].src);
+// 				if(obj[i].src !== undefined){
+// 					obj[i].src = SoundService.basePath() + obj[i].src;
+// 				}
+// 				recursive(obj[i]);
+// 			}
+// 		};
+// 	}
+// 	recursive(this.matrix);
+// };
+
+// SoundService.getSlideDurationById = function(id){
+// 	'use strict';
+// 	return this.matrix.slides[id].duration;
+// };
+// SoundService.getSlideSoundpathById = function(id){
+// 	'use strict';
+// 	return SoundService.properties.slidePath + id+'.mp3';
+// };
+// SoundService.getSlideSoundById = function(id){
+// 	'use strict';
+// 	return SoundService.matrix.slides[id]
+// };
+// SoundService.getSoundByCharacter = function(character){
+// 	'use strict';
+// 	return;
+// };
+
+// SoundService.basePath = function(){
+// 	return Environment.basePath() + 'assets/sounds/';
+// 	// return 'assets/game/assets/sounds/';
+// };
+
+// SoundService.matrix = {
+// 	effects: {
+// 		typewriter: { src:'typewriter.mp3', volume: 0.4 },
+// 		woodchopper: { src:'1.2.1_hugbraende_lydeffekt.mp3' }
+// 	},
+// 	'1.1.1' :{
+// 		horsens: { src:'1.1.1_horsens.mp3' },
+// 		sundholm: { src:'1.1.1_sundholm.mp3' },
+// 		svendborg: { src:'1.1.1_svendborg.mp3' }
+// 	},
+// 	points: {
+// 		plus: { src:'Point_plus.mp3' },
+// 		minus: { src:'Point_minus.mp3' }
+// 	},
+// 	dormitry: { src:'2.6.1.mp3' },
+// 	drunk: { src:'1.5.1.mp3' },
+// 	constable: { src:'1.6.1.mp3' },
+// 	'1.2.1': {
+// 		'horsens': {
+// 						'A': { src:'1.1.2_pashaven.mp3' },
+// 						'B': { src:'1.1.2_goerrent.mp3' },
+// 						'C': { src:'1.1.2_fletmaatter.mp3' }
+// 					},
+// 		'sundholm': {
+// 						'A': { src:'1.1.2_hugbraende.mp3' },
+// 						'B': { src:'1.1.2_pasgrise.mp3' },
+// 						'C': { src:'1.1.2_skaerver.mp3' }						
+// 					},
+// 		'svendborg': {
+// 						'A': { src:'1.1.2_skaerver.mp3' },
+// 						'B': { src:'1.1.2_vaevmaatter.mp3' },
+// 						'C': { src:'1.1.2_pilorm.mp3' }
+// 					},
+// 	},
+// 	'1.3.2': { label:'wants out', src:'1.3.2.mp3' },
+// 	'1.3.3': { label:'inmate', src:'1.3.3_indsat.mp3' },
+// 	'1.3.4': { label:'employee', src:'1.3.4.mp3' },	
+// 	'1.8': { label:'arrested', src:'1.8.mp3' },	
+// 	'2.2.1': { src:'2.2.1.mp3' },
+// 	'2.2.3': { src:'2.2.3.mp3' },
+// 	'2.8.1': { description:'get paid', src:'2.8.1.mp3' },
+// 	// '2.10.1': { description:'what now', src:'2.10.1_kontraktudlob.mp3' },
+// 	'2.10.2': {
+// 		'A': { description:'Finnish contract', src:'2.10.2.a.mp3' },
+// 		'B': { description:'Go home', src:'2.10.2.b.mp3' }
+// 	},
+// 	'2.11.1': { description:'home comming', src:'2.11.1.mp3' },
+	
+// 	slides: {
+// 				'slide_0_1': { src:'film01medmusik_mixdown.mp3' },
+// 				'slide_1_0_1': { src:'film10_mixdown.mp3' },
+// 				'slide_2_5': { src:'2.5_mixdown.mp3' },
+// 				'slide_2_7_1_amory': { src:'2.7.1.vaaben_mixdown.mp3' },
+// 				'slide_2_7_1_butcher': { src:'2.7.1.slagt_mixdown.mp3' },
+// 				'slide_2_7_1_mine': { src:'2.7.1.mine_mixdown.mp3' },
+// 				// 'slide_home1A': { src:'2.7.1.vaaben_mixdown.mp3' },
+// 				// 'slide_home1B': { src:'slide_home1_B.mp3' },
+// 				'slide_3_0': { src:'3.0_mixdown.mp3' },
+// 				'slide_4_3': { src:'4.3_mixdown.mp3' },
+// 				'slide_4_5_1_AB': { src:'4.5.1.mine_mixdown.mp3' },
+// 				'slide_4_5_1_AC': { src:'4.5.1hud_efter_vaaben_mixdown.mp3' },
+// 				'slide_4_5_1_BA': { src:'4.5.1.vaaben_efter kul_mixdown.mp3' },
+// 				'slide_4_5_1_BC': { src:'4.5.1hud_efter_mine_mixdown.mp3' },
+// 				'slide_4_5_1_CA': { src:'4.5.1.vaaben_efter hud_mixdown.mp3' },
+// 				'slide_4_5_1_CB': { src:'4.5.1.mine_mixdown.mp3' },
+// 				'slide_4_7': { src:'4.7_mixdown.mp3' }				
+// 			},
+// 	'0.4': { // oppinion
+// 			'AD': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+// 			'AE': { label: 'alkoholiker, børn', src:'0.4_datter.mp3' },
+// 			'AF': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+// 			'BD': { label: 'dovenskab', src:'0.4_kone.mp3' },
+// 			'BE': { label: 'dovenskab, børn', src:'0.4_datter.mp3' },
+// 			'BF': { label: 'dovenskab', src:'0.4_andenindlagt.mp3' },
+// 			'CD': { label: 'svækkelse', src:'0.4_kone.mp3' },
+// 			'CE': { label: 'svækkelse, børn', src:'0.4_datter.mp3' },
+// 			'CF': { label: 'svækkelse', src:'0.4_andenindlagt.mp3' }
+// 		},
+// 	'3.2.1': {
+// 		'horsens': {
+// 						'A': { src:'1.1.2_pashaven.mp3' },
+// 						'B': { src:'1.1.2_goerrent.mp3' },
+// 						'C': { src:'1.1.2_fletmaatter.mp3' }
+// 					},
+// 		'sundholm': {
+// 						'A': { src:'1.1.2_hugbraende.mp3' },
+// 						'B': { src:'1.1.2_pasgrise.mp3' },
+// 						'C': { src:'1.1.2_skaerver.mp3' }						
+// 					},
+// 		'svendborg': {
+// 						'A': { src:'1.1.2_skaerver.mp3' },
+// 						'B': { src:'1.1.2_vaevmaatter.mp3' },
+// 						'C': { src:'1.1.2_pilorm.mp3' }
+// 					},
+// 	},
+// 	'3.3' : {
+// 		'horsens': { src:'3.3.horsens.svendborg.mp3' },
+// 		'sundholm': { src:'3.3.sundholm.mp3' },
+// 		'svendborg': { src:'3.3.horsens.svendborg.mp3' }
+// 	},
+// 	'3.4.1': { label:'employee', src:'3.4.1.mp3' },
+// 	'3.4.2': { label:'inmate', src:'3.4.2.mp3' },
+// 	'3.7.1': { label:'work over', src:'3.7.1.mp3' },
+// 	'4.6.1': { label:'dansk front', src:'4.6.1.mp3' },
+// 	'4.10.1': { label:'bombe', src:'4.10.1.mp3' },
+// 	'4.10.4': { label:'illness', src:'4.10.4.mp3' },
+// 	'4.10.7': { label:'going home', src:'4.10.7.mp3' },
+// 	'4.11.1': { label:'post script', src:'14_11_1efterskrift_red_musik.mp3' },
+// 	'4.11.2': { label:'post script',src:'14_11_2efterskrift_red_musik.mp3' },
+// 	'4.11.3': { label:'post script',src:'14_11_3efterskrift_red_musik.mp3' },
+// 	'4.11.4': { label:'post script',src:'14_11_4efterskrift_red_musik.mp3' },
+// };
+var PlayerStats = {
+	challenge: 'B',			// Default test value
+	family: 'D',			// Default test value
+	nickname: null,
+	poorhouse: null,
+	mood: 2,
+	health: 4,
+	money: 3,
+	job: null,
+	advice: null,
+	wayout: null,
+	job_germany: ['A', 'B'], // Default test values
+	spending: null,
+	whatnow: null,
+	nazi: null,
+	pointsDiff: {mood: 0, health: 0, money: 0},
+	bomb: false,
+
+	resetDiff: function(){
+		'use strict';
+		this.pointsDiff = {mood: 0, health: 0, money: 0};
+	},
+
+	isAPlusPoint: function(){
+		'use strict';
+		for(var key in this.pointsDiff){
+			if(this.pointsDiff[key] > 0){
+				return true;
+			}
+		}
+	},
+
+	isAMinusPoint: function(){
+		'use strict';
+		for(var key in this.pointsDiff){
+			if(this.pointsDiff[key] < 0){
+				return true;
+			}
+		}
+	},
+
+	set: function(type, val){
+		'use strict';
+		// Reset diff
+		this.pointsDiff[type] = 0;
+
+		// Remember the previous value
+		var prev = this[type];	
+
+		// Set new value
+		this[type] = val;
+
+		// Find diff
+		this.pointsDiff[type] = this[type] - prev;		
+
+		// Cap values for points
+		if(type == 'mood' || type == 'health' || type == 'money'){
+			if(this[type] > 10){
+				this[type] = 10;
+			}
+			if(this[type] < 1){
+				this[type] = 1;
+			}
+		}
+	},
+	append: function(type, val){	
+		'use strict';	
+		// Reset diff
+		this.pointsDiff[type] = 0;
+		
+		// Remember the previous value
+		var prev = this[type];	
+
+		// Set new value
+		this[type] += val;
+
+		// Find diff
+		this.pointsDiff[type] = this[type] - prev;			
+
+		// Cap values for points
+		if(type == 'mood' || type == 'health' || type == 'money'){
+			if(this[type] > 10){
+				this[type] = 10;
+			}
+			if(this[type] < 1){
+				this[type] = 1;
+			}
+		}
+	}
+}
+var Library = {
+	clearSlide: function(){
+		'use strict';
+		// console.log('clearSlide');
+		try{
+			slidelib = null;
+		}catch(err){
+			console.log(err);
+		}		
+	},
+	clearGame: function(){
+		'use strict';
+		// console.log('clearGame');		
+		try{
+			gamelib = null;
+		}catch(err){
+			console.log(err);
+		}
+	},
+	clearMain: function(){
+		'use strict';
+		// console.log('clearMain');		
+		try{
+			mainlib = null;
+		}catch(err){
+			console.log(err);
+		}
+	},
+}
+var ImageService = {
+	init: function(){
+		'use strict';
+		console.log('ImageService.init');
+		var recursive = function(obj){
+			for (var i in obj) {
+				if(typeof obj[i] === 'object'){
+					// console.log(obj[i].src);
+					if(obj[i].src !== undefined){
+						obj[i].src = ImageService.basePath() + obj[i].src;
+					}
+					recursive(obj[i]);
+				}
+			};
+		}
+		recursive(this.matrix);
+	},
+	basePath: function(){
+		'use strict';
+		return Environment.basePath() + 'assets/images/pool/';
+	},
+	matrix: {
+		'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:'_0_1BG.jpg'},
+		'1.0.1': {
+			'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+			'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+			'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+		},
+		'3.0': {
+			'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+			'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+			'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+		}
+	}
+}
+// var ImageService = function(){
+// 	'use strict';
+// }
+// ImageService.init = function(){
+// 	console.log('ImageService.init');
+// 	var recursive = function(obj){
+// 		for (var i in obj) {
+// 			if(typeof obj[i] === 'object'){
+// 				// console.log(obj[i].src);
+// 				if(obj[i].src !== undefined){
+// 					obj[i].src = ImageService.basePath() + obj[i].src;
+// 				}
+// 				recursive(obj[i]);
+// 			}
+// 		};
+// 	}
+// 	recursive(this.matrix);
+// };
+// ImageService.basePath = function(){
+// 	return Environment.basePath() + 'assets/images/pool/';
+// 	// return 'assets/game/assets/images/pool/';
+// };
+// ImageService.matrix = {
+// 	// portrait:{
+// 	// 	'AD': { id: 'ADCloseUp', label:'background', src:'ADCloseUp.png'},
+// 	// 	'AE': { id: 'AECloseUp', label:'background', src:'AECloseUp.png'},
+// 	// 	'AF': { id: 'AFCloseUp', label:'background', src:'AFCloseUp.png'},
+// 	// 	'BD': { id: 'BDCloseUp', label:'background', src:'BDCloseUp.png'},
+// 	// 	'BE': { id: 'BECloseUp', label:'background', src:'BECloseUp.png'},
+// 	// 	'BF': { id: 'BFCloseUp', label:'background', src:'BFCloseUp.png'},
+// 	// 	'CD': { id: 'CDCloseUp', label:'background', src:'CDCloseUp.png'},
+// 	// 	'CE': { id: 'CECloseUp', label:'background', src:'CECloseUp.png'},
+// 	// 	'CF': { id: 'CFCloseUp', label:'background', src:'CFCloseUp.png'}
+// 	// },
+// 	'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:'_0_1BG.jpg'},
+// 	'1.0.1': {
+// 		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+// 		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+// 		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+// 	},
+// 	'3.0': {
+// 		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+// 		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+// 		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+// 	}
+// }
+var FlowData ={
+	
+}
+// var Assets = {
+// 	fattiggard: {
+// 		svendborg: {
+// 			images: [
+// 				{src: '../assets/images/1_0BGsvendborg.png', id:'1_0BGsvendborg'},
+// 				{src: '../assets/images/1_1BGsvendborg.png', id:'1_1BGsvendborg'},
+// 				{src: '../assets/images/1_2BGsvendborgA.png', id:'1_2BGsvendborgA'},
+// 				{src: '../assets/images/1_2BGsvendborgB.png', id:'1_2BGsvendborgB'},
+// 				{src: '../assets/images/1_2BGsvendborgC.png', id:'1_2BGsvendborgC'},
+// 				{src: '../assets/images/1_3BGsvendborg.png', id:'1_3BGsvendborg'}
+// 			]
+// 		}
+// 	}
+// }
 'use strict';
 var TweenUtil = {
 	to: function(element, options, delay, delegate){
@@ -5209,18 +5715,12 @@ var Preloader = {
 		if(clss !== undefined){
 			self.add(clss);
 		}
-		
+		manifest = Path.adjustManifest(manifest);
 		loader.loadManifest(manifest);
 	},
 	add: function(clss){
 		'use strict';
 		PreloadGFX.show();
-		// console.log('add:', clss, this.id);	
-		// this.id = id;
-		// $('.preload-wrapper').removeClass('hide');
-		// $('.preload-wrapper').addClass('show');
-		// $('.progress-bar').removeClass('hide');
-		// $('.progress-bar').removeClass('show');
 	},
 	remove: function(id){
 		'use strict';		
@@ -5231,12 +5731,7 @@ var Preloader = {
 			if(this.tracker[t] === false)
 				return;
 		}
-		PreloadGFX.hide();
-		// $('.preload-wrapper').removeClass('show');
-		// $('.preload-wrapper').addClass('hide');
-		// $('.progress-bar').removeClass('show');
-		// $('.progress-bar').removeClass('hide');
-		
+		PreloadGFX.hide();		
 	}
 };
 PreloadGFX = {
@@ -5284,6 +5779,24 @@ PreloadGFX = {
 			PreloadGFX.blocker.visible = false;
 	}
 }
+var Path = {
+	adjustManifest: function(manifest){
+		for(var i in manifest){
+			if(typeof manifest[i] === 'object'){
+				if(!manifest[i].adjusted){
+					manifest[i].src = this.adjustUrl(manifest[i].src);
+					manifest[i].adjusted = true
+				}
+			}
+		}
+		return manifest;
+	},
+	adjustUrl: function(url){
+		var newUrl = Environment.basePath() + url.replace(/\.\.\//g, '');
+		// console.log(url, '|', newUrl);
+		return newUrl;
+	}
+}
 var LoadJS = {
 	cache: [],
 	load: function(urls, delegate, location){
@@ -5321,7 +5834,7 @@ var LoadJS = {
 				}				
 			}
 			if(may){
-				urlList.push(tmpList[k]);
+				urlList.push(Path.adjustUrl(tmpList[k]));
 			}
     	}
 
@@ -5426,7 +5939,10 @@ var Flow = {
 	A facade to browser detection method
 	Wrapped in order to enable change of lib if nessesary
 */
+console.log('Environment');
 var Environment = {	
+	// gameBasePath: '/',
+	gameBasePath: '/assets/game/',
 	data: null,
 	browser: {},
 	os: null,
@@ -5442,7 +5958,6 @@ var Environment = {
 		this.dimensions.w = window.innerWidth;
 		this.dimensions.h = window.innerHeight;
 		
-
 		var cr = function(){
 			var ctx = document.createElement('canvas').getContext('2d'),
 	        dpr = window.devicePixelRatio || 1,
@@ -5459,6 +5974,9 @@ var Environment = {
 			return Environment.dimensions.w / 1024;
 		}
 		this.winScale = wf();
+	},
+	basePath: function(){		
+		return this.gameBasePath;
 	}
 };
 'use strict';
@@ -5503,878 +6021,51 @@ Array.prototype.shuffle = function(index){
     }
     return this;
 }
-var SoundService = function(){
-	'use strict';
-}
-
-SoundService.getSlideDurationById = function(id){
-	'use strict';
-	return this.matrix.slides[id].duration;
-};
-SoundService.getSlideSoundpathById = function(id){
-	'use strict';
-	return SoundService.properties.slidePath + id+'.mp3';
-};
-SoundService.getSlideSoundById = function(id){
-	'use strict';
-	return SoundService.matrix.slides[id]
-};
-SoundService.getSoundByCharacter = function(character){
-	'use strict';
-	return;
-};
-
-SoundService.properties = {
-	basePath: 'assets/sounds/',
-	slidePath: 'assets/sounds/'
-};
-SoundService.matrix = {
-	effects: {
-		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', volume: 0.4 },
-		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3' }
-	},
-	'1.1.1' :{
-		horsens: { src:SoundService.properties.basePath+'1.1.1_horsens.mp3' },
-		sundholm: { src:SoundService.properties.basePath+'1.1.1_sundholm.mp3' },
-		svendborg: { src:SoundService.properties.basePath+'1.1.1_svendborg.mp3' }
-	},
-	points: {
-		plus: { src:SoundService.properties.basePath+'Point_plus.mp3' },
-		minus: { src:SoundService.properties.basePath+'Point_minus.mp3' }
-	},
-	dormitry: { src:SoundService.properties.basePath+'2.6.1.mp3' },
-	drunk: { src:SoundService.properties.basePath+'1.5.1.mp3' },
-	constable: { src:SoundService.properties.basePath+'1.6.1.mp3' },
-	'1.2.1': {
-		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.1.2_pashaven.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.1.2_goerrent.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.1.2_fletmaatter.mp3' }
-					},
-		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.1.2_hugbraende.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.1.2_pasgrise.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' }						
-					},
-		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.1.2_vaevmaatter.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.1.2_pilorm.mp3' }
-					},
-	},
-	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2.mp3' },
-	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_indsat.mp3' },
-	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4.mp3' },	
-	'1.8': { label:'arrested', src:SoundService.properties.basePath+'1.8.mp3' },	
-	'2.2.1': { src:SoundService.properties.basePath+'2.2.1.mp3' },
-	'2.2.3': { src:SoundService.properties.basePath+'2.2.3.mp3' },
-	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1.mp3' },
-	// '2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3' },
-	'2.10.2': {
-		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2.a.mp3' },
-		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2.b.mp3' }
-	},
-	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1.mp3' },
-	
-	slides: {
-				'slide_0_1': { src:SoundService.properties.basePath+'film01medmusik_mixdown.mp3' },
-				'slide_1_0_1': { src:SoundService.properties.basePath+'film10_mixdown.mp3' },
-				'slide_2_5': { src:SoundService.properties.basePath+'2.5_mixdown.mp3' },
-				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'2.7.1.vaaben_mixdown.mp3' },
-				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'2.7.1.slagt_mixdown.mp3' },
-				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'2.7.1.mine_mixdown.mp3' },
-				// 'slide_home1A': { src:SoundService.properties.basePath+'2.7.1.vaaben_mixdown.mp3' },
-				// 'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3' },
-				'slide_3_0': { src:SoundService.properties.basePath+'3.0_mixdown.mp3' },
-				'slide_4_3': { src:SoundService.properties.basePath+'4.3_mixdown.mp3' },
-				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.5.1.mine_mixdown.mp3' },
-				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.5.1hud_efter_vaaben_mixdown.mp3' },
-				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.5.1.vaaben_efter kul_mixdown.mp3' },
-				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.5.1hud_efter_mine_mixdown.mp3' },
-				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.5.1.vaaben_efter hud_mixdown.mp3' },
-				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.5.1.mine_mixdown.mp3' },
-				'slide_4_7': { src:SoundService.properties.basePath+'4.7_mixdown.mp3' }				
-			},
-	'0.4': { // oppinion
-			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_forvalteren.mp3' },
-			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
-			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_forvalteren.mp3' },
-			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_kone.mp3' },
-			'BE': { label: 'dovenskab, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
-			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_andenindlagt.mp3' },
-			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_kone.mp3' },
-			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3' },
-			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_andenindlagt.mp3' }
-		},
-	'3.2.1': {
-		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.1.2_pashaven.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.1.2_goerrent.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.1.2_fletmaatter.mp3' }
-					},
-		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.1.2_hugbraende.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.1.2_pasgrise.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' }						
-					},
-		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.1.2_skaerver.mp3' },
-						'B': { src:SoundService.properties.basePath+'1.1.2_vaevmaatter.mp3' },
-						'C': { src:SoundService.properties.basePath+'1.1.2_pilorm.mp3' }
-					},
-	},
-	'3.3' : {
-		'horsens': { src:SoundService.properties.basePath+'3.3.horsens.svendborg.mp3' },
-		'sundholm': { src:SoundService.properties.basePath+'3.3.sundholm.mp3' },
-		'svendborg': { src:SoundService.properties.basePath+'3.3.horsens.svendborg.mp3' }
-	},
-	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4.1.mp3' },
-	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4.2.mp3' },
-	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1.mp3' },
-	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1.mp3' },
-	'4.10.1': { label:'bombe', src:SoundService.properties.basePath+'4.10.1.mp3' },
-	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4.mp3' },
-	'4.10.7': { label:'going home', src:SoundService.properties.basePath+'4.10.7.mp3' },
-	'4.11.1': { label:'post script', src:SoundService.properties.basePath+'14_11_1efterskrift_red_musik.mp3' },
-	'4.11.2': { label:'post script',src:SoundService.properties.basePath+'14_11_2efterskrift_red_musik.mp3' },
-	'4.11.3': { label:'post script',src:SoundService.properties.basePath+'14_11_3efterskrift_red_musik.mp3' },
-	'4.11.4': { label:'post script',src:SoundService.properties.basePath+'14_11_4efterskrift_red_musik.mp3' },
-};
-var PlayerStats = {
-	challenge: 'B',			// Default test value
-	family: 'D',			// Default test value
-	nickname: null,
-	poorhouse: null,
-	mood: 2,
-	health: 4,
-	money: 3,
-	job: null,
-	advice: null,
-	wayout: null,
-	job_germany: ['A', 'B'], // Default test values
-	spending: null,
-	whatnow: null,
-	nazi: null,
-	pointsDiff: {mood: 0, health: 0, money: 0},
-	bomb: false,
-
-	resetDiff: function(){
-		'use strict';
-		this.pointsDiff = {mood: 0, health: 0, money: 0};
-	},
-
-	isAPlusPoint: function(){
-		'use strict';
-		for(var key in this.pointsDiff){
-			if(this.pointsDiff[key] > 0){
-				return true;
-			}
+var Topbar = {
+	view: null,
+	soundController: null,
+	init: function(view){
+		// console.log('Topbar::init', view);
+		if(view === undefined || view === null){
+			throw new Error("'view' is undefined");
 		}
+		this.view = view;	
+
+		HUDController.init();	
 	},
+	go: function(frm){
+		// console.log('Topbar:',this.view);
+		// this.view.label_intro.x = 564 + 300;
+		// createjs.Tween.get(this.view.label_intro)
+		// 	.to({x:564}, 300, createjs.Ease.backIn);
 
-	isAMinusPoint: function(){
-		'use strict';
-		for(var key in this.pointsDiff){
-			if(this.pointsDiff[key] < 0){
-				return true;
-			}
-		}
-	},
-
-	set: function(type, val){
-		'use strict';
-		// Reset diff
-		this.pointsDiff[type] = 0;
-
-		// Remember the previous value
-		var prev = this[type];	
-
-		// Set new value
-		this[type] = val;
-
-		// Find diff
-		this.pointsDiff[type] = this[type] - prev;		
-
-		// Cap values for points
-		if(type == 'mood' || type == 'health' || type == 'money'){
-			if(this[type] > 10){
-				this[type] = 10;
-			}
-			if(this[type] < 1){
-				this[type] = 1;
-			}
-		}
-	},
-	append: function(type, val){	
-		'use strict';	
-		// Reset diff
-		this.pointsDiff[type] = 0;
-		
-		// Remember the previous value
-		var prev = this[type];	
-
-		// Set new value
-		this[type] += val;
-
-		// Find diff
-		this.pointsDiff[type] = this[type] - prev;			
-
-		// Cap values for points
-		if(type == 'mood' || type == 'health' || type == 'money'){
-			if(this[type] > 10){
-				this[type] = 10;
-			}
-			if(this[type] < 1){
-				this[type] = 1;
-			}
-		}
-	}
-}
-var Library = {
-	clearSlide: function(){
-		'use strict';
-		// console.log('clearSlide');
-		try{
-			slidelib = null;
-		}catch(err){
-			console.log(err);
-		}		
-	},
-	clearGame: function(){
-		'use strict';
-		// console.log('clearGame');		
-		try{
-			gamelib = null;
-		}catch(err){
-			console.log(err);
-		}
-	},
-	clearMain: function(){
-		'use strict';
-		// console.log('clearMain');		
-		try{
-			mainlib = null;
-		}catch(err){
-			console.log(err);
-		}
-	},
-}
-var ImageService = function(){
-	'use strict';
-}
-ImageService.properties = {
-	basePath: 'assets/images/pool/',
-};
-ImageService.matrix = {
-	portrait:{
-		'AD': { id: 'ADCloseUp', label:'background', src:ImageService.properties.basePath+'ADCloseUp.png'},
-		'AE': { id: 'AECloseUp', label:'background', src:ImageService.properties.basePath+'AECloseUp.png'},
-		'AF': { id: 'AFCloseUp', label:'background', src:ImageService.properties.basePath+'AFCloseUp.png'},
-		'BD': { id: 'BDCloseUp', label:'background', src:ImageService.properties.basePath+'BDCloseUp.png'},
-		'BE': { id: 'BECloseUp', label:'background', src:ImageService.properties.basePath+'BECloseUp.png'},
-		'BF': { id: 'BFCloseUp', label:'background', src:ImageService.properties.basePath+'BFCloseUp.png'},
-		'CD': { id: 'CDCloseUp', label:'background', src:ImageService.properties.basePath+'CDCloseUp.png'},
-		'CE': { id: 'CECloseUp', label:'background', src:ImageService.properties.basePath+'CECloseUp.png'},
-		'CF': { id: 'CFCloseUp', label:'background', src:ImageService.properties.basePath+'CFCloseUp.png'}
-	},
-	'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_0_1BG.jpg'},
-	'1.0.1': {
-		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
-		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
-		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
-	},
-	'3.0': {
-		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
-		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
-		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
-	}
-}
-var FlowData ={
-	
-}
-// var Assets = {
-// 	fattiggard: {
-// 		svendborg: {
-// 			images: [
-// 				{src: '../assets/images/1_0BGsvendborg.png', id:'1_0BGsvendborg'},
-// 				{src: '../assets/images/1_1BGsvendborg.png', id:'1_1BGsvendborg'},
-// 				{src: '../assets/images/1_2BGsvendborgA.png', id:'1_2BGsvendborgA'},
-// 				{src: '../assets/images/1_2BGsvendborgB.png', id:'1_2BGsvendborgB'},
-// 				{src: '../assets/images/1_2BGsvendborgC.png', id:'1_2BGsvendborgC'},
-// 				{src: '../assets/images/1_3BGsvendborg.png', id:'1_3BGsvendborg'}
-// 			]
-// 		}
-// 	}
-// }
-var PlayerSoundComponent = function(view){
-	'use strict';
-	if(PlayerSoundComponent.counter == null)
-		PlayerSoundComponent.counter = 0;
-
-	PlayerSoundComponent.counter++;
-	this.id = PlayerSoundComponent.counter;
-
-	this.view = view;
-	this.paused = false;
-	this.duration = 0;
-	this.listeners = {tick:null, play:null, pause:null, stop:null};
-	this.playBtn = new ButtonCustom(view.playBtn);
-	this.pauseBtn = new ButtonCustom(view.pauseBtn);
-	this.stopBtn = new ButtonCustom(view.stopBtn);
-
-	// Initial visibility of play/pause/stop
-	this.playBtn.setActive(false);
-	this.stopBtn.setActive(false);
-	this.pauseBtn.setActive(true);	
-	this.pauseBtn.visible(false);
-
-	// Controller button events
-	this.listeners.play = this.playBtn.on('click', this.play, this);
-	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
-	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
-
-	// Progression
-	this.progressionBar = view.progressionBar;
-	this.progressionBar.scaleX = 0;
-
-	// Sound
-	this.soundController = null;
-};
-PlayerSoundComponent.prototype.preload = function(src, duration){
-	'use strict';
-	var self = this;
-
-	// console.log('PlayerSoundComponent.preload');
-
-	// Safety net
-	this.removeLoopEvent();
-
-	// Sound ready state
-	if(self.soundController !== null){
-		self.soundController.destroy();
-		self.soundController = null;
-	}
-	self.soundController = new SoundController(src);
-	self.soundController.on('ready', function(event){
-		event.remove();
-		// Enable buttons
-		self.playBtn.setActive(true);
-		self.stopBtn.setActive(true);
-
-		// Dispatch event 
-		self.dispatchEvent(new createjs.Event('ready'));
-	}, self);
-	self.soundController.on('complete', function(event){
-		// Swap Play/Pause visibility
-		this.pauseBtn.visible(false);
-		this.playBtn.visible(true);
-
-		self.removeLoopEvent();
-
-		// Dispatch event 
-		self.dispatchEvent(new createjs.Event('complete'));
-	}, self);
-	self.soundController.load();
-};
-PlayerSoundComponent.prototype.addLoopEvent = function(){
-	'use strict';
-	if(this.listeners.tick === null){
-		this.listeners.tick = this.progressionBar.on('tick', this.loop, this);
-	}
-};
-PlayerSoundComponent.prototype.removeLoopEvent = function(){
-	'use strict';
-	this.progressionBar.off('tick', this.listeners.tick);
-	this.listeners.tick = null;
-};
-PlayerSoundComponent.prototype.loop = function(){
-	'use strict';	
-	var sndProgression = this.soundController.progress();
-	
-	// Progression bar
-	this.progressionBar.scaleX = sndProgression;
-};
-PlayerSoundComponent.prototype.play = function(){
-	'use strict';
-	this.previousFrame = 0;
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(true);
-	this.playBtn.visible(false);
-
-	// Timeline
-	this.addLoopEvent('tick');
-
-	// Sound
-	this.soundController.play();
-
-	// Dispacth event 
-	this.dispatchEvent(new createjs.Event('start'));
-
-	// Set this last
-	this.paused = false;
-
-	// Tick
-	Tick.enable();
-	Tick.framerate(Tick.perfect);
-};
-PlayerSoundComponent.prototype.pause = function(){
-	'use strict';
-
-	// If invoked from external the state could be stopped
-	// Adn we do not want to set in paused unintentional
-	if(this.paused)
-		return;
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	// Dispacth event 
-	// this.dispatchEvent(new createjs.Event('pause'));
-
-	this.paused = true;
-
-	// Sound
-	this.soundController.pause();
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSoundComponent.prototype.stop = function(){
-	'use strict';
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	// Progression bar
-	this.progressionBar.scaleX = 0;
-
-	// Sound
-	this.soundController.stop();
-
-	// Dispacth event 
-	// this.dispatchEvent(new createjs.Event('stop'));
-
-	this.paused = false;
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSoundComponent.prototype.progress = function(){
-	'use strict';
-	var num = this.slide.currentFrame / this.duration;
-	return Math.round(num * 1000) / 1000;
-};
-PlayerSoundComponent.prototype.reset = function(){
-	'use strict';
-	this.removeLoopEvent();
-	this.paused = false;
-	this.listeners = null;
-};
-PlayerSoundComponent.prototype.destroy = function(){
-	'use strict';
-	this.removeLoopEvent();
-	this.view = null;
-	this.listeners = null;
-	this.playBtn.destroy();
-	this.pauseBtn.destroy();
-	this.stopBtn.destroy();
-	this.playBtn = null;
-	this.pauseBtn = null;
-	this.stopBtn = null;
-};
-createjs.EventDispatcher.initialize(PlayerSoundComponent.prototype);
-var PlayerSliderComponent = function(view, soundOffset){
-	'use strict';
-	this.view = view;
-	this.soundOffset = soundOffset;
-	this.container = view.container;
-	this.slideId = null;
-	this.slide = null;
-	this.paused = false;
-	this.state = null;
-	this.duration = 0;
-	this.listeners = {tick:null, play:null, pause:null, stop:null, auto:null};
-	this.playBtn = new ButtonCustom(view.playBtn);
-	this.pauseBtn = new ButtonCustom(view.pauseBtn);
-	this.stopBtn = new ButtonCustom(view.stopBtn);
-
-	if(this.soundOffset === null || this.soundOffset === undefined){
-		this.soundOffset = 0;
-	}
-
-	// Initial visibility of play/pause/stop
-	this.playBtn.setActive(false);
-	this.stopBtn.setActive(false);
-	this.pauseBtn.setActive(true);	
-	this.pauseBtn.visible(false);
-
-	// Controller button events
-	this.listeners.play = this.playBtn.on('click', this.play, this);
-	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
-	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
-
-	// Progression
-	this.progressionBar = view.progressionBar;
-	this.progressionBar.scaleX = 0;
-
-	// Sound
-	this.soundController = null;
-};
-PlayerSliderComponent.prototype.preload = function(slideId, lib){
-	'use strict';
-	
-	var self = this;
-	this.slideId = slideId;
-
-	// Load assets	
-	Preloader.load(lib.properties.manifest, 
-		function(event){
-			if (event.item.type === 'image'){ 
-				images[event.item.id] = event.result; 
-			}
-			// // console.log(event.result);
-		}, 
-		function(event){			
-			// Clean slider container if a slider already has been played
-			if(self.slide !== null){
-				self.container.remove(slide);
-				self.slide = null;
-			}
-			
-			// Create slider object and attach to container
-			self.slide = eval('new lib.'+slideId+'()');
-			
-			self.container.addChild(self.slide);
-
-			// Get the duration of the timeline in the slide
-			self.duration = self.slide.timeline.duration - 1;
-
-			// Sound
-			if(self.soundController !== null){
-				self.soundController.destroy();
-				self.soundController = null;
-			}
-			try{
-				var snd = SoundService.getSlideSoundById(self.slideId);
-				self.soundController = new SoundController(snd.src);
-				self.soundController.on('ready', function(event){
-					event.remove(); // Only run once. Otherwise it will run every time player has ended and starts slide after it played to the end
-					// Enable buttons
-					self.playBtn.setActive(true);
-					self.stopBtn.setActive(true);
-
-					// Dispatch event 
-					self.dispatchEvent(new createjs.Event('ready'));
-				}, self);
-				self.soundController.on('complete', function(event){
-					// event.remove();
-					// console.log('complete');
-
-					// Stop on last frame
-					this.slide.gotoAndStop(this.slide.totalFrames-1);
-
-					// Swap Play/Pause visibility
-					this.pauseBtn.visible(false);
-					this.playBtn.visible(true);
-
-					self.removeLoopEvent();
-
-					this.state = 'complete';
-
-					// Dispatch event 
-					self.dispatchEvent(new createjs.Event('complete'));
-				}, self);
-				self.soundController.load();
-			}catch(err){
-				console.log(err);
-			}			
-		},
-		'small'
-	);	
-};
-PlayerSliderComponent.prototype.addLoopEvent = function(){
-	'use strict';
-	if(this.listeners.tick === null){
-		this.listeners.tick = this.slide.on('tick', this.loop, this);
-	}
-};
-PlayerSliderComponent.prototype.removeLoopEvent = function(){
-	'use strict';
-	this.slide.off('tick', this.listeners.tick);
-	this.listeners.tick = null;
-};
-PlayerSliderComponent.prototype.loop = function(){
-	'use strict';	
-	var sndProgression = this.soundController.progress();
-	
-	var desiredFrame = Math.round(this.duration * sndProgression) + this.soundOffset;
-	this.slide.gotoAndPlay(desiredFrame);
-
-	// Progression bar
-	this.progressionBar.scaleX = this.progress()
-};
-PlayerSliderComponent.prototype.play = function(){
-	'use strict';
-	// console.log('play');
-	var self = this;
-
-	if(this.state === 'complete')
-		this.slide.gotoAndStop(0);
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(true);
-	this.playBtn.visible(false);
-
-	// Sound
-	// Sound starts at frame 0
-	if(this.soundOffset === 0){
-		this.soundController.play();		
-
-	// Sound starts later than frame 0
-	}else{
-		// Current frame is after sound start frame
-		if(this.slide.currentFrame >= this.soundOffset){
-			this.soundController.play();
-
-		// Current frame is before sound start frame
-		}else{
-			// Listen for an event dispatch 
-			this.on('autoplay', function(event){
-				event.remove();
-				this.listeners.auto = null;
-				self.soundController.play();
-			}, this);
-		}		
-	}
-	
-	// Timeline
-	this.addLoopEvent('tick');
-
-	// Set this last
-	this.paused = false;
-	this.state = 'play';
-
-	// Tick
-	Tick.enable();
-	Tick.framerate(Tick.perfect);
-};
-PlayerSliderComponent.prototype.pause = function(){
-	'use strict';
-
-	// console.log('pause');
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	this.paused = true;
-	this.state = 'pause';
-
-	// Pause timeline
-	this.slide.stop();
-
-	// Sound
-	this.soundController.pause();
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSliderComponent.prototype.stop = function(){
-	'use strict';
-	Tick.enable();
-
-	// console.log('stop');
-
-
-	// Progression bar
-	this.progressionBar.scaleX = 0;
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Set slide timeline back to start
-	this.slide.gotoAndStop(0);
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	// Sound
-	this.soundController.stop();
-
-	this.state = 'stop';
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSliderComponent.prototype.progress = function(){
-	'use strict';
-	var num = this.slide.currentFrame / this.duration;
-	return Math.round(num * 1000) / 1000;
-};
-PlayerSliderComponent.prototype.reset = function(){
-	'use strict';
-	this.slideId = null;
-	this.paused = false;
-};
-PlayerSliderComponent.prototype.destroy = function(){
-	'use strict';
-	this.view = null;
-	this.slideId = null;
-};
-createjs.EventDispatcher.initialize(PlayerSliderComponent.prototype);
-/**
-	Controller uses the browser's AUDIO element as play back for sound
-*/
-function SoundController(audioPath, loopCount) {
-	'use strict';
-
-	var self = this;
-
-	this.loopCount = loopCount;
-	if(loopCount === undefined || loopCount === null)
-		this.loopCount = false;	
-
-	this.audioPath = audioPath;
-}
-// SoundController.prototype.dispatcher = function(event){
-// 	this.dispatchEvent(event);
-// }
-SoundController.prototype = {
-	sndObj: null,
-	currentSndPosition: 0,
-	paused: false,
-	self: this,
-	complete: false,
-	dispatcher: function(event){
-		this.dispatchEvent(event);
-	},
-	getState: function(){
-		return this.sndObj.state;
-	},
-	load: function(){
-		'use strict';
-		var self = this;
-		// Howler
-		this.sndObj = new Howl({
-		  urls: [this.audioPath],
-		  autoplay: false,
-		  loop: this.loopCount,
-		  volume: 1,
-		  buffer: false,
-		  onend: function() {
-		    self.complete = true;
-		    self.dispatcher(new createjs.Event('complete'));
-		  },
-		  onload: function() {		    
-		    self.dispatcher(new createjs.Event('ready'));
-		    PreloadGFX.hide();
-		  }
-		}); 
-
-		PreloadGFX.show(false);
-	},
-	volume: function(value) {
-		'use strict';
-		if(this.sndObj != null){
-			this.sndObj.volume = value;
-		}
-	},
-	play: function() {
-		'use strict';
-		this.sndObj.play();
-		this.paused = false;
-		this.sndObj.state = 'play';
-		this.complete = false;
-	},
-	stop: function() {
-		'use strict';
-		this.sndObj.stop();
-		// this.sndObj.currentTime = 0;
-		this.paused = false;
-		this.sndObj.state = 'stop';
-	},
-	pause: function() {
-		'use strict';
-		// this.currentSndPosition = this.sndObj.currentTime;
-		this.sndObj.pause();
-		this.paused = true;
-		this.sndObj.state = 'pause';
-	},
-	resume: function() {
-		'use strict';
-		this.sndObj.play();
-	},
-	progress: function(){
-		'use strict';
-		var num = this.sndObj.pos() / this.sndObj._duration;
-		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
-		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
-	},
-	isComplete: function(){
-		'use strict';
-		this.state = 'stop';
-		return this.complete;
-	},
-	destroy: function(){
-		'use strict';
-		this.state = 'stop';
-		this.sndObj = null;
-		this.duration = null;
-	}
-};
-createjs.EventDispatcher.initialize(SoundController.prototype);
-var HUDController = {
-	init: function(){
-		this.soundEffectPlus = new SoundController(SoundService.matrix.points.plus.src, false);	
-		this.soundEffectMinus = new SoundController(SoundService.matrix.points.minus.src, false);	
-		this.soundEffectPlus.load();
-		this.soundEffectMinus.load();
-	},
-	setView: function(view){
-		this.view = view;		
-		this.update();
-	},
-	update: function(){
 		if(this.view === undefined || this.view === null){
 			throw new Error("'view' is undefined");
 		}
+		this.view.gotoAndStop(frm);
 
-		var self = this;
-		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
-		this.view.health.points.gotoAndStop(PlayerStats.health-1);
-		this.view.money.points.gotoAndStop(PlayerStats.money-1);
+		// Setup for game related to user's choices
+		if(frm === 'game'){
+			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
 
-		var delay = 0;
-		// console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
-		for(var key in PlayerStats.pointsDiff){
-			if(PlayerStats.pointsDiff[key] > 0){
-				setTimeout(function(){ 
-					self.soundEffectPlus.play();
-				}, delay);
-				delay += 500;
-			}else if(PlayerStats.pointsDiff[key] < 0){
-				setTimeout(function(){ 
-					self.soundEffectMinus.play();
-				}, delay);
-				delay += 500;
-			}
+			// Points
+			HUDController.setView(this.view.hud);
 		}
-
-		// Need to reset 
-		PlayerStats.resetDiff();
+	},
+	pointsUpdate: function(){
+		try{
+			HUDController.update();
+		}catch(err){
+			console.log(err);			
+		}		
+	},
+	show: function(){
+		this.view.visible = true;
+	},
+	hide: function(){
+		this.view.visible = false;	
 	}
 }
 var GameManager = {
@@ -6833,6 +6524,9 @@ var ApplicationManager = {
 
 		// // Init Environment info
 		// Environment.init();
+		ImageService.init();
+		SoundService.init();
+
 
 		// Cursor init
 		Cursor.root = root;
@@ -6880,6 +6574,577 @@ var ApplicationManager = {
 		'use strict';
 	}
 };
+/**
+	Controller uses the browser's AUDIO element as play back for sound
+*/
+function SoundController(audioPath, loopCount) {
+	'use strict';
+
+	var self = this;
+
+	this.loopCount = loopCount;
+	if(loopCount === undefined || loopCount === null)
+		this.loopCount = false;	
+
+	this.audioPath = audioPath;
+}
+// SoundController.prototype.dispatcher = function(event){
+// 	this.dispatchEvent(event);
+// }
+SoundController.prototype = {
+	sndObj: null,
+	currentSndPosition: 0,
+	paused: false,
+	self: this,
+	complete: false,
+	dispatcher: function(event){
+		this.dispatchEvent(event);
+	},
+	getState: function(){
+		return this.sndObj.state;
+	},
+	load: function(){
+		'use strict';
+		var self = this;
+		// Howler
+		this.sndObj = new Howl({
+		  urls: [this.audioPath],
+		  autoplay: false,
+		  loop: this.loopCount,
+		  volume: 1,
+		  buffer: false,
+		  onend: function() {
+		    self.complete = true;
+		    self.dispatcher(new createjs.Event('complete'));
+		  },
+		  onload: function() {		    
+		    self.dispatcher(new createjs.Event('ready'));
+		    PreloadGFX.hide();
+		  }
+		}); 
+
+		PreloadGFX.show(false);
+	},
+	volume: function(value) {
+		'use strict';
+		if(this.sndObj != null){
+			this.sndObj.volume = value;
+		}
+	},
+	play: function() {
+		'use strict';
+		this.sndObj.play();
+		this.paused = false;
+		this.sndObj.state = 'play';
+		this.complete = false;
+	},
+	stop: function() {
+		'use strict';
+		this.sndObj.stop();
+		// this.sndObj.currentTime = 0;
+		this.paused = false;
+		this.sndObj.state = 'stop';
+	},
+	pause: function() {
+		'use strict';
+		// this.currentSndPosition = this.sndObj.currentTime;
+		this.sndObj.pause();
+		this.paused = true;
+		this.sndObj.state = 'pause';
+	},
+	resume: function() {
+		'use strict';
+		this.sndObj.play();
+	},
+	progress: function(){
+		'use strict';
+		var num = this.sndObj.pos() / this.sndObj._duration;
+		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
+		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
+	},
+	isComplete: function(){
+		'use strict';
+		this.state = 'stop';
+		return this.complete;
+	},
+	destroy: function(){
+		'use strict';
+		this.state = 'stop';
+		this.sndObj = null;
+		this.duration = null;
+	}
+};
+createjs.EventDispatcher.initialize(SoundController.prototype);
+var HUDController = {
+	init: function(){
+		this.soundEffectPlus = new SoundController(SoundService.matrix.points.plus.src, false);	
+		this.soundEffectMinus = new SoundController(SoundService.matrix.points.minus.src, false);	
+		this.soundEffectPlus.load();
+		this.soundEffectMinus.load();
+	},
+	setView: function(view){
+		this.view = view;		
+		this.update();
+	},
+	update: function(){
+		if(this.view === undefined || this.view === null){
+			throw new Error("'view' is undefined");
+		}
+
+		var self = this;
+		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
+		this.view.health.points.gotoAndStop(PlayerStats.health-1);
+		this.view.money.points.gotoAndStop(PlayerStats.money-1);
+
+		var delay = 0;
+		// console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
+		for(var key in PlayerStats.pointsDiff){
+			if(PlayerStats.pointsDiff[key] > 0){
+				setTimeout(function(){ 
+					self.soundEffectPlus.play();
+				}, delay);
+				delay += 500;
+			}else if(PlayerStats.pointsDiff[key] < 0){
+				setTimeout(function(){ 
+					self.soundEffectMinus.play();
+				}, delay);
+				delay += 500;
+			}
+		}
+
+		// Need to reset 
+		PlayerStats.resetDiff();
+	}
+}
+var PlayerSoundComponent = function(view){
+	'use strict';
+	if(PlayerSoundComponent.counter == null)
+		PlayerSoundComponent.counter = 0;
+
+	PlayerSoundComponent.counter++;
+	this.id = PlayerSoundComponent.counter;
+
+	this.view = view;
+	this.paused = false;
+	this.duration = 0;
+	this.listeners = {tick:null, play:null, pause:null, stop:null};
+	this.playBtn = new ButtonCustom(view.playBtn);
+	this.pauseBtn = new ButtonCustom(view.pauseBtn);
+	this.stopBtn = new ButtonCustom(view.stopBtn);
+
+	// Initial visibility of play/pause/stop
+	this.playBtn.setActive(false);
+	this.stopBtn.setActive(false);
+	this.pauseBtn.setActive(true);	
+	this.pauseBtn.visible(false);
+
+	// Controller button events
+	this.listeners.play = this.playBtn.on('click', this.play, this);
+	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
+	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
+
+	// Progression
+	this.progressionBar = view.progressionBar;
+	this.progressionBar.scaleX = 0;
+
+	// Sound
+	this.soundController = null;
+};
+PlayerSoundComponent.prototype.preload = function(src, duration){
+	'use strict';
+	var self = this;
+
+	// console.log('PlayerSoundComponent.preload');
+
+	// Safety net
+	this.removeLoopEvent();
+
+	// Sound ready state
+	if(self.soundController !== null){
+		self.soundController.destroy();
+		self.soundController = null;
+	}
+	self.soundController = new SoundController(src);
+	self.soundController.on('ready', function(event){
+		event.remove();
+		// Enable buttons
+		self.playBtn.setActive(true);
+		self.stopBtn.setActive(true);
+
+		// Dispatch event 
+		self.dispatchEvent(new createjs.Event('ready'));
+	}, self);
+	self.soundController.on('complete', function(event){
+		// Swap Play/Pause visibility
+		this.pauseBtn.visible(false);
+		this.playBtn.visible(true);
+
+		self.removeLoopEvent();
+
+		// Dispatch event 
+		self.dispatchEvent(new createjs.Event('complete'));
+	}, self);
+	self.soundController.load();
+};
+PlayerSoundComponent.prototype.addLoopEvent = function(){
+	'use strict';
+	if(this.listeners.tick === null){
+		this.listeners.tick = this.progressionBar.on('tick', this.loop, this);
+	}
+};
+PlayerSoundComponent.prototype.removeLoopEvent = function(){
+	'use strict';
+	this.progressionBar.off('tick', this.listeners.tick);
+	this.listeners.tick = null;
+};
+PlayerSoundComponent.prototype.loop = function(){
+	'use strict';	
+	var sndProgression = this.soundController.progress();
+	
+	// Progression bar
+	this.progressionBar.scaleX = sndProgression;
+};
+PlayerSoundComponent.prototype.play = function(){
+	'use strict';
+	this.previousFrame = 0;
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(true);
+	this.playBtn.visible(false);
+
+	// Timeline
+	this.addLoopEvent('tick');
+
+	// Sound
+	this.soundController.play();
+
+	// Dispacth event 
+	this.dispatchEvent(new createjs.Event('start'));
+
+	// Set this last
+	this.paused = false;
+
+	// Tick
+	Tick.enable();
+	Tick.framerate(Tick.perfect);
+};
+PlayerSoundComponent.prototype.pause = function(){
+	'use strict';
+
+	// If invoked from external the state could be stopped
+	// Adn we do not want to set in paused unintentional
+	if(this.paused)
+		return;
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	// Dispacth event 
+	// this.dispatchEvent(new createjs.Event('pause'));
+
+	this.paused = true;
+
+	// Sound
+	this.soundController.pause();
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSoundComponent.prototype.stop = function(){
+	'use strict';
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	// Progression bar
+	this.progressionBar.scaleX = 0;
+
+	// Sound
+	this.soundController.stop();
+
+	// Dispacth event 
+	// this.dispatchEvent(new createjs.Event('stop'));
+
+	this.paused = false;
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSoundComponent.prototype.progress = function(){
+	'use strict';
+	var num = this.slide.currentFrame / this.duration;
+	return Math.round(num * 1000) / 1000;
+};
+PlayerSoundComponent.prototype.reset = function(){
+	'use strict';
+	this.removeLoopEvent();
+	this.paused = false;
+	this.listeners = null;
+};
+PlayerSoundComponent.prototype.destroy = function(){
+	'use strict';
+	this.removeLoopEvent();
+	this.view = null;
+	this.listeners = null;
+	this.playBtn.destroy();
+	this.pauseBtn.destroy();
+	this.stopBtn.destroy();
+	this.playBtn = null;
+	this.pauseBtn = null;
+	this.stopBtn = null;
+};
+createjs.EventDispatcher.initialize(PlayerSoundComponent.prototype);
+var PlayerSliderComponent = function(view, soundOffset){
+	'use strict';
+	this.view = view;
+	this.soundOffset = soundOffset;
+	this.container = view.container;
+	this.slideId = null;
+	this.slide = null;
+	this.paused = false;
+	this.state = null;
+	this.duration = 0;
+	this.listeners = {tick:null, play:null, pause:null, stop:null, auto:null};
+	this.playBtn = new ButtonCustom(view.playBtn);
+	this.pauseBtn = new ButtonCustom(view.pauseBtn);
+	this.stopBtn = new ButtonCustom(view.stopBtn);
+
+	if(this.soundOffset === null || this.soundOffset === undefined){
+		this.soundOffset = 0;
+	}
+
+	// Initial visibility of play/pause/stop
+	this.playBtn.setActive(false);
+	this.stopBtn.setActive(false);
+	this.pauseBtn.setActive(true);	
+	this.pauseBtn.visible(false);
+
+	// Controller button events
+	this.listeners.play = this.playBtn.on('click', this.play, this);
+	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
+	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
+
+	// Progression
+	this.progressionBar = view.progressionBar;
+	this.progressionBar.scaleX = 0;
+
+	// Sound
+	this.soundController = null;
+};
+PlayerSliderComponent.prototype.preload = function(slideId, lib){
+	'use strict';
+	
+	var self = this;
+	this.slideId = slideId;
+
+	// Load assets	
+	Preloader.load(lib.properties.manifest, 
+		function(event){
+			if (event.item.type === 'image'){ 
+				images[event.item.id] = event.result; 
+			}
+			// // console.log(event.result);
+		}, 
+		function(event){			
+			// Clean slider container if a slider already has been played
+			if(self.slide !== null){
+				self.container.remove(slide);
+				self.slide = null;
+			}
+			
+			// Create slider object and attach to container
+			self.slide = eval('new lib.'+slideId+'()');
+			
+			self.container.addChild(self.slide);
+
+			// Get the duration of the timeline in the slide
+			self.duration = self.slide.timeline.duration - 1;
+
+			// Sound
+			if(self.soundController !== null){
+				self.soundController.destroy();
+				self.soundController = null;
+			}
+			try{
+				var snd = SoundService.getSlideSoundById(self.slideId);
+				self.soundController = new SoundController(snd.src);
+				self.soundController.on('ready', function(event){
+					event.remove(); // Only run once. Otherwise it will run every time player has ended and starts slide after it played to the end
+					// Enable buttons
+					self.playBtn.setActive(true);
+					self.stopBtn.setActive(true);
+
+					// Dispatch event 
+					self.dispatchEvent(new createjs.Event('ready'));
+				}, self);
+				self.soundController.on('complete', function(event){
+					// event.remove();
+					// console.log('complete');
+
+					// Stop on last frame
+					this.slide.gotoAndStop(this.slide.totalFrames-1);
+
+					// Swap Play/Pause visibility
+					this.pauseBtn.visible(false);
+					this.playBtn.visible(true);
+
+					self.removeLoopEvent();
+
+					this.state = 'complete';
+
+					// Dispatch event 
+					self.dispatchEvent(new createjs.Event('complete'));
+				}, self);
+				self.soundController.load();
+			}catch(err){
+				console.log(err);
+			}			
+		},
+		'small'
+	);	
+};
+PlayerSliderComponent.prototype.addLoopEvent = function(){
+	'use strict';
+	if(this.listeners.tick === null){
+		this.listeners.tick = this.slide.on('tick', this.loop, this);
+	}
+};
+PlayerSliderComponent.prototype.removeLoopEvent = function(){
+	'use strict';
+	this.slide.off('tick', this.listeners.tick);
+	this.listeners.tick = null;
+};
+PlayerSliderComponent.prototype.loop = function(){
+	'use strict';	
+	var sndProgression = this.soundController.progress();
+	
+	var desiredFrame = Math.round(this.duration * sndProgression) + this.soundOffset;
+	this.slide.gotoAndPlay(desiredFrame);
+
+	// Progression bar
+	this.progressionBar.scaleX = this.progress()
+};
+PlayerSliderComponent.prototype.play = function(){
+	'use strict';
+	// console.log('play');
+	var self = this;
+
+	if(this.state === 'complete')
+		this.slide.gotoAndStop(0);
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(true);
+	this.playBtn.visible(false);
+
+	// Sound
+	// Sound starts at frame 0
+	if(this.soundOffset === 0){
+		this.soundController.play();		
+
+	// Sound starts later than frame 0
+	}else{
+		// Current frame is after sound start frame
+		if(this.slide.currentFrame >= this.soundOffset){
+			this.soundController.play();
+
+		// Current frame is before sound start frame
+		}else{
+			// Listen for an event dispatch 
+			this.on('autoplay', function(event){
+				event.remove();
+				this.listeners.auto = null;
+				self.soundController.play();
+			}, this);
+		}		
+	}
+	
+	// Timeline
+	this.addLoopEvent('tick');
+
+	// Set this last
+	this.paused = false;
+	this.state = 'play';
+
+	// Tick
+	Tick.enable();
+	Tick.framerate(Tick.perfect);
+};
+PlayerSliderComponent.prototype.pause = function(){
+	'use strict';
+
+	// console.log('pause');
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	this.paused = true;
+	this.state = 'pause';
+
+	// Pause timeline
+	this.slide.stop();
+
+	// Sound
+	this.soundController.pause();
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSliderComponent.prototype.stop = function(){
+	'use strict';
+	Tick.enable();
+
+	// console.log('stop');
+
+
+	// Progression bar
+	this.progressionBar.scaleX = 0;
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Set slide timeline back to start
+	this.slide.gotoAndStop(0);
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	// Sound
+	this.soundController.stop();
+
+	this.state = 'stop';
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSliderComponent.prototype.progress = function(){
+	'use strict';
+	var num = this.slide.currentFrame / this.duration;
+	return Math.round(num * 1000) / 1000;
+};
+PlayerSliderComponent.prototype.reset = function(){
+	'use strict';
+	this.slideId = null;
+	this.paused = false;
+};
+PlayerSliderComponent.prototype.destroy = function(){
+	'use strict';
+	this.view = null;
+	this.slideId = null;
+};
+createjs.EventDispatcher.initialize(PlayerSliderComponent.prototype);
 ;(function (lib, img, cjs, ss) {
 
 var p; // shortcut to reference prototypes

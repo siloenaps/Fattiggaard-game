@@ -49,18 +49,12 @@ var Preloader = {
 		if(clss !== undefined){
 			self.add(clss);
 		}
-		
+		manifest = Path.adjustManifest(manifest);
 		loader.loadManifest(manifest);
 	},
 	add: function(clss){
 		'use strict';
 		PreloadGFX.show();
-		// console.log('add:', clss, this.id);	
-		// this.id = id;
-		// $('.preload-wrapper').removeClass('hide');
-		// $('.preload-wrapper').addClass('show');
-		// $('.progress-bar').removeClass('hide');
-		// $('.progress-bar').removeClass('show');
 	},
 	remove: function(id){
 		'use strict';		
@@ -71,11 +65,6 @@ var Preloader = {
 			if(this.tracker[t] === false)
 				return;
 		}
-		PreloadGFX.hide();
-		// $('.preload-wrapper').removeClass('show');
-		// $('.preload-wrapper').addClass('hide');
-		// $('.progress-bar').removeClass('show');
-		// $('.progress-bar').removeClass('hide');
-		
+		PreloadGFX.hide();		
 	}
 };
