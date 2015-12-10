@@ -29,7 +29,7 @@ PreloadGFX = {
 		// if(this.shown < 0)
 		// 	this.shown = 0;
 
-		console.log('hide', this.shown);
+		console.log('hide');
 
 		// if(this.shown > 0)
 		// 	return;
@@ -38,6 +38,9 @@ PreloadGFX = {
 		$('.preload-wrapper').addClass('hide');
 		$('.progress-bar').removeClass('show');
 		$('.progress-bar').removeClass('hide');
+
+		// $('.preload-wrapper').hide();
+		// $('.progress-bar').hide();
 
 		if(PreloadGFX.blocker !== null)
 			PreloadGFX.blocker.visible = false;
