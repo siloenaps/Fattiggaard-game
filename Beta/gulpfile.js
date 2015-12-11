@@ -33,6 +33,18 @@ gulp.task('move-files-locally', function () {
             'cp dist/*.js ../../Fattiggaard-web/app/assets/game/'
           ]));
 });
+gulp.task('set-semicolon', function(){
+  var src = './src/app/js/';
+  return gulp.src([src+'Main.js'])
+      .pipe(replace('(function (lib, img, cjs, ss)', ';(function (lib, img, cjs, ss)'))     
+      .pipe(gulp.dest(src));
+});
+gulp.task('reset-semicolon', function(){
+  var src = './src/app/js/';
+  return gulp.src([src+'Main.js'])
+      .pipe(replace(';(function (lib, img, cjs, ss)', '(function (lib, img, cjs, ss)'))     
+      .pipe(gulp.dest(src));
+});
 gulp.task('set-basepath', function(){
   var src = './src/app/js/utils/';
   return gulp.src([src+'Environment.js'])
@@ -46,7 +58,7 @@ gulp.task('reset-basepath', function(){
       .pipe(gulp.dest(src));
 });
 gulp.task('deploy-local', function(){
-  runSequence('set-basepath', 'dist-code', 'move-files-locally', 'reset-basepath');
+  runSequence('reset-semicolon', 'set-semicolon', 'set-basepath', 'dist-code', 'move-files-locally', 'reset-basepath');
 });
 
 

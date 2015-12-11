@@ -1,22 +1,27 @@
 PreloadGFX = {
 	blocker: null,
 	shown: 0,
+	preloader: null,
 	show: function(progress){
 		// if(this.shown < 0)
 		// 	this.shown = 0;
 		
 		this.shown++;
-		console.log('show', this.shown);
+		
 
 		(progress === undefined || progress === null)? progress = true : progress = progress;
-		$('.preload-wrapper').removeClass('hide');
-		$('.preload-wrapper').addClass('show');
-		$('.progress-bar').removeClass('hide');
+		// var progress = true
+		
 
-		if(progress)
-			$('.progress-bar').removeClass('show');
-		else
-			$('.progress-bar').addClass('hide');
+		if(this.preloader !== undefined && this.preloader !== null){
+			console.log('show', this.preloader.visible);
+			this.preloader.visible = true;
+			// this.preloader.progress_bar.visible = true;
+			if(progress)
+				this.preloader.progress_bar.visible = true;
+			else
+				this.preloader.progress_bar.visible = false;
+		}
 
 		if(PreloadGFX.blocker !== null && progress){
 			PreloadGFX.blocker.visible = true;
@@ -26,23 +31,20 @@ PreloadGFX = {
 	hide: function(){
 		this.shown--;
 
-		// if(this.shown < 0)
-		// 	this.shown = 0;
-
-		console.log('hide');
-
-		// if(this.shown > 0)
-		// 	return;
-
-		$('.preload-wrapper').removeClass('show');
-		$('.preload-wrapper').addClass('hide');
-		$('.progress-bar').removeClass('show');
-		$('.progress-bar').removeClass('hide');
-
-		// $('.preload-wrapper').hide();
-		// $('.progress-bar').hide();
+		if(this.preloader !== undefined && this.preloader !== null){
+			console.log('hide', this.shown);
+			if(this.shown == 0)
+				this.preloader.visible = false;
+		}
 
 		if(PreloadGFX.blocker !== null)
 			PreloadGFX.blocker.visible = false;
+	},
+	showProgress: function(progress){
+
+		if(this.preloader !== undefined && this.preloader !== null){
+			this.preloader.progress_bar.bar.scaleX = progress;
+			// console.log(progress, this.preloader.bar)
+		}
 	}
 }

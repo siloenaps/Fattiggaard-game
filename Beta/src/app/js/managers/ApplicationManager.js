@@ -4,6 +4,8 @@ var ApplicationManager = {
 		'use strict';
 		this.root = root;
 
+		PreloadGFX.preloader = this.root.preload_clip;
+
 		// PreloadGFX.hide();
 
 		// // Init Environment info

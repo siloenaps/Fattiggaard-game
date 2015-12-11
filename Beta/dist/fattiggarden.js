@@ -4915,53 +4915,6 @@ var FlowEpilogue = function(container){
 
 	};	
 }
-var Topbar = {
-	view: null,
-	soundController: null,
-	init: function(view){
-		// console.log('Topbar::init', view);
-		if(view === undefined || view === null){
-			throw new Error("'view' is undefined");
-		}
-		this.view = view;	
-
-		HUDController.init();	
-	},
-	go: function(frm){
-		// console.log('Topbar:',this.view);
-		// this.view.label_intro.x = 564 + 300;
-		// createjs.Tween.get(this.view.label_intro)
-		// 	.to({x:564}, 300, createjs.Ease.backIn);
-
-		if(this.view === undefined || this.view === null){
-			throw new Error("'view' is undefined");
-		}
-		this.view.gotoAndStop(frm);
-
-		// Setup for game related to user's choices
-		if(frm === 'game'){
-			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
-
-			// Points
-			HUDController.setView(this.view.hud);
-		}
-	},
-	pointsUpdate: function(){
-		try{
-			HUDController.update();
-		}catch(err){
-			console.log(err);			
-		}		
-	},
-	show: function(){
-		this.view.visible = true;
-	},
-	hide: function(){
-		this.view.visible = false;	
-	}
-}
 'use strict';
 var TweenUtil = {
 	to: function(element, options, delay, delegate){
@@ -5202,9 +5155,6 @@ var Preloader = {
 	load: function(manifest, handleFileLoad, handleComplete, clss, keep, factor){
 		'use strict';
 		this.id++;
-
-		console.log('Preloader:load', this.id, manifest.length);
-
 		
 		// FIXME
 		// Should not happen trying to load an empty manifest
@@ -5214,9 +5164,8 @@ var Preloader = {
 			return;
 		}
 
-
-		(factor === undefined) ? this.factor = 1 : this.factor = factor;
-		if(clss === undefined) clss = 'small';
+		// (factor === undefined) ? this.factor = 1 : this.factor = factor;
+		// if(clss === undefined) clss = 'small';
 
 		this.tracker[this.id] = false;
 
@@ -5234,64 +5183,48 @@ var Preloader = {
 			loader.addEventListener('complete', function(event){
 				var id = event.target.id;
 				self.tracker[id] = true;
-				console.log('Preloader:complete', id);
 				if(handleComplete != null){
 					handleComplete(event);
 				}	
-				if(!event.target.keepPreloader){					
-					self.remove(id);
-				}
+				
+				PreloadGFX.hide();
 			});
 			loader.addEventListener('progress', function(event){
-				var w = (event.loaded * 400) / self.factor;
-				$(".progress-bar .bar").css("width", w);
+				PreloadGFX.showProgress(event.loaded);
 			});	
 			loader.addEventListener('error', function(event){
 				console.log('Preloader:error', event);
 			});	
-
-		// self.add('preloader small');
-		if(clss !== undefined){
-			self.add(clss);
-		}
 		manifest = Path.adjustManifest(manifest);
 		loader.loadManifest(manifest);
-	},
-	add: function(clss){
-		'use strict';
-		PreloadGFX.show();
-	},
-	remove: function(id){
-		'use strict';	
 
-		// this.tracker[id] = true;
-		for(var t in this.tracker){
-			//console.log('remove', t, this.tracker[t]);	
-			if(this.tracker[t] === false)
-				return;
-		}
-		PreloadGFX.hide();		
+		PreloadGFX.show();
 	}
 };
 PreloadGFX = {
 	blocker: null,
 	shown: 0,
+	preloader: null,
 	show: function(progress){
 		// if(this.shown < 0)
 		// 	this.shown = 0;
 		
 		this.shown++;
-		console.log('show', this.shown);
+		
 
 		(progress === undefined || progress === null)? progress = true : progress = progress;
-		$('.preload-wrapper').removeClass('hide');
-		$('.preload-wrapper').addClass('show');
-		$('.progress-bar').removeClass('hide');
+		// var progress = true
+		
 
-		if(progress)
-			$('.progress-bar').removeClass('show');
-		else
-			$('.progress-bar').addClass('hide');
+		if(this.preloader !== undefined && this.preloader !== null){
+			console.log('show', this.preloader.visible);
+			this.preloader.visible = true;
+			// this.preloader.progress_bar.visible = true;
+			if(progress)
+				this.preloader.progress_bar.visible = true;
+			else
+				this.preloader.progress_bar.visible = false;
+		}
 
 		if(PreloadGFX.blocker !== null && progress){
 			PreloadGFX.blocker.visible = true;
@@ -5301,24 +5234,21 @@ PreloadGFX = {
 	hide: function(){
 		this.shown--;
 
-		// if(this.shown < 0)
-		// 	this.shown = 0;
-
-		console.log('hide');
-
-		// if(this.shown > 0)
-		// 	return;
-
-		$('.preload-wrapper').removeClass('show');
-		$('.preload-wrapper').addClass('hide');
-		$('.progress-bar').removeClass('show');
-		$('.progress-bar').removeClass('hide');
-
-		// $('.preload-wrapper').hide();
-		// $('.progress-bar').hide();
+		if(this.preloader !== undefined && this.preloader !== null){
+			console.log('hide', this.shown);
+			if(this.shown == 0)
+				this.preloader.visible = false;
+		}
 
 		if(PreloadGFX.blocker !== null)
 			PreloadGFX.blocker.visible = false;
+	},
+	showProgress: function(progress){
+
+		if(this.preloader !== undefined && this.preloader !== null){
+			this.preloader.progress_bar.bar.scaleX = progress;
+			// console.log(progress, this.preloader.bar)
+		}
 	}
 }
 var Path = {
@@ -5565,147 +5495,51 @@ Array.prototype.shuffle = function(index){
     }
     return this;
 }
-/**
-	Controller uses the browser's AUDIO element as play back for sound
-*/
-function SoundController(audioPath, loopCount) {
-	'use strict';
-
-	var self = this;
-
-	this.loopCount = loopCount;
-	if(loopCount === undefined || loopCount === null)
-		this.loopCount = false;	
-
-	this.audioPath = audioPath;
-}
-// SoundController.prototype.dispatcher = function(event){
-// 	this.dispatchEvent(event);
-// }
-SoundController.prototype = {
-	sndObj: null,
-	currentSndPosition: 0,
-	paused: false,
-	self: this,
-	complete: false,
-	dispatcher: function(event){
-		this.dispatchEvent(event);
-	},
-	getState: function(){
-		return this.sndObj.state;
-	},
-	load: function(){
-		'use strict';
-		var self = this;
-		// Howler
-		this.sndObj = new Howl({
-		  urls: [this.audioPath],
-		  autoplay: false,
-		  loop: this.loopCount,
-		  volume: 1,
-		  buffer: false,
-		  onend: function() {
-		    self.complete = true;
-		    self.dispatcher(new createjs.Event('complete'));
-		  },
-		  onload: function() {		    
-		    self.dispatcher(new createjs.Event('ready'));
-		    console.log('SoundController.onload');
-		    PreloadGFX.hide();
-		  }
-		}); 
-
-		PreloadGFX.show(false);
-	},
-	volume: function(value) {
-		'use strict';
-		if(this.sndObj != null){
-			this.sndObj.volume = value;
+var Topbar = {
+	view: null,
+	soundController: null,
+	init: function(view){
+		// console.log('Topbar::init', view);
+		if(view === undefined || view === null){
+			throw new Error("'view' is undefined");
 		}
+		this.view = view;	
+
+		HUDController.init();	
 	},
-	play: function() {
-		'use strict';
-		this.sndObj.play();
-		this.paused = false;
-		this.sndObj.state = 'play';
-		this.complete = false;
-	},
-	stop: function() {
-		'use strict';
-		this.sndObj.stop();
-		// this.sndObj.currentTime = 0;
-		this.paused = false;
-		this.sndObj.state = 'stop';
-	},
-	pause: function() {
-		'use strict';
-		// this.currentSndPosition = this.sndObj.currentTime;
-		this.sndObj.pause();
-		this.paused = true;
-		this.sndObj.state = 'pause';
-	},
-	resume: function() {
-		'use strict';
-		this.sndObj.play();
-	},
-	progress: function(){
-		'use strict';
-		var num = this.sndObj.pos() / this.sndObj._duration;
-		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
-		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
-	},
-	isComplete: function(){
-		'use strict';
-		this.state = 'stop';
-		return this.complete;
-	},
-	destroy: function(){
-		'use strict';
-		this.state = 'stop';
-		this.sndObj = null;
-		this.duration = null;
-	}
-};
-createjs.EventDispatcher.initialize(SoundController.prototype);
-var HUDController = {
-	init: function(){
-		this.soundEffectPlus = new SoundController(SoundService.matrix.points.plus.src, false);	
-		this.soundEffectMinus = new SoundController(SoundService.matrix.points.minus.src, false);	
-		this.soundEffectPlus.load();
-		this.soundEffectMinus.load();
-	},
-	setView: function(view){
-		this.view = view;		
-		this.update();
-	},
-	update: function(){
+	go: function(frm){
+		// console.log('Topbar:',this.view);
+		// this.view.label_intro.x = 564 + 300;
+		// createjs.Tween.get(this.view.label_intro)
+		// 	.to({x:564}, 300, createjs.Ease.backIn);
+
 		if(this.view === undefined || this.view === null){
 			throw new Error("'view' is undefined");
 		}
+		this.view.gotoAndStop(frm);
 
-		var self = this;
-		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
-		this.view.health.points.gotoAndStop(PlayerStats.health-1);
-		this.view.money.points.gotoAndStop(PlayerStats.money-1);
+		// Setup for game related to user's choices
+		if(frm === 'game'){
+			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
 
-		var delay = 0;
-		// console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
-		for(var key in PlayerStats.pointsDiff){
-			if(PlayerStats.pointsDiff[key] > 0){
-				setTimeout(function(){ 
-					self.soundEffectPlus.play();
-				}, delay);
-				delay += 500;
-			}else if(PlayerStats.pointsDiff[key] < 0){
-				setTimeout(function(){ 
-					self.soundEffectMinus.play();
-				}, delay);
-				delay += 500;
-			}
+			// Points
+			HUDController.setView(this.view.hud);
 		}
-
-		// Need to reset 
-		PlayerStats.resetDiff();
+	},
+	pointsUpdate: function(){
+		try{
+			HUDController.update();
+		}catch(err){
+			console.log(err);			
+		}		
+	},
+	show: function(){
+		this.view.visible = true;
+	},
+	hide: function(){
+		this.view.visible = false;	
 	}
 }
 var SoundService = {
@@ -6226,6 +6060,149 @@ var FlowData ={
 // 		}
 // 	}
 // }
+/**
+	Controller uses the browser's AUDIO element as play back for sound
+*/
+function SoundController(audioPath, loopCount) {
+	'use strict';
+
+	var self = this;
+
+	this.loopCount = loopCount;
+	if(loopCount === undefined || loopCount === null)
+		this.loopCount = false;	
+
+	this.audioPath = audioPath;
+}
+// SoundController.prototype.dispatcher = function(event){
+// 	this.dispatchEvent(event);
+// }
+SoundController.prototype = {
+	sndObj: null,
+	currentSndPosition: 0,
+	paused: false,
+	self: this,
+	complete: false,
+	dispatcher: function(event){
+		this.dispatchEvent(event);
+	},
+	getState: function(){
+		return this.sndObj.state;
+	},
+	load: function(){
+		'use strict';
+		var self = this;
+		// Howler
+		this.sndObj = new Howl({
+		  urls: [this.audioPath],
+		  autoplay: false,
+		  loop: this.loopCount,
+		  volume: 1,
+		  buffer: false,
+		  onend: function() {
+		    self.complete = true;
+		    self.dispatcher(new createjs.Event('complete'));
+		  },
+		  onload: function() {		    
+		    self.dispatcher(new createjs.Event('ready'));
+		    console.log('SoundController.onload');
+		    PreloadGFX.hide();
+		  }
+		}); 
+
+		PreloadGFX.show(false);
+	},
+	volume: function(value) {
+		'use strict';
+		if(this.sndObj != null){
+			this.sndObj.volume = value;
+		}
+	},
+	play: function() {
+		'use strict';
+		this.sndObj.play();
+		this.paused = false;
+		this.sndObj.state = 'play';
+		this.complete = false;
+	},
+	stop: function() {
+		'use strict';
+		this.sndObj.stop();
+		// this.sndObj.currentTime = 0;
+		this.paused = false;
+		this.sndObj.state = 'stop';
+	},
+	pause: function() {
+		'use strict';
+		// this.currentSndPosition = this.sndObj.currentTime;
+		this.sndObj.pause();
+		this.paused = true;
+		this.sndObj.state = 'pause';
+	},
+	resume: function() {
+		'use strict';
+		this.sndObj.play();
+	},
+	progress: function(){
+		'use strict';
+		var num = this.sndObj.pos() / this.sndObj._duration;
+		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
+		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
+	},
+	isComplete: function(){
+		'use strict';
+		this.state = 'stop';
+		return this.complete;
+	},
+	destroy: function(){
+		'use strict';
+		this.state = 'stop';
+		this.sndObj = null;
+		this.duration = null;
+	}
+};
+createjs.EventDispatcher.initialize(SoundController.prototype);
+var HUDController = {
+	init: function(){
+		this.soundEffectPlus = new SoundController(SoundService.matrix.points.plus.src, false);	
+		this.soundEffectMinus = new SoundController(SoundService.matrix.points.minus.src, false);	
+		this.soundEffectPlus.load();
+		this.soundEffectMinus.load();
+	},
+	setView: function(view){
+		this.view = view;		
+		this.update();
+	},
+	update: function(){
+		if(this.view === undefined || this.view === null){
+			throw new Error("'view' is undefined");
+		}
+
+		var self = this;
+		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
+		this.view.health.points.gotoAndStop(PlayerStats.health-1);
+		this.view.money.points.gotoAndStop(PlayerStats.money-1);
+
+		var delay = 0;
+		// console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
+		for(var key in PlayerStats.pointsDiff){
+			if(PlayerStats.pointsDiff[key] > 0){
+				setTimeout(function(){ 
+					self.soundEffectPlus.play();
+				}, delay);
+				delay += 500;
+			}else if(PlayerStats.pointsDiff[key] < 0){
+				setTimeout(function(){ 
+					self.soundEffectMinus.play();
+				}, delay);
+				delay += 500;
+			}
+		}
+
+		// Need to reset 
+		PlayerStats.resetDiff();
+	}
+}
 var GameManager = {
 	root: null,
 	init: function(root){
@@ -6679,6 +6656,8 @@ var ApplicationManager = {
 	start: function(root){
 		'use strict';
 		this.root = root;
+
+		PreloadGFX.preloader = this.root.preload_clip;
 
 		// PreloadGFX.hide();
 
@@ -7197,6 +7176,40 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
 p.nominalBounds = new cjs.Rectangle(0,0,641,270);
 
 
+(lib.PreloaderSquares = function() {
+	this.initialize();
+
+	// Layer 1
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("rgba(194,45,27,0.329)").s().p("AgxAxIAAhiIBiAAIAABig");
+	this.shape.setTransform(5,5);
+
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f("rgba(194,45,27,0.659)").s().p("AgxAxIAAhiIBiAAIAABig");
+	this.shape_1.setTransform(17,5);
+
+	this.shape_2 = new cjs.Shape();
+	this.shape_2.graphics.f("rgba(194,45,27,0.898)").s().p("AgxAxIAAhiIBiAAIAABig");
+	this.shape_2.setTransform(17,17);
+
+	this.addChild(this.shape_2,this.shape_1,this.shape);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,22,22);
+
+
+(lib.preloaderbar = function() {
+	this.initialize();
+
+	// Layer 1
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("rgba(255,255,255,0.6)").s().p("EhP/AAeIAAg7MCf/AAAIAAA7g");
+	this.shape.setTransform(512,3);
+
+	this.addChild(this.shape);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,6);
+
+
 (lib.PageContainerEmpty = function() {
 	this.initialize();
 
@@ -7289,6 +7302,32 @@ p.nominalBounds = new cjs.Rectangle(0,0,94,94);
 p.nominalBounds = new cjs.Rectangle(0,0,120,120);
 
 
+(lib.preloadersquaresanim = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{});
+
+	// Layer 1
+	this.instance = new lib.PreloaderSquares("synched",0);
+	this.instance.setTransform(11,11,1,1,0,0,0,11,11);
+	this.instance.filters = [new cjs.ColorFilter(0, 0, 0, 1, 204, 204, 204, 0)];
+	this.instance.cache(-2,-2,26,26);
+
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(4).to({rotation:90},0).wait(5).to({rotation:180},0).wait(5).to({rotation:270},0).wait(5));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,22,22);
+
+
+(lib.preloader = function() {
+	this.initialize();
+
+	// Layer 2
+	this.bar = new lib.preloaderbar();
+
+	this.addChild(this.bar);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(-1,-1,1026,8);
+
+
 (lib.ContinueButton = function() {
 	this.initialize();
 
@@ -7307,6 +7346,26 @@ p.nominalBounds = new cjs.Rectangle(0,0,120,120);
 p.nominalBounds = new cjs.Rectangle(0,0,96,96);
 
 
+(lib.PreloaderMain = function() {
+	this.initialize();
+
+	// Square
+	this.instance = new lib.preloadersquaresanim();
+	this.instance.setTransform(5,10,2.273,2.273);
+
+	// Progress Bar
+	this.progress_bar = new lib.preloader();
+
+	// BG
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("rgba(0,0,0,0.329)").s().p("EhP/AyoMAAAhlPMCf/AAAMAAABlPg");
+	this.shape.setTransform(512,324);
+
+	this.addChild(this.shape,this.progress_bar,this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
+
+
 // stage content:
 (lib.Main = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{preload:4,frontpage:14,start:24,character_build:33,poohouse:48,germany:58});
@@ -7318,6 +7377,11 @@ p.nominalBounds = new cjs.Rectangle(0,0,96,96);
 
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(84));
+
+	// Preloader Bar
+	this.preload_clip = new lib.PreloaderMain();
+
+	this.timeline.addTween(cjs.Tween.get(this.preload_clip).wait(84));
 
 	// Blocker
 	this.blocker_black = new lib.BlockerBLACK();
