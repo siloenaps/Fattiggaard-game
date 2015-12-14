@@ -4915,633 +4915,6 @@ var FlowEpilogue = function(container){
 
 	};	
 }
-'use strict';
-var TweenUtil = {
-	to: function(element, options, delay, delegate){
-		createjs.Tween.get(element)
-			.to(options, delay, createjs.Ease.linear)
-			.call(function(){
-				if(delegate !== undefined){
-					delegate();
-				}
-			})
-	}
-}
-var Transitions = {
-	inOut: function(inObj, outObj, delegate){
-		// For checking done of in/out tween
-		var left = 0;
-		
-		//console.log(outObj.element)
-		(inObj.element !== null) ? left++ : console.log('inObj::none');
-		(outObj.element !== null) ? left++ : console.log('outObj::none');
-
-		var checkDone = function(left){
-			// console.log('checkDone', left)
-			if(left == 0){
-				if(delegate !== null){
-					delegate();
-				}
-			}
-		}
-		// Previous page out
-		switch(outObj.prop){
-			case 'pos': 
-				this.transOutPosition(outObj.element, function(){
-					checkDone(--left);
-				});
-			break;
-			case 'alpha': 
-				this.transOutAlpha(outObj.element, function(){
-					checkDone(--left);
-				});
-			break;
-		}
-		// New page in
-		switch(inObj.prop){
-			case 'pos': 
-				this.transInPosition(inObj.element, function(){
-					checkDone(--left);
-				});
-			break;
-			case 'alpha': 
-				this.transInAlpha(inObj.element, function(){
-					checkDone(--left);
-				});
-			break;
-		}
-		
-	},
-	transInPosition: function(pageView, callback){
-		if(pageView === null || pageView === undefined)
-			return;
-
-		// New page in
-		pageView.visible = true;
-		pageView.alpha = 1;
-		pageView.x = 1024;
-		createjs.Tween.get(pageView)
-			.to({x:0}, 300, createjs.Ease.linear)
-			.call(function(){
-				if(callback !== undefined){
-					callback();
-				}
-			});
-	},
-	transOutPosition: function(pageView, callback){
-		if(pageView === null || pageView === undefined)
-			return;
-
-		// New page in
-		createjs.Tween.get(pageView)
-			.to({x:-1024}, 300, createjs.Ease.linear)
-			.call(function(){
-				if(callback !== undefined){
-					callback();
-					pageView.visible = false;
-				}
-			});
-	},
-	transInAlpha: function(pageView, callback){
-		if(pageView === null || pageView === undefined)
-			return;
-
-		// New page in
-		pageView.visible = true;
-		pageView.alpha = 0;
-		pageView.x = 0;
-		createjs.Tween.get(pageView)
-			.to({alpha:1}, 300, createjs.Ease.linear)
-			.call(function(){
-				if(callback !== undefined){
-					callback();
-				}
-			});
-	},
-	transOutAlpha: function(pageView, callback){
-		if(pageView === null || pageView === undefined)
-			return;
-		
-		// New page in
-		createjs.Tween.get(pageView)
-			.to({alpha:0}, 300, createjs.Ease.linear)
-			.call(function(){
-				if(callback !== undefined){
-					callback();
-				}
-			});
-	},
-	changeBackground: function(oldView, newView){
-		try{
-			if(oldView !== null && oldView !== undefined){
-				oldView.x = 1024;
-				oldView.visible = false;
-			}
-		}catch(err) {
-			console.log(err);
-		}
-		try{
-			newView.x = 0;
-			newView.visible = true;
-		}catch(err) {
-			console.log(err);
-		}
-		return newView;
-	}
-}
-var Tick = {
-	defaultDelay: 100,
-	stage: null,
-	enabled: false,
-	debug: false,
-	low: 4,
-	medium: 8,
-	high: 15,
-	perfect: 24,
-	init: function(stage, framerate){
-		this.stage = stage;
-		// createjs.Ticker.setFPS(framerate);
-		this.framerate(framerate);
-		enabled = false;
-	},
-	framerate: function(framerate){
-		// console.log('framerate', framerate);
-		createjs.Ticker.framerate = framerate;
-	},
-	enable: function(){		
-		if(enabled)
-			return false;
-
-		// console.log('enable');
-
-		createjs.Ticker.removeEventListener('tick', self.stage); // Handbreak. Remove handler before setting again
-		createjs.Ticker.addEventListener('tick', this.stage);
-		if(this.debug){
-			createjs.Ticker.addEventListener('tick', this.foo);
-		}
-		enabled = true;
-	},
-	disable: function(delay){		
-		// console.log('disable');
-		if(delay === undefined){
-			delay = this.defaultDelay;
-		}
-
-		var self = this;
-		setTimeout(function(){
-			// Hand break. Hdnles enable/disable conflicts due tp timer
-			if(enabled)
-				return false;
-
-			createjs.Ticker.removeEventListener('tick', self.stage);
-
-			if(self.debug){
-				createjs.Ticker.removeEventListener('tick', self.foo);
-			}
-		}, delay);
-
-		enabled = false;
-	},
-	resume: function(){
-		createjs.Ticker.paused = false;
-	},
-	pause: function(){
-		createjs.Ticker.paused = true;
-	},
-	foo: function(event){
-		// console.log(createjs.Ticker.framerate);
-		// // console.log(event.paused,
-	 //         createjs.Ticker.getTime(false),
-	 //         createjs.Ticker.getTime(true));
-	}
-}
-var TextField = function(){
-
-} 
-TextField.create = function(type, text, fontsize, color, fontface, fontWeight){
-
-	if(!fontWeight)
-	 var fontWeight = '';
-
-	var tf = new createjs.Text();
-	// tf.lineWidth = 490;
-
-	tf.font = fontWeight+fontsize+'px '+fontface;
-	tf.color = color;
-	tf.text = text;
-	return tf;
-}
-TextField.createBmp = function(id, text, fontsize, color){
-	var bmptxt = Font.create(id, fontsize, text);
-	if(color)
-		bmptxt.setColor(color);
-	return bmptxt;
-}
-// Math
-Math.range = function(min, max){
-	'use strict';
-	return Math.random() * (max - min) + min;
-}
-Math.rangeInt = function(min, max){
-	'use strict';
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-var Preloader = {
-	id: 0,
-	imagePath: 'assets/images/preloader.gif',
-	tracker: {},
-
-
-	load: function(manifest, handleFileLoad, handleComplete, clss, keep, factor){
-		'use strict';
-		this.id++;
-		
-		// FIXME
-		// Should not happen trying to load an empty manifest
-		// If nothing to load exit 
-		if(manifest.length === 0){
-			handleComplete(null);
-			return;
-		}
-
-		// (factor === undefined) ? this.factor = 1 : this.factor = factor;
-		// if(clss === undefined) clss = 'small';
-
-		this.tracker[this.id] = false;
-
-		var self = this;
-
-		var loader = new createjs.LoadQueue(true);
-		loader.id = this.id;
-		(keep === undefined) ? loader.keepPreloader = false : loader.keepPreloader = keep;
-		if(handleFileLoad != null)
-			loader.addEventListener('fileload', function(event){
-				if(handleFileLoad != null){
-					handleFileLoad(event);
-				}				
-			});		
-			loader.addEventListener('complete', function(event){
-				var id = event.target.id;
-				self.tracker[id] = true;
-				if(handleComplete != null){
-					handleComplete(event);
-				}	
-				
-				PreloadGFX.hide();
-			});
-			loader.addEventListener('progress', function(event){
-				PreloadGFX.showProgress(event.loaded);
-			});	
-			loader.addEventListener('error', function(event){
-				console.log('Preloader:error', event);
-			});	
-		manifest = Path.adjustManifest(manifest);
-		loader.loadManifest(manifest);
-
-		PreloadGFX.show();
-	}
-};
-PreloadGFX = {
-	blocker: null,
-	shown: 0,
-	preloader: null,
-	show: function(progress){
-		// if(this.shown < 0)
-		// 	this.shown = 0;
-		
-		this.shown++;
-		
-
-		(progress === undefined || progress === null)? progress = true : progress = progress;
-		// var progress = true
-		
-
-		if(this.preloader !== undefined && this.preloader !== null){
-			console.log('show', this.preloader.visible);
-			this.preloader.visible = true;
-			// this.preloader.progress_bar.visible = true;
-			if(progress)
-				this.preloader.progress_bar.visible = true;
-			else
-				this.preloader.progress_bar.visible = false;
-		}
-
-		if(PreloadGFX.blocker !== null && progress){
-			PreloadGFX.blocker.visible = true;
-			PreloadGFX.blocker.alpha = .3;	
-		}		
-	},
-	hide: function(){
-		this.shown--;
-
-		if(this.preloader !== undefined && this.preloader !== null){
-			console.log('hide', this.shown);
-			if(this.shown == 0)
-				this.preloader.visible = false;
-		}
-
-		if(PreloadGFX.blocker !== null)
-			PreloadGFX.blocker.visible = false;
-	},
-	showProgress: function(progress){
-
-		if(this.preloader !== undefined && this.preloader !== null){
-			this.preloader.progress_bar.bar.scaleX = progress;
-			// console.log(progress, this.preloader.bar)
-		}
-	}
-}
-var Path = {
-	adjustManifest: function(manifest){
-		for(var i in manifest){
-			if(typeof manifest[i] === 'object'){
-				if(!manifest[i].adjusted){
-					manifest[i].src = this.adjustUrl(manifest[i].src);
-					manifest[i].adjusted = true
-				}
-			}
-		}
-		return manifest;
-	},
-	adjustUrl: function(url){
-		var newUrl = Environment.basePath() + url.replace(/\.\.\//g, '');
-		// console.log(url, '|', newUrl);
-		return newUrl;
-	}
-}
-var LoadJS = {
-	cache: [],
-	load: function(urls, delegate, location){
-		'use strict';
-		var urlList = [];
-		var tmpList = [];
-
-		PreloadGFX.show();
-
-		// $('.preload-wrapper').removeClass('hide');
-		// $('.preload-wrapper').addClass('show');
-		// $('.preload-wrapper').addClass('full');
-		// $('.preloader').addClass('full');
-		
-		//url is URL of external file, code is the code
-	    //to be called from the file, location is the location to 
-	    //insert the <script> element
-
-	    var counter = 0;
-	    var tracker = {};
-
-	    if(typeof urls === 'string'){
-	    	tmpList = urls.split(',');
-	    }else{
-	    	tmpList = urls;
-	    }
-
-	    // Through list of files requested to be loaded
-    	for(var k=0; k<tmpList.length; k++){	
-    		var may = true;
-			for(var b = 0; b<this.cache.length; b++){
-				if(this.cache[b] === tmpList[k]){
-					may == false;
-					break;
-				}				
-			}
-			if(may){
-				urlList.push(Path.adjustUrl(tmpList[k]));
-			}
-    	}
-
-	    if(location == null)
-	    	location = document.body;
-
-	    for(var i=0; i<urlList.length; i++){
-
-    		// console.log(this.cache);
-    		this.cache.push(urlList[i]);
-
-		    var scriptTag = document.createElement('script');		    
-		    // console.log(urlList[i]);
-
-		    scriptTag.onload = scriptTag.onreadystatechange = function(event){
-		    	counter++;
-
-		    	// Split the path of the laoded file. Get the 2 last entries
-		    	var arr = event.target.src.split('/');
-		    	var identifier1 = arr[arr.length-2] +'/'+arr[arr.length-1];
-
-		    	// Track which file is loaded
-		    	tracker[identifier1] = true;
-
-		    	// Through list of files requested to be loaded
-		    	for(var a=0; a<urlList.length; a++){		    		
-
-		    		// Split the path of the file requsted to be loaded. Get the 2 last entries
-		    		var arr2 = urlList[a].split('/');
-		    		var identifier2 = arr2[arr2.length-2] +'/'+arr2[arr2.length-1];
-
-		    		// Check if the file requested to be loaded match the one of those loaded
-		    		// If one is still not loaded then leave
-					if(tracker[identifier2] !== true){
-						// console.log('LoadJS:onload', urlList[a]);
-						// this.cache.push(urlList[a]);
-						return false;
-					}
-		    	}
-
-		    	// Reached this? All files are loaded
-		    	delegate();
-		    	PreloadGFX.hide();
-
-		  //   	$('.preload-wrapper').addClass('hide');
-				// $('.preload-wrapper').removeClass('show');
-		    };
-
-		    scriptTag.src = urlList[i];
-		    location.appendChild(scriptTag);
-		    // location.removeChild(scriptTag);  
-	    }	    
-	}	
-};
-var Font = {
-	BIGNOODLE: 'BigNoodleTitling',
-	
-	// AMERICANTYPEWRITER: 'americantypewriter',
-	// xml: {},
-	// images: {},
-	// bitmapfonts: {},
-	// init: function(){
-	// 	'use strict';
-	// 	this.xml = {};
-	// 	this.images = {};
-	// 	this.bitmapfonts = {};	
-	// },
-	// register: function(id, size){
-	// 	'use strict';
-	// 	var key = id;//+'_'+size;
-	// 	this.bitmapfonts[key] = new BitmapFont(this.images[id], this.xml[id], size);
-	// 	BitmapTextField.registerBitmapFont(this.bitmapfonts[id], id);
-	// },
-	// create: function(id, size, text){
-	// 	'use strict';
-	// 	var key = id;//+'_'+size;
-	// 	var bitmapText = new BitmapTextField(800,100,text,key,size,0,0,'left','top',true);
-	// 	// var bitmapText = new BitmapTextField(200,100,'Bitmap text','cooper',-1,0,0,'left','top',true);
-	// 	return bitmapText;
-	// }
-};
-var Flow = {
-	statsSplit: function(vo) {
-		if(vo.type == 'bool'){
-			if(vo.value !== vo.threshold){
-				this.trigger = vo.triggers[0];
-			}else{
-				this.trigger = vo.triggers[1];
-			}
-		}else{
-			if(vo.value < vo.threshold){
-				this.trigger = vo.triggers[0];
-			}else{
-				this.trigger = vo.triggers[1];
-			}
-		}
-		
-		vo.callback();
-		//this.flow.next(this.trigger);
-	}
-}
-/**
-	A facade to browser detection method
-	Wrapped in order to enable change of lib if nessesary
-*/
-var Environment = {	
-	gameBasePath: '/assets/game/',
-	data: null,
-	browser: {},
-	os: null,
-	dimensions: {},
-	ratioValue: null,
-	init: function(){
-		'use strict';
-		var data = browserDetection();
-		this.browser.name = data.browser.toLowerCase();
-		this.browser.version = data.version;
-		this.browser.firefox = (this.browser.name === 'firefox');
-		this.os = data.os;
-		this.dimensions.w = window.innerWidth;
-		this.dimensions.h = window.innerHeight;
-		
-		var cr = function(){
-			var ctx = document.createElement('canvas').getContext('2d'),
-	        dpr = window.devicePixelRatio || 1,
-	        bsr = ctx.webkitBackingStorePixelRatio ||
-	              ctx.mozBackingStorePixelRatio ||
-	              ctx.msBackingStorePixelRatio ||
-	              ctx.oBackingStorePixelRatio ||
-	              ctx.backingStorePixelRatio || 1;
-	    	return dpr / bsr;
-		}
-		this.ratio = cr();
-
-		var wf = function(){
-			return Environment.dimensions.w / 1024;
-		}
-		this.winScale = wf();
-	},
-	basePath: function(){		
-		// console.log('this.gameBasePath', this.gameBasePath);
-		if(this.gameBasePath === undefined)
-			this.gameBasePath = '/'; // Default local usage
-		return this.gameBasePath;
-	}
-};
-'use strict';
-var Delegate = {	
-	create: function (func, target) {
-		'use strict';
-	    return function() { 
-	    	try{
-	    		return func.apply(target, arguments);	
-	    	}catch(err){
-			   console.log(err);
-			}
-	    }
-	}
-};
-var Canvas = {
-	create: function(w, h, ratio) {	
-		var winScale = Environment.winScale;
-		if(winScale > 1) winScale = 1;
-
-	    var canvas = document.createElement('canvas');
-	    canvas.width = w * ratio;
-	    canvas.height = h * ratio;
-	    canvas.style.width = w * winScale + 'px';
-	    canvas.style.height = h * winScale + 'px';
-	    canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);	
-	    return canvas;
-	}
-}
-// Array
-// Shuffle array and indicate correct index
-Array.prototype.shuffle = function(index){
-	var correctAnswer = this[index];
-    for(var j, x, i = this.length; i; j = Math.floor(Math.random() * i), x = this[--i], this[i] = this[j], this[j] = x)
-    
-    // Find correct answer's index in array
-    for(var a=0; a<this.length; a++){
-    	if(correctAnswer == this[a]){
-    		this.correct = a;
-    		break;
-    	}	    
-    }
-    return this;
-}
-var Topbar = {
-	view: null,
-	soundController: null,
-	init: function(view){
-		// console.log('Topbar::init', view);
-		if(view === undefined || view === null){
-			throw new Error("'view' is undefined");
-		}
-		this.view = view;	
-
-		HUDController.init();	
-	},
-	go: function(frm){
-		// console.log('Topbar:',this.view);
-		// this.view.label_intro.x = 564 + 300;
-		// createjs.Tween.get(this.view.label_intro)
-		// 	.to({x:564}, 300, createjs.Ease.backIn);
-
-		if(this.view === undefined || this.view === null){
-			throw new Error("'view' is undefined");
-		}
-		this.view.gotoAndStop(frm);
-
-		// Setup for game related to user's choices
-		if(frm === 'game'){
-			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
-			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
-
-			// Points
-			HUDController.setView(this.view.hud);
-		}
-	},
-	pointsUpdate: function(){
-		try{
-			HUDController.update();
-		}catch(err){
-			console.log(err);			
-		}		
-	},
-	show: function(){
-		this.view.visible = true;
-	},
-	hide: function(){
-		this.view.visible = false;	
-	}
-}
 var SoundService = {
 	init: function(){
 		'use strict';
@@ -6060,6 +5433,623 @@ var FlowData ={
 // 		}
 // 	}
 // }
+var Topbar = {
+	view: null,
+	soundController: null,
+	init: function(view){
+		// console.log('Topbar::init', view);
+		if(view === undefined || view === null){
+			throw new Error("'view' is undefined");
+		}
+		this.view = view;	
+
+		HUDController.init();	
+	},
+	go: function(frm){
+		// console.log('Topbar:',this.view);
+		// this.view.label_intro.x = 564 + 300;
+		// createjs.Tween.get(this.view.label_intro)
+		// 	.to({x:564}, 300, createjs.Ease.backIn);
+
+		if(this.view === undefined || this.view === null){
+			throw new Error("'view' is undefined");
+		}
+		this.view.gotoAndStop(frm);
+
+		// Setup for game related to user's choices
+		if(frm === 'game'){
+			this.view.photo.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.realname.gotoAndStop(PlayerStats.challenge + PlayerStats.family);
+			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
+
+			// Points
+			HUDController.setView(this.view.hud);
+		}
+	},
+	pointsUpdate: function(){
+		try{
+			HUDController.update();
+		}catch(err){
+			console.log(err);			
+		}		
+	},
+	show: function(){
+		this.view.visible = true;
+	},
+	hide: function(){
+		this.view.visible = false;	
+	}
+}
+'use strict';
+var TweenUtil = {
+	to: function(element, options, delay, delegate){
+		createjs.Tween.get(element)
+			.to(options, delay, createjs.Ease.linear)
+			.call(function(){
+				if(delegate !== undefined){
+					delegate();
+				}
+			})
+	}
+}
+var Transitions = {
+	inOut: function(inObj, outObj, delegate){
+		// For checking done of in/out tween
+		var left = 0;
+		
+		//console.log(outObj.element)
+		(inObj.element !== null) ? left++ : console.log('inObj::none');
+		(outObj.element !== null) ? left++ : console.log('outObj::none');
+
+		var checkDone = function(left){
+			// console.log('checkDone', left)
+			if(left == 0){
+				if(delegate !== null){
+					delegate();
+				}
+			}
+		}
+		// Previous page out
+		switch(outObj.prop){
+			case 'pos': 
+				this.transOutPosition(outObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+			case 'alpha': 
+				this.transOutAlpha(outObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+		}
+		// New page in
+		switch(inObj.prop){
+			case 'pos': 
+				this.transInPosition(inObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+			case 'alpha': 
+				this.transInAlpha(inObj.element, function(){
+					checkDone(--left);
+				});
+			break;
+		}
+		
+	},
+	transInPosition: function(pageView, callback){
+		if(pageView === null || pageView === undefined)
+			return;
+
+		// New page in
+		pageView.visible = true;
+		pageView.alpha = 1;
+		pageView.x = 1024;
+		createjs.Tween.get(pageView)
+			.to({x:0}, 300, createjs.Ease.linear)
+			.call(function(){
+				if(callback !== undefined){
+					callback();
+				}
+			});
+	},
+	transOutPosition: function(pageView, callback){
+		if(pageView === null || pageView === undefined)
+			return;
+
+		// New page in
+		createjs.Tween.get(pageView)
+			.to({x:-1024}, 300, createjs.Ease.linear)
+			.call(function(){
+				if(callback !== undefined){
+					callback();
+					pageView.visible = false;
+				}
+			});
+	},
+	transInAlpha: function(pageView, callback){
+		if(pageView === null || pageView === undefined)
+			return;
+
+		// New page in
+		pageView.visible = true;
+		pageView.alpha = 0;
+		pageView.x = 0;
+		createjs.Tween.get(pageView)
+			.to({alpha:1}, 300, createjs.Ease.linear)
+			.call(function(){
+				if(callback !== undefined){
+					callback();
+				}
+			});
+	},
+	transOutAlpha: function(pageView, callback){
+		if(pageView === null || pageView === undefined)
+			return;
+		
+		// New page in
+		createjs.Tween.get(pageView)
+			.to({alpha:0}, 300, createjs.Ease.linear)
+			.call(function(){
+				if(callback !== undefined){
+					callback();
+				}
+			});
+	},
+	changeBackground: function(oldView, newView){
+		try{
+			if(oldView !== null && oldView !== undefined){
+				oldView.x = 1024;
+				oldView.visible = false;
+			}
+		}catch(err) {
+			console.log(err);
+		}
+		try{
+			newView.x = 0;
+			newView.visible = true;
+		}catch(err) {
+			console.log(err);
+		}
+		return newView;
+	}
+}
+var Tick = {
+	defaultDelay: 100,
+	stage: null,
+	enabled: false,
+	debug: false,
+	low: 4,
+	medium: 8,
+	high: 15,
+	perfect: 24,
+	init: function(stage, framerate){
+		this.stage = stage;
+		// createjs.Ticker.setFPS(framerate);
+		this.framerate(framerate);
+		enabled = false;
+	},
+	framerate: function(framerate){
+		// console.log('framerate', framerate);
+		createjs.Ticker.framerate = framerate;
+	},
+	enable: function(){		
+		if(enabled)
+			return false;
+
+		// console.log('enable');
+
+		createjs.Ticker.removeEventListener('tick', self.stage); // Handbreak. Remove handler before setting again
+		createjs.Ticker.addEventListener('tick', this.stage);
+		if(this.debug){
+			createjs.Ticker.addEventListener('tick', this.foo);
+		}
+		enabled = true;
+	},
+	disable: function(delay){		
+		// console.log('disable');
+		if(delay === undefined){
+			delay = this.defaultDelay;
+		}
+
+		var self = this;
+		setTimeout(function(){
+			// Hand break. Hdnles enable/disable conflicts due tp timer
+			if(enabled)
+				return false;
+
+			createjs.Ticker.removeEventListener('tick', self.stage);
+
+			if(self.debug){
+				createjs.Ticker.removeEventListener('tick', self.foo);
+			}
+		}, delay);
+
+		enabled = false;
+	},
+	resume: function(){
+		createjs.Ticker.paused = false;
+	},
+	pause: function(){
+		createjs.Ticker.paused = true;
+	},
+	foo: function(event){
+		// console.log(createjs.Ticker.framerate);
+		// // console.log(event.paused,
+	 //         createjs.Ticker.getTime(false),
+	 //         createjs.Ticker.getTime(true));
+	}
+}
+var TextField = function(){
+
+} 
+TextField.create = function(type, text, fontsize, color, fontface, fontWeight){
+
+	if(!fontWeight)
+	 var fontWeight = '';
+
+	var tf = new createjs.Text();
+	// tf.lineWidth = 490;
+
+	tf.font = fontWeight+fontsize+'px '+fontface;
+	tf.color = color;
+	tf.text = text;
+	return tf;
+}
+TextField.createBmp = function(id, text, fontsize, color){
+	var bmptxt = Font.create(id, fontsize, text);
+	if(color)
+		bmptxt.setColor(color);
+	return bmptxt;
+}
+// Math
+Math.range = function(min, max){
+	'use strict';
+	return Math.random() * (max - min) + min;
+}
+Math.rangeInt = function(min, max){
+	'use strict';
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+var Preloader = {
+	id: 0,
+	imagePath: 'assets/images/preloader.gif',
+	tracker: {},
+
+
+	load: function(manifest, handleFileLoad, handleComplete, clss, keep, factor){
+		'use strict';
+		this.id++;
+		
+		// FIXME
+		// Should not happen trying to load an empty manifest
+		// If nothing to load exit 
+		if(manifest.length === 0){
+			handleComplete(null);
+			return;
+		}
+
+		// (factor === undefined) ? this.factor = 1 : this.factor = factor;
+		// if(clss === undefined) clss = 'small';
+
+		this.tracker[this.id] = false;
+
+		var self = this;
+
+		var loader = new createjs.LoadQueue(true);
+		loader.id = this.id;
+		(keep === undefined) ? loader.keepPreloader = false : loader.keepPreloader = keep;
+		if(handleFileLoad != null)
+			loader.addEventListener('fileload', function(event){
+				if(handleFileLoad != null){
+					handleFileLoad(event);
+				}				
+			});		
+			loader.addEventListener('complete', function(event){
+				var id = event.target.id;
+				self.tracker[id] = true;
+				if(handleComplete != null){
+					handleComplete(event);
+				}	
+				
+				PreloadGFX.hide();
+			});
+			loader.addEventListener('progress', function(event){
+				PreloadGFX.showProgress(event.loaded);
+			});	
+			loader.addEventListener('error', function(event){
+				console.log('Preloader:error', event);
+			});	
+		manifest = Path.adjustManifest(manifest);
+		loader.loadManifest(manifest);
+
+		PreloadGFX.show();
+	}
+};
+PreloadGFX = {
+	blocker: null,
+	shown: 0,
+	preloader: null,
+	show: function(progress){
+		this.shown++;		
+
+		(progress === undefined || progress === null)? progress = true : progress = progress;
+		
+		if(this.preloader !== undefined && this.preloader !== null){
+			console.log('show', this.preloader.visible);
+			this.preloader.visible = true;
+			if(progress)
+				this.preloader.progress_bar.visible = true;
+			else
+				this.preloader.progress_bar.visible = false;
+		}
+
+		if(PreloadGFX.blocker !== null && progress){
+			PreloadGFX.blocker.visible = true;
+			PreloadGFX.blocker.alpha = .3;	
+		}		
+	},
+	hide: function(){
+		this.shown--;
+
+		if(this.preloader !== undefined && this.preloader !== null){
+			console.log('hide', this.shown);
+			if(this.shown == 0)
+				this.preloader.visible = false;
+		}
+		if(PreloadGFX.blocker !== null)
+			PreloadGFX.blocker.visible = false;
+	},
+	showProgress: function(progress){
+		if(this.preloader !== undefined && this.preloader !== null){
+			this.preloader.progress_bar.bar.scaleX = progress;
+		}
+	}
+}
+var Path = {
+	adjustManifest: function(manifest){
+		for(var i in manifest){
+			if(typeof manifest[i] === 'object'){
+				if(!manifest[i].adjusted){
+					manifest[i].src = this.adjustUrl(manifest[i].src);
+					manifest[i].adjusted = true
+				}
+			}
+		}
+		return manifest;
+	},
+	adjustUrl: function(url){
+		var newUrl = Environment.basePath() + url.replace(/\.\.\//g, '');
+		// console.log(url, '|', newUrl);
+		return newUrl;
+	}
+}
+var LoadJS = {
+	cache: [],
+	load: function(urls, delegate, location){
+		'use strict';
+		var urlList = [];
+		var tmpList = [];
+
+		PreloadGFX.show();
+
+		// $('.preload-wrapper').removeClass('hide');
+		// $('.preload-wrapper').addClass('show');
+		// $('.preload-wrapper').addClass('full');
+		// $('.preloader').addClass('full');
+		
+		//url is URL of external file, code is the code
+	    //to be called from the file, location is the location to 
+	    //insert the <script> element
+
+	    var counter = 0;
+	    var tracker = {};
+
+	    if(typeof urls === 'string'){
+	    	tmpList = urls.split(',');
+	    }else{
+	    	tmpList = urls;
+	    }
+
+	    // Through list of files requested to be loaded
+    	for(var k=0; k<tmpList.length; k++){	
+    		var may = true;
+			for(var b = 0; b<this.cache.length; b++){
+				if(this.cache[b] === tmpList[k]){
+					may == false;
+					break;
+				}				
+			}
+			if(may){
+				urlList.push(Path.adjustUrl(tmpList[k]));
+			}
+    	}
+
+	    if(location == null)
+	    	location = document.body;
+
+	    for(var i=0; i<urlList.length; i++){
+
+    		// console.log(this.cache);
+    		this.cache.push(urlList[i]);
+
+		    var scriptTag = document.createElement('script');		    
+		    // console.log(urlList[i]);
+
+		    scriptTag.onload = scriptTag.onreadystatechange = function(event){
+		    	counter++;
+
+		    	// Split the path of the laoded file. Get the 2 last entries
+		    	var arr = event.target.src.split('/');
+		    	var identifier1 = arr[arr.length-2] +'/'+arr[arr.length-1];
+
+		    	// Track which file is loaded
+		    	tracker[identifier1] = true;
+
+		    	// Through list of files requested to be loaded
+		    	for(var a=0; a<urlList.length; a++){		    		
+
+		    		// Split the path of the file requsted to be loaded. Get the 2 last entries
+		    		var arr2 = urlList[a].split('/');
+		    		var identifier2 = arr2[arr2.length-2] +'/'+arr2[arr2.length-1];
+
+		    		// Check if the file requested to be loaded match the one of those loaded
+		    		// If one is still not loaded then leave
+					if(tracker[identifier2] !== true){
+						// console.log('LoadJS:onload', urlList[a]);
+						// this.cache.push(urlList[a]);
+						return false;
+					}
+		    	}
+
+		    	// Reached this? All files are loaded
+		    	delegate();
+		    	PreloadGFX.hide();
+
+		  //   	$('.preload-wrapper').addClass('hide');
+				// $('.preload-wrapper').removeClass('show');
+		    };
+
+		    scriptTag.src = urlList[i];
+		    location.appendChild(scriptTag);
+		    // location.removeChild(scriptTag);  
+	    }	    
+	}	
+};
+var Font = {
+	BIGNOODLE: 'BigNoodleTitling',
+	
+	// AMERICANTYPEWRITER: 'americantypewriter',
+	// xml: {},
+	// images: {},
+	// bitmapfonts: {},
+	// init: function(){
+	// 	'use strict';
+	// 	this.xml = {};
+	// 	this.images = {};
+	// 	this.bitmapfonts = {};	
+	// },
+	// register: function(id, size){
+	// 	'use strict';
+	// 	var key = id;//+'_'+size;
+	// 	this.bitmapfonts[key] = new BitmapFont(this.images[id], this.xml[id], size);
+	// 	BitmapTextField.registerBitmapFont(this.bitmapfonts[id], id);
+	// },
+	// create: function(id, size, text){
+	// 	'use strict';
+	// 	var key = id;//+'_'+size;
+	// 	var bitmapText = new BitmapTextField(800,100,text,key,size,0,0,'left','top',true);
+	// 	// var bitmapText = new BitmapTextField(200,100,'Bitmap text','cooper',-1,0,0,'left','top',true);
+	// 	return bitmapText;
+	// }
+};
+var Flow = {
+	statsSplit: function(vo) {
+		if(vo.type == 'bool'){
+			if(vo.value !== vo.threshold){
+				this.trigger = vo.triggers[0];
+			}else{
+				this.trigger = vo.triggers[1];
+			}
+		}else{
+			if(vo.value < vo.threshold){
+				this.trigger = vo.triggers[0];
+			}else{
+				this.trigger = vo.triggers[1];
+			}
+		}
+		
+		vo.callback();
+		//this.flow.next(this.trigger);
+	}
+}
+/**
+	A facade to browser detection method
+	Wrapped in order to enable change of lib if nessesary
+*/
+var Environment = {	
+	gameBasePath: '/assets/game/',
+	data: null,
+	browser: {},
+	os: null,
+	dimensions: {},
+	ratioValue: null,
+	init: function(){
+		'use strict';
+		var data = browserDetection();
+		this.browser.name = data.browser.toLowerCase();
+		this.browser.version = data.version;
+		this.browser.firefox = (this.browser.name === 'firefox');
+		this.os = data.os;
+		this.dimensions.w = window.innerWidth;
+		this.dimensions.h = window.innerHeight;
+		
+		var cr = function(){
+			var ctx = document.createElement('canvas').getContext('2d'),
+	        dpr = window.devicePixelRatio || 1,
+	        bsr = ctx.webkitBackingStorePixelRatio ||
+	              ctx.mozBackingStorePixelRatio ||
+	              ctx.msBackingStorePixelRatio ||
+	              ctx.oBackingStorePixelRatio ||
+	              ctx.backingStorePixelRatio || 1;
+	    	return dpr / bsr;
+		}
+		this.ratio = cr();
+
+		var wf = function(){
+			return Environment.dimensions.w / 1024;
+		}
+		this.winScale = wf();
+	},
+	basePath: function(){		
+		// console.log('this.gameBasePath', this.gameBasePath);
+		if(this.gameBasePath === undefined)
+			this.gameBasePath = '/'; // Default local usage
+		return this.gameBasePath;
+	}
+};
+'use strict';
+var Delegate = {	
+	create: function (func, target) {
+		'use strict';
+	    return function() { 
+	    	try{
+	    		return func.apply(target, arguments);	
+	    	}catch(err){
+			   console.log(err);
+			}
+	    }
+	}
+};
+var Canvas = {
+	create: function(w, h, ratio) {	
+		var winScale = Environment.winScale;
+		if(winScale > 1) winScale = 1;
+
+	    var canvas = document.createElement('canvas');
+	    canvas.width = w * ratio;
+	    canvas.height = h * ratio;
+	    canvas.style.width = w * winScale + 'px';
+	    canvas.style.height = h * winScale + 'px';
+	    canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);	
+	    return canvas;
+	}
+}
+// Array
+// Shuffle array and indicate correct index
+Array.prototype.shuffle = function(index){
+	var correctAnswer = this[index];
+    for(var j, x, i = this.length; i; j = Math.floor(Math.random() * i), x = this[--i], this[i] = this[j], this[j] = x)
+    
+    // Find correct answer's index in array
+    for(var a=0; a<this.length; a++){
+    	if(correctAnswer == this[a]){
+    		this.correct = a;
+    		break;
+    	}	    
+    }
+    return this;
+}
 /**
 	Controller uses the browser's AUDIO element as play back for sound
 */
