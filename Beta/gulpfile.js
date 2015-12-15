@@ -30,7 +30,7 @@ gulp.task('move-files-locally', function () {
   return  gulp.src('*.js', {read: false})
           .pipe(shell([
             'cd /Users/str/Projects/TripleDesign/Forsorgsmuseet/Work/Fattiggaard/Beta',
-            'cp dist/*.js ../../Fattiggaard-web/app/assets/game/'
+            'cp -a dist/ ../../Fattiggaard-web/app/assets/game/'
           ]));
 });
 gulp.task('set-semicolon', function(){
@@ -58,7 +58,7 @@ gulp.task('reset-basepath', function(){
       .pipe(gulp.dest(src));
 });
 gulp.task('deploy-local', function(){
-  runSequence('reset-semicolon', 'set-semicolon', 'set-basepath', 'dist-code', 'move-files-locally', 'reset-basepath');
+  runSequence('reset-semicolon', 'set-semicolon', 'set-basepath', 'dist', 'move-files-locally', 'reset-basepath');
 });
 
 
@@ -248,7 +248,7 @@ gulp.task('serve', ['watch']);
 gulp.task('watch', ['statics', 'default'], function () {
   isWatching = true;
   // Initiate livereload server:
-  g.livereload.listen(23456);
+  g.livereload.listen(35729);
   gulp.watch('./src/app/**/*.js', ['jshint']).on('change', function (evt) {
     if (evt.type !== 'changed') {
       gulp.start('index');

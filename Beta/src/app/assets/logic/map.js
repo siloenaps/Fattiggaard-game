@@ -128,6 +128,19 @@ p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
+(lib.Additionalinfo = function() {
+	this.initialize();
+
+	// Layer 1
+	this.text = new cjs.Text("Du har ikke flere penge, og har ikke spist i flere dage. Du ved at maden i\nTyskland er tarvelig og underernærende, og frygter, at du ikke vil\nkunne holde til seks måneders arbejde i Tyskland i din nuværende\nforfatning/tilstand. I stedet beslutter du at opsøge en fattiganstalt,\nhvor du kan få mad og samle kræfter.", "18px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 20;
+	this.text.lineWidth = 687;
+
+	this.addChild(this.text);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,691,222.8);
+
+
 (lib.InfoPopup = function(mode,startPosition,loop) {
 if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{});
 
@@ -351,13 +364,17 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,191.5,51.5);
 	this.checkbox1 = new lib.CheckBoxHorsens();
 	this.checkbox1.setTransform(415.4,298.8);
 
+	// Layer 3
+	this.infotext = new lib.Additionalinfo();
+	this.infotext.setTransform(555.4,223.7,1,1,0,0,0,345.4,111.4);
+
 	// Text
 	this.text = new cjs.Text("Vælg hvor du starter", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
 	this.text.lineWidth = 777;
 	this.text.setTransform(210,38);
 
-	this.addChild(this.text,this.checkbox1,this.checkbox2,this.checkbox3,this.info1,this.info2,this.info3,this.infopopup);
+	this.addChild(this.text,this.infotext,this.checkbox1,this.checkbox2,this.checkbox3,this.info1,this.info2,this.info3,this.infopopup);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(210,0,1859,540);
 

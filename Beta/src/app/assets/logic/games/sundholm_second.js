@@ -13,7 +13,8 @@ lib.properties = {
 		{src:"../../../assets/images/pool/_1_2BGsundholmA.jpg", id:"_1_2BGsundholmA"},
 		{src:"../../../assets/images/pool/_1_2BGsundholmB.jpg", id:"_1_2BGsundholmB"},
 		{src:"../../../assets/images/pool/_1_2BGsundholmC.jpg", id:"_1_2BGsundholmC"},
-		{src:"../../../assets/images/pool/_1_3BGsundholm.jpg", id:"_1_3BGsundholm"},
+		{src:"../../../assets/images/pool/_1_3BGsundholmNY.jpg", id:"_1_3BGsundholmNY"},
+		{src:"../../../assets/images/pool/_1_3BGsundholmNY2.jpg", id:"_1_3BGsundholmNY2"},
 		{src:"../../../assets/images/pool/_1_4BG.jpg", id:"_1_4BG"},
 		{src:"../../../assets/images/pool/_23RecruimentOffice.jpg", id:"_23RecruimentOffice"},
 		{src:"../../../assets/images/pool/_3_6BG.jpg", id:"_3_6BG"},
@@ -77,8 +78,14 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._1_3BGsundholm = function() {
-	this.initialize(img._1_3BGsundholm);
+(lib._1_3BGsundholmNY = function() {
+	this.initialize(img._1_3BGsundholmNY);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._1_3BGsundholmNY2 = function() {
+	this.initialize(img._1_3BGsundholmNY2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -871,13 +878,32 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
+(lib.Background3_4_2 = function() {
+	this.initialize();
+
+	// Layer 2
+	this.instance = new lib.sundholm_title();
+	this.instance.setTransform(22,57);
+
+	// Layer 1
+	this.instance_1 = new lib._1_3BGsundholmNY2();
+
+	this.addChild(this.instance_1,this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
 (lib.Background3_3 = function() {
 	this.initialize();
 
-	// Layer 1
-	this.instance = new lib._1_3BGsundholm();
+	// Layer 2
+	this.instance = new lib.sundholm_title();
+	this.instance.setTransform(22,57);
 
-	this.addChild(this.instance);
+	// Layer 1
+	this.instance_1 = new lib._1_3BGsundholmNY();
+
+	this.addChild(this.instance_1,this.instance);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -1768,6 +1794,12 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,502);
 	this.bg_3_6.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_3_6).wait(26));
+
+	// 3.4.2
+	this.bg_3_4_2 = new lib.Background3_4_2();
+	this.bg_3_4_2.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_3_4_2).wait(26));
 
 	// 3.3
 	this.bg_3_3 = new lib.Background3_3();

@@ -3,6 +3,7 @@ var PageMap = function(container){
 	return{
 		currentPage:null,
 		container: container,
+		startInfo: false,
 		view: null,
 		trigger: 'map', // Default start pointer
 		continueBtn: ContinueButton,
@@ -77,6 +78,9 @@ var PageMap = function(container){
 			}catch(err) {
 		   		console.log(err);
 		   	}
+		},
+		setInfo: function(state){
+			this.startInfo = state;
 		},
 		onContinue: function(event) {
 			'use strict';
@@ -165,6 +169,8 @@ var PageMap = function(container){
 				});
 			}, this);
 			
+console.log('this.startInfo', this.startInfo)
+			this.currentPage.infotext.visible = this.startInfo;
 			
 
 			// Info popup

@@ -13,7 +13,8 @@ lib.properties = {
 		{src:"../../../assets/images/pool/_1_2BGhorsensA.jpg", id:"_1_2BGhorsensA"},
 		{src:"../../../assets/images/pool/_1_2BGhorsensB.jpg", id:"_1_2BGhorsensB"},
 		{src:"../../../assets/images/pool/_1_2BGhorsensC.jpg", id:"_1_2BGhorsensC"},
-		{src:"../../../assets/images/pool/_1_3BGhorsens.jpg", id:"_1_3BGhorsens"},
+		{src:"../../../assets/images/pool/_1_3BGhorsensNY.jpg", id:"_1_3BGhorsensNY"},
+		{src:"../../../assets/images/pool/_1_3BGhorsensNY2.jpg", id:"_1_3BGhorsensNY2"},
 		{src:"../../../assets/images/pool/_1_4BG.jpg", id:"_1_4BG"},
 		{src:"../../../assets/images/pool/_23RecruimentOffice.jpg", id:"_23RecruimentOffice"},
 		{src:"../../../assets/images/pool/_3_6BG.jpg", id:"_3_6BG"},
@@ -77,8 +78,14 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._1_3BGhorsens = function() {
-	this.initialize(img._1_3BGhorsens);
+(lib._1_3BGhorsensNY = function() {
+	this.initialize(img._1_3BGhorsensNY);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._1_3BGhorsensNY2 = function() {
+	this.initialize(img._1_3BGhorsensNY2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -871,13 +878,32 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
+(lib.Background3_4_2 = function() {
+	this.initialize();
+
+	// Layer 2
+	this.instance = new lib.horsens_title();
+	this.instance.setTransform(16,14);
+
+	// Layer 1
+	this.instance_1 = new lib._1_3BGhorsensNY2();
+
+	this.addChild(this.instance_1,this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
 (lib.Background3_3 = function() {
 	this.initialize();
 
-	// Layer 1
-	this.instance = new lib._1_3BGhorsens();
+	// Layer 2
+	this.instance = new lib.horsens_title();
+	this.instance.setTransform(16,14);
 
-	this.addChild(this.instance);
+	// Layer 1
+	this.instance_1 = new lib._1_3BGhorsensNY();
+
+	this.addChild(this.instance_1,this.instance);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -1768,6 +1794,12 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,502);
 	this.bg_3_6.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_3_6).wait(26));
+
+	// 3.4.2
+	this.bg_3_4_2 = new lib.Background3_4_2();
+	this.bg_3_4_2.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_3_4_2).wait(26));
 
 	// 3.3
 	this.bg_3_3 = new lib.Background3_3();

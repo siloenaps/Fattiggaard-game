@@ -140,6 +140,7 @@ var FlowManager = {
 				// Go to start frame
 				this.root.gotoAndStop('start');
 				this.currentPage = new PageMap(this.root.pagecontainer);
+				// this.currentPage.setInfo(false);
 				this.currentPage.start(); 
 
 				// Blocker
@@ -271,6 +272,7 @@ var FlowManager = {
 				// Go to start frame
 				this.root.gotoAndStop('start');
 				this.currentPage = new PageMap(this.root.pagecontainer);
+				this.currentPage.setInfo(true);
 				this.currentPage.start(); 
 
 				// Blocker

@@ -11,13 +11,13 @@ lib.properties = {
 	manifest: [
 		{src:"../../../assets/images/pool/_22.jpg", id:"_22"},
 		{src:"../../../assets/images/pool/_23RecruimentOffice.jpg", id:"_23RecruimentOffice"},
+		{src:"../../../assets/images/pool/_27BGGermany1JobB.jpg", id:"_27BGGermany1JobB"},
 		{src:"../../../assets/images/pool/_2_10_letter.png", id:"_2_10_letter"},
 		{src:"../../../assets/images/pool/_4_10_1BG.jpg", id:"_4_10_1BG"},
 		{src:"../../../assets/images/pool/_4_10_4BG.jpg", id:"_4_10_4BG"},
 		{src:"../../../assets/images/pool/_4_10_7BG.jpg", id:"_4_10_7BG"},
 		{src:"../../../assets/images/pool/_4_10_8_mtekst.jpg", id:"_4_10_8_mtekst"},
 		{src:"../../../assets/images/pool/_4_3BG.jpg", id:"_4_3BG"},
-		{src:"../../../assets/images/pool/_4_5_2BG.jpg", id:"_4_5_2BG"},
 		{src:"../../../assets/images/pool/_4_6BG.jpg", id:"_4_6BG"},
 		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
 		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
@@ -63,6 +63,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
+(lib._27BGGermany1JobB = function() {
+	this.initialize(img._27BGGermany1JobB);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
 (lib._2_10_letter = function() {
 	this.initialize(img._2_10_letter);
 }).prototype = p = new cjs.Bitmap();
@@ -95,12 +101,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 (lib._4_3BG = function() {
 	this.initialize(img._4_3BG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib._4_5_2BG = function() {
-	this.initialize(img._4_5_2BG);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -802,7 +802,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib._4_5_2BG();
+	this.instance = new lib._27BGGermany1JobB();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
@@ -813,7 +813,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib._4_5_2BG();
+	this.instance = new lib._27BGGermany1JobB();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();

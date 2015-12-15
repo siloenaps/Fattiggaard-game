@@ -123,6 +123,11 @@ PlayerSliderComponent.prototype.loop = function(){
 	var sndProgression = this.soundController.progress();
 	
 	var desiredFrame = Math.round(this.duration * sndProgression) + this.soundOffset;
+
+	// Truncate frame to show to max number of frames
+	if(desiredFrame > this.slide.totalFrames-1)
+		desiredFrame = this.slide.totalFrames-1
+
 	this.slide.gotoAndPlay(desiredFrame);
 
 	// Progression bar

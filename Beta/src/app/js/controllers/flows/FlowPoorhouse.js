@@ -437,6 +437,9 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 			this.currentPage = this.view.adviceinmate;	
 		break;
 		case '1.3.4': // Employee
+			// Change background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_3_4);
+
 			this.currentPage = this.view.adviceemployee;
 		break;
 	}	

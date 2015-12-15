@@ -360,7 +360,8 @@ var FlowPrologue = function(container){
 			// Set portrait + text realted to speaking character
 			var frm = PlayerStats.challenge + PlayerStats.family;
 			this.currentPage.portrait.gotoAndStop(frm);	
-			this.currentPage.playerlabel.gotoAndStop(frm);	
+			this.currentPage.playerlabel.gotoAndStop(frm);
+			this.currentPage.charactertext.gotoAndStop(frm);
 
 			// Reuse player component var for sound
 			this.playerComponent = null;

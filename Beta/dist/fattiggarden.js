@@ -618,6 +618,7 @@ var PageMap = function(container){
 	return{
 		currentPage:null,
 		container: container,
+		startInfo: false,
 		view: null,
 		trigger: 'map', // Default start pointer
 		continueBtn: ContinueButton,
@@ -692,6 +693,9 @@ var PageMap = function(container){
 			}catch(err) {
 		   		console.log(err);
 		   	}
+		},
+		setInfo: function(state){
+			this.startInfo = state;
 		},
 		onContinue: function(event) {
 			'use strict';
@@ -780,6 +784,8 @@ var PageMap = function(container){
 				});
 			}, this);
 			
+console.log('this.startInfo', this.startInfo)
+			this.currentPage.infotext.visible = this.startInfo;
 			
 
 			// Info popup
@@ -1497,7 +1503,8 @@ var FlowPrologue = function(container){
 			// Set portrait + text realted to speaking character
 			var frm = PlayerStats.challenge + PlayerStats.family;
 			this.currentPage.portrait.gotoAndStop(frm);	
-			this.currentPage.playerlabel.gotoAndStop(frm);	
+			this.currentPage.playerlabel.gotoAndStop(frm);
+			this.currentPage.charactertext.gotoAndStop(frm);
 
 			// Reuse player component var for sound
 			this.playerComponent = null;
@@ -1926,6 +1933,9 @@ FlowPoorhouseSecond.prototype.playAdvice = function(trigger) {
 			this.currentPage = this.view.adviceemployee;
 		break;
 		case '3.4.2': // Inmate
+			// Change background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_4_2);
+
 			this.currentPage = this.view.adviceinmate;	
 		break;		
 	}	
@@ -2607,6 +2617,9 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 			this.currentPage = this.view.adviceinmate;	
 		break;
 		case '1.3.4': // Employee
+			// Change background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_3_4);
+
 			this.currentPage = this.view.adviceemployee;
 		break;
 	}	
@@ -4915,524 +4928,6 @@ var FlowEpilogue = function(container){
 
 	};	
 }
-var SoundService = {
-	init: function(){
-		'use strict';
-		console.log('SoundService.init');
-		var recursive = function(obj){
-			for (var i in obj) {
-				if(typeof obj[i] === 'object'){
-					// console.log(obj[i].src);
-					if(obj[i].src !== undefined){
-						obj[i].src = SoundService.basePath() + obj[i].src;
-					}
-					recursive(obj[i]);
-				}
-			};
-		}
-		recursive(this.matrix);
-	},
-	getSlideDurationById: function(id){
-		'use strict';
-		return this.matrix.slides[id].duration;
-	},
-	getSlideSoundpathById: function(id){
-		'use strict';
-		return SoundService.properties.slidePath + id+'.mp3';
-	},
-	getSlideSoundById: function(id){
-		'use strict';
-		return SoundService.matrix.slides[id]
-	},
-	basePath: function(){
-		'use strict';
-		return Environment.basePath() + 'assets/sounds/';
-	},
-	matrix: {
-		effects: {
-			typewriter: { src:'typewriter.mp3', volume: 0.4 },
-			woodchopper: { src:'1.2.1_hugbraende_lydeffekt.mp3' }
-		},
-		'1.1.1' :{
-			horsens: { src:'1.1.1_horsens.mp3' },
-			sundholm: { src:'1.1.1_sundholm.mp3' },
-			svendborg: { src:'1.1.1_svendborg.mp3' }
-		},
-		points: {
-			plus: { src:'Point_plus.mp3' },
-			minus: { src:'Point_minus.mp3' }
-		},
-		dormitry: { src:'2.6.1.mp3' },
-		drunk: { src:'1.5.1.mp3' },
-		constable: { src:'1.6.1.mp3' },
-		'1.2.1': {
-			'horsens': {
-							'A': { src:'1.1.2_pashaven.mp3' },
-							'B': { src:'1.1.2_goerrent.mp3' },
-							'C': { src:'1.1.2_fletmaatter.mp3' }
-						},
-			'sundholm': {
-							'A': { src:'1.1.2_hugbraende.mp3' },
-							'B': { src:'1.1.2_pasgrise.mp3' },
-							'C': { src:'1.1.2_skaerver.mp3' }						
-						},
-			'svendborg': {
-							'A': { src:'1.1.2_skaerver.mp3' },
-							'B': { src:'1.1.2_vaevmaatter.mp3' },
-							'C': { src:'1.1.2_pilorm.mp3' }
-						},
-		},
-		'1.3.2': { label:'wants out', src:'1.3.2.mp3' },
-		'1.3.3': { label:'inmate', src:'1.3.3_indsat.mp3' },
-		'1.3.4': { label:'employee', src:'1.3.4.mp3' },	
-		'1.8': { label:'arrested', src:'1.8.mp3' },	
-		'2.2.1': { src:'2.2.1.mp3' },
-		'2.2.3': { src:'2.2.3.mp3' },
-		'2.8.1': { description:'get paid', src:'2.8.1.mp3' },
-		// '2.10.1': { description:'what now', src:'2.10.1_kontraktudlob.mp3' },
-		'2.10.2': {
-			'A': { description:'Finnish contract', src:'2.10.2.a.mp3' },
-			'B': { description:'Go home', src:'2.10.2.b.mp3' }
-		},
-		'2.11.1': { description:'home comming', src:'2.11.1.mp3' },
-		
-		slides: {
-					'slide_0_1': { src:'film01medmusik_mixdown.mp3' },
-					'slide_1_0_1': { src:'film10_mixdown.mp3' },
-					'slide_2_5': { src:'2.5_mixdown.mp3' },
-					'slide_2_7_1_amory': { src:'2.7.1.vaaben_mixdown.mp3' },
-					'slide_2_7_1_butcher': { src:'2.7.1.slagt_mixdown.mp3' },
-					'slide_2_7_1_mine': { src:'2.7.1.mine_mixdown.mp3' },
-					// 'slide_home1A': { src:'2.7.1.vaaben_mixdown.mp3' },
-					// 'slide_home1B': { src:'slide_home1_B.mp3' },
-					'slide_3_0': { src:'3.0_mixdown.mp3' },
-					'slide_4_3': { src:'4.3_mixdown.mp3' },
-					'slide_4_5_1_AB': { src:'4.5.1.mine_mixdown.mp3' },
-					'slide_4_5_1_AC': { src:'4.5.1hud_efter_vaaben_mixdown.mp3' },
-					'slide_4_5_1_BA': { src:'4.5.1.vaaben_efter kul_mixdown.mp3' },
-					'slide_4_5_1_BC': { src:'4.5.1hud_efter_mine_mixdown.mp3' },
-					'slide_4_5_1_CA': { src:'4.5.1.vaaben_efter hud_mixdown.mp3' },
-					'slide_4_5_1_CB': { src:'4.5.1.mine_mixdown.mp3' },
-					'slide_4_7': { src:'4.7_mixdown.mp3' }				
-				},
-		'0.4': { // oppinion
-				'AD': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
-				'AE': { label: 'alkoholiker, børn', src:'0.4_datter.mp3' },
-				'AF': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
-				'BD': { label: 'dovenskab', src:'0.4_kone.mp3' },
-				'BE': { label: 'dovenskab, børn', src:'0.4_datter.mp3' },
-				'BF': { label: 'dovenskab', src:'0.4_andenindlagt.mp3' },
-				'CD': { label: 'svækkelse', src:'0.4_kone.mp3' },
-				'CE': { label: 'svækkelse, børn', src:'0.4_datter.mp3' },
-				'CF': { label: 'svækkelse', src:'0.4_andenindlagt.mp3' }
-			},
-		'3.2.1': {
-			'horsens': {
-							'A': { src:'1.1.2_pashaven.mp3' },
-							'B': { src:'1.1.2_goerrent.mp3' },
-							'C': { src:'1.1.2_fletmaatter.mp3' }
-						},
-			'sundholm': {
-							'A': { src:'1.1.2_hugbraende.mp3' },
-							'B': { src:'1.1.2_pasgrise.mp3' },
-							'C': { src:'1.1.2_skaerver.mp3' }						
-						},
-			'svendborg': {
-							'A': { src:'1.1.2_skaerver.mp3' },
-							'B': { src:'1.1.2_vaevmaatter.mp3' },
-							'C': { src:'1.1.2_pilorm.mp3' }
-						},
-		},
-		'3.3' : {
-			'horsens': { src:'3.3.horsens.svendborg.mp3' },
-			'sundholm': { src:'3.3.sundholm.mp3' },
-			'svendborg': { src:'3.3.horsens.svendborg.mp3' }
-		},
-		'3.4.1': { label:'employee', src:'3.4.1.mp3' },
-		'3.4.2': { label:'inmate', src:'3.4.2.mp3' },
-		'3.7.1': { label:'work over', src:'3.7.1.mp3' },
-		'4.6.1': { label:'dansk front', src:'4.6.1.mp3' },
-		'4.10.1': { label:'bombe', src:'4.10.1.mp3' },
-		'4.10.4': { label:'illness', src:'4.10.4.mp3' },
-		'4.10.7': { label:'going home', src:'4.10.7.mp3' },
-		'4.11.1': { label:'post script', src:'14_11_1efterskrift_red_musik.mp3' },
-		'4.11.2': { label:'post script',src:'14_11_2efterskrift_red_musik.mp3' },
-		'4.11.3': { label:'post script',src:'14_11_3efterskrift_red_musik.mp3' },
-		'4.11.4': { label:'post script',src:'14_11_4efterskrift_red_musik.mp3' },
-	}
-}
-
-// console.log('SoundService');
-// var SoundService = function(){
-// 	'use strict';
-// }
-// SoundService.init = function(){
-// 	console.log('SoundService.init');
-// 	var recursive = function(obj){
-// 		for (var i in obj) {
-// 			if(typeof obj[i] === 'object'){
-// 				// console.log(obj[i].src);
-// 				if(obj[i].src !== undefined){
-// 					obj[i].src = SoundService.basePath() + obj[i].src;
-// 				}
-// 				recursive(obj[i]);
-// 			}
-// 		};
-// 	}
-// 	recursive(this.matrix);
-// };
-
-// SoundService.getSlideDurationById = function(id){
-// 	'use strict';
-// 	return this.matrix.slides[id].duration;
-// };
-// SoundService.getSlideSoundpathById = function(id){
-// 	'use strict';
-// 	return SoundService.properties.slidePath + id+'.mp3';
-// };
-// SoundService.getSlideSoundById = function(id){
-// 	'use strict';
-// 	return SoundService.matrix.slides[id]
-// };
-// SoundService.getSoundByCharacter = function(character){
-// 	'use strict';
-// 	return;
-// };
-
-// SoundService.basePath = function(){
-// 	return Environment.basePath() + 'assets/sounds/';
-// 	// return 'assets/game/assets/sounds/';
-// };
-
-// SoundService.matrix = {
-// 	effects: {
-// 		typewriter: { src:'typewriter.mp3', volume: 0.4 },
-// 		woodchopper: { src:'1.2.1_hugbraende_lydeffekt.mp3' }
-// 	},
-// 	'1.1.1' :{
-// 		horsens: { src:'1.1.1_horsens.mp3' },
-// 		sundholm: { src:'1.1.1_sundholm.mp3' },
-// 		svendborg: { src:'1.1.1_svendborg.mp3' }
-// 	},
-// 	points: {
-// 		plus: { src:'Point_plus.mp3' },
-// 		minus: { src:'Point_minus.mp3' }
-// 	},
-// 	dormitry: { src:'2.6.1.mp3' },
-// 	drunk: { src:'1.5.1.mp3' },
-// 	constable: { src:'1.6.1.mp3' },
-// 	'1.2.1': {
-// 		'horsens': {
-// 						'A': { src:'1.1.2_pashaven.mp3' },
-// 						'B': { src:'1.1.2_goerrent.mp3' },
-// 						'C': { src:'1.1.2_fletmaatter.mp3' }
-// 					},
-// 		'sundholm': {
-// 						'A': { src:'1.1.2_hugbraende.mp3' },
-// 						'B': { src:'1.1.2_pasgrise.mp3' },
-// 						'C': { src:'1.1.2_skaerver.mp3' }						
-// 					},
-// 		'svendborg': {
-// 						'A': { src:'1.1.2_skaerver.mp3' },
-// 						'B': { src:'1.1.2_vaevmaatter.mp3' },
-// 						'C': { src:'1.1.2_pilorm.mp3' }
-// 					},
-// 	},
-// 	'1.3.2': { label:'wants out', src:'1.3.2.mp3' },
-// 	'1.3.3': { label:'inmate', src:'1.3.3_indsat.mp3' },
-// 	'1.3.4': { label:'employee', src:'1.3.4.mp3' },	
-// 	'1.8': { label:'arrested', src:'1.8.mp3' },	
-// 	'2.2.1': { src:'2.2.1.mp3' },
-// 	'2.2.3': { src:'2.2.3.mp3' },
-// 	'2.8.1': { description:'get paid', src:'2.8.1.mp3' },
-// 	// '2.10.1': { description:'what now', src:'2.10.1_kontraktudlob.mp3' },
-// 	'2.10.2': {
-// 		'A': { description:'Finnish contract', src:'2.10.2.a.mp3' },
-// 		'B': { description:'Go home', src:'2.10.2.b.mp3' }
-// 	},
-// 	'2.11.1': { description:'home comming', src:'2.11.1.mp3' },
-	
-// 	slides: {
-// 				'slide_0_1': { src:'film01medmusik_mixdown.mp3' },
-// 				'slide_1_0_1': { src:'film10_mixdown.mp3' },
-// 				'slide_2_5': { src:'2.5_mixdown.mp3' },
-// 				'slide_2_7_1_amory': { src:'2.7.1.vaaben_mixdown.mp3' },
-// 				'slide_2_7_1_butcher': { src:'2.7.1.slagt_mixdown.mp3' },
-// 				'slide_2_7_1_mine': { src:'2.7.1.mine_mixdown.mp3' },
-// 				// 'slide_home1A': { src:'2.7.1.vaaben_mixdown.mp3' },
-// 				// 'slide_home1B': { src:'slide_home1_B.mp3' },
-// 				'slide_3_0': { src:'3.0_mixdown.mp3' },
-// 				'slide_4_3': { src:'4.3_mixdown.mp3' },
-// 				'slide_4_5_1_AB': { src:'4.5.1.mine_mixdown.mp3' },
-// 				'slide_4_5_1_AC': { src:'4.5.1hud_efter_vaaben_mixdown.mp3' },
-// 				'slide_4_5_1_BA': { src:'4.5.1.vaaben_efter kul_mixdown.mp3' },
-// 				'slide_4_5_1_BC': { src:'4.5.1hud_efter_mine_mixdown.mp3' },
-// 				'slide_4_5_1_CA': { src:'4.5.1.vaaben_efter hud_mixdown.mp3' },
-// 				'slide_4_5_1_CB': { src:'4.5.1.mine_mixdown.mp3' },
-// 				'slide_4_7': { src:'4.7_mixdown.mp3' }				
-// 			},
-// 	'0.4': { // oppinion
-// 			'AD': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
-// 			'AE': { label: 'alkoholiker, børn', src:'0.4_datter.mp3' },
-// 			'AF': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
-// 			'BD': { label: 'dovenskab', src:'0.4_kone.mp3' },
-// 			'BE': { label: 'dovenskab, børn', src:'0.4_datter.mp3' },
-// 			'BF': { label: 'dovenskab', src:'0.4_andenindlagt.mp3' },
-// 			'CD': { label: 'svækkelse', src:'0.4_kone.mp3' },
-// 			'CE': { label: 'svækkelse, børn', src:'0.4_datter.mp3' },
-// 			'CF': { label: 'svækkelse', src:'0.4_andenindlagt.mp3' }
-// 		},
-// 	'3.2.1': {
-// 		'horsens': {
-// 						'A': { src:'1.1.2_pashaven.mp3' },
-// 						'B': { src:'1.1.2_goerrent.mp3' },
-// 						'C': { src:'1.1.2_fletmaatter.mp3' }
-// 					},
-// 		'sundholm': {
-// 						'A': { src:'1.1.2_hugbraende.mp3' },
-// 						'B': { src:'1.1.2_pasgrise.mp3' },
-// 						'C': { src:'1.1.2_skaerver.mp3' }						
-// 					},
-// 		'svendborg': {
-// 						'A': { src:'1.1.2_skaerver.mp3' },
-// 						'B': { src:'1.1.2_vaevmaatter.mp3' },
-// 						'C': { src:'1.1.2_pilorm.mp3' }
-// 					},
-// 	},
-// 	'3.3' : {
-// 		'horsens': { src:'3.3.horsens.svendborg.mp3' },
-// 		'sundholm': { src:'3.3.sundholm.mp3' },
-// 		'svendborg': { src:'3.3.horsens.svendborg.mp3' }
-// 	},
-// 	'3.4.1': { label:'employee', src:'3.4.1.mp3' },
-// 	'3.4.2': { label:'inmate', src:'3.4.2.mp3' },
-// 	'3.7.1': { label:'work over', src:'3.7.1.mp3' },
-// 	'4.6.1': { label:'dansk front', src:'4.6.1.mp3' },
-// 	'4.10.1': { label:'bombe', src:'4.10.1.mp3' },
-// 	'4.10.4': { label:'illness', src:'4.10.4.mp3' },
-// 	'4.10.7': { label:'going home', src:'4.10.7.mp3' },
-// 	'4.11.1': { label:'post script', src:'14_11_1efterskrift_red_musik.mp3' },
-// 	'4.11.2': { label:'post script',src:'14_11_2efterskrift_red_musik.mp3' },
-// 	'4.11.3': { label:'post script',src:'14_11_3efterskrift_red_musik.mp3' },
-// 	'4.11.4': { label:'post script',src:'14_11_4efterskrift_red_musik.mp3' },
-// };
-var PlayerStats = {
-	challenge: 'B',			// Default test value
-	family: 'D',			// Default test value
-	nickname: null,
-	poorhouse: null,
-	mood: 2,
-	health: 4,
-	money: 3,
-	job: null,
-	advice: null,
-	wayout: null,
-	job_germany: ['A', 'B'], // Default test values
-	spending: null,
-	whatnow: null,
-	nazi: null,
-	pointsDiff: {mood: 0, health: 0, money: 0},
-	bomb: false,
-
-	resetDiff: function(){
-		'use strict';
-		this.pointsDiff = {mood: 0, health: 0, money: 0};
-	},
-
-	isAPlusPoint: function(){
-		'use strict';
-		for(var key in this.pointsDiff){
-			if(this.pointsDiff[key] > 0){
-				return true;
-			}
-		}
-	},
-
-	isAMinusPoint: function(){
-		'use strict';
-		for(var key in this.pointsDiff){
-			if(this.pointsDiff[key] < 0){
-				return true;
-			}
-		}
-	},
-
-	set: function(type, val){
-		'use strict';
-		// Reset diff
-		this.pointsDiff[type] = 0;
-
-		// Remember the previous value
-		var prev = this[type];	
-
-		// Set new value
-		this[type] = val;
-
-		// Find diff
-		this.pointsDiff[type] = this[type] - prev;		
-
-		// Cap values for points
-		if(type == 'mood' || type == 'health' || type == 'money'){
-			if(this[type] > 10){
-				this[type] = 10;
-			}
-			if(this[type] < 1){
-				this[type] = 1;
-			}
-		}
-	},
-	append: function(type, val){	
-		'use strict';	
-		// Reset diff
-		this.pointsDiff[type] = 0;
-		
-		// Remember the previous value
-		var prev = this[type];	
-
-		// Set new value
-		this[type] += val;
-
-		// Find diff
-		this.pointsDiff[type] = this[type] - prev;			
-
-		// Cap values for points
-		if(type == 'mood' || type == 'health' || type == 'money'){
-			if(this[type] > 10){
-				this[type] = 10;
-			}
-			if(this[type] < 1){
-				this[type] = 1;
-			}
-		}
-	}
-}
-var Library = {
-	clearSlide: function(){
-		'use strict';
-		// console.log('clearSlide');
-		try{
-			slidelib = null;
-		}catch(err){
-			console.log(err);
-		}		
-	},
-	clearGame: function(){
-		'use strict';
-		// console.log('clearGame');		
-		try{
-			gamelib = null;
-		}catch(err){
-			console.log(err);
-		}
-	},
-	clearMain: function(){
-		'use strict';
-		// console.log('clearMain');		
-		try{
-			mainlib = null;
-		}catch(err){
-			console.log(err);
-		}
-	},
-}
-var ImageService = {
-	init: function(){
-		'use strict';
-		console.log('ImageService.init');
-		var recursive = function(obj){
-			for (var i in obj) {
-				if(typeof obj[i] === 'object'){
-					// console.log(obj[i].src);
-					if(obj[i].src !== undefined){
-						obj[i].src = ImageService.basePath() + obj[i].src;
-					}
-					recursive(obj[i]);
-				}
-			};
-		}
-		recursive(this.matrix);
-	},
-	basePath: function(){
-		'use strict';
-		return Environment.basePath() + 'assets/images/pool/';
-	},
-	matrix: {
-		'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:'_0_1BG.jpg'},
-		'1.0.1': {
-			'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
-			'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
-			'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
-		},
-		'3.0': {
-			'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
-			'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
-			'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
-		}
-	}
-}
-// var ImageService = function(){
-// 	'use strict';
-// }
-// ImageService.init = function(){
-// 	console.log('ImageService.init');
-// 	var recursive = function(obj){
-// 		for (var i in obj) {
-// 			if(typeof obj[i] === 'object'){
-// 				// console.log(obj[i].src);
-// 				if(obj[i].src !== undefined){
-// 					obj[i].src = ImageService.basePath() + obj[i].src;
-// 				}
-// 				recursive(obj[i]);
-// 			}
-// 		};
-// 	}
-// 	recursive(this.matrix);
-// };
-// ImageService.basePath = function(){
-// 	return Environment.basePath() + 'assets/images/pool/';
-// 	// return 'assets/game/assets/images/pool/';
-// };
-// ImageService.matrix = {
-// 	// portrait:{
-// 	// 	'AD': { id: 'ADCloseUp', label:'background', src:'ADCloseUp.png'},
-// 	// 	'AE': { id: 'AECloseUp', label:'background', src:'AECloseUp.png'},
-// 	// 	'AF': { id: 'AFCloseUp', label:'background', src:'AFCloseUp.png'},
-// 	// 	'BD': { id: 'BDCloseUp', label:'background', src:'BDCloseUp.png'},
-// 	// 	'BE': { id: 'BECloseUp', label:'background', src:'BECloseUp.png'},
-// 	// 	'BF': { id: 'BFCloseUp', label:'background', src:'BFCloseUp.png'},
-// 	// 	'CD': { id: 'CDCloseUp', label:'background', src:'CDCloseUp.png'},
-// 	// 	'CE': { id: 'CECloseUp', label:'background', src:'CECloseUp.png'},
-// 	// 	'CF': { id: 'CFCloseUp', label:'background', src:'CFCloseUp.png'}
-// 	// },
-// 	'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:'_0_1BG.jpg'},
-// 	'1.0.1': {
-// 		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
-// 		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
-// 		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
-// 	},
-// 	'3.0': {
-// 		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
-// 		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
-// 		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
-// 	}
-// }
-var FlowData ={
-	
-}
-// var Assets = {
-// 	fattiggard: {
-// 		svendborg: {
-// 			images: [
-// 				{src: '../assets/images/1_0BGsvendborg.png', id:'1_0BGsvendborg'},
-// 				{src: '../assets/images/1_1BGsvendborg.png', id:'1_1BGsvendborg'},
-// 				{src: '../assets/images/1_2BGsvendborgA.png', id:'1_2BGsvendborgA'},
-// 				{src: '../assets/images/1_2BGsvendborgB.png', id:'1_2BGsvendborgB'},
-// 				{src: '../assets/images/1_2BGsvendborgC.png', id:'1_2BGsvendborgC'},
-// 				{src: '../assets/images/1_3BGsvendborg.png', id:'1_3BGsvendborg'}
-// 			]
-// 		}
-// 	}
-// }
 var Topbar = {
 	view: null,
 	soundController: null,
@@ -6050,149 +5545,524 @@ Array.prototype.shuffle = function(index){
     }
     return this;
 }
-/**
-	Controller uses the browser's AUDIO element as play back for sound
-*/
-function SoundController(audioPath, loopCount) {
-	'use strict';
-
-	var self = this;
-
-	this.loopCount = loopCount;
-	if(loopCount === undefined || loopCount === null)
-		this.loopCount = false;	
-
-	this.audioPath = audioPath;
-}
-// SoundController.prototype.dispatcher = function(event){
-// 	this.dispatchEvent(event);
-// }
-SoundController.prototype = {
-	sndObj: null,
-	currentSndPosition: 0,
-	paused: false,
-	self: this,
-	complete: false,
-	dispatcher: function(event){
-		this.dispatchEvent(event);
-	},
-	getState: function(){
-		return this.sndObj.state;
-	},
-	load: function(){
-		'use strict';
-		var self = this;
-		// Howler
-		this.sndObj = new Howl({
-		  urls: [this.audioPath],
-		  autoplay: false,
-		  loop: this.loopCount,
-		  volume: 1,
-		  buffer: false,
-		  onend: function() {
-		    self.complete = true;
-		    self.dispatcher(new createjs.Event('complete'));
-		  },
-		  onload: function() {		    
-		    self.dispatcher(new createjs.Event('ready'));
-		    console.log('SoundController.onload');
-		    PreloadGFX.hide();
-		  }
-		}); 
-
-		PreloadGFX.show(false);
-	},
-	volume: function(value) {
-		'use strict';
-		if(this.sndObj != null){
-			this.sndObj.volume = value;
-		}
-	},
-	play: function() {
-		'use strict';
-		this.sndObj.play();
-		this.paused = false;
-		this.sndObj.state = 'play';
-		this.complete = false;
-	},
-	stop: function() {
-		'use strict';
-		this.sndObj.stop();
-		// this.sndObj.currentTime = 0;
-		this.paused = false;
-		this.sndObj.state = 'stop';
-	},
-	pause: function() {
-		'use strict';
-		// this.currentSndPosition = this.sndObj.currentTime;
-		this.sndObj.pause();
-		this.paused = true;
-		this.sndObj.state = 'pause';
-	},
-	resume: function() {
-		'use strict';
-		this.sndObj.play();
-	},
-	progress: function(){
-		'use strict';
-		var num = this.sndObj.pos() / this.sndObj._duration;
-		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
-		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
-	},
-	isComplete: function(){
-		'use strict';
-		this.state = 'stop';
-		return this.complete;
-	},
-	destroy: function(){
-		'use strict';
-		this.state = 'stop';
-		this.sndObj = null;
-		this.duration = null;
-	}
-};
-createjs.EventDispatcher.initialize(SoundController.prototype);
-var HUDController = {
+var SoundService = {
 	init: function(){
-		this.soundEffectPlus = new SoundController(SoundService.matrix.points.plus.src, false);	
-		this.soundEffectMinus = new SoundController(SoundService.matrix.points.minus.src, false);	
-		this.soundEffectPlus.load();
-		this.soundEffectMinus.load();
-	},
-	setView: function(view){
-		this.view = view;		
-		this.update();
-	},
-	update: function(){
-		if(this.view === undefined || this.view === null){
-			throw new Error("'view' is undefined");
+		'use strict';
+		console.log('SoundService.init');
+		var recursive = function(obj){
+			for (var i in obj) {
+				if(typeof obj[i] === 'object'){
+					// console.log(obj[i].src);
+					if(obj[i].src !== undefined){
+						obj[i].src = SoundService.basePath() + obj[i].src;
+					}
+					recursive(obj[i]);
+				}
+			};
 		}
+		recursive(this.matrix);
+	},
+	getSlideDurationById: function(id){
+		'use strict';
+		return this.matrix.slides[id].duration;
+	},
+	getSlideSoundpathById: function(id){
+		'use strict';
+		return SoundService.properties.slidePath + id+'.mp3';
+	},
+	getSlideSoundById: function(id){
+		'use strict';
+		return SoundService.matrix.slides[id]
+	},
+	basePath: function(){
+		'use strict';
+		return Environment.basePath() + 'assets/sounds/';
+	},
+	matrix: {
+		effects: {
+			typewriter: { src:'typewriter.mp3', volume: 0.4 },
+			woodchopper: { src:'1.2.1_hugbraende_lydeffekt.mp3' }
+		},
+		'1.1.1' :{
+			horsens: { src:'1.1.1_horsens.mp3' },
+			sundholm: { src:'1.1.1_sundholm.mp3' },
+			svendborg: { src:'1.1.1_svendborg.mp3' }
+		},
+		points: {
+			plus: { src:'Point_plus.mp3' },
+			minus: { src:'Point_minus.mp3' }
+		},
+		dormitry: { src:'2.6.1.mp3' },
+		drunk: { src:'1.5.1.mp3' },
+		constable: { src:'1.6.1.mp3' },
+		'1.2.1': {
+			'horsens': {
+							'A': { src:'1.1.2_pashaven.mp3' },
+							'B': { src:'1.1.2_goerrent.mp3' },
+							'C': { src:'1.1.2_fletmaatter.mp3' }
+						},
+			'sundholm': {
+							'A': { src:'1.1.2_hugbraende.mp3' },
+							'B': { src:'1.1.2_pasgrise.mp3' },
+							'C': { src:'1.1.2_skaerver.mp3' }						
+						},
+			'svendborg': {
+							'A': { src:'1.1.2_skaerver.mp3' },
+							'B': { src:'1.1.2_vaevmaatter.mp3' },
+							'C': { src:'1.1.2_pilorm.mp3' }
+						},
+		},
+		'1.3.2': { label:'wants out', src:'1.3.2.mp3' },
+		'1.3.3': { label:'inmate', src:'1.3.3_indsat.mp3' },
+		'1.3.4': { label:'employee', src:'1.3.4.mp3' },	
+		'1.8': { label:'arrested', src:'1.8.mp3' },	
+		'2.2.1': { src:'2.2.1.mp3' },
+		'2.2.3': { src:'2.2.3.mp3' },
+		'2.8.1': { description:'get paid', src:'2.8.1.mp3' },
+		// '2.10.1': { description:'what now', src:'2.10.1_kontraktudlob.mp3' },
+		'2.10.2': {
+			'A': { description:'Finnish contract', src:'2.10.2.a.mp3' },
+			'B': { description:'Go home', src:'2.10.2.b.mp3' }
+		},
+		'2.11.1': { description:'home comming', src:'2.11.1.mp3' },
+		
+		slides: {
+					'slide_0_1': { src:'film01medmusik_mixdown.mp3' },
+					'slide_1_0_1': { src:'film10_mixdown.mp3' },
+					'slide_2_5': { src:'2.5_mixdown.mp3' },
+					'slide_2_7_1_amory': { src:'2.7.1.vaaben_mixdown.mp3' },
+					'slide_2_7_1_butcher': { src:'2.7.1.slagt_mixdown.mp3' },
+					'slide_2_7_1_mine': { src:'2.7.1.mine_mixdown.mp3' },
+					// 'slide_home1A': { src:'2.7.1.vaaben_mixdown.mp3' },
+					// 'slide_home1B': { src:'slide_home1_B.mp3' },
+					'slide_3_0': { src:'3.0_mixdown.mp3' },
+					'slide_4_3': { src:'4.3_mixdown.mp3' },
+					'slide_4_5_1_AB': { src:'4.5.1.mine_mixdown.mp3' },
+					'slide_4_5_1_AC': { src:'4.5.1hud_efter_vaaben_mixdown.mp3' },
+					'slide_4_5_1_BA': { src:'4.5.1.vaaben_efter kul_mixdown.mp3' },
+					'slide_4_5_1_BC': { src:'4.5.1hud_efter_mine_mixdown.mp3' },
+					'slide_4_5_1_CA': { src:'4.5.1.vaaben_efter hud_mixdown.mp3' },
+					'slide_4_5_1_CB': { src:'4.5.1.mine_mixdown.mp3' },
+					'slide_4_7': { src:'4.7_mixdown.mp3' }				
+				},
+		'0.4': { // oppinion
+				'AD': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+				'AE': { label: 'alkoholiker, børn', src:'0.4_datter.mp3' },
+				'AF': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+				'BD': { label: 'dovenskab', src:'0.4_kone.mp3' },
+				'BE': { label: 'dovenskab, børn', src:'0.4_datter.mp3' },
+				'BF': { label: 'dovenskab', src:'0.4_andenindlagt.mp3' },
+				'CD': { label: 'svækkelse', src:'0.4_kone.mp3' },
+				'CE': { label: 'svækkelse, børn', src:'0.4_datter.mp3' },
+				'CF': { label: 'svækkelse', src:'0.4_andenindlagt.mp3' }
+			},
+		'3.2.1': {
+			'horsens': {
+							'A': { src:'1.1.2_pashaven.mp3' },
+							'B': { src:'1.1.2_goerrent.mp3' },
+							'C': { src:'1.1.2_fletmaatter.mp3' }
+						},
+			'sundholm': {
+							'A': { src:'1.1.2_hugbraende.mp3' },
+							'B': { src:'1.1.2_pasgrise.mp3' },
+							'C': { src:'1.1.2_skaerver.mp3' }						
+						},
+			'svendborg': {
+							'A': { src:'1.1.2_skaerver.mp3' },
+							'B': { src:'1.1.2_vaevmaatter.mp3' },
+							'C': { src:'1.1.2_pilorm.mp3' }
+						},
+		},
+		'3.3' : {
+			'horsens': { src:'3.3.horsens.svendborg.mp3' },
+			'sundholm': { src:'3.3.sundholm.mp3' },
+			'svendborg': { src:'3.3.horsens.svendborg.mp3' }
+		},
+		'3.4.1': { label:'employee', src:'3.4.1.mp3' },
+		'3.4.2': { label:'inmate', src:'3.4.2.mp3' },
+		'3.7.1': { label:'work over', src:'3.7.1.mp3' },
+		'4.6.1': { label:'dansk front', src:'4.6.1.mp3' },
+		'4.10.1': { label:'bombe', src:'4.10.1.mp3' },
+		'4.10.4': { label:'illness', src:'4.10.4.mp3' },
+		'4.10.7': { label:'going home', src:'4.10.7.mp3' },
+		'4.11.1': { label:'post script', src:'14_11_1efterskrift_red_musik.mp3' },
+		'4.11.2': { label:'post script',src:'14_11_2efterskrift_red_musik.mp3' },
+		'4.11.3': { label:'post script',src:'14_11_3efterskrift_red_musik.mp3' },
+		'4.11.4': { label:'post script',src:'14_11_4efterskrift_red_musik.mp3' },
+	}
+}
 
-		var self = this;
-		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
-		this.view.health.points.gotoAndStop(PlayerStats.health-1);
-		this.view.money.points.gotoAndStop(PlayerStats.money-1);
+// console.log('SoundService');
+// var SoundService = function(){
+// 	'use strict';
+// }
+// SoundService.init = function(){
+// 	console.log('SoundService.init');
+// 	var recursive = function(obj){
+// 		for (var i in obj) {
+// 			if(typeof obj[i] === 'object'){
+// 				// console.log(obj[i].src);
+// 				if(obj[i].src !== undefined){
+// 					obj[i].src = SoundService.basePath() + obj[i].src;
+// 				}
+// 				recursive(obj[i]);
+// 			}
+// 		};
+// 	}
+// 	recursive(this.matrix);
+// };
 
-		var delay = 0;
-		// console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
-		for(var key in PlayerStats.pointsDiff){
-			if(PlayerStats.pointsDiff[key] > 0){
-				setTimeout(function(){ 
-					self.soundEffectPlus.play();
-				}, delay);
-				delay += 500;
-			}else if(PlayerStats.pointsDiff[key] < 0){
-				setTimeout(function(){ 
-					self.soundEffectMinus.play();
-				}, delay);
-				delay += 500;
+// SoundService.getSlideDurationById = function(id){
+// 	'use strict';
+// 	return this.matrix.slides[id].duration;
+// };
+// SoundService.getSlideSoundpathById = function(id){
+// 	'use strict';
+// 	return SoundService.properties.slidePath + id+'.mp3';
+// };
+// SoundService.getSlideSoundById = function(id){
+// 	'use strict';
+// 	return SoundService.matrix.slides[id]
+// };
+// SoundService.getSoundByCharacter = function(character){
+// 	'use strict';
+// 	return;
+// };
+
+// SoundService.basePath = function(){
+// 	return Environment.basePath() + 'assets/sounds/';
+// 	// return 'assets/game/assets/sounds/';
+// };
+
+// SoundService.matrix = {
+// 	effects: {
+// 		typewriter: { src:'typewriter.mp3', volume: 0.4 },
+// 		woodchopper: { src:'1.2.1_hugbraende_lydeffekt.mp3' }
+// 	},
+// 	'1.1.1' :{
+// 		horsens: { src:'1.1.1_horsens.mp3' },
+// 		sundholm: { src:'1.1.1_sundholm.mp3' },
+// 		svendborg: { src:'1.1.1_svendborg.mp3' }
+// 	},
+// 	points: {
+// 		plus: { src:'Point_plus.mp3' },
+// 		minus: { src:'Point_minus.mp3' }
+// 	},
+// 	dormitry: { src:'2.6.1.mp3' },
+// 	drunk: { src:'1.5.1.mp3' },
+// 	constable: { src:'1.6.1.mp3' },
+// 	'1.2.1': {
+// 		'horsens': {
+// 						'A': { src:'1.1.2_pashaven.mp3' },
+// 						'B': { src:'1.1.2_goerrent.mp3' },
+// 						'C': { src:'1.1.2_fletmaatter.mp3' }
+// 					},
+// 		'sundholm': {
+// 						'A': { src:'1.1.2_hugbraende.mp3' },
+// 						'B': { src:'1.1.2_pasgrise.mp3' },
+// 						'C': { src:'1.1.2_skaerver.mp3' }						
+// 					},
+// 		'svendborg': {
+// 						'A': { src:'1.1.2_skaerver.mp3' },
+// 						'B': { src:'1.1.2_vaevmaatter.mp3' },
+// 						'C': { src:'1.1.2_pilorm.mp3' }
+// 					},
+// 	},
+// 	'1.3.2': { label:'wants out', src:'1.3.2.mp3' },
+// 	'1.3.3': { label:'inmate', src:'1.3.3_indsat.mp3' },
+// 	'1.3.4': { label:'employee', src:'1.3.4.mp3' },	
+// 	'1.8': { label:'arrested', src:'1.8.mp3' },	
+// 	'2.2.1': { src:'2.2.1.mp3' },
+// 	'2.2.3': { src:'2.2.3.mp3' },
+// 	'2.8.1': { description:'get paid', src:'2.8.1.mp3' },
+// 	// '2.10.1': { description:'what now', src:'2.10.1_kontraktudlob.mp3' },
+// 	'2.10.2': {
+// 		'A': { description:'Finnish contract', src:'2.10.2.a.mp3' },
+// 		'B': { description:'Go home', src:'2.10.2.b.mp3' }
+// 	},
+// 	'2.11.1': { description:'home comming', src:'2.11.1.mp3' },
+	
+// 	slides: {
+// 				'slide_0_1': { src:'film01medmusik_mixdown.mp3' },
+// 				'slide_1_0_1': { src:'film10_mixdown.mp3' },
+// 				'slide_2_5': { src:'2.5_mixdown.mp3' },
+// 				'slide_2_7_1_amory': { src:'2.7.1.vaaben_mixdown.mp3' },
+// 				'slide_2_7_1_butcher': { src:'2.7.1.slagt_mixdown.mp3' },
+// 				'slide_2_7_1_mine': { src:'2.7.1.mine_mixdown.mp3' },
+// 				// 'slide_home1A': { src:'2.7.1.vaaben_mixdown.mp3' },
+// 				// 'slide_home1B': { src:'slide_home1_B.mp3' },
+// 				'slide_3_0': { src:'3.0_mixdown.mp3' },
+// 				'slide_4_3': { src:'4.3_mixdown.mp3' },
+// 				'slide_4_5_1_AB': { src:'4.5.1.mine_mixdown.mp3' },
+// 				'slide_4_5_1_AC': { src:'4.5.1hud_efter_vaaben_mixdown.mp3' },
+// 				'slide_4_5_1_BA': { src:'4.5.1.vaaben_efter kul_mixdown.mp3' },
+// 				'slide_4_5_1_BC': { src:'4.5.1hud_efter_mine_mixdown.mp3' },
+// 				'slide_4_5_1_CA': { src:'4.5.1.vaaben_efter hud_mixdown.mp3' },
+// 				'slide_4_5_1_CB': { src:'4.5.1.mine_mixdown.mp3' },
+// 				'slide_4_7': { src:'4.7_mixdown.mp3' }				
+// 			},
+// 	'0.4': { // oppinion
+// 			'AD': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+// 			'AE': { label: 'alkoholiker, børn', src:'0.4_datter.mp3' },
+// 			'AF': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+// 			'BD': { label: 'dovenskab', src:'0.4_kone.mp3' },
+// 			'BE': { label: 'dovenskab, børn', src:'0.4_datter.mp3' },
+// 			'BF': { label: 'dovenskab', src:'0.4_andenindlagt.mp3' },
+// 			'CD': { label: 'svækkelse', src:'0.4_kone.mp3' },
+// 			'CE': { label: 'svækkelse, børn', src:'0.4_datter.mp3' },
+// 			'CF': { label: 'svækkelse', src:'0.4_andenindlagt.mp3' }
+// 		},
+// 	'3.2.1': {
+// 		'horsens': {
+// 						'A': { src:'1.1.2_pashaven.mp3' },
+// 						'B': { src:'1.1.2_goerrent.mp3' },
+// 						'C': { src:'1.1.2_fletmaatter.mp3' }
+// 					},
+// 		'sundholm': {
+// 						'A': { src:'1.1.2_hugbraende.mp3' },
+// 						'B': { src:'1.1.2_pasgrise.mp3' },
+// 						'C': { src:'1.1.2_skaerver.mp3' }						
+// 					},
+// 		'svendborg': {
+// 						'A': { src:'1.1.2_skaerver.mp3' },
+// 						'B': { src:'1.1.2_vaevmaatter.mp3' },
+// 						'C': { src:'1.1.2_pilorm.mp3' }
+// 					},
+// 	},
+// 	'3.3' : {
+// 		'horsens': { src:'3.3.horsens.svendborg.mp3' },
+// 		'sundholm': { src:'3.3.sundholm.mp3' },
+// 		'svendborg': { src:'3.3.horsens.svendborg.mp3' }
+// 	},
+// 	'3.4.1': { label:'employee', src:'3.4.1.mp3' },
+// 	'3.4.2': { label:'inmate', src:'3.4.2.mp3' },
+// 	'3.7.1': { label:'work over', src:'3.7.1.mp3' },
+// 	'4.6.1': { label:'dansk front', src:'4.6.1.mp3' },
+// 	'4.10.1': { label:'bombe', src:'4.10.1.mp3' },
+// 	'4.10.4': { label:'illness', src:'4.10.4.mp3' },
+// 	'4.10.7': { label:'going home', src:'4.10.7.mp3' },
+// 	'4.11.1': { label:'post script', src:'14_11_1efterskrift_red_musik.mp3' },
+// 	'4.11.2': { label:'post script',src:'14_11_2efterskrift_red_musik.mp3' },
+// 	'4.11.3': { label:'post script',src:'14_11_3efterskrift_red_musik.mp3' },
+// 	'4.11.4': { label:'post script',src:'14_11_4efterskrift_red_musik.mp3' },
+// };
+var PlayerStats = {
+	challenge: 'B',			// Default test value
+	family: 'D',			// Default test value
+	nickname: null,
+	poorhouse: null,
+	mood: 2,
+	health: 4,
+	money: 3,
+	job: null,
+	advice: null,
+	wayout: null,
+	job_germany: ['A', 'B'], // Default test values
+	spending: null,
+	whatnow: null,
+	nazi: null,
+	pointsDiff: {mood: 0, health: 0, money: 0},
+	bomb: false,
+
+	resetDiff: function(){
+		'use strict';
+		this.pointsDiff = {mood: 0, health: 0, money: 0};
+	},
+
+	isAPlusPoint: function(){
+		'use strict';
+		for(var key in this.pointsDiff){
+			if(this.pointsDiff[key] > 0){
+				return true;
 			}
 		}
+	},
 
-		// Need to reset 
-		PlayerStats.resetDiff();
+	isAMinusPoint: function(){
+		'use strict';
+		for(var key in this.pointsDiff){
+			if(this.pointsDiff[key] < 0){
+				return true;
+			}
+		}
+	},
+
+	set: function(type, val){
+		'use strict';
+		// Reset diff
+		this.pointsDiff[type] = 0;
+
+		// Remember the previous value
+		var prev = this[type];	
+
+		// Set new value
+		this[type] = val;
+
+		// Find diff
+		this.pointsDiff[type] = this[type] - prev;		
+
+		// Cap values for points
+		if(type == 'mood' || type == 'health' || type == 'money'){
+			if(this[type] > 10){
+				this[type] = 10;
+			}
+			if(this[type] < 1){
+				this[type] = 1;
+			}
+		}
+	},
+	append: function(type, val){	
+		'use strict';	
+		// Reset diff
+		this.pointsDiff[type] = 0;
+		
+		// Remember the previous value
+		var prev = this[type];	
+
+		// Set new value
+		this[type] += val;
+
+		// Find diff
+		this.pointsDiff[type] = this[type] - prev;			
+
+		// Cap values for points
+		if(type == 'mood' || type == 'health' || type == 'money'){
+			if(this[type] > 10){
+				this[type] = 10;
+			}
+			if(this[type] < 1){
+				this[type] = 1;
+			}
+		}
 	}
 }
+var Library = {
+	clearSlide: function(){
+		'use strict';
+		// console.log('clearSlide');
+		try{
+			slidelib = null;
+		}catch(err){
+			console.log(err);
+		}		
+	},
+	clearGame: function(){
+		'use strict';
+		// console.log('clearGame');		
+		try{
+			gamelib = null;
+		}catch(err){
+			console.log(err);
+		}
+	},
+	clearMain: function(){
+		'use strict';
+		// console.log('clearMain');		
+		try{
+			mainlib = null;
+		}catch(err){
+			console.log(err);
+		}
+	},
+}
+var ImageService = {
+	init: function(){
+		'use strict';
+		console.log('ImageService.init');
+		var recursive = function(obj){
+			for (var i in obj) {
+				if(typeof obj[i] === 'object'){
+					// console.log(obj[i].src);
+					if(obj[i].src !== undefined){
+						obj[i].src = ImageService.basePath() + obj[i].src;
+					}
+					recursive(obj[i]);
+				}
+			};
+		}
+		recursive(this.matrix);
+	},
+	basePath: function(){
+		'use strict';
+		return Environment.basePath() + 'assets/images/pool/';
+	},
+	matrix: {
+		'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:'_0_1BG.jpg'},
+		'1.0.1': {
+			'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+			'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+			'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+		},
+		'3.0': {
+			'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+			'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+			'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+		}
+	}
+}
+// var ImageService = function(){
+// 	'use strict';
+// }
+// ImageService.init = function(){
+// 	console.log('ImageService.init');
+// 	var recursive = function(obj){
+// 		for (var i in obj) {
+// 			if(typeof obj[i] === 'object'){
+// 				// console.log(obj[i].src);
+// 				if(obj[i].src !== undefined){
+// 					obj[i].src = ImageService.basePath() + obj[i].src;
+// 				}
+// 				recursive(obj[i]);
+// 			}
+// 		};
+// 	}
+// 	recursive(this.matrix);
+// };
+// ImageService.basePath = function(){
+// 	return Environment.basePath() + 'assets/images/pool/';
+// 	// return 'assets/game/assets/images/pool/';
+// };
+// ImageService.matrix = {
+// 	// portrait:{
+// 	// 	'AD': { id: 'ADCloseUp', label:'background', src:'ADCloseUp.png'},
+// 	// 	'AE': { id: 'AECloseUp', label:'background', src:'AECloseUp.png'},
+// 	// 	'AF': { id: 'AFCloseUp', label:'background', src:'AFCloseUp.png'},
+// 	// 	'BD': { id: 'BDCloseUp', label:'background', src:'BDCloseUp.png'},
+// 	// 	'BE': { id: 'BECloseUp', label:'background', src:'BECloseUp.png'},
+// 	// 	'BF': { id: 'BFCloseUp', label:'background', src:'BFCloseUp.png'},
+// 	// 	'CD': { id: 'CDCloseUp', label:'background', src:'CDCloseUp.png'},
+// 	// 	'CE': { id: 'CECloseUp', label:'background', src:'CECloseUp.png'},
+// 	// 	'CF': { id: 'CFCloseUp', label:'background', src:'CFCloseUp.png'}
+// 	// },
+// 	'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:'_0_1BG.jpg'},
+// 	'1.0.1': {
+// 		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+// 		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+// 		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+// 	},
+// 	'3.0': {
+// 		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+// 		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+// 		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+// 	}
+// }
+var FlowData ={
+	
+}
+// var Assets = {
+// 	fattiggard: {
+// 		svendborg: {
+// 			images: [
+// 				{src: '../assets/images/1_0BGsvendborg.png', id:'1_0BGsvendborg'},
+// 				{src: '../assets/images/1_1BGsvendborg.png', id:'1_1BGsvendborg'},
+// 				{src: '../assets/images/1_2BGsvendborgA.png', id:'1_2BGsvendborgA'},
+// 				{src: '../assets/images/1_2BGsvendborgB.png', id:'1_2BGsvendborgB'},
+// 				{src: '../assets/images/1_2BGsvendborgC.png', id:'1_2BGsvendborgC'},
+// 				{src: '../assets/images/1_3BGsvendborg.png', id:'1_3BGsvendborg'}
+// 			]
+// 		}
+// 	}
+// }
 var GameManager = {
 	root: null,
 	init: function(root){
@@ -6351,6 +6221,7 @@ var FlowManager = {
 				// Go to start frame
 				this.root.gotoAndStop('start');
 				this.currentPage = new PageMap(this.root.pagecontainer);
+				// this.currentPage.setInfo(false);
 				this.currentPage.start(); 
 
 				// Blocker
@@ -6482,6 +6353,7 @@ var FlowManager = {
 				// Go to start frame
 				this.root.gotoAndStop('start');
 				this.currentPage = new PageMap(this.root.pagecontainer);
+				this.currentPage.setInfo(true);
 				this.currentPage.start(); 
 
 				// Blocker
@@ -6703,6 +6575,149 @@ var ApplicationManager = {
 		'use strict';
 	}
 };
+/**
+	Controller uses the browser's AUDIO element as play back for sound
+*/
+function SoundController(audioPath, loopCount) {
+	'use strict';
+
+	var self = this;
+
+	this.loopCount = loopCount;
+	if(loopCount === undefined || loopCount === null)
+		this.loopCount = false;	
+
+	this.audioPath = audioPath;
+}
+// SoundController.prototype.dispatcher = function(event){
+// 	this.dispatchEvent(event);
+// }
+SoundController.prototype = {
+	sndObj: null,
+	currentSndPosition: 0,
+	paused: false,
+	self: this,
+	complete: false,
+	dispatcher: function(event){
+		this.dispatchEvent(event);
+	},
+	getState: function(){
+		return this.sndObj.state;
+	},
+	load: function(){
+		'use strict';
+		var self = this;
+		// Howler
+		this.sndObj = new Howl({
+		  urls: [this.audioPath],
+		  autoplay: false,
+		  loop: this.loopCount,
+		  volume: 1,
+		  buffer: false,
+		  onend: function() {
+		    self.complete = true;
+		    self.dispatcher(new createjs.Event('complete'));
+		  },
+		  onload: function() {		    
+		    self.dispatcher(new createjs.Event('ready'));
+		    console.log('SoundController.onload');
+		    PreloadGFX.hide();
+		  }
+		}); 
+
+		PreloadGFX.show(false);
+	},
+	volume: function(value) {
+		'use strict';
+		if(this.sndObj != null){
+			this.sndObj.volume = value;
+		}
+	},
+	play: function() {
+		'use strict';
+		this.sndObj.play();
+		this.paused = false;
+		this.sndObj.state = 'play';
+		this.complete = false;
+	},
+	stop: function() {
+		'use strict';
+		this.sndObj.stop();
+		// this.sndObj.currentTime = 0;
+		this.paused = false;
+		this.sndObj.state = 'stop';
+	},
+	pause: function() {
+		'use strict';
+		// this.currentSndPosition = this.sndObj.currentTime;
+		this.sndObj.pause();
+		this.paused = true;
+		this.sndObj.state = 'pause';
+	},
+	resume: function() {
+		'use strict';
+		this.sndObj.play();
+	},
+	progress: function(){
+		'use strict';
+		var num = this.sndObj.pos() / this.sndObj._duration;
+		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
+		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
+	},
+	isComplete: function(){
+		'use strict';
+		this.state = 'stop';
+		return this.complete;
+	},
+	destroy: function(){
+		'use strict';
+		this.state = 'stop';
+		this.sndObj = null;
+		this.duration = null;
+	}
+};
+createjs.EventDispatcher.initialize(SoundController.prototype);
+var HUDController = {
+	init: function(){
+		this.soundEffectPlus = new SoundController(SoundService.matrix.points.plus.src, false);	
+		this.soundEffectMinus = new SoundController(SoundService.matrix.points.minus.src, false);	
+		this.soundEffectPlus.load();
+		this.soundEffectMinus.load();
+	},
+	setView: function(view){
+		this.view = view;		
+		this.update();
+	},
+	update: function(){
+		if(this.view === undefined || this.view === null){
+			throw new Error("'view' is undefined");
+		}
+
+		var self = this;
+		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
+		this.view.health.points.gotoAndStop(PlayerStats.health-1);
+		this.view.money.points.gotoAndStop(PlayerStats.money-1);
+
+		var delay = 0;
+		// console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
+		for(var key in PlayerStats.pointsDiff){
+			if(PlayerStats.pointsDiff[key] > 0){
+				setTimeout(function(){ 
+					self.soundEffectPlus.play();
+				}, delay);
+				delay += 500;
+			}else if(PlayerStats.pointsDiff[key] < 0){
+				setTimeout(function(){ 
+					self.soundEffectMinus.play();
+				}, delay);
+				delay += 500;
+			}
+		}
+
+		// Need to reset 
+		PlayerStats.resetDiff();
+	}
+}
 var PlayerSoundComponent = function(view){
 	'use strict';
 	if(PlayerSoundComponent.counter == null)
@@ -7014,6 +7029,11 @@ PlayerSliderComponent.prototype.loop = function(){
 	var sndProgression = this.soundController.progress();
 	
 	var desiredFrame = Math.round(this.duration * sndProgression) + this.soundOffset;
+
+	// Truncate frame to show to max number of frames
+	if(desiredFrame > this.slide.totalFrames-1)
+		desiredFrame = this.slide.totalFrames-1
+
 	this.slide.gotoAndPlay(desiredFrame);
 
 	// Progression bar
