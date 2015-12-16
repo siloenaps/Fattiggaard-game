@@ -340,7 +340,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,606.2,271.1);
 	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Du vender hjem med penge på\nlommen"},0).wait(1));
 
 	// Layer 3
-	this.text_1 = new cjs.Text("humør", "28px 'BigNoodleTitling'");
+	this.text_1 = new cjs.Text("penge", "28px 'BigNoodleTitling'");
 	this.text_1.textAlign = "center";
 	this.text_1.lineHeight = 30;
 	this.text_1.lineWidth = 106;
@@ -354,7 +354,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,606.2,271.1);
 	this.text_2.lineWidth = 584;
 	this.text_2.setTransform(212,40);
 
-	this.text_3 = new cjs.Text("-1", "48px 'Special Elite'", "#FFFFFF");
+	this.text_3 = new cjs.Text("-2", "48px 'Special Elite'", "#FFFFFF");
 	this.text_3.textAlign = "center";
 	this.text_3.lineHeight = 50;
 	this.text_3.lineWidth = 145;
@@ -366,7 +366,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,606.2,271.1);
 	this.instance_1 = new lib.PointPositiv();
 	this.instance_1.setTransform(238.8,126);
 
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance},{t:this.text_3,p:{text:"-1"}},{t:this.text_2}]}).to({state:[{t:this.instance_1},{t:this.text_3,p:{text:"+1"}},{t:this.text_2}]},1).wait(1));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance},{t:this.text_3,p:{text:"-2"}},{t:this.text_2}]}).to({state:[{t:this.instance_1},{t:this.text_3,p:{text:"+2"}},{t:this.text_2}]},1).wait(1));
 
 	// Layer 2
 	this.instance_2 = new lib.PointEnkeltBG();

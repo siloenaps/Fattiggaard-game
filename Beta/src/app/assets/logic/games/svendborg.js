@@ -1352,7 +1352,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 	this.realname.setTransform(520,401,1.203,1.203,0,0,0,81,9.2);
 
 	// Text
-	this.text = new cjs.Text("Til det sociale udvalg\n\nUndertegnede skal tiltræde arbejde i Tyskland\nog anmoder herved høfligst det ærede udvalg\nom et lån på                 til indkøb af arbejdstøj.\n\nHåber det ærede udvalg vil bevilge dette mig\nandragende, da jeg jo ikke kan købe tøj i\nTyskland.\n\n         Ærbødigst", "24px 'Special Elite'");
+	this.text = new cjs.Text("Til det sociale udvalg\n\nUndertegnede skal tiltræde arbejde i Tyskland\nog anmoder herved høfligst det ærede udvalg\nom et lån på                 til indkøb af arbejdstøj.\n\nHåber det ærede udvalg vil bevilge dette mig\nandragende, da jeg skal medbringe mit eget\narbejdstøj.\n\n         Ærbødigst", "24px 'Special Elite'");
 	this.text.lineHeight = 26;
 	this.text.lineWidth = 599;
 	this.text.setTransform(212,132);
@@ -1592,7 +1592,7 @@ p.nominalBounds = new cjs.Rectangle(210,38,814,502);
 	this.initialize();
 
 	// Text
-	this.text = new cjs.Text("Få et godt råd af en indsat", "48px 'Special Elite'", "#FFFFFF");
+	this.text = new cjs.Text("Få et godt råd af en indlagt", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
 	this.text.lineWidth = 800;
 	this.text.setTransform(210,38);

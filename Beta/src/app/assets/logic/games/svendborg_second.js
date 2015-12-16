@@ -1559,7 +1559,7 @@ p.nominalBounds = new cjs.Rectangle(210,38,615,355);
 	this.initialize();
 
 	// Text
-	this.text = new cjs.Text("Få et godt råd af en indsat", "48px 'Special Elite'", "#FFFFFF");
+	this.text = new cjs.Text("Få et godt råd af en indlagt", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
 	this.text.lineWidth = 800;
 	this.text.setTransform(210,38);

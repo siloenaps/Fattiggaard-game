@@ -524,7 +524,7 @@ FlowPoorhouseSecond.prototype.letterWrite = function(trigger) {
 
 	// Name
 	var frm = PlayerStats.challenge + PlayerStats.family;
-   	this.view.realname.gotoAndStop(frm);
+   	this.currentPage.realname.gotoAndStop(frm);
 
    	// Special conitnue event event listener
    	this.continueBtn.on('click', function(event){

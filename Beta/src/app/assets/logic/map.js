@@ -132,7 +132,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.initialize();
 
 	// Layer 1
-	this.text = new cjs.Text("Du har ikke flere penge, og har ikke spist i flere dage. Du ved at maden i\nTyskland er tarvelig og underernærende, og frygter, at du ikke vil\nkunne holde til seks måneders arbejde i Tyskland i din nuværende\nforfatning/tilstand. I stedet beslutter du at opsøge en fattiganstalt,\nhvor du kan få mad og samle kræfter.", "18px 'Special Elite'", "#FFFFFF");
+	this.text = new cjs.Text("Du har ikke flere penge, og har ikke spist i flere dage. Du ved at maden i\nTyskland er tarvelig og underernærende, og frygter, at du ikke vil\nkunne holde til seks måneders arbejde i Tyskland i din nuværende\ntilstand. I stedet beslutter du at opsøge en fattiganstalt, hvor du kan få\nmad og samle kræfter.", "18px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 20;
 	this.text.lineWidth = 687;
 

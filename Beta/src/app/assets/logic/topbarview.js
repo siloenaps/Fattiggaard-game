@@ -484,7 +484,7 @@ if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{int
 
 	// Points
 	this.hud = new lib.HUD();
-	this.hud.setTransform(652,9);
+	this.hud.setTransform(597,9);
 	this.hud._off = true;
 
 	this.timeline.addTween(cjs.Tween.get(this.hud).wait(19).to({_off:false},0).wait(11));

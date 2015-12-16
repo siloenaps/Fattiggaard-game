@@ -656,10 +656,10 @@ FlowGermany2.prototype.points5 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 		switch(previousChoice){
 			case 'A':
-				PlayerStats.append('money', -1);
+				PlayerStats.append('money', -2);
 			break;
 			case 'B':
-				PlayerStats.append('money', 1);
+				PlayerStats.append('money', 2);
 			break;
 		}
 		Topbar.pointsUpdate();
