@@ -308,7 +308,8 @@ FlowGermany2.prototype.work = function(trigger){
 		console.log(err);
 	}	
 
-	// Set background
+	// Set background and frame for specific job
+	this.view.bg_4_5_1.gotoAndStop(PlayerStats.job_germany[1]);
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_5_1);
 
 	// Pages in/out
@@ -344,7 +345,7 @@ FlowGermany2.prototype.points2 = function(trigger) {
 	this.trigger = trigger;
 
 	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_5_2);
+	// this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_5_2);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -789,8 +790,8 @@ FlowGermany2.prototype.intermezzo = function(trigger){
 
 	// Pages in/out
 	var previousPage = this.currentPage;
-	this.currentPage = null;
-	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+	this.currentPage = this.view.intermezzo;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		Tick.framerate(Tick.low);
 	}, this));
 

@@ -13,7 +13,7 @@ lib.properties = {
 		{src:"../../../assets/images/pool/_023.jpg", id:"_023"},
 		{src:"../../../assets/images/pool/_024.jpg", id:"_024"},
 		{src:"../../../assets/images/pool/_0_2BG.jpg", id:"_0_2BG"},
-		{src:"../../../assets/images/pool/_0_3BG_NY.jpg", id:"_0_3BG_NY"},
+		{src:"../../../assets/images/pool/_0_3BG_NY_small.jpg", id:"_0_3BG_NY_small"},
 		{src:"../../../assets/images/pool/_0_4BG.jpg", id:"_0_4BG"},
 		{src:"../../../assets/images/pool/alder.png", id:"alder"},
 		{src:"../../../assets/images/pool/ansat_2.png", id:"ansat_2"},
@@ -96,10 +96,10 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._0_3BG_NY = function() {
-	this.initialize(img._0_3BG_NY);
+(lib._0_3BG_NY_small = function() {
+	this.initialize(img._0_3BG_NY_small);
 }).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
 (lib._0_4BG = function() {
@@ -762,8 +762,7 @@ p.nominalBounds = null;
 	this.initialize();
 
 	// Layer 1
-	this.instance = new lib._0_3BG_NY();
-	this.instance.setTransform(0,0,1,0.833);
+	this.instance = new lib._0_3BG_NY_small();
 
 	this.addChild(this.instance);
 }).prototype = p = new cjs.Container();
@@ -935,7 +934,7 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,421.4,61.5);
 
 	// Portrait
 	this.portrait = new lib.CharacterCardPortrait();
-	this.portrait.setTransform(176.2,106.8);
+	this.portrait.setTransform(176.2,79.8);
 
 	// BG Text 
 	this.instance_1 = new lib.CharacterCardlabelspng();
@@ -943,7 +942,7 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,421.4,61.5);
 
 	this.addChild(this.instance_1,this.portrait,this.nickname,this.realname,this.challenge,this.family,this.kids,this.instance,this.height);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(176.2,43.6,2085.1,489.2);
+p.nominalBounds = new cjs.Rectangle(176.2,43.6,2085.1,481);
 
 
 (lib.CharacterNickname = function() {

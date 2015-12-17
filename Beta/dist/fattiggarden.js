@@ -3424,7 +3424,8 @@ FlowGermany2.prototype.work = function(trigger){
 		console.log(err);
 	}	
 
-	// Set background
+	// Set background and frame for specific job
+	this.view.bg_4_5_1.gotoAndStop(PlayerStats.job_germany[1]);
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_5_1);
 
 	// Pages in/out
@@ -3460,7 +3461,7 @@ FlowGermany2.prototype.points2 = function(trigger) {
 	this.trigger = trigger;
 
 	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_5_2);
+	// this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_5_2);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -3905,8 +3906,8 @@ FlowGermany2.prototype.intermezzo = function(trigger){
 
 	// Pages in/out
 	var previousPage = this.currentPage;
-	this.currentPage = null;
-	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+	this.currentPage = this.view.intermezzo;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		Tick.framerate(Tick.low);
 	}, this));
 
@@ -6553,7 +6554,7 @@ var ApplicationManager = {
 			
 		// Go to start
 		FlowManager.gotoPage('0.0');
-		// FlowManager.gotoPage('2.12');
+		// FlowManager.gotoPage('4.0');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},
@@ -6564,149 +6565,6 @@ var ApplicationManager = {
 		'use strict';
 	}
 };
-/**
-	Controller uses the browser's AUDIO element as play back for sound
-*/
-function SoundController(audioPath, loopCount) {
-	'use strict';
-
-	var self = this;
-
-	this.loopCount = loopCount;
-	if(loopCount === undefined || loopCount === null)
-		this.loopCount = false;	
-
-	this.audioPath = audioPath;
-}
-// SoundController.prototype.dispatcher = function(event){
-// 	this.dispatchEvent(event);
-// }
-SoundController.prototype = {
-	sndObj: null,
-	currentSndPosition: 0,
-	paused: false,
-	self: this,
-	complete: false,
-	dispatcher: function(event){
-		this.dispatchEvent(event);
-	},
-	getState: function(){
-		return this.sndObj.state;
-	},
-	load: function(){
-		'use strict';
-		var self = this;
-		// Howler
-		this.sndObj = new Howl({
-		  urls: [this.audioPath],
-		  autoplay: false,
-		  loop: this.loopCount,
-		  volume: 1,
-		  buffer: false,
-		  onend: function() {
-		    self.complete = true;
-		    self.dispatcher(new createjs.Event('complete'));
-		  },
-		  onload: function() {		    
-		    self.dispatcher(new createjs.Event('ready'));
-		    console.log('SoundController.onload');
-		    PreloadGFX.hide();
-		  }
-		}); 
-
-		PreloadGFX.show(false);
-	},
-	volume: function(value) {
-		'use strict';
-		if(this.sndObj != null){
-			this.sndObj.volume = value;
-		}
-	},
-	play: function() {
-		'use strict';
-		this.sndObj.play();
-		this.paused = false;
-		this.sndObj.state = 'play';
-		this.complete = false;
-	},
-	stop: function() {
-		'use strict';
-		this.sndObj.stop();
-		// this.sndObj.currentTime = 0;
-		this.paused = false;
-		this.sndObj.state = 'stop';
-	},
-	pause: function() {
-		'use strict';
-		// this.currentSndPosition = this.sndObj.currentTime;
-		this.sndObj.pause();
-		this.paused = true;
-		this.sndObj.state = 'pause';
-	},
-	resume: function() {
-		'use strict';
-		this.sndObj.play();
-	},
-	progress: function(){
-		'use strict';
-		var num = this.sndObj.pos() / this.sndObj._duration;
-		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
-		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
-	},
-	isComplete: function(){
-		'use strict';
-		this.state = 'stop';
-		return this.complete;
-	},
-	destroy: function(){
-		'use strict';
-		this.state = 'stop';
-		this.sndObj = null;
-		this.duration = null;
-	}
-};
-createjs.EventDispatcher.initialize(SoundController.prototype);
-var HUDController = {
-	init: function(){
-		this.soundEffectPlus = new SoundController(SoundService.matrix.points.plus.src, false);	
-		this.soundEffectMinus = new SoundController(SoundService.matrix.points.minus.src, false);	
-		this.soundEffectPlus.load();
-		this.soundEffectMinus.load();
-	},
-	setView: function(view){
-		this.view = view;		
-		this.update();
-	},
-	update: function(){
-		if(this.view === undefined || this.view === null){
-			throw new Error("'view' is undefined");
-		}
-
-		var self = this;
-		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
-		this.view.health.points.gotoAndStop(PlayerStats.health-1);
-		this.view.money.points.gotoAndStop(PlayerStats.money-1);
-
-		var delay = 0;
-		// console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
-		for(var key in PlayerStats.pointsDiff){
-			if(PlayerStats.pointsDiff[key] > 0){
-				setTimeout(function(){ 
-					self.soundEffectPlus.play();
-				}, delay);
-				delay += 500;
-			}else if(PlayerStats.pointsDiff[key] < 0){
-				setTimeout(function(){ 
-					self.soundEffectMinus.play();
-				}, delay);
-				delay += 500;
-			}
-		}
-
-		// Need to reset 
-		PlayerStats.resetDiff();
-	}
-}
 var PlayerSoundComponent = function(view){
 	'use strict';
 	if(PlayerSoundComponent.counter == null)
@@ -7141,6 +6999,149 @@ PlayerSliderComponent.prototype.destroy = function(){
 	this.slideId = null;
 };
 createjs.EventDispatcher.initialize(PlayerSliderComponent.prototype);
+/**
+	Controller uses the browser's AUDIO element as play back for sound
+*/
+function SoundController(audioPath, loopCount) {
+	'use strict';
+
+	var self = this;
+
+	this.loopCount = loopCount;
+	if(loopCount === undefined || loopCount === null)
+		this.loopCount = false;	
+
+	this.audioPath = audioPath;
+}
+// SoundController.prototype.dispatcher = function(event){
+// 	this.dispatchEvent(event);
+// }
+SoundController.prototype = {
+	sndObj: null,
+	currentSndPosition: 0,
+	paused: false,
+	self: this,
+	complete: false,
+	dispatcher: function(event){
+		this.dispatchEvent(event);
+	},
+	getState: function(){
+		return this.sndObj.state;
+	},
+	load: function(){
+		'use strict';
+		var self = this;
+		// Howler
+		this.sndObj = new Howl({
+		  urls: [this.audioPath],
+		  autoplay: false,
+		  loop: this.loopCount,
+		  volume: 1,
+		  buffer: false,
+		  onend: function() {
+		    self.complete = true;
+		    self.dispatcher(new createjs.Event('complete'));
+		  },
+		  onload: function() {		    
+		    self.dispatcher(new createjs.Event('ready'));
+		    console.log('SoundController.onload');
+		    PreloadGFX.hide();
+		  }
+		}); 
+
+		PreloadGFX.show(false);
+	},
+	volume: function(value) {
+		'use strict';
+		if(this.sndObj != null){
+			this.sndObj.volume = value;
+		}
+	},
+	play: function() {
+		'use strict';
+		this.sndObj.play();
+		this.paused = false;
+		this.sndObj.state = 'play';
+		this.complete = false;
+	},
+	stop: function() {
+		'use strict';
+		this.sndObj.stop();
+		// this.sndObj.currentTime = 0;
+		this.paused = false;
+		this.sndObj.state = 'stop';
+	},
+	pause: function() {
+		'use strict';
+		// this.currentSndPosition = this.sndObj.currentTime;
+		this.sndObj.pause();
+		this.paused = true;
+		this.sndObj.state = 'pause';
+	},
+	resume: function() {
+		'use strict';
+		this.sndObj.play();
+	},
+	progress: function(){
+		'use strict';
+		var num = this.sndObj.pos() / this.sndObj._duration;
+		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
+		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
+	},
+	isComplete: function(){
+		'use strict';
+		this.state = 'stop';
+		return this.complete;
+	},
+	destroy: function(){
+		'use strict';
+		this.state = 'stop';
+		this.sndObj = null;
+		this.duration = null;
+	}
+};
+createjs.EventDispatcher.initialize(SoundController.prototype);
+var HUDController = {
+	init: function(){
+		this.soundEffectPlus = new SoundController(SoundService.matrix.points.plus.src, false);	
+		this.soundEffectMinus = new SoundController(SoundService.matrix.points.minus.src, false);	
+		this.soundEffectPlus.load();
+		this.soundEffectMinus.load();
+	},
+	setView: function(view){
+		this.view = view;		
+		this.update();
+	},
+	update: function(){
+		if(this.view === undefined || this.view === null){
+			throw new Error("'view' is undefined");
+		}
+
+		var self = this;
+		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
+		this.view.health.points.gotoAndStop(PlayerStats.health-1);
+		this.view.money.points.gotoAndStop(PlayerStats.money-1);
+
+		var delay = 0;
+		// console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
+		for(var key in PlayerStats.pointsDiff){
+			if(PlayerStats.pointsDiff[key] > 0){
+				setTimeout(function(){ 
+					self.soundEffectPlus.play();
+				}, delay);
+				delay += 500;
+			}else if(PlayerStats.pointsDiff[key] < 0){
+				setTimeout(function(){ 
+					self.soundEffectMinus.play();
+				}, delay);
+				delay += 500;
+			}
+		}
+
+		// Need to reset 
+		PlayerStats.resetDiff();
+	}
+}
 ;(function (lib, img, cjs, ss) {
 
 var p; // shortcut to reference prototypes
