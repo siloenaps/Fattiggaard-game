@@ -784,8 +784,8 @@ var PageMap = function(container){
 				});
 			}, this);
 			
-console.log('this.startInfo', this.startInfo)
 			this.currentPage.infotext.visible = this.startInfo;
+			this.currentPage.headline.visible = !this.startInfo;
 			
 
 			// Info popup
@@ -1452,6 +1452,7 @@ var FlowPrologue = function(container){
 			var frm = PlayerStats.challenge + PlayerStats.family;
 			this.currentPage.portrait.gotoAndStop(frm);
 			this.currentPage.realname.gotoAndStop(frm);
+			this.currentPage.height.gotoAndStop(frm);
 
 			// Set nickname
 			frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
@@ -6063,440 +6064,6 @@ var FlowData ={
 // 		}
 // 	}
 // }
-var PlayerSoundComponent = function(view){
-	'use strict';
-	if(PlayerSoundComponent.counter == null)
-		PlayerSoundComponent.counter = 0;
-
-	PlayerSoundComponent.counter++;
-	this.id = PlayerSoundComponent.counter;
-
-	this.view = view;
-	this.paused = false;
-	this.duration = 0;
-	this.listeners = {tick:null, play:null, pause:null, stop:null};
-	this.playBtn = new ButtonCustom(view.playBtn);
-	this.pauseBtn = new ButtonCustom(view.pauseBtn);
-	this.stopBtn = new ButtonCustom(view.stopBtn);
-
-	// Initial visibility of play/pause/stop
-	this.playBtn.setActive(false);
-	this.stopBtn.setActive(false);
-	this.pauseBtn.setActive(true);	
-	this.pauseBtn.visible(false);
-
-	// Controller button events
-	this.listeners.play = this.playBtn.on('click', this.play, this);
-	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
-	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
-
-	// Progression
-	this.progressionBar = view.progressionBar;
-	this.progressionBar.scaleX = 0;
-
-	// Sound
-	this.soundController = null;
-};
-PlayerSoundComponent.prototype.preload = function(src, duration){
-	'use strict';
-	var self = this;
-
-	// console.log('PlayerSoundComponent.preload');
-
-	// Safety net
-	this.removeLoopEvent();
-
-	// Sound ready state
-	if(self.soundController !== null){
-		self.soundController.destroy();
-		self.soundController = null;
-	}
-	self.soundController = new SoundController(src);
-	self.soundController.on('ready', function(event){
-		event.remove();
-		// Enable buttons
-		self.playBtn.setActive(true);
-		self.stopBtn.setActive(true);
-
-		// Dispatch event 
-		self.dispatchEvent(new createjs.Event('ready'));
-	}, self);
-	self.soundController.on('complete', function(event){
-		// Swap Play/Pause visibility
-		this.pauseBtn.visible(false);
-		this.playBtn.visible(true);
-
-		self.removeLoopEvent();
-
-		// Dispatch event 
-		self.dispatchEvent(new createjs.Event('complete'));
-	}, self);
-	self.soundController.load();
-};
-PlayerSoundComponent.prototype.addLoopEvent = function(){
-	'use strict';
-	if(this.listeners.tick === null){
-		this.listeners.tick = this.progressionBar.on('tick', this.loop, this);
-	}
-};
-PlayerSoundComponent.prototype.removeLoopEvent = function(){
-	'use strict';
-	this.progressionBar.off('tick', this.listeners.tick);
-	this.listeners.tick = null;
-};
-PlayerSoundComponent.prototype.loop = function(){
-	'use strict';	
-	var sndProgression = this.soundController.progress();
-	
-	// Progression bar
-	this.progressionBar.scaleX = sndProgression;
-};
-PlayerSoundComponent.prototype.play = function(){
-	'use strict';
-	this.previousFrame = 0;
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(true);
-	this.playBtn.visible(false);
-
-	// Timeline
-	this.addLoopEvent('tick');
-
-	// Sound
-	this.soundController.play();
-
-	// Dispacth event 
-	this.dispatchEvent(new createjs.Event('start'));
-
-	// Set this last
-	this.paused = false;
-
-	// Tick
-	Tick.enable();
-	Tick.framerate(Tick.perfect);
-};
-PlayerSoundComponent.prototype.pause = function(){
-	'use strict';
-
-	// If invoked from external the state could be stopped
-	// Adn we do not want to set in paused unintentional
-	if(this.paused)
-		return;
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	// Dispacth event 
-	// this.dispatchEvent(new createjs.Event('pause'));
-
-	this.paused = true;
-
-	// Sound
-	this.soundController.pause();
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSoundComponent.prototype.stop = function(){
-	'use strict';
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	// Progression bar
-	this.progressionBar.scaleX = 0;
-
-	// Sound
-	this.soundController.stop();
-
-	// Dispacth event 
-	// this.dispatchEvent(new createjs.Event('stop'));
-
-	this.paused = false;
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSoundComponent.prototype.progress = function(){
-	'use strict';
-	var num = this.slide.currentFrame / this.duration;
-	return Math.round(num * 1000) / 1000;
-};
-PlayerSoundComponent.prototype.reset = function(){
-	'use strict';
-	this.removeLoopEvent();
-	this.paused = false;
-	this.listeners = null;
-};
-PlayerSoundComponent.prototype.destroy = function(){
-	'use strict';
-	this.removeLoopEvent();
-	this.view = null;
-	this.listeners = null;
-	this.playBtn.destroy();
-	this.pauseBtn.destroy();
-	this.stopBtn.destroy();
-	this.playBtn = null;
-	this.pauseBtn = null;
-	this.stopBtn = null;
-};
-createjs.EventDispatcher.initialize(PlayerSoundComponent.prototype);
-var PlayerSliderComponent = function(view, soundOffset){
-	'use strict';
-	this.view = view;
-	this.soundOffset = soundOffset;
-	this.container = view.container;
-	this.slideId = null;
-	this.slide = null;
-	this.paused = false;
-	this.state = null;
-	this.duration = 0;
-	this.listeners = {tick:null, play:null, pause:null, stop:null, auto:null};
-	this.playBtn = new ButtonCustom(view.playBtn);
-	this.pauseBtn = new ButtonCustom(view.pauseBtn);
-	this.stopBtn = new ButtonCustom(view.stopBtn);
-
-	if(this.soundOffset === null || this.soundOffset === undefined){
-		this.soundOffset = 0;
-	}
-
-	// Initial visibility of play/pause/stop
-	this.playBtn.setActive(false);
-	this.stopBtn.setActive(false);
-	this.pauseBtn.setActive(true);	
-	this.pauseBtn.visible(false);
-
-	// Controller button events
-	this.listeners.play = this.playBtn.on('click', this.play, this);
-	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
-	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
-
-	// Progression
-	this.progressionBar = view.progressionBar;
-	this.progressionBar.scaleX = 0;
-
-	// Sound
-	this.soundController = null;
-};
-PlayerSliderComponent.prototype.preload = function(slideId, lib){
-	'use strict';
-	
-	var self = this;
-	this.slideId = slideId;
-
-	// Load assets	
-	Preloader.load(lib.properties.manifest, 
-		function(event){
-			if (event.item.type === 'image'){ 
-				images[event.item.id] = event.result; 
-			}
-			// // console.log(event.result);
-		}, 
-		function(event){			
-			// Clean slider container if a slider already has been played
-			if(self.slide !== null){
-				self.container.remove(slide);
-				self.slide = null;
-			}
-			
-			// Create slider object and attach to container
-			self.slide = eval('new lib.'+slideId+'()');
-			
-			self.container.addChild(self.slide);
-
-			// Get the duration of the timeline in the slide
-			self.duration = self.slide.timeline.duration - 1;
-
-			// Sound
-			if(self.soundController !== null){
-				self.soundController.destroy();
-				self.soundController = null;
-			}
-			try{
-				var snd = SoundService.getSlideSoundById(self.slideId);
-				self.soundController = new SoundController(snd.src);
-				self.soundController.on('ready', function(event){
-					event.remove(); // Only run once. Otherwise it will run every time player has ended and starts slide after it played to the end
-					// Enable buttons
-					self.playBtn.setActive(true);
-					self.stopBtn.setActive(true);
-
-					// Dispatch event 
-					self.dispatchEvent(new createjs.Event('ready'));
-				}, self);
-				self.soundController.on('complete', function(event){
-					// event.remove();
-					// console.log('complete');
-
-					// Stop on last frame
-					this.slide.gotoAndStop(this.slide.totalFrames-1);
-
-					// Swap Play/Pause visibility
-					this.pauseBtn.visible(false);
-					this.playBtn.visible(true);
-
-					self.removeLoopEvent();
-
-					this.state = 'complete';
-
-					// Dispatch event 
-					self.dispatchEvent(new createjs.Event('complete'));
-				}, self);
-				self.soundController.load();
-			}catch(err){
-				console.log(err);
-			}			
-		},
-		'small'
-	);	
-};
-PlayerSliderComponent.prototype.addLoopEvent = function(){
-	'use strict';
-	if(this.listeners.tick === null){
-		this.listeners.tick = this.slide.on('tick', this.loop, this);
-	}
-};
-PlayerSliderComponent.prototype.removeLoopEvent = function(){
-	'use strict';
-	this.slide.off('tick', this.listeners.tick);
-	this.listeners.tick = null;
-};
-PlayerSliderComponent.prototype.loop = function(){
-	'use strict';	
-	var sndProgression = this.soundController.progress();
-	
-	var desiredFrame = Math.round(this.duration * sndProgression) + this.soundOffset;
-
-	// Truncate frame to show to max number of frames
-	if(desiredFrame > this.slide.totalFrames-1)
-		desiredFrame = this.slide.totalFrames-1
-
-	this.slide.gotoAndPlay(desiredFrame);
-
-	// Progression bar
-	this.progressionBar.scaleX = this.progress()
-};
-PlayerSliderComponent.prototype.play = function(){
-	'use strict';
-	// console.log('play');
-	var self = this;
-
-	if(this.state === 'complete')
-		this.slide.gotoAndStop(0);
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(true);
-	this.playBtn.visible(false);
-
-	// Sound
-	// Sound starts at frame 0
-	if(this.soundOffset === 0){
-		this.soundController.play();		
-
-	// Sound starts later than frame 0
-	}else{
-		// Current frame is after sound start frame
-		if(this.slide.currentFrame >= this.soundOffset){
-			this.soundController.play();
-
-		// Current frame is before sound start frame
-		}else{
-			// Listen for an event dispatch 
-			this.on('autoplay', function(event){
-				event.remove();
-				this.listeners.auto = null;
-				self.soundController.play();
-			}, this);
-		}		
-	}
-	
-	// Timeline
-	this.addLoopEvent('tick');
-
-	// Set this last
-	this.paused = false;
-	this.state = 'play';
-
-	// Tick
-	Tick.enable();
-	Tick.framerate(Tick.perfect);
-};
-PlayerSliderComponent.prototype.pause = function(){
-	'use strict';
-
-	// console.log('pause');
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	this.paused = true;
-	this.state = 'pause';
-
-	// Pause timeline
-	this.slide.stop();
-
-	// Sound
-	this.soundController.pause();
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSliderComponent.prototype.stop = function(){
-	'use strict';
-	Tick.enable();
-
-	// console.log('stop');
-
-
-	// Progression bar
-	this.progressionBar.scaleX = 0;
-
-	// Remove tick
-	this.removeLoopEvent();
-
-	// Set slide timeline back to start
-	this.slide.gotoAndStop(0);
-
-	// Swap Play/Pause visibility
-	this.pauseBtn.visible(false);
-	this.playBtn.visible(true);
-
-	// Sound
-	this.soundController.stop();
-
-	this.state = 'stop';
-
-	// Tick
-	Tick.disable(100);
-};
-PlayerSliderComponent.prototype.progress = function(){
-	'use strict';
-	var num = this.slide.currentFrame / this.duration;
-	return Math.round(num * 1000) / 1000;
-};
-PlayerSliderComponent.prototype.reset = function(){
-	'use strict';
-	this.slideId = null;
-	this.paused = false;
-};
-PlayerSliderComponent.prototype.destroy = function(){
-	'use strict';
-	this.view = null;
-	this.slideId = null;
-};
-createjs.EventDispatcher.initialize(PlayerSliderComponent.prototype);
 var GameManager = {
 	root: null,
 	init: function(root){
@@ -6955,13 +6522,10 @@ var ApplicationManager = {
 
 		PreloadGFX.preloader = this.root.preload_clip;
 
-		// PreloadGFX.hide();
-
 		// // Init Environment info
 		// Environment.init();
 		ImageService.init();
 		SoundService.init();
-
 
 		// Cursor init
 		Cursor.root = root;
@@ -6987,15 +6551,6 @@ var ApplicationManager = {
 			console.log(err);
 		}
 			
-
-		// Fade black blocker out
-		// createjs.Tween.get(root.blocker_black)
-  //        .to({alpha: 0}, 600, createjs.Ease.linear)
-  //        .call(function(){
-  //        	root.blocker_black.visible = false;
-  //        });         
-
-
 		// Go to start
 		FlowManager.gotoPage('0.0');
 		// FlowManager.gotoPage('2.12');
@@ -7152,6 +6707,440 @@ var HUDController = {
 		PlayerStats.resetDiff();
 	}
 }
+var PlayerSoundComponent = function(view){
+	'use strict';
+	if(PlayerSoundComponent.counter == null)
+		PlayerSoundComponent.counter = 0;
+
+	PlayerSoundComponent.counter++;
+	this.id = PlayerSoundComponent.counter;
+
+	this.view = view;
+	this.paused = false;
+	this.duration = 0;
+	this.listeners = {tick:null, play:null, pause:null, stop:null};
+	this.playBtn = new ButtonCustom(view.playBtn);
+	this.pauseBtn = new ButtonCustom(view.pauseBtn);
+	this.stopBtn = new ButtonCustom(view.stopBtn);
+
+	// Initial visibility of play/pause/stop
+	this.playBtn.setActive(false);
+	this.stopBtn.setActive(false);
+	this.pauseBtn.setActive(true);	
+	this.pauseBtn.visible(false);
+
+	// Controller button events
+	this.listeners.play = this.playBtn.on('click', this.play, this);
+	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
+	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
+
+	// Progression
+	this.progressionBar = view.progressionBar;
+	this.progressionBar.scaleX = 0;
+
+	// Sound
+	this.soundController = null;
+};
+PlayerSoundComponent.prototype.preload = function(src, duration){
+	'use strict';
+	var self = this;
+
+	// console.log('PlayerSoundComponent.preload');
+
+	// Safety net
+	this.removeLoopEvent();
+
+	// Sound ready state
+	if(self.soundController !== null){
+		self.soundController.destroy();
+		self.soundController = null;
+	}
+	self.soundController = new SoundController(src);
+	self.soundController.on('ready', function(event){
+		event.remove();
+		// Enable buttons
+		self.playBtn.setActive(true);
+		self.stopBtn.setActive(true);
+
+		// Dispatch event 
+		self.dispatchEvent(new createjs.Event('ready'));
+	}, self);
+	self.soundController.on('complete', function(event){
+		// Swap Play/Pause visibility
+		this.pauseBtn.visible(false);
+		this.playBtn.visible(true);
+
+		self.removeLoopEvent();
+
+		// Dispatch event 
+		self.dispatchEvent(new createjs.Event('complete'));
+	}, self);
+	self.soundController.load();
+};
+PlayerSoundComponent.prototype.addLoopEvent = function(){
+	'use strict';
+	if(this.listeners.tick === null){
+		this.listeners.tick = this.progressionBar.on('tick', this.loop, this);
+	}
+};
+PlayerSoundComponent.prototype.removeLoopEvent = function(){
+	'use strict';
+	this.progressionBar.off('tick', this.listeners.tick);
+	this.listeners.tick = null;
+};
+PlayerSoundComponent.prototype.loop = function(){
+	'use strict';	
+	var sndProgression = this.soundController.progress();
+	
+	// Progression bar
+	this.progressionBar.scaleX = sndProgression;
+};
+PlayerSoundComponent.prototype.play = function(){
+	'use strict';
+	this.previousFrame = 0;
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(true);
+	this.playBtn.visible(false);
+
+	// Timeline
+	this.addLoopEvent('tick');
+
+	// Sound
+	this.soundController.play();
+
+	// Dispacth event 
+	this.dispatchEvent(new createjs.Event('start'));
+
+	// Set this last
+	this.paused = false;
+
+	// Tick
+	Tick.enable();
+	Tick.framerate(Tick.perfect);
+};
+PlayerSoundComponent.prototype.pause = function(){
+	'use strict';
+
+	// If invoked from external the state could be stopped
+	// Adn we do not want to set in paused unintentional
+	if(this.paused)
+		return;
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	// Dispacth event 
+	// this.dispatchEvent(new createjs.Event('pause'));
+
+	this.paused = true;
+
+	// Sound
+	this.soundController.pause();
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSoundComponent.prototype.stop = function(){
+	'use strict';
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	// Progression bar
+	this.progressionBar.scaleX = 0;
+
+	// Sound
+	this.soundController.stop();
+
+	// Dispacth event 
+	// this.dispatchEvent(new createjs.Event('stop'));
+
+	this.paused = false;
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSoundComponent.prototype.progress = function(){
+	'use strict';
+	var num = this.slide.currentFrame / this.duration;
+	return Math.round(num * 1000) / 1000;
+};
+PlayerSoundComponent.prototype.reset = function(){
+	'use strict';
+	this.removeLoopEvent();
+	this.paused = false;
+	this.listeners = null;
+};
+PlayerSoundComponent.prototype.destroy = function(){
+	'use strict';
+	this.removeLoopEvent();
+	this.view = null;
+	this.listeners = null;
+	this.playBtn.destroy();
+	this.pauseBtn.destroy();
+	this.stopBtn.destroy();
+	this.playBtn = null;
+	this.pauseBtn = null;
+	this.stopBtn = null;
+};
+createjs.EventDispatcher.initialize(PlayerSoundComponent.prototype);
+var PlayerSliderComponent = function(view, soundOffset){
+	'use strict';
+	this.view = view;
+	this.soundOffset = soundOffset;
+	this.container = view.container;
+	this.slideId = null;
+	this.slide = null;
+	this.paused = false;
+	this.state = null;
+	this.duration = 0;
+	this.listeners = {tick:null, play:null, pause:null, stop:null, auto:null};
+	this.playBtn = new ButtonCustom(view.playBtn);
+	this.pauseBtn = new ButtonCustom(view.pauseBtn);
+	this.stopBtn = new ButtonCustom(view.stopBtn);
+
+	if(this.soundOffset === null || this.soundOffset === undefined){
+		this.soundOffset = 0;
+	}
+
+	// Initial visibility of play/pause/stop
+	this.playBtn.setActive(false);
+	this.stopBtn.setActive(false);
+	this.pauseBtn.setActive(true);	
+	this.pauseBtn.visible(false);
+
+	// Controller button events
+	this.listeners.play = this.playBtn.on('click', this.play, this);
+	this.listeners.pause = this.pauseBtn.on('click', this.pause, this);
+	this.listeners.stop = this.stopBtn.on('click', this.stop, this);
+
+	// Progression
+	this.progressionBar = view.progressionBar;
+	this.progressionBar.scaleX = 0;
+
+	// Sound
+	this.soundController = null;
+};
+PlayerSliderComponent.prototype.preload = function(slideId, lib){
+	'use strict';
+	
+	var self = this;
+	this.slideId = slideId;
+
+	// Load assets	
+	Preloader.load(lib.properties.manifest, 
+		function(event){
+			if (event.item.type === 'image'){ 
+				images[event.item.id] = event.result; 
+			}
+			// // console.log(event.result);
+		}, 
+		function(event){			
+			// Clean slider container if a slider already has been played
+			if(self.slide !== null){
+				self.container.remove(slide);
+				self.slide = null;
+			}
+			
+			// Create slider object and attach to container
+			self.slide = eval('new lib.'+slideId+'()');
+			
+			self.container.addChild(self.slide);
+
+			// Get the duration of the timeline in the slide
+			self.duration = self.slide.timeline.duration - 1;
+
+			// Sound
+			if(self.soundController !== null){
+				self.soundController.destroy();
+				self.soundController = null;
+			}
+			try{
+				var snd = SoundService.getSlideSoundById(self.slideId);
+				self.soundController = new SoundController(snd.src);
+				self.soundController.on('ready', function(event){
+					event.remove(); // Only run once. Otherwise it will run every time player has ended and starts slide after it played to the end
+					// Enable buttons
+					self.playBtn.setActive(true);
+					self.stopBtn.setActive(true);
+
+					// Dispatch event 
+					self.dispatchEvent(new createjs.Event('ready'));
+				}, self);
+				self.soundController.on('complete', function(event){
+					// event.remove();
+					// console.log('complete');
+
+					// Stop on last frame
+					this.slide.gotoAndStop(this.slide.totalFrames-1);
+
+					// Swap Play/Pause visibility
+					this.pauseBtn.visible(false);
+					this.playBtn.visible(true);
+
+					self.removeLoopEvent();
+
+					this.state = 'complete';
+
+					// Dispatch event 
+					self.dispatchEvent(new createjs.Event('complete'));
+				}, self);
+				self.soundController.load();
+			}catch(err){
+				console.log(err);
+			}			
+		},
+		'small'
+	);	
+};
+PlayerSliderComponent.prototype.addLoopEvent = function(){
+	'use strict';
+	if(this.listeners.tick === null){
+		this.listeners.tick = this.slide.on('tick', this.loop, this);
+	}
+};
+PlayerSliderComponent.prototype.removeLoopEvent = function(){
+	'use strict';
+	this.slide.off('tick', this.listeners.tick);
+	this.listeners.tick = null;
+};
+PlayerSliderComponent.prototype.loop = function(){
+	'use strict';	
+	var sndProgression = this.soundController.progress();
+	
+	var desiredFrame = Math.round(this.duration * sndProgression) + this.soundOffset;
+
+	// Truncate frame to show to max number of frames
+	if(desiredFrame > this.slide.totalFrames-1)
+		desiredFrame = this.slide.totalFrames-1
+
+	this.slide.gotoAndPlay(desiredFrame);
+
+	// Progression bar
+	this.progressionBar.scaleX = this.progress()
+};
+PlayerSliderComponent.prototype.play = function(){
+	'use strict';
+	// console.log('play');
+	var self = this;
+
+	if(this.state === 'complete')
+		this.slide.gotoAndStop(0);
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(true);
+	this.playBtn.visible(false);
+
+	// Sound
+	// Sound starts at frame 0
+	if(this.soundOffset === 0){
+		this.soundController.play();		
+
+	// Sound starts later than frame 0
+	}else{
+		// Current frame is after sound start frame
+		if(this.slide.currentFrame >= this.soundOffset){
+			this.soundController.play();
+
+		// Current frame is before sound start frame
+		}else{
+			// Listen for an event dispatch 
+			this.on('autoplay', function(event){
+				event.remove();
+				this.listeners.auto = null;
+				self.soundController.play();
+			}, this);
+		}		
+	}
+	
+	// Timeline
+	this.addLoopEvent('tick');
+
+	// Set this last
+	this.paused = false;
+	this.state = 'play';
+
+	// Tick
+	Tick.enable();
+	Tick.framerate(Tick.perfect);
+};
+PlayerSliderComponent.prototype.pause = function(){
+	'use strict';
+
+	// console.log('pause');
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	this.paused = true;
+	this.state = 'pause';
+
+	// Pause timeline
+	this.slide.stop();
+
+	// Sound
+	this.soundController.pause();
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSliderComponent.prototype.stop = function(){
+	'use strict';
+	Tick.enable();
+
+	// console.log('stop');
+
+
+	// Progression bar
+	this.progressionBar.scaleX = 0;
+
+	// Remove tick
+	this.removeLoopEvent();
+
+	// Set slide timeline back to start
+	this.slide.gotoAndStop(0);
+
+	// Swap Play/Pause visibility
+	this.pauseBtn.visible(false);
+	this.playBtn.visible(true);
+
+	// Sound
+	this.soundController.stop();
+
+	this.state = 'stop';
+
+	// Tick
+	Tick.disable(100);
+};
+PlayerSliderComponent.prototype.progress = function(){
+	'use strict';
+	var num = this.slide.currentFrame / this.duration;
+	return Math.round(num * 1000) / 1000;
+};
+PlayerSliderComponent.prototype.reset = function(){
+	'use strict';
+	this.slideId = null;
+	this.paused = false;
+};
+PlayerSliderComponent.prototype.destroy = function(){
+	'use strict';
+	this.view = null;
+	this.slideId = null;
+};
+createjs.EventDispatcher.initialize(PlayerSliderComponent.prototype);
 ;(function (lib, img, cjs, ss) {
 
 var p; // shortcut to reference prototypes

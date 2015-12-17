@@ -520,7 +520,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 	this.text.lineWidth = 145;
 	this.text.setTransform(323.5,150);
 
-	this.text_1 = new cjs.Text("Du glæder dig til at komme\nud af anstalten og tjene \npenge", "18px 'Special Elite'");
+	this.text_1 = new cjs.Text("Du glæder dig til at komme \ntil Tyskland og tjene nogle\npenge", "18px 'Special Elite'");
 	this.text_1.lineHeight = 20;
 	this.text_1.lineWidth = 286;
 	this.text_1.setTransform(529.8,137);

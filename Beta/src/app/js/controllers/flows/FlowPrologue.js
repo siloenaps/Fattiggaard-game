@@ -309,6 +309,7 @@ var FlowPrologue = function(container){
 			var frm = PlayerStats.challenge + PlayerStats.family;
 			this.currentPage.portrait.gotoAndStop(frm);
 			this.currentPage.realname.gotoAndStop(frm);
+			this.currentPage.height.gotoAndStop(frm);
 
 			// Set nickname
 			frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1

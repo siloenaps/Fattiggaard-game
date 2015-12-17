@@ -169,8 +169,8 @@ var PageMap = function(container){
 				});
 			}, this);
 			
-console.log('this.startInfo', this.startInfo)
 			this.currentPage.infotext.visible = this.startInfo;
+			this.currentPage.headline.visible = !this.startInfo;
 			
 
 			// Info popup

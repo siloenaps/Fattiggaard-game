@@ -79,6 +79,19 @@ p.nominalBounds = new cjs.Rectangle(0,0,737,343);
 p.nominalBounds = new cjs.Rectangle(0,0,35,35);
 
 
+(lib.Headline = function() {
+	this.initialize();
+
+	// Layer 1
+	this.text = new cjs.Text("Vælg hvor du starter", "48px 'Special Elite'", "#FFFFFF");
+	this.text.lineHeight = 50;
+	this.text.lineWidth = 777;
+
+	this.addChild(this.text);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,781.5,52);
+
+
 (lib.CloseButton = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{});
 
@@ -366,15 +379,13 @@ p.nominalBounds = new cjs.Rectangle(-1.5,-1.5,191.5,51.5);
 
 	// Layer 3
 	this.infotext = new lib.Additionalinfo();
-	this.infotext.setTransform(555.4,223.7,1,1,0,0,0,345.4,111.4);
+	this.infotext.setTransform(555.4,182.7,1,1,0,0,0,345.4,111.4);
 
 	// Text
-	this.text = new cjs.Text("Vælg hvor du starter", "48px 'Special Elite'", "#FFFFFF");
-	this.text.lineHeight = 50;
-	this.text.lineWidth = 777;
-	this.text.setTransform(210,38);
+	this.headline = new lib.Headline();
+	this.headline.setTransform(600.7,64,1,1,0,0,0,390.7,26);
 
-	this.addChild(this.text,this.infotext,this.checkbox1,this.checkbox2,this.checkbox3,this.info1,this.info2,this.info3,this.infopopup);
+	this.addChild(this.headline,this.infotext,this.checkbox1,this.checkbox2,this.checkbox3,this.info1,this.info2,this.info3,this.infopopup);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(210,0,1859,540);
 
