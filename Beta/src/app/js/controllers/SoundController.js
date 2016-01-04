@@ -84,6 +84,7 @@ SoundController.prototype = {
 	progress: function(){
 		'use strict';
 		var num = this.sndObj.pos() / this.sndObj._duration;
+		// console.log(this.sndObj._duration)
 		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
 		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
 	},
