@@ -82,6 +82,8 @@ PlayerSoundComponent.prototype.removeLoopEvent = function(){
 PlayerSoundComponent.prototype.loop = function(){
 	'use strict';	
 	var sndProgression = this.soundController.progress();
+
+	// console.log(sndProgression);
 	
 	// Progression bar
 	this.progressionBar.scaleX = sndProgression;
@@ -161,7 +163,7 @@ PlayerSoundComponent.prototype.stop = function(){
 	Tick.disable(100);
 };
 PlayerSoundComponent.prototype.progress = function(){
-	'use strict';
+	'use strict';	
 	var num = this.slide.currentFrame / this.duration;
 	return Math.round(num * 1000) / 1000;
 };
