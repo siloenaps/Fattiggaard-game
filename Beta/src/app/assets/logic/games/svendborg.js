@@ -19,6 +19,7 @@ lib.properties = {
 		{src:"../../../assets/images/pool/_1_2BGsvendborgB.jpg", id:"_1_2BGsvendborgB"},
 		{src:"../../../assets/images/pool/_1_2BGsvendborgC.jpg", id:"_1_2BGsvendborgC"},
 		{src:"../../../assets/images/pool/_1_3BGsvendborg.jpg", id:"_1_3BGsvendborg"},
+		{src:"../../../assets/images/pool/_1_3BGsvendborgNY.jpg", id:"_1_3BGsvendborgNY"},
 		{src:"../../../assets/images/pool/_1_4BG.jpg", id:"_1_4BG"},
 		{src:"../../../assets/images/pool/_1_5BGsvendborg2.jpg", id:"_1_5BGsvendborg2"},
 		{src:"../../../assets/images/pool/_1_8BGsvendborg.jpg", id:"_1_8BGsvendborg"},
@@ -116,6 +117,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 (lib._1_3BGsvendborg = function() {
 	this.initialize(img._1_3BGsvendborg);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._1_3BGsvendborgNY = function() {
+	this.initialize(img._1_3BGsvendborgNY);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -946,6 +953,21 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
+(lib.Background1_3_4 = function() {
+	this.initialize();
+
+	// Layer 2
+	this.instance = new lib.svendborg_title();
+	this.instance.setTransform(13,48);
+
+	// Layer 1
+	this.instance_1 = new lib._1_3BGsvendborgNY();
+
+	this.addChild(this.instance_1,this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
 (lib.Background1_3 = function() {
 	this.initialize();
 
@@ -1330,7 +1352,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 	this.realname.setTransform(520,401,1.203,1.203,0,0,0,81,9.2);
 
 	// Text
-	this.text = new cjs.Text("Til det sociale udvalg\n\nUndertegnede skal tiltræde arbejde i Tyskland\nog anmoder herved høfligst det ærede udvalg\nom et lån på                 til indkøb af arbejdstøj.\n\nHåber det ærede udvalg vil bevilge dette mig\nandragende, da jeg jo ikke kan købe tøj i\nTyskland.\n\n         Ærbødigst", "24px 'Special Elite'");
+	this.text = new cjs.Text("Til det sociale udvalg\n\nUndertegnede skal tiltræde arbejde i Tyskland\nog anmoder herved høfligst det ærede udvalg\nom et lån på                 til indkøb af arbejdstøj.\n\nHåber det ærede udvalg vil bevilge dette mig\nandragende, da jeg skal medbringe mit eget\narbejdstøj.\n\n         Ærbødigst", "24px 'Special Elite'");
 	this.text.lineHeight = 26;
 	this.text.lineWidth = 599;
 	this.text.setTransform(212,132);
@@ -1570,7 +1592,7 @@ p.nominalBounds = new cjs.Rectangle(210,38,814,502);
 	this.initialize();
 
 	// Text
-	this.text = new cjs.Text("Få et godt råd af en indsat", "48px 'Special Elite'", "#FFFFFF");
+	this.text = new cjs.Text("Få et godt råd af en indlagt", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
 	this.text.lineWidth = 800;
 	this.text.setTransform(210,38);
@@ -1894,7 +1916,13 @@ p.nominalBounds = new cjs.Rectangle(211,38,813,502);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_1_4).wait(26));
 
-	// 1.3
+	// 1.3.4
+	this.bg_1_3_4 = new lib.Background1_3_4();
+	this.bg_1_3_4.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_1_3_4).wait(26));
+
+	// 1.3.1
 	this.bg_1_3 = new lib.Background1_3();
 	this.bg_1_3.setTransform(1024,0);
 

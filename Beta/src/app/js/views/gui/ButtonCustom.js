@@ -5,6 +5,8 @@ var ButtonCustom = function(view){
 
 	// Events
 	this.view.on('click', this.onClick, this);
+	// this.view.on('mousedown', this.onDown, this);
+	// this.view.on('pressup', this.onUp, this);
 	this.view.on('mouseover', this.onOver, this);
 	this.view.on('mouseout', this.onOut, this);
 
@@ -17,6 +19,10 @@ var ButtonCustom = function(view){
 
 	// ID
 	this.id = ButtonCustom.counter;
+};
+ButtonCustom.prototype.goto = function(frm){
+	'use strict';
+	this.view.gotoAndStop(frm);
 };
 ButtonCustom.prototype.visible = function(state){
 	'use strict';
@@ -66,6 +72,27 @@ ButtonCustom.prototype.onOut = function(event){
 	// exportRoot.cursor = 'auto';
 	Cursor.out();
 };
+// ButtonCustom.prototype.onDown = function(event){
+// 	'use strict';
+// 	if(!this.active){
+// 		return false;
+// 	}
+
+// 	// Dispatch event
+// 	var e = new createjs.Event('mousedown');
+//  	this.dispatchEvent(e);
+// };
+// ButtonCustom.prototype.onUp = function(event){
+// 	'use strict';
+// 	if(!this.active){
+// 		return false;
+// 	}
+// 	console.log('up');
+
+// 	// Dispatch event
+// 	var e = new createjs.Event('pressup');
+//  	this.dispatchEvent(e);
+// };
 ButtonCustom.prototype.destroy = function(){
 	'use strict';
 	this.view = null;

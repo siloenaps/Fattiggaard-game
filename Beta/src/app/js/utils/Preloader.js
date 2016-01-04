@@ -7,24 +7,23 @@ var Preloader = {
 	load: function(manifest, handleFileLoad, handleComplete, clss, keep, factor){
 		'use strict';
 		this.id++;
-
-		(factor === undefined) ? this.factor = 1 : this.factor = factor;
-		if(clss === undefined) clss = 'small';
-
-		this.tracker[this.id] = false;
 		
+		// FIXME
+		// Should not happen trying to load an empty manifest
 		// If nothing to load exit 
 		if(manifest.length === 0){
 			handleComplete(null);
 			return;
 		}
 
+		// (factor === undefined) ? this.factor = 1 : this.factor = factor;
+		// if(clss === undefined) clss = 'small';
+
+		this.tracker[this.id] = false;
+
 		var self = this;
 
-		// if(clss == null)
-		// 	clss = 'center';
-
-		var loader = new createjs.LoadQueue(false);
+		var loader = new createjs.LoadQueue(true);
 		loader.id = this.id;
 		(keep === undefined) ? loader.keepPreloader = false : loader.keepPreloader = keep;
 		if(handleFileLoad != null)
@@ -39,67 +38,18 @@ var Preloader = {
 				if(handleComplete != null){
 					handleComplete(event);
 				}	
-				if(!event.target.keepPreloader){					
-					self.remove(id);
-				}
+				
+				PreloadGFX.hide();
 			});
 			loader.addEventListener('progress', function(event){
-				var w = (event.loaded * 400) / self.factor;
-				$(".progress-bar .bar").css("width", w);
+				PreloadGFX.showProgress(event.loaded);
 			});	
-
-		// self.add('preloader small');
-		if(clss !== undefined){
-			self.add(clss);
-		}
-		
+			loader.addEventListener('error', function(event){
+				console.log('Preloader:error', event);
+			});	
+		manifest = Path.adjustManifest(manifest);
 		loader.loadManifest(manifest);
-	},
-	add: function(clss){
-		'use strict';
-		console.log('add:', clss, this.id);		
 
-		// this.id = id;
-		$('.preload-wrapper').removeClass('hide');
-		$('.preload-wrapper').addClass('show');
-
-		$('.preload-wrapper').removeClass('full');
-		$('.preload-wrapper').removeClass('small');
-		$('.preloader').removeClass('full');
-		$('.preloader').removeClass('small');
-
-		$('.preload-wrapper').addClass(clss);
-		$('.preloader').addClass(clss);
-
-
-		$('.progress-bar').removeClass('hide');
-		$('.progress-bar').removeClass('show');
-		$('.progress-bar').addClass('show');
-		// $('.preloader').removeClass('small');		
-		
-		// $('.preload-wrapper').removeClass('full');
-		// $('.preload-wrapper').removeClass('small');
-
-		// $('.preload-wrapper').removeClass('show');
-
-		
-		// $('.preload-wrapper').addClass(clss);
-		// $('.preloader').addClass(clss);
-	},
-	remove: function(id){
-		'use strict';		
-		
-		
-		// this.tracker[id] = true;
-		for(var t in this.tracker){
-			//console.log('remove', t, this.tracker[t]);	
-			if(this.tracker[t] === false)
-				return;
-		}
-		$('.preload-wrapper').addClass('hide');
-		$('.progress-bar').removeClass('show');
-		$('.progress-bar').removeClass('hide');
-		$('.progress-bar').addClass('hide');
-		
+		PreloadGFX.show();
 	}
 };

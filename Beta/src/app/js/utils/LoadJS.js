@@ -5,10 +5,12 @@ var LoadJS = {
 		var urlList = [];
 		var tmpList = [];
 
-		$('.preload-wrapper').removeClass('hide');
-		$('.preload-wrapper').addClass('show');
-		$('.preload-wrapper').addClass('full');
-		$('.preloader').addClass('full');
+		PreloadGFX.show();
+
+		// $('.preload-wrapper').removeClass('hide');
+		// $('.preload-wrapper').addClass('show');
+		// $('.preload-wrapper').addClass('full');
+		// $('.preloader').addClass('full');
 		
 		//url is URL of external file, code is the code
 	    //to be called from the file, location is the location to 
@@ -33,7 +35,7 @@ var LoadJS = {
 				}				
 			}
 			if(may){
-				urlList.push(tmpList[k]);
+				urlList.push(Path.adjustUrl(tmpList[k]));
 			}
     	}
 
@@ -76,6 +78,7 @@ var LoadJS = {
 
 		    	// Reached this? All files are loaded
 		    	delegate();
+		    	PreloadGFX.hide();
 
 		  //   	$('.preload-wrapper').addClass('hide');
 				// $('.preload-wrapper').removeClass('show');

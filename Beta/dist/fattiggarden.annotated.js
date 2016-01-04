@@ -344,9 +344,21 @@ var ContinueButton = {
 	},
 	onClick: function(event){
 		'use strict';
+		// console.log(event.target);
+		// event.target.goto('out');
 		var e = new createjs.Event('click');
  		this.dispatchEvent(e);
 	},
+	// onMouseDown: function(event){
+	// 	'use strict';
+	// 	// console.log(event.target);
+	// 	event.target.goto('click');
+	// },
+	// onMouseUp: function(event){
+	// 	'use strict';
+	// 	console.log(event.target);
+	// 	event.target.goto('out');
+	// },
 	destroy: function(){
 		'use strict';
 		if(this.listners !== undefined){
@@ -507,6 +519,8 @@ var ButtonCustom = function(view){
 
 	// Events
 	this.view.on('click', this.onClick, this);
+	// this.view.on('mousedown', this.onDown, this);
+	// this.view.on('pressup', this.onUp, this);
 	this.view.on('mouseover', this.onOver, this);
 	this.view.on('mouseout', this.onOut, this);
 
@@ -519,6 +533,10 @@ var ButtonCustom = function(view){
 
 	// ID
 	this.id = ButtonCustom.counter;
+};
+ButtonCustom.prototype.goto = function(frm){
+	'use strict';
+	this.view.gotoAndStop(frm);
 };
 ButtonCustom.prototype.visible = function(state){
 	'use strict';
@@ -568,12 +586,266 @@ ButtonCustom.prototype.onOut = function(event){
 	// exportRoot.cursor = 'auto';
 	Cursor.out();
 };
+// ButtonCustom.prototype.onDown = function(event){
+// 	'use strict';
+// 	if(!this.active){
+// 		return false;
+// 	}
+
+// 	// Dispatch event
+// 	var e = new createjs.Event('mousedown');
+//  	this.dispatchEvent(e);
+// };
+// ButtonCustom.prototype.onUp = function(event){
+// 	'use strict';
+// 	if(!this.active){
+// 		return false;
+// 	}
+// 	console.log('up');
+
+// 	// Dispatch event
+// 	var e = new createjs.Event('pressup');
+//  	this.dispatchEvent(e);
+// };
 ButtonCustom.prototype.destroy = function(){
 	'use strict';
 	this.view = null;
 }
 
 createjs.EventDispatcher.initialize(ButtonCustom.prototype);
+var PageMap = function(container){
+
+	return{
+		currentPage:null,
+		container: container,
+		startInfo: false,
+		view: null,
+		trigger: 'map', // Default start pointer
+		continueBtn: ContinueButton,
+		listeners: {},
+		start: function(){
+			'use strict';
+
+			// Dispatcher
+			createjs.EventDispatcher.initialize(this);
+
+			// Events
+			this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
+
+			this.id = 'map';//PlayerStats.poorhouse;
+
+			LoadJS.load(
+				['../assets/logic/map.js'], 
+				Delegate.create(this.setup, this)
+			);
+		},
+		next: function(){
+			// console.log('next: ', this.flow);
+			this.flow.next(this.trigger);
+			
+		},
+		setup: function(){
+			'use strict';
+			if(this.runonce != null)
+				return;
+
+			var self = this;
+
+			// Setup may run ONLY once
+			this.runonce = true;
+
+			// Setup flow
+			this.flow = new SubFlowController();
+			this.flow.addAction('map', Delegate.create(this.map, this), 'end');
+			this.flow.addAction('end', Delegate.create(
+				function(){
+					self.removeEvents();
+					self.dispatchEvent(new createjs.Event('continue'));
+				}, this)
+			);
+
+			try{
+				// Load files for flow	
+				this.lib = lib;
+				var Clss = this.lib.map;
+				var manifest = this.lib.properties.manifest;
+				var onFileLoad = function(event){
+					if (event.item.type === 'image') { 
+						// // console.log('result:', event.item.id, event.result);
+						images[event.item.id] = event.result; 
+					}
+				};
+				var onLoadComplete = function(event){
+					// // console.log('onLoadComplete');
+
+					// Instantiate view
+					self.view = new Clss();
+
+					//Add
+					self.container.addChild(self.view);
+
+					// Set start page
+					self.flow.next(self.trigger);
+
+					self.dispatchEvent(new createjs.Event('ready'));
+				};
+				Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
+			}catch(err) {
+		   		console.log(err);
+		   	}
+		},
+		setInfo: function(state){
+			this.startInfo = state;
+		},
+		onContinue: function(event) {
+			'use strict';
+			// console.log('PageMap::onContinue');	
+
+			// Stop player if any
+			if(this.playerComponent != null){
+				this.playerComponent.stop();
+			}
+
+			// Must be set after stopping player
+			this.next();
+		},		
+		removeEvents: function() {
+			'use strict';
+			
+			// Remove events
+			this.continueBtn.off('click', this.listeners.continue);
+			this.listeners.continue = null;
+		},
+		restart: function(){
+			'use strict';
+			this.currentPage = null;
+		},
+		destroy: function(){
+			'use strict';
+			this.currentPage = null;
+			this.flow.destroy();
+			this.flow = null;
+			this.container = null;
+			this.currentBackground = null;
+			this.trigger = null;
+			this.view = null;
+			if(this.playerComponent != null)
+				this.playerComponent.destroy();
+			this.playerComponent = null;
+		},
+
+		// Pages --------------------------------------------------------------------------------------------------------
+		
+		map: function(trigger){
+			this.continueBtn.ghost("next");
+
+			this.trigger = trigger;
+
+			var self = this;
+
+			// Set background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_0_5);
+
+			// Pages in/out
+			var previousPage = this.currentPage;
+			this.currentPage = this.view.page_map;
+			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
+				Tick.framerate(Tick.medium);
+			}, this));	
+
+			// Checkboxes
+			var btn1 = new RadioButton(this.currentPage.checkbox1, {value:'horsens'});
+			var btn2 = new RadioButton(this.currentPage.checkbox2, {value:'sundholm'});
+			var btn3 = new RadioButton(this.currentPage.checkbox3, {value:'svendborg'});
+
+			// Group
+			this.group = new ButtonGroup();
+			this.group.add(btn1);
+			this.group.add(btn2);
+			this.group.add(btn3);
+
+			// Events
+			this.eventGroupListener = this.group.on("click", function(event){
+				// Save chosen "fattiggård"
+				PlayerStats.poorhouse = event.data.value;
+
+				// User may continue
+				self.continueBtn.activate('next');
+				self.continueBtn.on('click', function(e){
+					e.remove();
+					event.remove();
+
+					// FIXME
+					// self.currentPage.info1.off('click', self.listeners['info1']);
+					// self.currentPage.info2.off('click', self.listeners['info2']);
+					// self.currentPage.info3.off('click', self.listeners['info3']);
+
+					self.dispatchEvent(new createjs.Event('continue'));
+				});
+			}, this);
+			
+			this.currentPage.infotext.visible = this.startInfo;
+			this.currentPage.headline.visible = !this.startInfo;
+			
+
+			// Info popup
+			this.currentPage.infopopup.visible = false;
+			var infoButtons = {};
+			infoButtons.horsens = new ButtonCustom(this.currentPage.info1);
+			infoButtons.sundholm = new ButtonCustom(this.currentPage.info2);
+			infoButtons.svendborg = new ButtonCustom(this.currentPage.info3);
+			infoButtons.horsens.id = 0;
+			infoButtons.sundholm.id = 1;
+			infoButtons.svendborg.id = 2;
+
+			var openInfo = function(id) {
+				'use strict';
+				self.currentPage.infopopup.gotoAndStop(id);
+				self.currentPage.infopopup.x = 0;
+				self.currentPage.infopopup.visible = true;
+				self.continueBtn.hide();
+			};
+			var closeInfo = function(id) {
+				'use strict';
+				self.currentPage.infopopup.x = 1024;
+				self.currentPage.infopopup.visible = false;
+				self.continueBtn.show();
+			};
+
+			// Info buttons events
+			this.listeners['horsens'] = infoButtons.horsens.on('click', function(event){
+				console.log(event)
+				openInfo(event.target.id);
+			}, this);
+			this.listeners['sundholm'] = infoButtons.sundholm.on('click', function(event){
+				openInfo(event.target.id);
+			}, this);
+			this.listeners['svendborg'] = infoButtons.svendborg.on('click', function(event){
+				openInfo(event.target.id);
+			}, this);
+
+			// Disable buttons
+			if(PlayerStats.poorhouse !== null && PlayerStats.poorhouse !== undefined){
+				this.group.disableByValue(PlayerStats.poorhouse);
+				infoButtons[PlayerStats.poorhouse].setActive(false);			
+				infoButtons[PlayerStats.poorhouse].off('click', this.listeners[PlayerStats.poorhouse]);
+			}			
+
+			// infoButtons[PlayerStats.poorhouse].off('click', this.listeners[PlayerStats.poorhouse]);
+			// infoButtons[PlayerStats.poorhouse].alpha = .2;
+			// infoButtons[PlayerStats.poorhouse].buttonEnabled = false;
+
+
+			// Close button	
+			this.listeners['closebutton'] = this.currentPage.infopopup.closebutton.on('click', function(event){
+				closeInfo();
+			}, this);
+
+		},
+
+
+	};	
+}
 var PageIntroSlide = function(container){
 	'use strict';
 	this.container = container;
@@ -615,7 +887,7 @@ PageIntroSlide.prototype.start = function(flowId, slideName){
 };
 PageIntroSlide.prototype.setup = function(){
 	'use strict';
-	// console.log('PageIntroSlide::setup:runonce', this.runonce);
+	console.log('PageIntroSlide::setup:runonce', this.container);
 
 	if(this.runonce != null)
 		return;
@@ -624,7 +896,7 @@ PageIntroSlide.prototype.setup = function(){
 	this.runonce = true;
 
 	// Tick
-	Tick.framerate(15);
+	Tick.framerate(Tick.high);
 
 	var self = this;
 	var manifest, Clss;	
@@ -639,7 +911,28 @@ PageIntroSlide.prototype.setup = function(){
 		}, this)
 	);
 
+	this.addContent();
+	// Set background image
+	// this.addBgImage();
+	// this.dispatchEvent(new createjs.Event('ready'));
+	
+};
+// PageIntroSlide.prototype.addContent = function(){
+// 	// console.log('PageIntroSlide::setup:flowId', this.flowId);
+// 	this.lib = gamelib;
+// 	this.slideLib = slidelib;
+// 	Clss = this.lib.poorhouse_intro;
+// 	manifest = this.lib.properties.manifest;
+
+// 	// Instantiate view
+// 	this.view = new Clss();
+
+// 	//Add
+// 	this.container.addChild(self.view);
+// }
+PageIntroSlide.prototype.addContent = function(){
 	// console.log('PageIntroSlide::setup:flowId', this.flowId);
+	var self = this;
 	this.lib = gamelib;
 	this.slideLib = slidelib;
 	Clss = this.lib.poorhouse_intro;
@@ -652,8 +945,20 @@ PageIntroSlide.prototype.setup = function(){
 		}else{
 			this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';			
 		}
-		manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
-		
+
+		var tmpList = this.bgImage.src.split('/');	// SPlit url into an array
+		var filename = tmpList[tmpList.length-1];	// Get filename
+		var fileId = filename.split('.')[0];		// Filename without postfix 
+
+		// manifest.push({src: this.bgImage.src, id: fileId});	
+		// manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
+
+		// for(var i in manifest){
+		// 	console.log('manifest: ', manifest[i].id, manifest[i].src)
+		// }
+		// for(var i in images){
+		// 	console.log('images: ', images[i])
+		// }
 
 	}catch(err){
 		// console.log(PlayerStats.poorhouse, this.bgImage);
@@ -668,6 +973,7 @@ PageIntroSlide.prototype.setup = function(){
 		}
 	};
 	var onLoadComplete = function(event){
+		console.log('onLoadComplete');
 		// Instantiate view
 		self.view = new Clss();
 
@@ -680,9 +986,9 @@ PageIntroSlide.prototype.setup = function(){
 		// console.log('PageIntroSlide:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
+
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-	// console.log('manifest:', manifest);
-};
+}
 PageIntroSlide.prototype.next = function(){
 	'use strict';
 	this.flow.next(this.trigger);	
@@ -752,6 +1058,7 @@ PageIntroSlide.prototype.intro = function(trigger){
 	this.view.bg_container.x = 0;
 
 	// Background
+	console.log('this.bgImage.src:', this.bgImage.src);
 	var bitmap = new createjs.Bitmap(this.bgImage.src);	
 	this.view.bg_container.addChild(bitmap);
 
@@ -760,7 +1067,7 @@ PageIntroSlide.prototype.intro = function(trigger){
 	this.listeners.complete = self.playerComponent.on('complete', function(event){
 		// console.log('PageIntroSlide::complete');
 		self.continueBtn.activate('next');
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, self);
 	this.playerComponent.on('ready', function(event){
 		event.remove();		
@@ -768,7 +1075,7 @@ PageIntroSlide.prototype.intro = function(trigger){
 		// self.dispatchEvent(new createjs.Event('ready'));
 		// console.log('PageIntroSlide::ready');
 		// No tick
-		// Tick.disable();
+		// Tick.framerate(Tick.low);
 		// console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
 	});
 	// // console.log(this.slideLib)
@@ -800,7 +1107,7 @@ var SubFlowController = function(){
 		
 			// Allow tick
 			Tick.enable();
-			Tick.framerate(15);
+			Tick.framerate(Tick.high);
 
 
 			var action = this.actions[trigger];
@@ -894,8 +1201,8 @@ var FlowPrologue = function(container){
 			this.flow.addAction('0.2.3', Delegate.create(this.family, this), '0.2.4');
 			this.flow.addAction('0.2.4', Delegate.create(this.nickname, this), '0.3');
 			this.flow.addAction('0.3', Delegate.create(this.card, this), '0.4');
-			this.flow.addAction('0.4', Delegate.create(this.opinion, this), '0.5');
-			this.flow.addAction('0.5', Delegate.create(this.map, this), 'end');
+			this.flow.addAction('0.4', Delegate.create(this.opinion, this), 'end');
+			// this.flow.addAction('0.5', Delegate.create(this.map, this), 'end');
 			this.flow.addAction('end', Delegate.create(
 				function(){
 					self.removeEvents();
@@ -986,7 +1293,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_intro;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			}, this));
 
 			// Next
@@ -1007,7 +1314,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_challenge;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));
 
 			// Checkboxes
@@ -1049,7 +1356,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_family;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));			
 
 			// Checkboxes
@@ -1090,7 +1397,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_nickname;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));	
 
 			// Checkboxes
@@ -1138,13 +1445,14 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.page_card;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			}, this));
 
 			// Set portrait a real name
 			var frm = PlayerStats.challenge + PlayerStats.family;
 			this.currentPage.portrait.gotoAndStop(frm);
 			this.currentPage.realname.gotoAndStop(frm);
+			this.currentPage.height.gotoAndStop(frm);
 
 			// Set nickname
 			frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
@@ -1184,18 +1492,20 @@ var FlowPrologue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
 
-			// Set portrait of speaking character
+			// Set portrait + text realted to speaking character
 			var frm = PlayerStats.challenge + PlayerStats.family;
-			this.currentPage.portrait.gotoAndStop(frm);			
+			this.currentPage.portrait.gotoAndStop(frm);	
+			this.currentPage.playerlabel.gotoAndStop(frm);
+			this.currentPage.charactertext.gotoAndStop(frm);
 
 			// Reuse player component var for sound
 			this.playerComponent = null;
@@ -1218,7 +1528,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.page_map;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));	
 
 			// Checkboxes
@@ -1317,31 +1627,6 @@ var FlowPoorhouseSecond = function(container, id){
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 };
-FlowPoorhouseSecond.prototype.soundEffectPlay = function(sound){
-	// Sound effect
-	if(this.soundEffect != null){
-		this.soundEffect.destroy();
-		this.soundEffect = null;
-	}
-
-	try{
-		// var sound = SoundService.matrix.effects.typewriter;
-		this.soundEffect = new SoundEffect(sound.src, sound.duration, true);	
-		this.soundEffect.volume(.6);
-		this.soundEffect.play();
-	}catch(err){
-		console.log(err);
-	}
-	
-};
-FlowPoorhouseSecond.prototype.soundEffectStop = function(sound){
-	// Sound effect
-	if(this.soundEffect != null){
-		this.soundEffect.stop();
-		this.soundEffect.destroy();
-		this.soundEffect = null;
-	}
-};
 FlowPoorhouseSecond.prototype.start = function(){
 	this.id = PlayerStats.poorhouse;
 	var gameFile;
@@ -1362,7 +1647,7 @@ FlowPoorhouseSecond.prototype.setup = function(){
 	this.runonce = true;
 
 	// Tick
-	Tick.framerate(15);
+	Tick.framerate(Tick.high);
 
 	var self = this;
 	var manifest, Clss;	
@@ -1459,9 +1744,6 @@ FlowPoorhouseSecond.prototype.onContinue = function(event) {
 		this.playerComponent.stop();
 	}
 
-	// Sound effect - stop
-	this.soundEffectStop();
-
 	this.next();
 
 	// console.log('this.playerComponent:', this.playerComponent)
@@ -1511,7 +1793,7 @@ FlowPoorhouseSecond.prototype.chooseJob = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosework;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Desactivate continue button
@@ -1551,7 +1833,6 @@ FlowPoorhouseSecond.prototype.work = function(trigger) {
 
 	// Get sound
 	var sound = SoundService.matrix['3.2.1'][this.id][PlayerStats.job]; // "svendborg/A"	
-	// this.soundEffectPlay(SoundService.matrix.effects.woodchopper);
 	
 	// Change background
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view['bg_3_2_1'+PlayerStats.job]);
@@ -1560,16 +1841,16 @@ FlowPoorhouseSecond.prototype.work = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.work;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		// Tick.disable();
+		// Tick.framerate(Tick.low);
 
 		// Sound	
 		self.listeners.complete = this.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 
@@ -1592,7 +1873,7 @@ FlowPoorhouseSecond.prototype.points1 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -1609,7 +1890,7 @@ FlowPoorhouseSecond.prototype.getout = function(trigger) {
 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_3);
 
 	// Get sound
-	var sound = SoundService.matrix[currentTrigger];
+	var sound = SoundService.matrix[currentTrigger][this.id];
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -1618,11 +1899,11 @@ FlowPoorhouseSecond.prototype.getout = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -1634,7 +1915,7 @@ FlowPoorhouseSecond.prototype.getout = function(trigger) {
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.currentPage.portrait.gotoAndStop(frm);
 
-	this.continueBtn.activate('next');
+	self.continueBtn.ghost('skip');
 };
 FlowPoorhouseSecond.prototype.playAdvice = function(trigger) {
 	'use strict';
@@ -1653,6 +1934,9 @@ FlowPoorhouseSecond.prototype.playAdvice = function(trigger) {
 			this.currentPage = this.view.adviceemployee;
 		break;
 		case '3.4.2': // Inmate
+			// Change background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_4_2);
+
 			this.currentPage = this.view.adviceinmate;	
 		break;		
 	}	
@@ -1664,11 +1948,11 @@ FlowPoorhouseSecond.prototype.playAdvice = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -1690,7 +1974,7 @@ FlowPoorhouseSecond.prototype.chooseWayOut = function(triggers) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosewayout;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Desactivate continue button
@@ -1738,7 +2022,7 @@ FlowPoorhouseSecond.prototype.farmWork = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.farmwork;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Set portrait
@@ -1758,7 +2042,7 @@ FlowPoorhouseSecond.prototype.points2 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -1784,11 +2068,11 @@ FlowPoorhouseSecond.prototype.farmworkEnded = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -1800,7 +2084,7 @@ FlowPoorhouseSecond.prototype.farmworkEnded = function(trigger) {
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.currentPage.portrait.gotoAndStop(frm);
 
-	this.continueBtn.activate('next');
+	self.continueBtn.ghost('skip');
 };
 FlowPoorhouseSecond.prototype.points3 = function(trigger) {
 	'use strict';
@@ -1814,7 +2098,7 @@ FlowPoorhouseSecond.prototype.points3 = function(trigger) {
 		PlayerStats.append('money', -1);
 		PlayerStats.append('mood', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -1825,11 +2109,14 @@ FlowPoorhouseSecond.prototype.letterWrite = function(trigger) {
 
 	self.trigger = trigger;
 
+	// Change background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_3_8);
+
 	// Pages in/out
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.letterwrite;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Dropdowns
@@ -1847,7 +2134,7 @@ FlowPoorhouseSecond.prototype.letterWrite = function(trigger) {
 
 	// Name
 	var frm = PlayerStats.challenge + PlayerStats.family;
-   	this.view.realname.gotoAndStop(frm);
+   	this.currentPage.realname.gotoAndStop(frm);
 
    	// Special conitnue event event listener
    	this.continueBtn.on('click', function(event){
@@ -1882,7 +2169,7 @@ FlowPoorhouseSecond.prototype.points4 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('mood', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -1901,7 +2188,6 @@ var FlowPoorhouse = function(container){
 	this.playerComponent = null;
 	this.listeners = {};
 	this.trigger = '1.0.2'; // Default start pointer
-	// this.pagesTotal = 12;
 	this.currentPage = null;
 	this.currentBackground = null;
 	this.groups = {};
@@ -1909,13 +2195,11 @@ var FlowPoorhouse = function(container){
 	this.continueBtn = ContinueButton;
 	this.continueBtn.ghost('skip');
 
-	// TEST
-	// this.id = 'svendborg';
-
 	// Events
 	this.listeners.continue = this.continueBtn.on('click', this.onContinue, this);	
 };
 FlowPoorhouse.prototype.soundEffectPlay = function(sound){
+	var self = this;
 	// Sound effect
 	if(this.soundEffect != null){
 		this.soundEffect.destroy();
@@ -1924,9 +2208,13 @@ FlowPoorhouse.prototype.soundEffectPlay = function(sound){
 
 	try{
 		// var sound = SoundService.matrix.effects.typewriter;
-		this.soundEffect = new SoundEffect(sound.src, sound.duration, true);	
-		this.soundEffect.volume(.6);
-		this.soundEffect.play();
+		this.soundEffect = new SoundController(sound.src, true);	
+		this.soundEffect.volume(sound.volume);
+		this.soundEffect.on('ready', Delegate.create(function(event){
+			event.remove();
+			this.soundEffect.play();
+		}, this));		
+		this.soundEffect.load();
 	}catch(err){
 		console.log(err);
 	}
@@ -1944,7 +2232,7 @@ FlowPoorhouse.prototype.start = function(){
 	this.id = PlayerStats.poorhouse;
 	var gameFile;
 
-	console.log('FlowPoorhouse:start');
+	// console.log('FlowPoorhouse:start');
 
 	LoadJS.load(
 		['../assets/logic/games/'+this.id+'.js'], 
@@ -1960,17 +2248,14 @@ FlowPoorhouse.prototype.setup = function(){
 	this.runonce = true;
 
 	// Tick
-	Tick.framerate(15);
+	Tick.framerate(Tick.high);
 
 	var self = this;
 	var manifest, Clss;	
 
 	// Setup flow
 	this.flow = new SubFlowController();
-	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '1.0.2');
-	// this.flow.addAction('1.0.1', Delegate.create(this.intro, this), '2.4'); // TEST
 	this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.1.1');
-	// this.flow.addAction('1.0.2', Delegate.create(this.points1, this), '1.3.5'); // TEST
 	this.flow.addAction('1.1.1', Delegate.create(this.caretaker, this), '1.1.2');
 	this.flow.addAction('1.1.2', Delegate.create(this.chooseJob, this), '1.2.1');
 	this.flow.addAction('1.2.1', Delegate.create(this.work, this), '1.2.2');
@@ -2001,7 +2286,7 @@ FlowPoorhouse.prototype.setup = function(){
 	);
 
 	// this.id = 'svendborg';
-	console.log('FlowPoorhouse:setup', this.id);
+	// console.log('FlowPoorhouse:setup', this.id);
 
 	this.lib = gamelib;
 	switch(this.id){
@@ -2039,7 +2324,7 @@ FlowPoorhouse.prototype.setup = function(){
 		// Set start page
 		self.next();
 
-		console.log('FlowPoorhouse:onLoadComplete');
+		// console.log('FlowPoorhouse:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
@@ -2049,7 +2334,7 @@ FlowPoorhouse.prototype.next = function(){
 
 	// // Allow tick
 	// Tick.enable();
-	// Tick.framerate(15);
+	// Tick.framerate(Tick.high);
 
 	this.flow.next(this.trigger);	
 };
@@ -2105,39 +2390,6 @@ FlowPoorhouse.prototype.destroy = function() {
 	this.listeners = null;
 	this.flow = null;
 };
-// FlowPoorhouse.prototype.intro = function(trigger){
-// 	'use strict';
-
-
-// 	// Next move
-// 	this.trigger = trigger;
-
-// 	var self = this;
-
-// 	// Set page view
-// 	this.currentPage = this.view.intro;
-// 	this.currentPage.x = 0;
-
-// 	// Set background
-// 	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
-	
-// 	// Slide. Loading is self contained
-// 	this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
-// 	this.listeners.complete = self.playerComponent.on('complete', function(event){
-// 		self.continueBtn.activate('next');
-// 		Tick.disable();
-// 	}, self);
-// 	this.playerComponent.on('ready', function(event){
-// 		event.remove();
-// 		// No tick
-// 		Tick.disable();
-// 		self.continueBtn.activate("skip");
-// 		// self.dispatchEvent(new createjs.Event('ready'));
-// 	});
-// 	this.playerComponent.preload('slide_1_0_1_'+this.id, this.slideLib);
-// 	// this.playerComponent.preload('slide_intro', this.slideLib);
-	
-// };
 FlowPoorhouse.prototype.points1 = function(trigger) {
 	'use strict';
 
@@ -2145,18 +2397,15 @@ FlowPoorhouse.prototype.points1 = function(trigger) {
 	this.trigger = trigger;
 
 	// 	// Set background
-		this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_0);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.points1;
 	this.currentPage.x = 0;
-	// Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-	// 	PlayerStats.append('mood', -1);
-	// 	PlayerStats.append('health', 1);
-	// 	Topbar.pointsUpdate();
-	// 	Tick.disable();
-	// }, this));
+	PlayerStats.append('mood', -1);
+	PlayerStats.append('health', 1);
+	Topbar.pointsUpdate();
 	
 	this.continueBtn.activate('next');
 };
@@ -2182,11 +2431,11 @@ FlowPoorhouse.prototype.caretaker = function(trigger) {
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2208,7 +2457,7 @@ FlowPoorhouse.prototype.chooseJob = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosework;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Desactivate continue button
@@ -2259,16 +2508,16 @@ FlowPoorhouse.prototype.work = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.work;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		// Tick.disable();
+		// Tick.framerate(Tick.low);
 
 		// Sound	
 		self.listeners.complete = this.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 
@@ -2291,7 +2540,7 @@ FlowPoorhouse.prototype.points2 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -2310,7 +2559,7 @@ FlowPoorhouse.prototype.points3 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', -2);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -2334,11 +2583,11 @@ FlowPoorhouse.prototype.getout = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2350,7 +2599,7 @@ FlowPoorhouse.prototype.getout = function(trigger) {
 	var frm = PlayerStats.challenge + PlayerStats.family;
 	this.currentPage.portrait.gotoAndStop(frm);
 
-	this.continueBtn.activate('next');
+	self.continueBtn.ghost('skip');
 };
 FlowPoorhouse.prototype.playAdvice = function(trigger) {
 	'use strict';
@@ -2369,6 +2618,9 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 			this.currentPage = this.view.adviceinmate;	
 		break;
 		case '1.3.4': // Employee
+			// Change background
+			this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_1_3_4);
+
 			this.currentPage = this.view.adviceemployee;
 		break;
 	}	
@@ -2380,11 +2632,11 @@ FlowPoorhouse.prototype.playAdvice = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2406,7 +2658,7 @@ FlowPoorhouse.prototype.chooseWayOut = function(triggers) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosewayout;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Desactivate continue button
@@ -2456,11 +2708,11 @@ FlowPoorhouse.prototype.drunk = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2487,8 +2739,7 @@ FlowPoorhouse.prototype.points7 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('mood', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
-		console.log('QUE');
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next button
@@ -2514,11 +2765,11 @@ FlowPoorhouse.prototype.constable = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2539,11 +2790,11 @@ FlowPoorhouse.prototype.report = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.report;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Sound effect
-	// soundEffect(SoundService.matrix.effects.typewriter);
+	this.soundEffectPlay(SoundService.matrix.effects.typewriter);
 
 	// Next button
 	this.continueBtn.activate('next');
@@ -2559,7 +2810,7 @@ FlowPoorhouse.prototype.points6 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 		PlayerStats.append('mood', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next button
@@ -2626,17 +2877,21 @@ FlowPoorhouse.prototype.backToPoorhouse = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
 
 	// Reuse player component var for sound
 	this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
 
 	// Next bnutton
 	this.continueBtn.ghost('skip');
@@ -2661,11 +2916,11 @@ FlowPoorhouse.prototype.preRecruitment = function(trigger) {
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2686,7 +2941,7 @@ FlowPoorhouse.prototype.recruimentOffice = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementoffice;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next in flow
@@ -2710,11 +2965,11 @@ FlowPoorhouse.prototype.jobInterviewPart1 = function(trigger){
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2734,7 +2989,7 @@ FlowPoorhouse.prototype.chooseJobGermany = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosejob;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next in flow
@@ -2778,11 +3033,11 @@ FlowPoorhouse.prototype.jobInterviewPart2 = function(trigger){
 		// Sound
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -2803,7 +3058,7 @@ FlowPoorhouse.prototype.points8 = function(trigger){
 		PlayerStats.append('money', 2);
 		PlayerStats.append('mood', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next button
@@ -2819,7 +3074,7 @@ FlowPoorhouse.prototype.recruitementLetter = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementletter;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Dropdowns
@@ -2849,7 +3104,7 @@ FlowPoorhouse.prototype.points9 = function(trigger){
 		PlayerStats.append('money', -1);
 		PlayerStats.append('mood', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next button
@@ -2916,7 +3171,8 @@ FlowGermany2.prototype.setup = function(){
 	this.flow.addAction('4.10.4', Delegate.create(this.illness, this), '4.10.5');
 	this.flow.addAction('4.10.5', Delegate.create(this.choose2, this), '4.10.6');
 	this.flow.addAction('4.10.6', Delegate.create(this.points6, this), '4.10.7');
-	this.flow.addAction('4.10.7', Delegate.create(this.goingHome, this), 'end');
+	this.flow.addAction('4.10.7', Delegate.create(this.goingHome, this), '4.10.8');
+	this.flow.addAction('4.10.8', Delegate.create(this.intermezzo, this), 'end');
 	this.flow.addAction('end', Delegate.create(
 		function(){
 			self.removeEvents();
@@ -3031,7 +3287,7 @@ FlowGermany2.prototype.chooseJobGermany = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosejob;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next in flow
@@ -3074,7 +3330,7 @@ FlowGermany2.prototype.recruitementLetter = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementletter;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Dropdowns
@@ -3106,7 +3362,7 @@ FlowGermany2.prototype.points1 = function(trigger) {
 		PlayerStats.append('money', 1);
 		PlayerStats.append('mood', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3133,7 +3389,7 @@ FlowGermany2.prototype.traveling = function(trigger){
 				Delegate.create(function(){
 					// Slide. Loading is self contained
 					self.slideLib = slidelib;	
-					self.playerComponent = new PlayerSliderComponent(self.currentPage.player, 13); // Added delay of sound start (frame 14)
+					self.playerComponent = new PlayerSliderComponent(self.currentPage.player); // Added delay of sound start (frame 14)
 					self.listeners.complete = self.playerComponent.on('complete', function(event){
 						self.continueBtn.activate('next');
 					}, self);
@@ -3158,11 +3414,8 @@ FlowGermany2.prototype.work = function(trigger){
 	var self = this;
 
 	// Get work related assets
-	var bg, slidePath, slideName;
+	var slidePath, slideName;
 	try{
-		bg = this.view.bg_4_5_1; // Index 0 is job choice for the first time in Germany [A,B,C]
-		bg.gotoAndStop(PlayerStats.job_germany[1]);
-
 		// Get path to slide script
 		var combi = PlayerStats.job_germany[0]+PlayerStats.job_germany[1];
 		slideName = 'slide_4_5_1_' + combi; // E.g. slide_4_5_1_AC
@@ -3171,8 +3424,9 @@ FlowGermany2.prototype.work = function(trigger){
 		console.log(err);
 	}	
 
-	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
+	// Set background and frame for specific job
+	this.view.bg_4_5_1.gotoAndStop(PlayerStats.job_germany[1]);
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_5_1);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -3207,9 +3461,7 @@ FlowGermany2.prototype.points2 = function(trigger) {
 	this.trigger = trigger;
 
 	// Set background
-	var bg = this.view.bg_4_5_2; // Index 0 is job choice for the first time in Germany [A,B,C]
-	bg.gotoAndStop(PlayerStats.job_germany[1]);	
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
+	// this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_5_2);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -3217,7 +3469,7 @@ FlowGermany2.prototype.points2 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 2);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3233,7 +3485,7 @@ FlowGermany2.prototype.points3 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 		PlayerStats.append('money', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3259,11 +3511,11 @@ FlowGermany2.prototype.danskFront = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -3290,7 +3542,7 @@ FlowGermany2.prototype.chooseParticipation = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.chooseparticipation;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -3337,7 +3589,7 @@ FlowGermany2.prototype.points4 = function(trigger) {
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3405,11 +3657,11 @@ FlowGermany2.prototype.theBomb = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -3446,11 +3698,11 @@ FlowGermany2.prototype.illness = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -3479,7 +3731,7 @@ FlowGermany2.prototype.choose1 = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choose1;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -3521,14 +3773,14 @@ FlowGermany2.prototype.points5 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 		switch(previousChoice){
 			case 'A':
-				PlayerStats.append('money', -1);
+				PlayerStats.append('money', -2);
 			break;
 			case 'B':
-				PlayerStats.append('money', 1);
+				PlayerStats.append('money', 2);
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3546,7 +3798,7 @@ FlowGermany2.prototype.choose2 = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choose1;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -3595,7 +3847,7 @@ FlowGermany2.prototype.points6 = function(trigger) {
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3621,11 +3873,11 @@ FlowGermany2.prototype.goingHome = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -3640,6 +3892,27 @@ FlowGermany2.prototype.goingHome = function(trigger){
 
 	// Next
 	this.continueBtn.ghost('skip');
+};
+FlowGermany2.prototype.intermezzo = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_10_8);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.intermezzo;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(Tick.low);
+	}, this));
+
+	// Next
+	this.continueBtn.activate('next');
 };
 createjs.EventDispatcher.initialize(FlowGermany2.prototype);
 var FlowGermany1 = function(container){
@@ -3799,12 +4072,12 @@ FlowGermany1.prototype.traveling = function(trigger){
 		this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 		this.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		this.playerComponent.on('ready', function(event){
 			event.remove();
 			// No tick
-			Tick.disable();
+			Tick.framerate(Tick.low);
 			self.continueBtn.activate("skip");
 		});
 		this.playerComponent.preload('slide_2_5', this.slideLib);
@@ -3841,11 +4114,11 @@ FlowGermany1.prototype.dormitry = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -3869,7 +4142,7 @@ FlowGermany1.prototype.points1 = function(trigger) {
 		PlayerStats.append('mood', 1);
 		PlayerStats.append('health', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3945,7 +4218,7 @@ FlowGermany1.prototype.points2 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 2);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3961,7 +4234,7 @@ FlowGermany1.prototype.points3 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -3987,11 +4260,11 @@ FlowGermany1.prototype.getPaid = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -4019,7 +4292,7 @@ FlowGermany1.prototype.chooseSpending = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosespending;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Checkboxes
@@ -4083,7 +4356,7 @@ FlowGermany1.prototype.points4 = function(trigger) {
 			break;
 		}			
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -4099,7 +4372,7 @@ FlowGermany1.prototype.facts = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.facts;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 
@@ -4118,7 +4391,7 @@ FlowGermany1.prototype.chooseWhatNow = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosewhatnow;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Checkboxes
@@ -4168,11 +4441,11 @@ FlowGermany1.prototype.whatNow = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -4211,7 +4484,7 @@ FlowGermany1.prototype.points6 = function(trigger) {
 			break;
 		}			
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 console.log('points6', PlayerStats.whatnow, this.currentPage);
 	this.continueBtn.activate('next');
@@ -4237,11 +4510,11 @@ FlowGermany1.prototype.homeComming = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -4282,7 +4555,7 @@ FlowGermany1.prototype.points5 = function(trigger) {
 			break;
 		}			
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next
@@ -4307,7 +4580,7 @@ FlowGermany1.prototype.intermezzo = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosewhatnow;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	
@@ -4317,12 +4590,12 @@ FlowGermany1.prototype.intermezzo = function(trigger){
 		this.playerComponent = new PlayerSliderComponent(this.currentPage.player);
 		this.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		this.playerComponent.on('ready', function(event){
 			event.remove();
 			// No tick
-			Tick.disable();
+			Tick.framerate(Tick.low);
 			self.continueBtn.activate("skip");
 		});
 		this.playerComponent.preload('slide_2_5', this.slideLib);
@@ -4495,11 +4768,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -4536,11 +4809,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -4578,11 +4851,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -4620,11 +4893,11 @@ var FlowEpilogue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
@@ -4665,7 +4938,9 @@ var Topbar = {
 		if(view === undefined || view === null){
 			throw new Error("'view' is undefined");
 		}
-		this.view = view;		
+		this.view = view;	
+
+		HUDController.init();	
 	},
 	go: function(frm){
 		// console.log('Topbar:',this.view);
@@ -4685,7 +4960,7 @@ var Topbar = {
 			this.view.nickname.gotoAndStop(PlayerStats.nickname - 1);
 
 			// Points
-			HUDController.init(this.view.hud);
+			HUDController.setView(this.view.hud);
 		}
 	},
 	pointsUpdate: function(){
@@ -4841,6 +5116,10 @@ var Tick = {
 	stage: null,
 	enabled: false,
 	debug: false,
+	low: 4,
+	medium: 8,
+	high: 15,
+	perfect: 24,
 	init: function(stage, framerate){
 		this.stage = stage;
 		// createjs.Ticker.setFPS(framerate);
@@ -4938,24 +5217,23 @@ var Preloader = {
 	load: function(manifest, handleFileLoad, handleComplete, clss, keep, factor){
 		'use strict';
 		this.id++;
-
-		(factor === undefined) ? this.factor = 1 : this.factor = factor;
-		if(clss === undefined) clss = 'small';
-
-		this.tracker[this.id] = false;
 		
+		// FIXME
+		// Should not happen trying to load an empty manifest
 		// If nothing to load exit 
 		if(manifest.length === 0){
 			handleComplete(null);
 			return;
 		}
 
+		// (factor === undefined) ? this.factor = 1 : this.factor = factor;
+		// if(clss === undefined) clss = 'small';
+
+		this.tracker[this.id] = false;
+
 		var self = this;
 
-		// if(clss == null)
-		// 	clss = 'center';
-
-		var loader = new createjs.LoadQueue(false);
+		var loader = new createjs.LoadQueue(true);
 		loader.id = this.id;
 		(keep === undefined) ? loader.keepPreloader = false : loader.keepPreloader = keep;
 		if(handleFileLoad != null)
@@ -4970,70 +5248,79 @@ var Preloader = {
 				if(handleComplete != null){
 					handleComplete(event);
 				}	
-				if(!event.target.keepPreloader){					
-					self.remove(id);
-				}
+				
+				PreloadGFX.hide();
 			});
 			loader.addEventListener('progress', function(event){
-				var w = (event.loaded * 400) / self.factor;
-				$(".progress-bar .bar").css("width", w);
+				PreloadGFX.showProgress(event.loaded);
 			});	
-
-		// self.add('preloader small');
-		if(clss !== undefined){
-			self.add(clss);
-		}
-		
+			loader.addEventListener('error', function(event){
+				console.log('Preloader:error', event);
+			});	
+		manifest = Path.adjustManifest(manifest);
 		loader.loadManifest(manifest);
-	},
-	add: function(clss){
-		'use strict';
-		console.log('add:', clss, this.id);		
 
-		// this.id = id;
-		$('.preload-wrapper').removeClass('hide');
-		$('.preload-wrapper').addClass('show');
-
-		$('.preload-wrapper').removeClass('full');
-		$('.preload-wrapper').removeClass('small');
-		$('.preloader').removeClass('full');
-		$('.preloader').removeClass('small');
-
-		$('.preload-wrapper').addClass(clss);
-		$('.preloader').addClass(clss);
-
-
-		$('.progress-bar').removeClass('hide');
-		$('.progress-bar').removeClass('show');
-		$('.progress-bar').addClass('show');
-		// $('.preloader').removeClass('small');		
-		
-		// $('.preload-wrapper').removeClass('full');
-		// $('.preload-wrapper').removeClass('small');
-
-		// $('.preload-wrapper').removeClass('show');
-
-		
-		// $('.preload-wrapper').addClass(clss);
-		// $('.preloader').addClass(clss);
-	},
-	remove: function(id){
-		'use strict';		
-		
-		
-		// this.tracker[id] = true;
-		for(var t in this.tracker){
-			//console.log('remove', t, this.tracker[t]);	
-			if(this.tracker[t] === false)
-				return;
-		}
-		$('.preload-wrapper').addClass('hide');
-		$('.progress-bar').removeClass('show');
-		$('.progress-bar').removeClass('hide');
-		$('.progress-bar').addClass('hide');
-		
+		PreloadGFX.show();
 	}
 };
+PreloadGFX = {
+	blocker: null,
+	shown: 0,
+	preloader: null,
+	show: function(progress){
+		this.shown++;		
+
+		(progress === undefined || progress === null)? progress = true : progress = progress;
+		
+		if(this.preloader !== undefined && this.preloader !== null){
+			console.log('show', this.preloader.visible);
+			this.preloader.visible = true;
+			if(progress)
+				this.preloader.progress_bar.visible = true;
+			else
+				this.preloader.progress_bar.visible = false;
+		}
+
+		if(PreloadGFX.blocker !== null && progress){
+			PreloadGFX.blocker.visible = true;
+			PreloadGFX.blocker.alpha = .3;	
+		}		
+	},
+	hide: function(){
+		this.shown--;
+
+		if(this.preloader !== undefined && this.preloader !== null){
+			console.log('hide', this.shown);
+			if(this.shown == 0)
+				this.preloader.visible = false;
+		}
+		if(PreloadGFX.blocker !== null)
+			PreloadGFX.blocker.visible = false;
+	},
+	showProgress: function(progress){
+		if(this.preloader !== undefined && this.preloader !== null){
+			this.preloader.progress_bar.bar.scaleX = progress;
+		}
+	}
+}
+var Path = {
+	adjustManifest: function(manifest){
+		for(var i in manifest){
+			if(typeof manifest[i] === 'object'){
+				if(!manifest[i].adjusted){
+					manifest[i].src = this.adjustUrl(manifest[i].src);
+					manifest[i].adjusted = true
+				}
+			}
+		}
+		return manifest;
+	},
+	adjustUrl: function(url){
+		var newUrl = Environment.basePath() + url.replace(/\.\.\//g, '');
+		// console.log(url, '|', newUrl);
+		return newUrl;
+	}
+}
 var LoadJS = {
 	cache: [],
 	load: function(urls, delegate, location){
@@ -5041,10 +5328,12 @@ var LoadJS = {
 		var urlList = [];
 		var tmpList = [];
 
-		$('.preload-wrapper').removeClass('hide');
-		$('.preload-wrapper').addClass('show');
-		$('.preload-wrapper').addClass('full');
-		$('.preloader').addClass('full');
+		PreloadGFX.show();
+
+		// $('.preload-wrapper').removeClass('hide');
+		// $('.preload-wrapper').addClass('show');
+		// $('.preload-wrapper').addClass('full');
+		// $('.preloader').addClass('full');
 		
 		//url is URL of external file, code is the code
 	    //to be called from the file, location is the location to 
@@ -5069,7 +5358,7 @@ var LoadJS = {
 				}				
 			}
 			if(may){
-				urlList.push(tmpList[k]);
+				urlList.push(Path.adjustUrl(tmpList[k]));
 			}
     	}
 
@@ -5112,6 +5401,7 @@ var LoadJS = {
 
 		    	// Reached this? All files are loaded
 		    	delegate();
+		    	PreloadGFX.hide();
 
 		  //   	$('.preload-wrapper').addClass('hide');
 				// $('.preload-wrapper').removeClass('show');
@@ -5175,6 +5465,7 @@ var Flow = {
 	Wrapped in order to enable change of lib if nessesary
 */
 var Environment = {	
+	gameBasePath: '/assets/game/',
 	data: null,
 	browser: {},
 	os: null,
@@ -5190,7 +5481,6 @@ var Environment = {
 		this.dimensions.w = window.innerWidth;
 		this.dimensions.h = window.innerHeight;
 		
-
 		var cr = function(){
 			var ctx = document.createElement('canvas').getContext('2d'),
 	        dpr = window.devicePixelRatio || 1,
@@ -5207,6 +5497,12 @@ var Environment = {
 			return Environment.dimensions.w / 1024;
 		}
 		this.winScale = wf();
+	},
+	basePath: function(){		
+		// console.log('this.gameBasePath', this.gameBasePath);
+		if(this.gameBasePath === undefined)
+			this.gameBasePath = '/'; // Default local usage
+		return this.gameBasePath;
 	}
 };
 'use strict';
@@ -5222,6 +5518,20 @@ var Delegate = {
 	    }
 	}
 };
+var Canvas = {
+	create: function(w, h, ratio) {	
+		var winScale = Environment.winScale;
+		if(winScale > 1) winScale = 1;
+
+	    var canvas = document.createElement('canvas');
+	    canvas.width = w * ratio;
+	    canvas.height = h * ratio;
+	    canvas.style.width = w * winScale + 'px';
+	    canvas.style.height = h * winScale + 'px';
+	    canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);	
+	    return canvas;
+	}
+}
 // Array
 // Shuffle array and indicate correct index
 Array.prototype.shuffle = function(index){
@@ -5237,190 +5547,319 @@ Array.prototype.shuffle = function(index){
     }
     return this;
 }
-var SoundService = function(){
-	'use strict';
+var SoundService = {
+	init: function(){
+		'use strict';
+		console.log('SoundService.init');
+		var recursive = function(obj){
+			for (var i in obj) {
+				if(typeof obj[i] === 'object'){
+					// console.log(obj[i].src);
+					if(obj[i].src !== undefined){
+						obj[i].src = SoundService.basePath() + obj[i].src;
+					}
+					recursive(obj[i]);
+				}
+			};
+		}
+		recursive(this.matrix);
+	},
+	getSlideDurationById: function(id){
+		'use strict';
+		return this.matrix.slides[id].duration;
+	},
+	getSlideSoundpathById: function(id){
+		'use strict';
+		return SoundService.properties.slidePath + id+'.mp3';
+	},
+	getSlideSoundById: function(id){
+		'use strict';
+		return SoundService.matrix.slides[id]
+	},
+	basePath: function(){
+		'use strict';
+		return Environment.basePath() + 'assets/sounds/';
+	},
+	matrix: {
+		effects: {
+			typewriter: { src:'typewriter.mp3', volume: 0.4 },
+			woodchopper: { src:'1.2.1_hugbraende_lydeffekt.mp3' }
+		},
+		'1.1.1' :{
+			horsens: { src:'1.1.1_horsens.mp3' },
+			sundholm: { src:'1.1.1_sundholm.mp3' },
+			svendborg: { src:'1.1.1_svendborg.mp3' }
+		},
+		points: {
+			plus: { src:'Point_plus.mp3' },
+			minus: { src:'Point_minus.mp3' }
+		},
+		dormitry: { src:'2.6.1.mp3' },
+		drunk: { src:'1.5.1.mp3' },
+		constable: { src:'1.6.1.mp3' },
+		'1.2.1': {
+			'horsens': {
+							'A': { src:'1.1.2_pashaven.mp3' },
+							'B': { src:'1.1.2_goerrent.mp3' },
+							'C': { src:'1.1.2_fletmaatter.mp3' }
+						},
+			'sundholm': {
+							'A': { src:'1.1.2_hugbraende.mp3' },
+							'B': { src:'1.1.2_pasgrise.mp3' },
+							'C': { src:'1.1.2_skaerver.mp3' }						
+						},
+			'svendborg': {
+							'A': { src:'1.1.2_skaerver.mp3' },
+							'B': { src:'1.1.2_vaevmaatter.mp3' },
+							'C': { src:'1.1.2_pilorm.mp3' }
+						},
+		},
+		'1.3.2': { label:'wants out', src:'1.3.2.mp3' },
+		'1.3.3': { label:'inmate', src:'1.3.3_indsat.mp3' },
+		'1.3.4': { label:'employee', src:'1.3.4.mp3' },	
+		'1.8': { label:'arrested', src:'1.8.mp3' },	
+		'2.2.1': { src:'2.2.1.mp3' },
+		'2.2.3': { src:'2.2.3.mp3' },
+		'2.8.1': { description:'get paid', src:'2.8.1.mp3' },
+		// '2.10.1': { description:'what now', src:'2.10.1_kontraktudlob.mp3' },
+		'2.10.2': {
+			'A': { description:'Finnish contract', src:'2.10.2.a.mp3' },
+			'B': { description:'Go home', src:'2.10.2.b.mp3' }
+		},
+		'2.11.1': { description:'home comming', src:'2.11.1.mp3' },
+		
+		slides: {
+					'slide_0_1': { src:'film01medmusik_mixdown.mp3' },
+					'slide_1_0_1': { src:'film10_mixdown.mp3' },
+					'slide_2_5': { src:'2.5_mixdown.mp3' },
+					'slide_2_7_1_amory': { src:'2.7.1.vaaben_mixdown.mp3' },
+					'slide_2_7_1_butcher': { src:'2.7.1.slagt_mixdown.mp3' },
+					'slide_2_7_1_mine': { src:'2.7.1.mine_mixdown.mp3' },
+					// 'slide_home1A': { src:'2.7.1.vaaben_mixdown.mp3' },
+					// 'slide_home1B': { src:'slide_home1_B.mp3' },
+					'slide_3_0': { src:'3.0_mixdown.mp3' },
+					'slide_4_3': { src:'4.3_mixdown.mp3' },
+					'slide_4_5_1_AB': { src:'4.5.1.mine_mixdown.mp3' },
+					'slide_4_5_1_AC': { src:'4.5.1hud_efter_vaaben_mixdown.mp3' },
+					'slide_4_5_1_BA': { src:'4.5.1.vaaben_efter kul_mixdown.mp3' },
+					'slide_4_5_1_BC': { src:'4.5.1hud_efter_mine_mixdown.mp3' },
+					'slide_4_5_1_CA': { src:'4.5.1.vaaben_efter hud_mixdown.mp3' },
+					'slide_4_5_1_CB': { src:'4.5.1.mine_mixdown.mp3' },
+					'slide_4_7': { src:'4.7_mixdown.mp3' }				
+				},
+		'0.4': { // oppinion
+				'AD': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+				'AE': { label: 'alkoholiker, børn', src:'0.4_datter.mp3' },
+				'AF': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+				'BD': { label: 'dovenskab', src:'0.4_kone.mp3' },
+				'BE': { label: 'dovenskab, børn', src:'0.4_datter.mp3' },
+				'BF': { label: 'dovenskab', src:'0.4_andenindlagt.mp3' },
+				'CD': { label: 'svækkelse', src:'0.4_kone.mp3' },
+				'CE': { label: 'svækkelse, børn', src:'0.4_datter.mp3' },
+				'CF': { label: 'svækkelse', src:'0.4_andenindlagt.mp3' }
+			},
+		'3.2.1': {
+			'horsens': {
+							'A': { src:'1.1.2_pashaven.mp3' },
+							'B': { src:'1.1.2_goerrent.mp3' },
+							'C': { src:'1.1.2_fletmaatter.mp3' }
+						},
+			'sundholm': {
+							'A': { src:'1.1.2_hugbraende.mp3' },
+							'B': { src:'1.1.2_pasgrise.mp3' },
+							'C': { src:'1.1.2_skaerver.mp3' }						
+						},
+			'svendborg': {
+							'A': { src:'1.1.2_skaerver.mp3' },
+							'B': { src:'1.1.2_vaevmaatter.mp3' },
+							'C': { src:'1.1.2_pilorm.mp3' }
+						},
+		},
+		'3.3' : {
+			'horsens': { src:'3.3.horsens.svendborg.mp3' },
+			'sundholm': { src:'3.3.sundholm.mp3' },
+			'svendborg': { src:'3.3.horsens.svendborg.mp3' }
+		},
+		'3.4.1': { label:'employee', src:'3.4.1.mp3' },
+		'3.4.2': { label:'inmate', src:'3.4.2.mp3' },
+		'3.7.1': { label:'work over', src:'3.7.1.mp3' },
+		'4.6.1': { label:'dansk front', src:'4.6.1.mp3' },
+		'4.10.1': { label:'bombe', src:'4.10.1.mp3' },
+		'4.10.4': { label:'illness', src:'4.10.4.mp3' },
+		'4.10.7': { label:'going home', src:'4.10.7.mp3' },
+		'4.11.1': { label:'post script', src:'14_11_1efterskrift_red_musik.mp3' },
+		'4.11.2': { label:'post script',src:'14_11_2efterskrift_red_musik.mp3' },
+		'4.11.3': { label:'post script',src:'14_11_3efterskrift_red_musik.mp3' },
+		'4.11.4': { label:'post script',src:'14_11_4efterskrift_red_musik.mp3' },
+	}
 }
 
-// SoundService.getPathByKey = function(key){
+// console.log('SoundService');
+// var SoundService = function(){
 // 	'use strict';
-// 	return SoundService.properties.basePath + this.matrix[key].file;
-// };
-// SoundService.getDurationByKey = function(key){
-// 	'use strict';
-// 	return this.matrix[key].duration;
+// }
+// SoundService.init = function(){
+// 	console.log('SoundService.init');
+// 	var recursive = function(obj){
+// 		for (var i in obj) {
+// 			if(typeof obj[i] === 'object'){
+// 				// console.log(obj[i].src);
+// 				if(obj[i].src !== undefined){
+// 					obj[i].src = SoundService.basePath() + obj[i].src;
+// 				}
+// 				recursive(obj[i]);
+// 			}
+// 		};
+// 	}
+// 	recursive(this.matrix);
 // };
 
-SoundService.getSlideDurationById = function(id){
-	'use strict';
-	return this.matrix.slides[id].duration;
-};
-SoundService.getSlideSoundpathById = function(id){
-	'use strict';
-	return SoundService.properties.slidePath + id+'.mp3';
-};
-SoundService.getSlideSoundById = function(id){
-	'use strict';
-	return SoundService.matrix.slides[id]
-};
-SoundService.getSoundByCharacter = function(character){
-	'use strict';
-	return;
-};
+// SoundService.getSlideDurationById = function(id){
+// 	'use strict';
+// 	return this.matrix.slides[id].duration;
+// };
+// SoundService.getSlideSoundpathById = function(id){
+// 	'use strict';
+// 	return SoundService.properties.slidePath + id+'.mp3';
+// };
+// SoundService.getSlideSoundById = function(id){
+// 	'use strict';
+// 	return SoundService.matrix.slides[id]
+// };
+// SoundService.getSoundByCharacter = function(character){
+// 	'use strict';
+// 	return;
+// };
 
-SoundService.properties = {
-	basePath: 'assets/sounds/',
-	slidePath: 'assets/sounds/'
-};
-SoundService.matrix = {
-	effects: {
-		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', duration: null },
-		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3', duration: null }
-	},
-	'1.1.1' :{
-		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
-		sundholm: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
-		svendborg: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 }
-	},
-	points: {
-		plus: { src:SoundService.properties.basePath+'Point_plus.mp3', duration: 2.208 },
-		minus: { src:SoundService.properties.basePath+'Point_minus.mp3', duration: 1.128 }
-	},
-	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
-	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
-	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
-	'1.2.1': {
-		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
-					},
-		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
-					},
-		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
-					},
-	},
-	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
-	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
-	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },	
-	'1.8': { label:'arrested', src:SoundService.properties.basePath+'1.8.mp3', duration: 37.908 },	
-	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
-	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 },
-	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
-	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
-	'2.10.2': {
-		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3', duration: 52.881 },
-		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3', duration: 53.265 }
-	},
-	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
+// SoundService.basePath = function(){
+// 	return Environment.basePath() + 'assets/sounds/';
+// 	// return 'assets/game/assets/sounds/';
+// };
+
+// SoundService.matrix = {
+// 	effects: {
+// 		typewriter: { src:'typewriter.mp3', volume: 0.4 },
+// 		woodchopper: { src:'1.2.1_hugbraende_lydeffekt.mp3' }
+// 	},
+// 	'1.1.1' :{
+// 		horsens: { src:'1.1.1_horsens.mp3' },
+// 		sundholm: { src:'1.1.1_sundholm.mp3' },
+// 		svendborg: { src:'1.1.1_svendborg.mp3' }
+// 	},
+// 	points: {
+// 		plus: { src:'Point_plus.mp3' },
+// 		minus: { src:'Point_minus.mp3' }
+// 	},
+// 	dormitry: { src:'2.6.1.mp3' },
+// 	drunk: { src:'1.5.1.mp3' },
+// 	constable: { src:'1.6.1.mp3' },
+// 	'1.2.1': {
+// 		'horsens': {
+// 						'A': { src:'1.1.2_pashaven.mp3' },
+// 						'B': { src:'1.1.2_goerrent.mp3' },
+// 						'C': { src:'1.1.2_fletmaatter.mp3' }
+// 					},
+// 		'sundholm': {
+// 						'A': { src:'1.1.2_hugbraende.mp3' },
+// 						'B': { src:'1.1.2_pasgrise.mp3' },
+// 						'C': { src:'1.1.2_skaerver.mp3' }						
+// 					},
+// 		'svendborg': {
+// 						'A': { src:'1.1.2_skaerver.mp3' },
+// 						'B': { src:'1.1.2_vaevmaatter.mp3' },
+// 						'C': { src:'1.1.2_pilorm.mp3' }
+// 					},
+// 	},
+// 	'1.3.2': { label:'wants out', src:'1.3.2.mp3' },
+// 	'1.3.3': { label:'inmate', src:'1.3.3_indsat.mp3' },
+// 	'1.3.4': { label:'employee', src:'1.3.4.mp3' },	
+// 	'1.8': { label:'arrested', src:'1.8.mp3' },	
+// 	'2.2.1': { src:'2.2.1.mp3' },
+// 	'2.2.3': { src:'2.2.3.mp3' },
+// 	'2.8.1': { description:'get paid', src:'2.8.1.mp3' },
+// 	// '2.10.1': { description:'what now', src:'2.10.1_kontraktudlob.mp3' },
+// 	'2.10.2': {
+// 		'A': { description:'Finnish contract', src:'2.10.2.a.mp3' },
+// 		'B': { description:'Go home', src:'2.10.2.b.mp3' }
+// 	},
+// 	'2.11.1': { description:'home comming', src:'2.11.1.mp3' },
 	
-	slides: {
-				'slide_0_1': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
-				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
-				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
-				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
-				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3', duration: 61.208 },
-				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3', duration: 48.573 },
-				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3', duration: 48.573 },
-				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 },
-				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3', duration: 69.641 },
-				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_7': { src:SoundService.properties.basePath+'4.7_krigenskriderfrem.mp3', duration: 81.350 }
-				
-				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
-			},
-	'0.4': { // oppinion
-			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'BE': { label: 'dovenskab, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
-			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 }
-		},
-	'3.2.1': {
-		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
-					},
-		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
-					},
-		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
-					},
-	},
-	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3', duration: 54.282 },
-	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3', duration: 15.531 },
-	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3', duration: 13.543 },
-	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3', duration: 30.561 },
-	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1_moede.mp3', duration: 42.563 },
-	'4.10.1': { label:'dansk front', src:SoundService.properties.basePath+'4.10.1_bombe.mp3', duration: 45.637 },
-	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4_sygdom.mp3', duration: 44.285 },
-	'4.10.7': { label:'illness', src:SoundService.properties.basePath+'4.10.7_pavejhjem.mp3', duration: 51.754 },
-	'4.11.1': { label:'compensation', src:SoundService.properties.basePath+'4.11.1.mp3', duration: 80 },
-	'4.11.2': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	'4.11.3': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	'4.11.4': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	
-	
-	
-	
-	// challenge: {
-	// 			// 'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
-	// 			// 'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
-	// 			// 'C': { label: 'manager', src:SoundService.properties.basePath+'weakness.mp3', duration: 1.815 }
-	// 			'A': { label: 'manager', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
-	// 			'B': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-	// 			'C': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 }
-	// 		},
-	// family: {
-	// 			'D': null,
-	// 			'E': { label: 'daughter', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-	// 			'F': null
-	// 		}
-	// characters: {
-	// 			'AD': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'AE': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'AF': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'BD': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'BE': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'BF': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'CD': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ],
-	// 			'CE': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'CF': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ]
-	// 		}
-};
+// 	slides: {
+// 				'slide_0_1': { src:'film01medmusik_mixdown.mp3' },
+// 				'slide_1_0_1': { src:'film10_mixdown.mp3' },
+// 				'slide_2_5': { src:'2.5_mixdown.mp3' },
+// 				'slide_2_7_1_amory': { src:'2.7.1.vaaben_mixdown.mp3' },
+// 				'slide_2_7_1_butcher': { src:'2.7.1.slagt_mixdown.mp3' },
+// 				'slide_2_7_1_mine': { src:'2.7.1.mine_mixdown.mp3' },
+// 				// 'slide_home1A': { src:'2.7.1.vaaben_mixdown.mp3' },
+// 				// 'slide_home1B': { src:'slide_home1_B.mp3' },
+// 				'slide_3_0': { src:'3.0_mixdown.mp3' },
+// 				'slide_4_3': { src:'4.3_mixdown.mp3' },
+// 				'slide_4_5_1_AB': { src:'4.5.1.mine_mixdown.mp3' },
+// 				'slide_4_5_1_AC': { src:'4.5.1hud_efter_vaaben_mixdown.mp3' },
+// 				'slide_4_5_1_BA': { src:'4.5.1.vaaben_efter kul_mixdown.mp3' },
+// 				'slide_4_5_1_BC': { src:'4.5.1hud_efter_mine_mixdown.mp3' },
+// 				'slide_4_5_1_CA': { src:'4.5.1.vaaben_efter hud_mixdown.mp3' },
+// 				'slide_4_5_1_CB': { src:'4.5.1.mine_mixdown.mp3' },
+// 				'slide_4_7': { src:'4.7_mixdown.mp3' }				
+// 			},
+// 	'0.4': { // oppinion
+// 			'AD': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+// 			'AE': { label: 'alkoholiker, børn', src:'0.4_datter.mp3' },
+// 			'AF': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+// 			'BD': { label: 'dovenskab', src:'0.4_kone.mp3' },
+// 			'BE': { label: 'dovenskab, børn', src:'0.4_datter.mp3' },
+// 			'BF': { label: 'dovenskab', src:'0.4_andenindlagt.mp3' },
+// 			'CD': { label: 'svækkelse', src:'0.4_kone.mp3' },
+// 			'CE': { label: 'svækkelse, børn', src:'0.4_datter.mp3' },
+// 			'CF': { label: 'svækkelse', src:'0.4_andenindlagt.mp3' }
+// 		},
+// 	'3.2.1': {
+// 		'horsens': {
+// 						'A': { src:'1.1.2_pashaven.mp3' },
+// 						'B': { src:'1.1.2_goerrent.mp3' },
+// 						'C': { src:'1.1.2_fletmaatter.mp3' }
+// 					},
+// 		'sundholm': {
+// 						'A': { src:'1.1.2_hugbraende.mp3' },
+// 						'B': { src:'1.1.2_pasgrise.mp3' },
+// 						'C': { src:'1.1.2_skaerver.mp3' }						
+// 					},
+// 		'svendborg': {
+// 						'A': { src:'1.1.2_skaerver.mp3' },
+// 						'B': { src:'1.1.2_vaevmaatter.mp3' },
+// 						'C': { src:'1.1.2_pilorm.mp3' }
+// 					},
+// 	},
+// 	'3.3' : {
+// 		'horsens': { src:'3.3.horsens.svendborg.mp3' },
+// 		'sundholm': { src:'3.3.sundholm.mp3' },
+// 		'svendborg': { src:'3.3.horsens.svendborg.mp3' }
+// 	},
+// 	'3.4.1': { label:'employee', src:'3.4.1.mp3' },
+// 	'3.4.2': { label:'inmate', src:'3.4.2.mp3' },
+// 	'3.7.1': { label:'work over', src:'3.7.1.mp3' },
+// 	'4.6.1': { label:'dansk front', src:'4.6.1.mp3' },
+// 	'4.10.1': { label:'bombe', src:'4.10.1.mp3' },
+// 	'4.10.4': { label:'illness', src:'4.10.4.mp3' },
+// 	'4.10.7': { label:'going home', src:'4.10.7.mp3' },
+// 	'4.11.1': { label:'post script', src:'14_11_1efterskrift_red_musik.mp3' },
+// 	'4.11.2': { label:'post script',src:'14_11_2efterskrift_red_musik.mp3' },
+// 	'4.11.3': { label:'post script',src:'14_11_3efterskrift_red_musik.mp3' },
+// 	'4.11.4': { label:'post script',src:'14_11_4efterskrift_red_musik.mp3' },
+// };
 var PlayerStats = {
 	challenge: 'B',			// Default test value
 	family: 'D',			// Default test value
 	nickname: null,
-	poorhouse: 'svendborg', // Test 
+	poorhouse: null,
 	mood: 2,
 	health: 4,
 	money: 3,
 	job: null,
 	advice: null,
 	wayout: null,
-	job_germany: ['B', 'A'], // Default test values
+	job_germany: ['A', 'B'], // Default test values
 	spending: null,
 	whatnow: null,
 	nazi: null,
@@ -5502,7 +5941,7 @@ var PlayerStats = {
 var Library = {
 	clearSlide: function(){
 		'use strict';
-		console.log('clearSlide');
+		// console.log('clearSlide');
 		try{
 			slidelib = null;
 		}catch(err){
@@ -5511,7 +5950,7 @@ var Library = {
 	},
 	clearGame: function(){
 		'use strict';
-		console.log('clearGame');		
+		// console.log('clearGame');		
 		try{
 			gamelib = null;
 		}catch(err){
@@ -5520,7 +5959,7 @@ var Library = {
 	},
 	clearMain: function(){
 		'use strict';
-		console.log('clearMain');		
+		// console.log('clearMain');		
 		try{
 			mainlib = null;
 		}catch(err){
@@ -5528,36 +5967,87 @@ var Library = {
 		}
 	},
 }
-var ImageService = function(){
-	'use strict';
-}
-ImageService.properties = {
-	basePath: 'assets/images/pool/',
-};
-ImageService.matrix = {
-	portrait:{
-		'AD': { id: 'ADCloseUp', label:'background', src:ImageService.properties.basePath+'ADCloseUp.png'},
-		'AE': { id: 'AECloseUp', label:'background', src:ImageService.properties.basePath+'AECloseUp.png'},
-		'AF': { id: 'AFCloseUp', label:'background', src:ImageService.properties.basePath+'AFCloseUp.png'},
-		'BD': { id: 'BDCloseUp', label:'background', src:ImageService.properties.basePath+'BDCloseUp.png'},
-		'BE': { id: 'BECloseUp', label:'background', src:ImageService.properties.basePath+'BECloseUp.png'},
-		'BF': { id: 'BFCloseUp', label:'background', src:ImageService.properties.basePath+'BFCloseUp.png'},
-		'CD': { id: 'CDCloseUp', label:'background', src:ImageService.properties.basePath+'CDCloseUp.png'},
-		'CE': { id: 'CECloseUp', label:'background', src:ImageService.properties.basePath+'CECloseUp.png'},
-		'CF': { id: 'CFCloseUp', label:'background', src:ImageService.properties.basePath+'CFCloseUp.png'}
+var ImageService = {
+	init: function(){
+		'use strict';
+		console.log('ImageService.init');
+		var recursive = function(obj){
+			for (var i in obj) {
+				if(typeof obj[i] === 'object'){
+					// console.log(obj[i].src);
+					if(obj[i].src !== undefined){
+						obj[i].src = ImageService.basePath() + obj[i].src;
+					}
+					recursive(obj[i]);
+				}
+			};
+		}
+		recursive(this.matrix);
 	},
-	'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_0_1BG.jpg'},
-	'1.0.1': {
-		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
-		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
-		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
+	basePath: function(){
+		'use strict';
+		return Environment.basePath() + 'assets/images/pool/';
 	},
-	'3.0': {
-		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:ImageService.properties.basePath+'_1_0BGhorsens.jpg'},
-		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:ImageService.properties.basePath+'_1_0BGsundholm.jpg'},
-		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:ImageService.properties.basePath+'_1_0BGsvendborg.jpg'}
+	matrix: {
+		'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:'_0_1BG.jpg'},
+		'1.0.1': {
+			'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+			'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+			'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+		},
+		'3.0': {
+			'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+			'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+			'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+		}
 	}
 }
+// var ImageService = function(){
+// 	'use strict';
+// }
+// ImageService.init = function(){
+// 	console.log('ImageService.init');
+// 	var recursive = function(obj){
+// 		for (var i in obj) {
+// 			if(typeof obj[i] === 'object'){
+// 				// console.log(obj[i].src);
+// 				if(obj[i].src !== undefined){
+// 					obj[i].src = ImageService.basePath() + obj[i].src;
+// 				}
+// 				recursive(obj[i]);
+// 			}
+// 		};
+// 	}
+// 	recursive(this.matrix);
+// };
+// ImageService.basePath = function(){
+// 	return Environment.basePath() + 'assets/images/pool/';
+// 	// return 'assets/game/assets/images/pool/';
+// };
+// ImageService.matrix = {
+// 	// portrait:{
+// 	// 	'AD': { id: 'ADCloseUp', label:'background', src:'ADCloseUp.png'},
+// 	// 	'AE': { id: 'AECloseUp', label:'background', src:'AECloseUp.png'},
+// 	// 	'AF': { id: 'AFCloseUp', label:'background', src:'AFCloseUp.png'},
+// 	// 	'BD': { id: 'BDCloseUp', label:'background', src:'BDCloseUp.png'},
+// 	// 	'BE': { id: 'BECloseUp', label:'background', src:'BECloseUp.png'},
+// 	// 	'BF': { id: 'BFCloseUp', label:'background', src:'BFCloseUp.png'},
+// 	// 	'CD': { id: 'CDCloseUp', label:'background', src:'CDCloseUp.png'},
+// 	// 	'CE': { id: 'CECloseUp', label:'background', src:'CECloseUp.png'},
+// 	// 	'CF': { id: 'CFCloseUp', label:'background', src:'CFCloseUp.png'}
+// 	// },
+// 	'0.1': { id: 'poorhouse_bg_horsens', label:'background', src:'_0_1BG.jpg'},
+// 	'1.0.1': {
+// 		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+// 		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+// 		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+// 	},
+// 	'3.0': {
+// 		'horsens': { id: 'poorhouse_bg_horsens', label:'background', src:'_1_0BGhorsens.jpg'},
+// 		'sundholm': { id: 'poorhouse_bg_ssundholm', label:'background', src:'_1_0BGsundholm.jpg'},
+// 		'svendborg': { id: 'poorhouse_bg_svendborg', label:'background', src:'_1_0BGsvendborg.jpg'}
+// 	}
+// }
 var FlowData ={
 	
 }
@@ -5601,6 +6091,7 @@ var FlowManager = {
 			throw new Error("'root' is", root);
 		}
 		this.root = root;
+		PreloadGFX.blocker = this.root.blocker_black;
 	},
 	clearLib: function(){
 		lib = null;
@@ -5618,8 +6109,8 @@ var FlowManager = {
 		// this.root.gotoAndStop('character_build'); // TEST
 		switch(page){
 			case '0.0':
-				this.root.gotoAndStop('frontpage');	
-				this.root.blocker_black.visible = false;
+				this.root.gotoAndStop('frontpage');					
+				PreloadGFX.blocker.visible = false;
 
 				ContinueButton.on('click', function(event){
 					event.remove();
@@ -5627,7 +6118,6 @@ var FlowManager = {
 				}, this);
 				ContinueButton.activate('next');				
 			break;
-
 			case 'loadtopbar':
 				Library.clearSlide();
 				Library.clearGame();
@@ -5650,7 +6140,6 @@ var FlowManager = {
 					}, this)
 				);
 			break;
-
 			// break;
 			case '0.1':	
 				// Intro	
@@ -5684,9 +6173,8 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('0.2');
 				}, this);
-				// Tick.disable();
+				// Tick.framerate(Tick.low);
 			break;
-
 			case '0.2':
 				// Proloque
 				// Topbar
@@ -5697,7 +6185,7 @@ var FlowManager = {
 					console.log(err);
 				}
 
-				// Tick.disable();
+				// Tick.framerate(Tick.low);
 				var self = this;
 
 				// Go to start frame
@@ -5716,10 +6204,42 @@ var FlowManager = {
 					event.remove();
 					Library.clearSlide();
 					Library.clearGame();
+					self.gotoPage('0.5');
+				}, this);				
+				// Tick.framerate(Tick.low);				
+			break;
+			case '0.5':
+				// Map
+				// Topbar
+				try{
+					Topbar.init(this.topbar.mainClip);
+					Topbar.go('intro');
+				}catch(err){
+					console.log(err);
+				}
+
+				var self = this;
+
+				// Go to start frame
+				this.root.gotoAndStop('start');
+				this.currentPage = new PageMap(this.root.pagecontainer);
+				// this.currentPage.setInfo(false);
+				this.currentPage.start(); 
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
 					self.gotoPage('1.0.1');
 				}, this);				
-				// Tick.disable();	
-				
+				// Tick.framerate(Tick.low);				
 			break;
 			case '1.0.1':	
 				// Poor House Intro	
@@ -5728,7 +6248,11 @@ var FlowManager = {
 				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
-				Topbar.go('game');
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}
 
 				this.currentPage = null;
 				this.currentPage = new PageIntroSlide(this.root.pagecontainer); // Id references to flow id '0.1'
@@ -5747,7 +6271,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('1.0.2');
 				}, this);
-				// Tick.disable();
+				// Tick.framerate(Tick.low);
 			break;
 			case '1.0.2':	
 				// Poor House		
@@ -5756,7 +6280,11 @@ var FlowManager = {
 				this.root.pagecontainer.removeAllChildren();
 
 				// Topbar
-				Topbar.go('game');
+				try{
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}
 				
 
 				this.currentPage = null;
@@ -5777,7 +6305,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('2.5');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 			case '2.5':
 				// Germany 1.
@@ -5808,26 +6336,45 @@ var FlowManager = {
 					event.remove();
 					Library.clearSlide();
 					Library.clearGame();
-					self.gotoPage('3.0');
+					self.gotoPage('2.12');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
+			break;
+			case '2.12':
+				// Map
+				// Topbar
+				try{
+					Topbar.init(this.topbar.mainClip);
+					Topbar.go('game');
+				}catch(err){
+					console.log(err);
+				}
+
+				var self = this;
+
+				// Go to start frame
+				this.root.gotoAndStop('start');
+				this.currentPage = new PageMap(this.root.pagecontainer);
+				this.currentPage.setInfo(true);
+				this.currentPage.start(); 
+
+				// Blocker
+				this.currentPage.on('ready', function(event){
+					event.remove();					
+					self.root.blocker_black.visible = false;
+				}, this);
+
+				// Button to next page
+				this.currentPage.on('continue', function(event){
+					event.remove();
+					Library.clearSlide();
+					Library.clearGame();
+					self.gotoPage('3.0');
+				}, this);				
+				// Tick.framerate(Tick.low);				
 			break;
 			case '3.0':	
 				// Poor House 2. time
-
-				// Get id for next poorhouse
-				var newId;
-				var list = ['horsens', 'sundholm', 'svendborg'];
-				list = list.shuffle();
-				for(var i=0; i<list.length; i++){
-					if(list[i] !== PlayerStats.poorhouse){
-						PlayerStats.poorhouse = list[i];
-						break;
-					}
-				}
-
-				// TEST
-				// PlayerStats.poorhouse = 'svendborg';
 				
 				this.root.gotoAndStop('start');
 				this.root.pagecontainer.removeAllChildren();
@@ -5892,7 +6439,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('4.0');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 			case '4.0':	
 				// Germany 2.	
@@ -5924,7 +6471,7 @@ var FlowManager = {
 					Library.clearGame();
 					self.gotoPage('4.11');
 				}, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 			case '4.11':	
 
@@ -5955,7 +6502,7 @@ var FlowManager = {
 				// 	Library.clearGame();
 				// 	self.gotoPage('4.10');
 				// }, this);
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			break;
 		}
 	},
@@ -5974,8 +6521,12 @@ var ApplicationManager = {
 		'use strict';
 		this.root = root;
 
+		PreloadGFX.preloader = this.root.preload_clip;
+
 		// // Init Environment info
 		// Environment.init();
+		ImageService.init();
+		SoundService.init();
 
 		// Cursor init
 		Cursor.root = root;
@@ -6001,18 +6552,9 @@ var ApplicationManager = {
 			console.log(err);
 		}
 			
-
-		// Fade black blocker out
-		// createjs.Tween.get(root.blocker_black)
-  //        .to({alpha: 0}, 600, createjs.Ease.linear)
-  //        .call(function(){
-  //        	root.blocker_black.visible = false;
-  //        });         
-
-
 		// Go to start
 		FlowManager.gotoPage('0.0');
-		// FlowManager.gotoPage('0.1');
+		// FlowManager.gotoPage('4.0');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},
@@ -6023,242 +6565,6 @@ var ApplicationManager = {
 		'use strict';
 	}
 };
-var SoundEffect = function(src, duration, loop){
-	'use strict';
-	if(SoundEffect.counter == null)
-		SoundEffect.counter = 0;
-
-	SoundEffect.counter++;
-	this.id = SoundEffect.counter;
-	this.paused = false;
-	this.duration = duration;
-	this.src = src;
-	this.loop = loop;
-	this.preloaded = false;
-	this.listeners = {tick:null, play:null, pause:null, stop:null};
-
-
-	this.soundController = new SoundController(src, duration, loop);
-};
-SoundEffect.prototype.preload = function(src, duration, loop, callback){
-	'use strict';
-	
-	var self = this;
-
-	//self.soundController = new SoundController(src, duration, this.loop);
-	this.soundController.on('ready', function(event){
-		event.remove();
-		self.preloaded = true;
-		if(callback != null)
-			callback();
-
-	}, self);
-	this.soundController.load();
-};
-SoundEffect.prototype.volume = function(value){
-	try{
-		this.soundController.volume(value);	
-	}catch(err){
-		console.log(err);
-	}	
-}
-SoundEffect.prototype.play = function(){
-	'use strict';
-
-	var self = this;
-
-	var doPlay = function(){
-		self.previousFrame = 0;
-
-		// Sound
-		self.soundController.play();
-
-		// Dispacth event 
-		self.dispatchEvent(new createjs.Event('start'));
-
-		// Set this last
-		self.paused = false;
-	}
-
-	if(!this.preloaded){		
-		this.preload(this.src, this.duration, this.loop, function(){
-			doPlay();
-		});
-	}else{
-		doPlay();
-	}
-};
-SoundEffect.prototype.pause = function(){
-	'use strict';
-
-	// If invoked from external the state could be stopped
-	// Adn we do not want to set in paused unintentional
-	if(this.paused)
-		return;
-
-	this.paused = true;
-
-	// Sound
-	this.soundController.pause();
-};
-SoundEffect.prototype.stop = function(){
-	'use strict';
-
-	// Sound
-	this.soundController.stop();
-
-	this.paused = false;
-};
-SoundEffect.prototype.reset = function(){
-	'use strict';
-	this.paused = false;
-	this.listeners = null;
-};
-SoundEffect.prototype.destroy = function(){
-	'use strict';
-	this.view = null;
-	this.listeners = null;
-};
-createjs.EventDispatcher.initialize(SoundEffect.prototype);
-/**
-	Controller uses the browser's AUDIO element as play back for sound
-*/
-function SoundController(audioPath, duration, loop) {
-	'use strict';
-
-	var self = this;
-
-	if(loop === undefined || loop === null)
-		loop = false;
-	
-	this.sndObj = document.createElement('AUDIO');		
-	this.sndObj.src = audioPath;
-	this.sndObj.loop = loop;
-	this.duration = duration;
-
-
-	// Firefox does not invoke the audio load method?! But setting load automated seems to work
-	if(Environment.browser.firefox){
-		this.sndObj.preload = 'auto';
-	}else{
-		this.sndObj.preload = 'none';
-	}
-
-	// LIsten for sound being ready 
-	this.sndObj.addEventListener('canplaythrough', function(event){
-		var e = new createjs.Event('ready');
- 		self.dispatchEvent(e);
-	}, false);
-	this.sndObj.addEventListener('ended', function(event){
- 		this.complete = true;
-	}, false);
-}
-
-SoundController.prototype = {
-	sndObj: null,
-	currentSndPosition: 0,
-	duration: 0,
-	paused: false,
-	self: this,
-	complete: false,
-
-	getState: function(){
-		return this.sndObj.state;
-	},
-	load: function(){
-		'use strict';
-		// Firefox does not invoke the audio load function?! 
-		// So load has been set 'auto' so we don't need to invoke the load method
-		if(!Environment.browser.firefox){			
-			this.sndObj.load();
-		}
-	},
-	volume: function(value) {
-		'use strict';
-		if(this.sndObj != null){
-			this.sndObj.volume = value;
-		}
-	},
-	play: function() {
-		'use strict';
-		this.sndObj.play();
-		this.paused = false;
-		this.sndObj.state = 'play';
-		this.complete = false;
-	},
-	stop: function() {
-		'use strict';
-		this.sndObj.pause();
-		this.sndObj.currentTime = 0;
-		this.paused = false;
-		this.sndObj.state = 'stop';
-	},
-	pause: function() {
-		'use strict';
-		this.currentSndPosition = this.sndObj.currentTime;
-		this.sndObj.pause();
-		this.paused = true;
-		this.sndObj.state = 'pause';
-	},
-	resume: function() {
-		'use strict';
-		this.sndObj.play();
-	},
-	progress: function(){
-		'use strict';
-		var num = this.sndObj.currentTime / this.duration;
-		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
-	},
-	isComplete: function(){
-		'use strict';
-		this.state = 'stop';
-		return this.complete;
-	},
-	destroy: function(){
-		'use strict';
-		this.state = 'stop';
-		this.sndObj = null;
-		this.duration = null;
-	}
-};
-createjs.EventDispatcher.initialize(SoundController.prototype);
-var HUDController = {
-	init: function(view){
-		this.view = view;		
-		this.update();
-		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src, SoundService.matrix.points.plus.duration);
-		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src, SoundService.matrix.points.minus.duration);
-	},
-	update: function(){
-		if(this.view === undefined || this.view === null){
-			throw new Error("'view' is undefined");
-		}
-
-		var self = this;
-		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
-		this.view.health.points.gotoAndStop(PlayerStats.health-1);
-		this.view.money.points.gotoAndStop(PlayerStats.money-1);
-
-		var delay = 0;
-		// console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
-		for(var key in PlayerStats.pointsDiff){
-			if(PlayerStats.pointsDiff[key] > 0){
-				setTimeout(function(){ 
-					self.soundControllerPlus.play();
-				}, delay);
-				delay += 1000;
-			}else if(PlayerStats.pointsDiff[key] < 0){
-				setTimeout(function(){ 
-					self.soundControllerMinus.play();
-				}, delay);
-				delay += 1000;
-			}
-		}
-
-		// Need to reset 
-		PlayerStats.resetDiff();
-	}
-}
 var PlayerSoundComponent = function(view){
 	'use strict';
 	if(PlayerSoundComponent.counter == null)
@@ -6266,8 +6572,6 @@ var PlayerSoundComponent = function(view){
 
 	PlayerSoundComponent.counter++;
 	this.id = PlayerSoundComponent.counter;
-
-	// console.log('PlayerSoundComponent');
 
 	this.view = view;
 	this.paused = false;
@@ -6309,7 +6613,7 @@ PlayerSoundComponent.prototype.preload = function(src, duration){
 		self.soundController.destroy();
 		self.soundController = null;
 	}
-	self.soundController = new SoundController(src, duration);
+	self.soundController = new SoundController(src);
 	self.soundController.on('ready', function(event){
 		event.remove();
 		// Enable buttons
@@ -6318,6 +6622,16 @@ PlayerSoundComponent.prototype.preload = function(src, duration){
 
 		// Dispatch event 
 		self.dispatchEvent(new createjs.Event('ready'));
+	}, self);
+	self.soundController.on('complete', function(event){
+		// Swap Play/Pause visibility
+		this.pauseBtn.visible(false);
+		this.playBtn.visible(true);
+
+		self.removeLoopEvent();
+
+		// Dispatch event 
+		self.dispatchEvent(new createjs.Event('complete'));
 	}, self);
 	self.soundController.load();
 };
@@ -6334,22 +6648,8 @@ PlayerSoundComponent.prototype.removeLoopEvent = function(){
 };
 PlayerSoundComponent.prototype.loop = function(){
 	'use strict';	
-	// var progression = this.progress();
 	var sndProgression = this.soundController.progress();
-
-	// Reached end of slide
-	if(sndProgression >= 1){
-		// Remove tick
-		this.removeLoopEvent();
-
-		// Swap Play/Pause visibility
-		this.pauseBtn.visible(false);
-		this.playBtn.visible(true);
-
-		// Dispacth event 
-		this.dispatchEvent(new createjs.Event('complete'));
-	}
-
+	
 	// Progression bar
 	this.progressionBar.scaleX = sndProgression;
 };
@@ -6375,6 +6675,7 @@ PlayerSoundComponent.prototype.play = function(){
 
 	// Tick
 	Tick.enable();
+	Tick.framerate(Tick.perfect);
 };
 PlayerSoundComponent.prototype.pause = function(){
 	'use strict';
@@ -6489,15 +6790,10 @@ var PlayerSliderComponent = function(view, soundOffset){
 };
 PlayerSliderComponent.prototype.preload = function(slideId, lib){
 	'use strict';
+	
 	var self = this;
 	this.slideId = slideId;
 
-	// console.log("preload: ", slideId);
-
-	// Flash sliders lib referecne due to id
-	// var lib = eval('libslide'+slideId);
-	// var lib = new Function('libslide_'+slideId);
-	
 	// Load assets	
 	Preloader.load(lib.properties.manifest, 
 		function(event){
@@ -6528,8 +6824,7 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 			}
 			try{
 				var snd = SoundService.getSlideSoundById(self.slideId);
-				self.soundController = new SoundController(snd.src, snd.duration);
-				//self.soundController = new SoundController(SoundService.getSlideSoundpathById(self.slideId), SoundService.getSlideDurationById(self.slideId));
+				self.soundController = new SoundController(snd.src);
 				self.soundController.on('ready', function(event){
 					event.remove(); // Only run once. Otherwise it will run every time player has ended and starts slide after it played to the end
 					// Enable buttons
@@ -6538,6 +6833,24 @@ PlayerSliderComponent.prototype.preload = function(slideId, lib){
 
 					// Dispatch event 
 					self.dispatchEvent(new createjs.Event('ready'));
+				}, self);
+				self.soundController.on('complete', function(event){
+					// event.remove();
+					// console.log('complete');
+
+					// Stop on last frame
+					this.slide.gotoAndStop(this.slide.totalFrames-1);
+
+					// Swap Play/Pause visibility
+					this.pauseBtn.visible(false);
+					this.playBtn.visible(true);
+
+					self.removeLoopEvent();
+
+					this.state = 'complete';
+
+					// Dispatch event 
+					self.dispatchEvent(new createjs.Event('complete'));
 				}, self);
 				self.soundController.load();
 			}catch(err){
@@ -6560,51 +6873,17 @@ PlayerSliderComponent.prototype.removeLoopEvent = function(){
 };
 PlayerSliderComponent.prototype.loop = function(){
 	'use strict';	
-	// var progression = this.progress();
 	var sndProgression = this.soundController.progress();
+	
+	var desiredFrame = Math.round(this.duration * sndProgression) + this.soundOffset;
 
-	// Reached end of slide
-	if(sndProgression >= 1){
-		// Remove tick
-		this.removeLoopEvent();
+	// Truncate frame to show to max number of frames
+	if(desiredFrame > this.slide.totalFrames-1)
+		desiredFrame = this.slide.totalFrames-1
 
-		// Set slide timeline back to start
-		this.slide.stop();
-
-		// Swap Play/Pause visibility
-		this.pauseBtn.visible(false);
-		this.playBtn.visible(true);
-
-		this.paused = false;
-
-		// Dispacth event 
-		this.dispatchEvent(new createjs.Event('complete'));
-	}else{
-		var sndIsComplete = this.soundController.isComplete();				
-		if(!sndIsComplete){
-
-			// Calculate in which frame the timeline shold be related to soudn progression
-			var desiredFrame = Math.round(this.duration * sndProgression) + this.offset;			
-
-			// Just a fail safe making sure that we do NOT play a frame already shown
-			if(desiredFrame > this.previousFrame){
-				this.slide.gotoAndPlay(desiredFrame);
-				this.previousFrame = desiredFrame;
-			}
-			
-			// Sound
-			if(this.soundOffset > 0){
-				if(this.soundController.state !== 'play'){
-					if(this.slide.currentFrame >= this.soundOffset){						
-						this.listeners.auto = this.dispatchEvent(new createjs.Event('autoplay'));
-					}
-				}				
-			}
-		}
-	}
+	this.slide.gotoAndPlay(desiredFrame);
 
 	// Progression bar
-	// this.progressionBar.scaleX = sndProgression;
 	this.progressionBar.scaleX = this.progress()
 };
 PlayerSliderComponent.prototype.play = function(){
@@ -6612,7 +6891,8 @@ PlayerSliderComponent.prototype.play = function(){
 	// console.log('play');
 	var self = this;
 
-	this.previousFrame = 0;
+	if(this.state === 'complete')
+		this.slide.gotoAndStop(0);
 
 	// Swap Play/Pause visibility
 	this.pauseBtn.visible(true);
@@ -6642,17 +6922,14 @@ PlayerSliderComponent.prototype.play = function(){
 	
 	// Timeline
 	this.addLoopEvent('tick');
-	this.slide.play();
-
-	// Sound
-	// this.soundController.play();
 
 	// Set this last
 	this.paused = false;
 	this.state = 'play';
 
 	// Tick
-	Tick.enable();	
+	Tick.enable();
+	Tick.framerate(Tick.perfect);
 };
 PlayerSliderComponent.prototype.pause = function(){
 	'use strict';
@@ -6722,7 +6999,150 @@ PlayerSliderComponent.prototype.destroy = function(){
 	this.slideId = null;
 };
 createjs.EventDispatcher.initialize(PlayerSliderComponent.prototype);
-(function (lib, img, cjs, ss) {
+/**
+	Controller uses the browser's AUDIO element as play back for sound
+*/
+function SoundController(audioPath, loopCount) {
+	'use strict';
+
+	var self = this;
+
+	this.loopCount = loopCount;
+	if(loopCount === undefined || loopCount === null)
+		this.loopCount = false;	
+
+	this.audioPath = audioPath;
+}
+// SoundController.prototype.dispatcher = function(event){
+// 	this.dispatchEvent(event);
+// }
+SoundController.prototype = {
+	sndObj: null,
+	currentSndPosition: 0,
+	paused: false,
+	self: this,
+	complete: false,
+	dispatcher: function(event){
+		this.dispatchEvent(event);
+	},
+	getState: function(){
+		return this.sndObj.state;
+	},
+	load: function(){
+		'use strict';
+		var self = this;
+		// Howler
+		this.sndObj = new Howl({
+		  urls: [this.audioPath],
+		  autoplay: false,
+		  loop: this.loopCount,
+		  volume: 1,
+		  buffer: false,
+		  onend: function() {
+		    self.complete = true;
+		    self.dispatcher(new createjs.Event('complete'));
+		  },
+		  onload: function() {		    
+		    self.dispatcher(new createjs.Event('ready'));
+		    console.log('SoundController.onload');
+		    PreloadGFX.hide();
+		  }
+		}); 
+
+		PreloadGFX.show(false);
+	},
+	volume: function(value) {
+		'use strict';
+		if(this.sndObj != null){
+			this.sndObj.volume = value;
+		}
+	},
+	play: function() {
+		'use strict';
+		this.sndObj.play();
+		this.paused = false;
+		this.sndObj.state = 'play';
+		this.complete = false;
+	},
+	stop: function() {
+		'use strict';
+		this.sndObj.stop();
+		// this.sndObj.currentTime = 0;
+		this.paused = false;
+		this.sndObj.state = 'stop';
+	},
+	pause: function() {
+		'use strict';
+		// this.currentSndPosition = this.sndObj.currentTime;
+		this.sndObj.pause();
+		this.paused = true;
+		this.sndObj.state = 'pause';
+	},
+	resume: function() {
+		'use strict';
+		this.sndObj.play();
+	},
+	progress: function(){
+		'use strict';
+		var num = this.sndObj.pos() / this.sndObj._duration;
+		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
+		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
+	},
+	isComplete: function(){
+		'use strict';
+		this.state = 'stop';
+		return this.complete;
+	},
+	destroy: function(){
+		'use strict';
+		this.state = 'stop';
+		this.sndObj = null;
+		this.duration = null;
+	}
+};
+createjs.EventDispatcher.initialize(SoundController.prototype);
+var HUDController = {
+	init: function(){
+		this.soundEffectPlus = new SoundController(SoundService.matrix.points.plus.src, false);	
+		this.soundEffectMinus = new SoundController(SoundService.matrix.points.minus.src, false);	
+		this.soundEffectPlus.load();
+		this.soundEffectMinus.load();
+	},
+	setView: function(view){
+		this.view = view;		
+		this.update();
+	},
+	update: function(){
+		if(this.view === undefined || this.view === null){
+			throw new Error("'view' is undefined");
+		}
+
+		var self = this;
+		this.view.mood.points.gotoAndStop(PlayerStats.mood-1);
+		this.view.health.points.gotoAndStop(PlayerStats.health-1);
+		this.view.money.points.gotoAndStop(PlayerStats.money-1);
+
+		var delay = 0;
+		// console.log('PlayerStats.pointsDiff:', PlayerStats.pointsDiff)
+		for(var key in PlayerStats.pointsDiff){
+			if(PlayerStats.pointsDiff[key] > 0){
+				setTimeout(function(){ 
+					self.soundEffectPlus.play();
+				}, delay);
+				delay += 500;
+			}else if(PlayerStats.pointsDiff[key] < 0){
+				setTimeout(function(){ 
+					self.soundEffectMinus.play();
+				}, delay);
+				delay += 500;
+			}
+		}
+
+		// Need to reset 
+		PlayerStats.resetDiff();
+	}
+}
+;(function (lib, img, cjs, ss) {
 
 var p; // shortcut to reference prototypes
 
@@ -6733,7 +7153,8 @@ lib.properties = {
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../assets/images/pool/_0_0Frontpage.jpg", id:"_0_0Frontpage"}
+		{src:"../assets/images/pool/_0_0Frontpage.jpg", id:"_0_0Frontpage"},
+		{src:"../assets/images/pool/Bitmap33.jpg", id:"Bitmap33"}
 	]
 };
 
@@ -6747,6 +7168,46 @@ lib.properties = {
 	this.initialize(img._0_0Frontpage);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
+
+
+(lib.Bitmap33 = function() {
+	this.initialize(img.Bitmap33);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,641,270);
+
+
+(lib.PreloaderSquares = function() {
+	this.initialize();
+
+	// Layer 1
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("rgba(194,45,27,0.329)").s().p("AgxAxIAAhiIBiAAIAABig");
+	this.shape.setTransform(5,5);
+
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f("rgba(194,45,27,0.659)").s().p("AgxAxIAAhiIBiAAIAABig");
+	this.shape_1.setTransform(17,5);
+
+	this.shape_2 = new cjs.Shape();
+	this.shape_2.graphics.f("rgba(194,45,27,0.898)").s().p("AgxAxIAAhiIBiAAIAABig");
+	this.shape_2.setTransform(17,17);
+
+	this.addChild(this.shape_2,this.shape_1,this.shape);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,22,22);
+
+
+(lib.preloaderbar = function() {
+	this.initialize();
+
+	// Layer 1
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("rgba(255,255,255,0.6)").s().p("EhP/AAeIAAg7MCf/AAAIAAA7g");
+	this.shape.setTransform(512,3);
+
+	this.addChild(this.shape);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,6);
 
 
 (lib.PageContainerEmpty = function() {
@@ -6841,6 +7302,32 @@ p.nominalBounds = new cjs.Rectangle(0,0,94,94);
 p.nominalBounds = new cjs.Rectangle(0,0,120,120);
 
 
+(lib.preloadersquaresanim = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{});
+
+	// Layer 1
+	this.instance = new lib.PreloaderSquares("synched",0);
+	this.instance.setTransform(11,11,1,1,0,0,0,11,11);
+	this.instance.filters = [new cjs.ColorFilter(0, 0, 0, 1, 204, 204, 204, 0)];
+	this.instance.cache(-2,-2,26,26);
+
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(4).to({rotation:90},0).wait(5).to({rotation:180},0).wait(5).to({rotation:270},0).wait(5));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,22,22);
+
+
+(lib.preloader = function() {
+	this.initialize();
+
+	// Layer 2
+	this.bar = new lib.preloaderbar();
+
+	this.addChild(this.bar);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(-1,-1,1026,8);
+
+
 (lib.ContinueButton = function() {
 	this.initialize();
 
@@ -6859,6 +7346,26 @@ p.nominalBounds = new cjs.Rectangle(0,0,120,120);
 p.nominalBounds = new cjs.Rectangle(0,0,96,96);
 
 
+(lib.PreloaderMain = function() {
+	this.initialize();
+
+	// Square
+	this.instance = new lib.preloadersquaresanim();
+	this.instance.setTransform(5,10,2.273,2.273);
+
+	// Progress Bar
+	this.progress_bar = new lib.preloader();
+
+	// BG
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("rgba(0,0,0,0.329)").s().p("EhP/AyoMAAAhlPMCf/AAAMAAABlPg");
+	this.shape.setTransform(512,324);
+
+	this.addChild(this.shape,this.progress_bar,this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
+
+
 // stage content:
 (lib.Main = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{preload:4,frontpage:14,start:24,character_build:33,poohouse:48,germany:58});
@@ -6870,6 +7377,11 @@ p.nominalBounds = new cjs.Rectangle(0,0,96,96);
 
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(84));
+
+	// Preloader Bar
+	this.preload_clip = new lib.PreloaderMain();
+
+	this.timeline.addTween(cjs.Tween.get(this.preload_clip).wait(84));
 
 	// Blocker
 	this.blocker_black = new lib.BlockerBLACK();
@@ -6901,476 +7413,66 @@ p.nominalBounds = new cjs.Rectangle(0,0,96,96);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance).wait(14).to({_off:false},0).to({_off:true},10).wait(60));
 
+	// Layer 1
+	this.instance_1 = new lib.Bitmap33();
+	this.instance_1.setTransform(171,137);
+
+	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(84));
+
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(502,324,1044,768);
 
 })(mainlib = mainlib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var mainlib, images, createjs, ss;
 var canvas;
-(function () {
-	'use strict';
-	var app = angular.module('fattiggarden', ['ngRoute']);	
+$(function() {
+   'use strict';
+	var vm = this;
 
-	app.controller('MainController', ["$scope", "Canvas", function($scope, Canvas) {
-		var vm = this;
+	// Init Environment info
+	Environment.init();
 
-		// Init Environment info
-		Environment.init();
+	vm.lib = mainlib;
+	vm.imagesContainer = images;
 
-		$scope.lib = mainlib;
-		$scope.images = images;
+	vm.canvas = Canvas.create(1024, 648, Environment.ratio);
+	vm.canvas.style.background = '#000';
+	$('.canvas').append(vm.canvas);
 
-		$scope.canvas = Canvas.create(1024, 648, Environment.ratio);
-		$scope.canvas.style.background = '#000';
-		$('.content').append($scope.canvas);
-
-		function init(){
-			// Device.ratio = 1;
-			// Load files
-			var onFileLoad = function(evt){		
-				if (evt.item.type === 'image') { 
-					$scope.images[evt.item.id] = evt.result; 
-				}
-			};
-			var onLoadComplete = function(evt){
-				// Instantiate root object. Equivalent to root timeline
-				$scope.exportRoot = new $scope.lib.Main();
-
-				try{
-					var stage = new createjs.Stage($scope.canvas);
-					stage.addChild($scope.exportRoot);
-					
-					// Do cursor
-					stage.enableMouseOver(10);
-
-					// Scale canvas according to ratio
-					stage.scaleX = stage.scaleY = Environment.ratio;
-					stage.update();
-
-					// Tik tak - ticker
-					Tick.init(stage, 15);
-					Tick.enable();	
-
-					// --------------------- Go start ->
-					ApplicationManager.start($scope.exportRoot);
-				}catch(err){
-					console.log(err);
-				}				
-			};
-			// Start preload app
-			Preloader.load($scope.lib.properties.manifest, onFileLoad, onLoadComplete, 'full');
+	// Device.ratio = 1;
+	// Load files
+	var onFileLoad = function(evt){		
+		if (evt.item.type === 'image') { 
+			vm.imagesContainer[evt.item.id] = evt.result; 
 		}
+	};
+	var onLoadComplete = function(evt){
+		// Instantiate root object. Equivalent to root timeline
+		vm.exportRoot = new vm.lib.Main();
 
-		init();
-	}]);
-	app.factory('Canvas', function() {
-		return {
-			create: function(w, h, ratio) {	
-				var winScale = Environment.winScale;
-				if(winScale > 1) winScale = 1;
+		try{
+			var stage = new createjs.Stage(vm.canvas);
+			stage.addChild(vm.exportRoot);
+			
+			// Do cursor
+			stage.enableMouseOver(20);
+			createjs.Touch.enable(stage);
 
-			    var canvas = document.createElement('canvas');
-			    canvas.width = w * ratio;
-			    canvas.height = h * ratio;
-			    canvas.style.width = w * winScale + 'px';
-			    canvas.style.height = h * winScale + 'px';
-			    canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);	
-			    return canvas;
-			}
-		};
-	});
-})();
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/js/Main.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Main</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="Main.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(mainlib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new mainlib.Main();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(mainlib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="648" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
+			// Scale canvas according to ratio
+			stage.scaleX = stage.scaleY = Environment.ratio;
+			stage.update();
 
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/fonts/BigNoodle/big_noodle_titling-demo.html',
-    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="specimen_files/easytabs.js" type="text/javascript" charset="utf-8"></script><link rel="stylesheet" href="specimen_files/specimen_stylesheet.css" type="text/css" charset="utf-8"><link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8"><style type="text/css">body{\n' +
-    '				font-family: \'bignoodletitlingregular\';\n' +
-    '							}</style><title>BigNoodleTitling Regular Specimen</title><script type="text/javascript">$(document).ready(function() {\n' +
-    '			$(\'#container\').easyTabs({defaultContent:1});\n' +
-    '		});</script></head><body><div id="container"><div id="header">BigNoodleTitling Regular</div><ul class="tabs"><li><a href="#specimen">Specimen</a></li><li><a href="#layout">Sample Layout</a></li><li><a href="#glyphs">Glyphs &amp; Languages</a></li><li><a href="#installing">Installing Webfonts</a></li></ul><div id="main_content"><div id="specimen"><div class="section"><div class="grid12 firstcol"><div class="huge">AaBb</div></div></div><div class="section"><div class="glyph_range">A&#x200B;B&#x200b;C&#x200b;D&#x200b;E&#x200b;F&#x200b;G&#x200b;H&#x200b;I&#x200b;J&#x200b;K&#x200b;L&#x200b;M&#x200b;N&#x200b;O&#x200b;P&#x200b;Q&#x200b;R&#x200b;S&#x200b;T&#x200b;U&#x200b;V&#x200b;W&#x200b;X&#x200b;Y&#x200b;Z&#x200b;a&#x200b;b&#x200b;c&#x200b;d&#x200b;e&#x200b;f&#x200b;g&#x200b;h&#x200b;i&#x200b;j&#x200b;k&#x200b;l&#x200b;m&#x200b;n&#x200b;o&#x200b;p&#x200b;q&#x200b;r&#x200b;s&#x200b;t&#x200b;u&#x200b;v&#x200b;w&#x200b;x&#x200b;y&#x200b;z&#x200b;1&#x200b;2&#x200b;3&#x200b;4&#x200b;5&#x200b;6&#x200b;7&#x200b;8&#x200b;9&#x200b;0&#x200b;&amp;&#x200b;.&#x200b;,&#x200b;?&#x200b;!&#x200b;&#64;&#x200b;(&#x200b;)&#x200b;#&#x200b;$&#x200b;%&#x200b;*&#x200b;+&#x200b;-&#x200b;=&#x200b;:&#x200b;;</div></div><div class="section"><div class="grid12 firstcol"><table class="sample_table"><tr><td>10</td><td class="size10">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>11</td><td class="size11">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>12</td><td class="size12">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>13</td><td class="size13">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>14</td><td class="size14">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>16</td><td class="size16">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>18</td><td class="size18">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>20</td><td class="size20">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>24</td><td class="size24">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>30</td><td class="size30">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>36</td><td class="size36">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>48</td><td class="size48">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>60</td><td class="size60">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>72</td><td class="size72">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr><tr><td>90</td><td class="size90">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</td></tr></table></div></div><div class="section" id="bodycomparison"><div id="xheight"><div class="fontbody">&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;&#x25FC;body</div><div class="arialbody">body</div><div class="verdanabody">body</div><div class="georgiabody">body</div></div><div class="fontbody" style="z-index:1">body<span>BigNoodleTitling Regular</span></div><div class="arialbody" style="z-index:1">body<span>Arial</span></div><div class="verdanabody" style="z-index:1">body<span>Verdana</span></div><div class="georgiabody" style="z-index:1">body<span>Georgia</span></div></div><div class="section psample psample_row1" id=""><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row2" id=""><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row4" id=""><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="white_blend"></div></div><div class="section psample psample_row1 fullreverse"><div class="grid2 firstcol"><p class="size10"><span>10.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size11"><span>11.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid3"><p class="size12"><span>12.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size13"><span>13.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample psample_row2 fullreverse"><div class="grid3 firstcol"><p class="size14"><span>14.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid4"><p class="size16"><span>16.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid5"><p class="size18"><span>18.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row3" id=""><div class="grid5 firstcol"><p class="size20"><span>20.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="grid7"><p class="size24"><span>24.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div><div class="section psample fullreverse psample_row4" id="" style="border-bottom: 20px #000 solid"><div class="grid12 firstcol"><p class="size30"><span>30.</span>Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue.</p></div><div class="black_blend"></div></div></div><div id="layout"><div class="section"><div class="grid12 firstcol"><h1>Lorem Ipsum Dolor</h1><h2>Etiam porta sem malesuada magna mollis euismod</h2><p class="byline">By <a href="#link">Aenean Lacinia</a></p></div></div><div class="section"><div class="grid8 firstcol"><p class="large">Donec sed odio dui. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><h3>Pellentesque ornare sem</h3><p>Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas faucibus mollis interdum. Donec ullamcorper nulla non metus auctor fringilla. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam id dolor id nibh ultricies vehicula ut id elit.</p><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p><p>Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Aenean lacinia bibendum nulla sed consectetur.</p><p>Nullam quis risus eget urna mollis ornare vel eu leo. Nullam quis risus eget urna mollis ornare vel eu leo. Maecenas sed diam eget risus varius blandit sit amet non magna. Donec ullamcorper nulla non metus auctor fringilla.</p><h3>Cras mattis consectetur</h3><p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Aenean lacinia bibendum nulla sed consectetur. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum.</p><p>Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna mollis ornare vel eu leo. Cras mattis consectetur purus sit amet fermentum.</p></div><div class="grid4 sidebar"><div class="box reverse"><p class="last">Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div><p class="caption">Maecenas sed diam eget risus varius.</p><p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Vestibulum id ligula porta felis euismod semper. Sed posuere consectetur est at lobortis. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p><p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Aenean lacinia bibendum nulla sed consectetur. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Aenean lacinia bibendum nulla sed consectetur. Nullam quis risus eget urna mollis ornare vel eu leo.</p><p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec ullamcorper nulla non metus auctor fringilla. Maecenas faucibus mollis interdum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p></div></div></div><div id="glyphs"><div class="section"><div class="grid12 firstcol"><h1>Language Support</h1><p>The subset of BigNoodleTitling Regular in this kit supports the following languages:<br></p><h1>Glyph Chart</h1><p>The subset of BigNoodleTitling Regular in this kit includes all the glyphs listed below. Unicode entities are included above each glyph to help you insert individual characters into your layout.</p><div id="glyph_chart"><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#33;</p>&#33;</div><div><p>&amp;#34;</p>&#34;</div><div><p>&amp;#35;</p>&#35;</div><div><p>&amp;#36;</p>&#36;</div><div><p>&amp;#37;</p>&#37;</div><div><p>&amp;#38;</p>&#38;</div><div><p>&amp;#39;</p>&#39;</div><div><p>&amp;#40;</p>&#40;</div><div><p>&amp;#41;</p>&#41;</div><div><p>&amp;#42;</p>&#42;</div><div><p>&amp;#43;</p>&#43;</div><div><p>&amp;#44;</p>&#44;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#46;</p>&#46;</div><div><p>&amp;#47;</p>&#47;</div><div><p>&amp;#48;</p>&#48;</div><div><p>&amp;#49;</p>&#49;</div><div><p>&amp;#50;</p>&#50;</div><div><p>&amp;#51;</p>&#51;</div><div><p>&amp;#52;</p>&#52;</div><div><p>&amp;#53;</p>&#53;</div><div><p>&amp;#54;</p>&#54;</div><div><p>&amp;#55;</p>&#55;</div><div><p>&amp;#56;</p>&#56;</div><div><p>&amp;#57;</p>&#57;</div><div><p>&amp;#58;</p>&#58;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#60;</p>&#60;</div><div><p>&amp;#61;</p>&#61;</div><div><p>&amp;#62;</p>&#62;</div><div><p>&amp;#63;</p>&#63;</div><div><p>&amp;#64;</p>&#64;</div><div><p>&amp;#65;</p>&#65;</div><div><p>&amp;#66;</p>&#66;</div><div><p>&amp;#67;</p>&#67;</div><div><p>&amp;#68;</p>&#68;</div><div><p>&amp;#69;</p>&#69;</div><div><p>&amp;#70;</p>&#70;</div><div><p>&amp;#71;</p>&#71;</div><div><p>&amp;#72;</p>&#72;</div><div><p>&amp;#73;</p>&#73;</div><div><p>&amp;#74;</p>&#74;</div><div><p>&amp;#75;</p>&#75;</div><div><p>&amp;#76;</p>&#76;</div><div><p>&amp;#77;</p>&#77;</div><div><p>&amp;#78;</p>&#78;</div><div><p>&amp;#79;</p>&#79;</div><div><p>&amp;#80;</p>&#80;</div><div><p>&amp;#81;</p>&#81;</div><div><p>&amp;#82;</p>&#82;</div><div><p>&amp;#83;</p>&#83;</div><div><p>&amp;#84;</p>&#84;</div><div><p>&amp;#85;</p>&#85;</div><div><p>&amp;#86;</p>&#86;</div><div><p>&amp;#87;</p>&#87;</div><div><p>&amp;#88;</p>&#88;</div><div><p>&amp;#89;</p>&#89;</div><div><p>&amp;#90;</p>&#90;</div><div><p>&amp;#91;</p>&#91;</div><div><p>&amp;#92;</p>&#92;</div><div><p>&amp;#93;</p>&#93;</div><div><p>&amp;#95;</p>&#95;</div><div><p>&amp;#96;</p>&#96;</div><div><p>&amp;#123;</p>&#123;</div><div><p>&amp;#124;</p>&#124;</div><div><p>&amp;#125;</p>&#125;</div><div><p>&amp;#32;</p>&#32;</div><div><p>&amp;#161;</p>&#161;</div><div><p>&amp;#162;</p>&#162;</div><div><p>&amp;#163;</p>&#163;</div><div><p>&amp;#165;</p>&#165;</div><div><p>&amp;#166;</p>&#166;</div><div><p>&amp;#167;</p>&#167;</div><div><p>&amp;#168;</p>&#168;</div><div><p>&amp;#169;</p>&#169;</div><div><p>&amp;#170;</p>&#170;</div><div><p>&amp;#171;</p>&#171;</div><div><p>&amp;#172;</p>&#172;</div><div><p>&amp;#45;</p>&#45;</div><div><p>&amp;#174;</p>&#174;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#176;</p>&#176;</div><div><p>&amp;#178;</p>&#178;</div><div><p>&amp;#179;</p>&#179;</div><div><p>&amp;#180;</p>&#180;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#182;</p>&#182;</div><div><p>&amp;#184;</p>&#184;</div><div><p>&amp;#185;</p>&#185;</div><div><p>&amp;#186;</p>&#186;</div><div><p>&amp;#187;</p>&#187;</div><div><p>&amp;#188;</p>&#188;</div><div><p>&amp;#189;</p>&#189;</div><div><p>&amp;#190;</p>&#190;</div><div><p>&amp;#191;</p>&#191;</div><div><p>&amp;#198;</p>&#198;</div><div><p>&amp;#215;</p>&#215;</div><div><p>&amp;#216;</p>&#216;</div><div><p>&amp;#222;</p>&#222;</div><div><p>&amp;#223;</p>&#223;</div><div><p>&amp;#247;</p>&#247;</div><div><p>&amp;#321;</p>&#321;</div><div><p>&amp;#338;</p>&#338;</div><div><p>&amp;#402;</p>&#402;</div><div><p>&amp;#710;</p>&#710;</div><div><p>&amp;#711;</p>&#711;</div><div><p>&amp;#175;</p>&#175;</div><div><p>&amp;#728;</p>&#728;</div><div><p>&amp;#729;</p>&#729;</div><div><p>&amp;#730;</p>&#730;</div><div><p>&amp;#731;</p>&#731;</div><div><p>&amp;#732;</p>&#732;</div><div><p>&amp;#733;</p>&#733;</div><div><p>&amp;#59;</p>&#59;</div><div><p>&amp;#181;</p>&#181;</div><div><p>&amp;#8211;</p>&#8211;</div><div><p>&amp;#8212;</p>&#8212;</div><div><p>&amp;#8216;</p>&#8216;</div><div><p>&amp;#8217;</p>&#8217;</div><div><p>&amp;#8220;</p>&#8220;</div><div><p>&amp;#8221;</p>&#8221;</div><div><p>&amp;#8224;</p>&#8224;</div><div><p>&amp;#8225;</p>&#8225;</div><div><p>&amp;#8226;</p>&#8226;</div><div><p>&amp;#8240;</p>&#8240;</div><div><p>&amp;#8249;</p>&#8249;</div><div><p>&amp;#8250;</p>&#8250;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#8364;</p>&#8364;</div><div><p>&amp;#8482;</p>&#8482;</div><div><p>&amp;#8722;</p>&#8722;</div><div><p>&amp;#8260;</p>&#8260;</div><div><p>&amp;#64257;</p>&#64257;</div><div><p>&amp;#64258;</p>&#64258;</div></div></div></div></div><div id="specs"></div><div id="installing"><div class="section"><div class="grid7 firstcol"><h1>Installing Webfonts</h1><p>Webfonts are supported by all major browser platforms but not all in the same way. There are currently four different font formats that must be included in order to target all browsers. This includes TTF, WOFF, EOT and SVG.</p><h2>1. Upload your webfonts</h2><p>You must upload your webfont kit to your website. They should be in or near the same directory as your CSS files.</p><h2>2. Include the webfont stylesheet</h2><p>A special CSS @font-face declaration helps the various browsers select the appropriate font it needs without causing you a bunch of headaches. Learn more about this syntax by reading the <a href="http://www.fontspring.com/blog/further-hardening-of-the-bulletproof-syntax">Fontspring blog post</a> about it. The code for it is as follows:</p><code>@font-face{ font-family: \'MyWebFont\'; src: url(\'WebFont.eot\'); src: url(\'WebFont.eot?#iefix\') format(\'embedded-opentype\'), url(\'WebFont.woff\') format(\'woff\'), url(\'WebFont.ttf\') format(\'truetype\'), url(\'WebFont.svg#webfont\') format(\'svg\'); }</code><p>We\'ve already gone ahead and generated the code for you. All you have to do is link to the stylesheet in your HTML, like this:</p><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;stylesheet.css&quot; type=&quot;text/css&quot; charset=&quot;utf-8&quot; /&gt;</code><h2>3. Modify your own stylesheet</h2><p>To take advantage of your new fonts, you must tell your stylesheet to use them. Look at the original @font-face declaration above and find the property called "font-family." The name linked there will be what you use to reference the font. Prepend that webfont name to the font stack in the "font-family" property, inside the selector you want to change. For example:</p><code>p { font-family: \'WebFont\', Arial, sans-serif; }</code><h2>4. Test</h2><p>Getting webfonts to work cross-browser <em>can</em> be tricky. Use the information in the sidebar to help you if you find that fonts aren\'t loading in a particular browser.</p></div><div class="grid5 sidebar"><div class="box"><h2>Troubleshooting<br>Font-Face Problems</h2><p>Having trouble getting your webfonts to load in your new website? Here are some tips to sort out what might be the problem.</p><h3>Fonts not showing in any browser</h3><p>This sounds like you need to work on the plumbing. You either did not upload the fonts to the correct directory, or you did not link the fonts properly in the CSS. If you\'ve confirmed that all this is correct and you still have a problem, take a look at your .htaccess file and see if requests are getting intercepted.</p><h3>Fonts not loading in iPhone or iPad</h3><p>The most common problem here is that you are serving the fonts from an IIS server. IIS refuses to serve files that have unknown MIME types. If that is the case, you must set the MIME type for SVG to "image/svg+xml" in the server settings. Follow these instructions from Microsoft if you need help.</p><h3>Fonts not loading in Firefox</h3><p>The primary reason for this failure? You are still using a version Firefox older than 3.5. So upgrade already! If that isn\'t it, then you are very likely serving fonts from a different domain. Firefox requires that all font assets be served from the same domain. Lastly it is possible that you need to add WOFF to your list of MIME types (if you are serving via IIS.)</p><h3>Fonts not loading in IE</h3><p>Are you looking at Internet Explorer on an actual Windows machine or are you cheating by using a service like Adobe BrowserLab? Many of these screenshot services do not render @font-face for IE. Best to test it on a real machine.</p><h3>Fonts not loading in IE9</h3><p>IE9, like Firefox, requires that fonts be served from the same domain as the website. Make sure that is the case.</p></div></div></div></div></div><div id="footer"><p>&copy;2010-2011 Font Squirrel. All rights reserved.</p></div></div></body></html>');
-}]);
-})();
+			// Tik tak - ticker
+			Tick.init(stage, 15);
+			Tick.enable();	
 
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/epilogue.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>epilogue</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="epilogue.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.epilogue();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/germany1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>germany1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="germany1.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.germany_1();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/horsens.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>horsens</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="horsens.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.horsens();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/horsens_second.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>horsens_second</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="horsens_second.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.horsens_second();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/sundholm.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>sundholm</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="sundholm.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.sundholm();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/sundholm_second.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>sundholm_second</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="sundholm_second.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.sundholm_second();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/svendborg.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>svendborg</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="svendborg.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.svendborg();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/games/svendborg_second.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>svendborg_second</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="svendborg_second.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(gamelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new gamelib.svendborg_second();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '	stage.enableMouseOver();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(gamelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="1024" height="540" style="background-color:#000000"></canvas></body></html>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('fattiggarden');
-} catch (e) {
-  module = angular.module('fattiggarden', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/fattiggarden/assets/logic/slides/slide_0_1.html',
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>slide_0_1</title><script src="http://code.createjs.com/easeljs-0.8.1.min.js"></script><script src="http://code.createjs.com/tweenjs-0.6.1.min.js"></script><script src="http://code.createjs.com/movieclip-0.8.1.min.js"></script><script src="http://code.createjs.com/preloadjs-0.6.1.min.js"></script><script src="slide_0_1.js"></script><script>var canvas, stage, exportRoot;\n' +
-    '\n' +
-    'function init() {\n' +
-    '	canvas = document.getElementById("canvas");\n' +
-    '	images = images||{};\n' +
-    '\n' +
-    '	var loader = new createjs.LoadQueue(false);\n' +
-    '	loader.addEventListener("fileload", handleFileLoad);\n' +
-    '	loader.addEventListener("complete", handleComplete);\n' +
-    '	loader.loadManifest(slidelib.properties.manifest);\n' +
-    '}\n' +
-    '\n' +
-    'function handleFileLoad(evt) {\n' +
-    '	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }\n' +
-    '}\n' +
-    '\n' +
-    'function handleComplete(evt) {\n' +
-    '	exportRoot = new slidelib.slide_0_1();\n' +
-    '\n' +
-    '	stage = new createjs.Stage(canvas);\n' +
-    '	stage.addChild(exportRoot);\n' +
-    '	stage.update();\n' +
-    '\n' +
-    '	createjs.Ticker.setFPS(slidelib.properties.fps);\n' +
-    '	createjs.Ticker.addEventListener("tick", stage);\n' +
-    '}</script></head><body onload="init()" style="background-color:#D4D4D4"><canvas id="canvas" width="580" height="404" style="background-color:#FFFFFF"></canvas></body></html>');
-}]);
-})();
+			// --------------------- Go start ->
+			ApplicationManager.start(vm.exportRoot);
+		}catch(err){
+			console.log(err);
+		}				
+	};
+	
+	// Start preload app
+	Preloader.load(vm.lib.properties.manifest, onFileLoad, onLoadComplete, 'full');
+});

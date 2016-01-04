@@ -4,8 +4,12 @@ var ApplicationManager = {
 		'use strict';
 		this.root = root;
 
+		PreloadGFX.preloader = this.root.preload_clip;
+
 		// // Init Environment info
 		// Environment.init();
+		ImageService.init();
+		SoundService.init();
 
 		// Cursor init
 		Cursor.root = root;
@@ -31,18 +35,9 @@ var ApplicationManager = {
 			console.log(err);
 		}
 			
-
-		// Fade black blocker out
-		// createjs.Tween.get(root.blocker_black)
-  //        .to({alpha: 0}, 600, createjs.Ease.linear)
-  //        .call(function(){
-  //        	root.blocker_black.visible = false;
-  //        });         
-
-
 		// Go to start
 		FlowManager.gotoPage('0.0');
-		// FlowManager.gotoPage('0.1');
+		// FlowManager.gotoPage('4.0');
 
 		//console.log('Ticker.framerate:', Ticker.framerate);
 	},

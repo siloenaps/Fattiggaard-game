@@ -1,55 +1,54 @@
 /**
 	Controller uses the browser's AUDIO element as play back for sound
 */
-function SoundController(audioPath, duration, loop) {
+function SoundController(audioPath, loopCount) {
 	'use strict';
 
 	var self = this;
 
-	if(loop === undefined || loop === null)
-		loop = false;
-	
-	this.sndObj = document.createElement('AUDIO');		
-	this.sndObj.src = audioPath;
-	this.sndObj.loop = loop;
-	this.duration = duration;
+	this.loopCount = loopCount;
+	if(loopCount === undefined || loopCount === null)
+		this.loopCount = false;	
 
-
-	// Firefox does not invoke the audio load method?! But setting load automated seems to work
-	if(Environment.browser.firefox){
-		this.sndObj.preload = 'auto';
-	}else{
-		this.sndObj.preload = 'none';
-	}
-
-	// LIsten for sound being ready 
-	this.sndObj.addEventListener('canplaythrough', function(event){
-		var e = new createjs.Event('ready');
- 		self.dispatchEvent(e);
-	}, false);
-	this.sndObj.addEventListener('ended', function(event){
- 		this.complete = true;
-	}, false);
+	this.audioPath = audioPath;
 }
-
+// SoundController.prototype.dispatcher = function(event){
+// 	this.dispatchEvent(event);
+// }
 SoundController.prototype = {
 	sndObj: null,
 	currentSndPosition: 0,
-	duration: 0,
 	paused: false,
 	self: this,
 	complete: false,
-
+	dispatcher: function(event){
+		this.dispatchEvent(event);
+	},
 	getState: function(){
 		return this.sndObj.state;
 	},
 	load: function(){
 		'use strict';
-		// Firefox does not invoke the audio load function?! 
-		// So load has been set 'auto' so we don't need to invoke the load method
-		if(!Environment.browser.firefox){			
-			this.sndObj.load();
-		}
+		var self = this;
+		// Howler
+		this.sndObj = new Howl({
+		  urls: [this.audioPath],
+		  autoplay: false,
+		  loop: this.loopCount,
+		  volume: 1,
+		  buffer: false,
+		  onend: function() {
+		    self.complete = true;
+		    self.dispatcher(new createjs.Event('complete'));
+		  },
+		  onload: function() {		    
+		    self.dispatcher(new createjs.Event('ready'));
+		    console.log('SoundController.onload');
+		    PreloadGFX.hide();
+		  }
+		}); 
+
+		PreloadGFX.show(false);
 	},
 	volume: function(value) {
 		'use strict';
@@ -66,14 +65,14 @@ SoundController.prototype = {
 	},
 	stop: function() {
 		'use strict';
-		this.sndObj.pause();
-		this.sndObj.currentTime = 0;
+		this.sndObj.stop();
+		// this.sndObj.currentTime = 0;
 		this.paused = false;
 		this.sndObj.state = 'stop';
 	},
 	pause: function() {
 		'use strict';
-		this.currentSndPosition = this.sndObj.currentTime;
+		// this.currentSndPosition = this.sndObj.currentTime;
 		this.sndObj.pause();
 		this.paused = true;
 		this.sndObj.state = 'pause';
@@ -84,7 +83,8 @@ SoundController.prototype = {
 	},
 	progress: function(){
 		'use strict';
-		var num = this.sndObj.currentTime / this.duration;
+		var num = this.sndObj.pos() / this.sndObj._duration;
+		// $('.debug').text('position:'+ this.sndObj.pos() +', '+ this.sndObj._duration);
 		return Math.round(num * 1000) / 1000; // Cap to 3 decimals
 	},
 	isComplete: function(){

@@ -11,14 +11,13 @@ lib.properties = {
 	manifest: [
 		{src:"../../../assets/images/pool/_22.jpg", id:"_22"},
 		{src:"../../../assets/images/pool/_23RecruimentOffice.jpg", id:"_23RecruimentOffice"},
-		{src:"../../../assets/images/pool/_27BGGermany1JobA.jpg", id:"_27BGGermany1JobA"},
 		{src:"../../../assets/images/pool/_27BGGermany1JobB.jpg", id:"_27BGGermany1JobB"},
 		{src:"../../../assets/images/pool/_27BGGermany1JobC.jpg", id:"_27BGGermany1JobC"},
 		{src:"../../../assets/images/pool/_2_10_letter.png", id:"_2_10_letter"},
-		{src:"../../../assets/images/pool/_2_8BG.jpg", id:"_2_8BG"},
 		{src:"../../../assets/images/pool/_4_10_1BG.jpg", id:"_4_10_1BG"},
 		{src:"../../../assets/images/pool/_4_10_4BG.jpg", id:"_4_10_4BG"},
 		{src:"../../../assets/images/pool/_4_10_7BG.jpg", id:"_4_10_7BG"},
+		{src:"../../../assets/images/pool/_4_10_8.jpg", id:"_4_10_8"},
 		{src:"../../../assets/images/pool/_4_3BG.jpg", id:"_4_3BG"},
 		{src:"../../../assets/images/pool/_4_5_2BG.jpg", id:"_4_5_2BG"},
 		{src:"../../../assets/images/pool/_4_6BG.jpg", id:"_4_6BG"},
@@ -66,12 +65,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._27BGGermany1JobA = function() {
-	this.initialize(img._27BGGermany1JobA);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
 (lib._27BGGermany1JobB = function() {
 	this.initialize(img._27BGGermany1JobB);
 }).prototype = p = new cjs.Bitmap();
@@ -90,12 +83,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,703,340);
 
 
-(lib._2_8BG = function() {
-	this.initialize(img._2_8BG);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
 (lib._4_10_1BG = function() {
 	this.initialize(img._4_10_1BG);
 }).prototype = p = new cjs.Bitmap();
@@ -110,6 +97,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 (lib._4_10_7BG = function() {
 	this.initialize(img._4_10_7BG);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._4_10_8 = function() {
+	this.initialize(img._4_10_8);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -283,6 +276,20 @@ p.nominalBounds = new cjs.Rectangle(0,0,279,75);
 p.nominalBounds = new cjs.Rectangle(0,0,485,10);
 
 
+(lib._4108PageIntermezzo = function() {
+	this.initialize();
+
+	// Text
+	this.text = new cjs.Text("De mænd, som rejste til Tyskland fra fattiggårde i Danmark\nkæmpede alle videre efter hjemkomsten til fædrelandet,\nmen kampen var hård for dem alle, og langt de fleste endte\nhurtigt bag mure, voldgrave og pigtråd på ny. \n101 forskellige autentiske skæbner udgør kildegrundlaget\nfor dette spil. De oplevelser og scenarier du har oplevet i\nspillet er således også autentiske. Blandt disse 101\nskæbner findes ikke en eneste solstrålehistorie, her\nfindes ingen lykkelige slutninger...\n\nPå den følgende side kan du høre, hvordan det gik dig\nsidenhen.  ", "24px 'Special Elite'", "#DBD8BA");
+	this.text.lineHeight = 26;
+	this.text.lineWidth = 779;
+	this.text.setTransform(141,100);
+
+	this.addChild(this.text);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(141,100,782.9,402);
+
+
 (lib._4106PagePoints6 = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{A:0,B:1});
 
@@ -361,7 +368,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,606.2,271.1);
 	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Du vender hjem med penge på\nlommen"},0).wait(1));
 
 	// Layer 3
-	this.text_1 = new cjs.Text("humør", "28px 'BigNoodleTitling'");
+	this.text_1 = new cjs.Text("penge", "28px 'BigNoodleTitling'");
 	this.text_1.textAlign = "center";
 	this.text_1.lineHeight = 30;
 	this.text_1.lineWidth = 106;
@@ -375,7 +382,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,606.2,271.1);
 	this.text_2.lineWidth = 584;
 	this.text_2.setTransform(212,40);
 
-	this.text_3 = new cjs.Text("-1", "48px 'Special Elite'", "#FFFFFF");
+	this.text_3 = new cjs.Text("-2", "48px 'Special Elite'", "#FFFFFF");
 	this.text_3.textAlign = "center";
 	this.text_3.lineHeight = 50;
 	this.text_3.lineWidth = 145;
@@ -387,7 +394,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,606.2,271.1);
 	this.instance_1 = new lib.PointPositiv();
 	this.instance_1.setTransform(238.8,126);
 
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance},{t:this.text_3,p:{text:"-1"}},{t:this.text_2}]}).to({state:[{t:this.instance_1},{t:this.text_3,p:{text:"+1"}},{t:this.text_2}]},1).wait(1));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance},{t:this.text_3,p:{text:"-2"}},{t:this.text_2}]}).to({state:[{t:this.instance_1},{t:this.text_3,p:{text:"+2"}},{t:this.text_2}]},1).wait(1));
 
 	// Layer 2
 	this.instance_2 = new lib.PointEnkeltBG();
@@ -541,7 +548,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 	this.text.lineWidth = 145;
 	this.text.setTransform(323.5,150);
 
-	this.text_1 = new cjs.Text("Du glæder dig til at komme\nud af anstalten og tjene \npenge", "18px 'Special Elite'");
+	this.text_1 = new cjs.Text("Du glæder dig til at komme \ntil Tyskland og tjene nogle\npenge", "18px 'Special Elite'");
 	this.text_1.lineHeight = 20;
 	this.text_1.lineWidth = 286;
 	this.text_1.setTransform(529.8,137);
@@ -764,6 +771,17 @@ p.nominalBounds = new cjs.Rectangle(5,3,83,30);
 p.nominalBounds = null;
 
 
+(lib.Background4108 = function() {
+	this.initialize();
+
+	// Layer 1
+	this.instance = new lib._4_10_8();
+
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
 (lib.Background4107 = function() {
 	this.initialize();
 
@@ -808,7 +826,18 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib.Background452 = function(mode,startPosition,loop) {
+(lib.Background452 = function() {
+	this.initialize();
+
+	// Layer 1
+	this.instance = new lib._27BGGermany1JobB();
+
+	this.addChild(this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib.Background451 = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{"A":0,"B":1,C:2});
 
 	// timeline functions:
@@ -821,28 +850,6 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 	// Layer 1
 	this.instance = new lib._4_5_2BG();
-
-	this.instance_1 = new lib._2_8BG();
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_1}]},1).wait(1));
-
-}).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
-
-
-(lib.Background451 = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"A":0,"B":1,"C":2});
-
-	// timeline functions:
-	this.frame_0 = function() {
-		this.stop();
-	}
-
-	// actions tween:
-	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(3));
-
-	// Layer 1
-	this.instance = new lib._27BGGermany1JobA();
 
 	this.instance_1 = new lib._27BGGermany1JobB();
 
@@ -1596,6 +1603,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(26));
 
+	// 4.10.8 Intermezzo
+	this.intermezzo = new lib._4108PageIntermezzo();
+	this.intermezzo.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.intermezzo).wait(26));
+
 	// 4.10.7 Going Home
 	this.goinghome = new lib._4107PageGoingHome();
 	this.goinghome.setTransform(1024,0);
@@ -1703,6 +1716,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.choosejob.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.choosejob).wait(26));
+
+	// 4.10.8
+	this.bg_4_10_8 = new lib.Background4108();
+	this.bg_4_10_8.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_4_10_8).wait(26));
 
 	// 4.10.7
 	this.bg_4_10_7 = new lib.Background4107();

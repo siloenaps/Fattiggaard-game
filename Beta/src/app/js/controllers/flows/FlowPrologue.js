@@ -58,8 +58,8 @@ var FlowPrologue = function(container){
 			this.flow.addAction('0.2.3', Delegate.create(this.family, this), '0.2.4');
 			this.flow.addAction('0.2.4', Delegate.create(this.nickname, this), '0.3');
 			this.flow.addAction('0.3', Delegate.create(this.card, this), '0.4');
-			this.flow.addAction('0.4', Delegate.create(this.opinion, this), '0.5');
-			this.flow.addAction('0.5', Delegate.create(this.map, this), 'end');
+			this.flow.addAction('0.4', Delegate.create(this.opinion, this), 'end');
+			// this.flow.addAction('0.5', Delegate.create(this.map, this), 'end');
 			this.flow.addAction('end', Delegate.create(
 				function(){
 					self.removeEvents();
@@ -150,7 +150,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_intro;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			}, this));
 
 			// Next
@@ -171,7 +171,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_challenge;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));
 
 			// Checkboxes
@@ -213,7 +213,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_family;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));			
 
 			// Checkboxes
@@ -254,7 +254,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.character_nickname;
 			Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));	
 
 			// Checkboxes
@@ -302,13 +302,14 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.page_card;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-				Tick.disable();
+				Tick.framerate(Tick.low);
 			}, this));
 
 			// Set portrait a real name
 			var frm = PlayerStats.challenge + PlayerStats.family;
 			this.currentPage.portrait.gotoAndStop(frm);
 			this.currentPage.realname.gotoAndStop(frm);
+			this.currentPage.height.gotoAndStop(frm);
 
 			// Set nickname
 			frm = PlayerStats.nickname - 1; // Timeline frame number starts at 0 and nickname refs starts at 1
@@ -348,18 +349,20 @@ var FlowPrologue = function(container){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
 					self.continueBtn.activate('next');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
 					self.continueBtn.activate('skip');
-					Tick.disable();
+					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
 			}, this));
 
-			// Set portrait of speaking character
+			// Set portrait + text realted to speaking character
 			var frm = PlayerStats.challenge + PlayerStats.family;
-			this.currentPage.portrait.gotoAndStop(frm);			
+			this.currentPage.portrait.gotoAndStop(frm);	
+			this.currentPage.playerlabel.gotoAndStop(frm);
+			this.currentPage.charactertext.gotoAndStop(frm);
 
 			// Reuse player component var for sound
 			this.playerComponent = null;
@@ -382,7 +385,7 @@ var FlowPrologue = function(container){
 			var previousPage = this.currentPage;
 			this.currentPage = this.view.page_map;
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
-				Tick.framerate(8);
+				Tick.framerate(Tick.medium);
 			}, this));	
 
 			// Checkboxes

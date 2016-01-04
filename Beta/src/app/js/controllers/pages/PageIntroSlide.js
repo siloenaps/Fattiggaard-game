@@ -39,7 +39,7 @@ PageIntroSlide.prototype.start = function(flowId, slideName){
 };
 PageIntroSlide.prototype.setup = function(){
 	'use strict';
-	// console.log('PageIntroSlide::setup:runonce', this.runonce);
+	console.log('PageIntroSlide::setup:runonce', this.container);
 
 	if(this.runonce != null)
 		return;
@@ -48,7 +48,7 @@ PageIntroSlide.prototype.setup = function(){
 	this.runonce = true;
 
 	// Tick
-	Tick.framerate(15);
+	Tick.framerate(Tick.high);
 
 	var self = this;
 	var manifest, Clss;	
@@ -63,7 +63,28 @@ PageIntroSlide.prototype.setup = function(){
 		}, this)
 	);
 
+	this.addContent();
+	// Set background image
+	// this.addBgImage();
+	// this.dispatchEvent(new createjs.Event('ready'));
+	
+};
+// PageIntroSlide.prototype.addContent = function(){
+// 	// console.log('PageIntroSlide::setup:flowId', this.flowId);
+// 	this.lib = gamelib;
+// 	this.slideLib = slidelib;
+// 	Clss = this.lib.poorhouse_intro;
+// 	manifest = this.lib.properties.manifest;
+
+// 	// Instantiate view
+// 	this.view = new Clss();
+
+// 	//Add
+// 	this.container.addChild(self.view);
+// }
+PageIntroSlide.prototype.addContent = function(){
 	// console.log('PageIntroSlide::setup:flowId', this.flowId);
+	var self = this;
 	this.lib = gamelib;
 	this.slideLib = slidelib;
 	Clss = this.lib.poorhouse_intro;
@@ -76,8 +97,20 @@ PageIntroSlide.prototype.setup = function(){
 		}else{
 			this.bgImage = ImageService.matrix[this.flowId][PlayerStats.poorhouse];// './assets/images/pool/_1_0BGsvendborg.jpg';			
 		}
-		manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
-		
+
+		var tmpList = this.bgImage.src.split('/');	// SPlit url into an array
+		var filename = tmpList[tmpList.length-1];	// Get filename
+		var fileId = filename.split('.')[0];		// Filename without postfix 
+
+		// manifest.push({src: this.bgImage.src, id: fileId});	
+		// manifest.push({src: this.bgImage.src, id: this.bgImage.id});	
+
+		// for(var i in manifest){
+		// 	console.log('manifest: ', manifest[i].id, manifest[i].src)
+		// }
+		// for(var i in images){
+		// 	console.log('images: ', images[i])
+		// }
 
 	}catch(err){
 		// console.log(PlayerStats.poorhouse, this.bgImage);
@@ -92,6 +125,7 @@ PageIntroSlide.prototype.setup = function(){
 		}
 	};
 	var onLoadComplete = function(event){
+		console.log('onLoadComplete');
 		// Instantiate view
 		self.view = new Clss();
 
@@ -104,9 +138,9 @@ PageIntroSlide.prototype.setup = function(){
 		// console.log('PageIntroSlide:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
+
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
-	// console.log('manifest:', manifest);
-};
+}
 PageIntroSlide.prototype.next = function(){
 	'use strict';
 	this.flow.next(this.trigger);	
@@ -176,6 +210,7 @@ PageIntroSlide.prototype.intro = function(trigger){
 	this.view.bg_container.x = 0;
 
 	// Background
+	console.log('this.bgImage.src:', this.bgImage.src);
 	var bitmap = new createjs.Bitmap(this.bgImage.src);	
 	this.view.bg_container.addChild(bitmap);
 
@@ -184,7 +219,7 @@ PageIntroSlide.prototype.intro = function(trigger){
 	this.listeners.complete = self.playerComponent.on('complete', function(event){
 		// console.log('PageIntroSlide::complete');
 		self.continueBtn.activate('next');
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, self);
 	this.playerComponent.on('ready', function(event){
 		event.remove();		
@@ -192,7 +227,7 @@ PageIntroSlide.prototype.intro = function(trigger){
 		// self.dispatchEvent(new createjs.Event('ready'));
 		// console.log('PageIntroSlide::ready');
 		// No tick
-		// Tick.disable();
+		// Tick.framerate(Tick.low);
 		// console.log('NB. Disabled tick-disablign as test in PageIntroSlide');
 	});
 	// // console.log(this.slideLib)

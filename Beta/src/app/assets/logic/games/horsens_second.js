@@ -9,14 +9,14 @@ lib.properties = {
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../../../assets/images/pool/_112_letter_bg.png", id:"_112_letter_bg"},
-		{src:"../../../assets/images/pool/_112_letter_text.png", id:"_112_letter_text"},
 		{src:"../../../assets/images/pool/_1_1BGhorsens.jpg", id:"_1_1BGhorsens"},
 		{src:"../../../assets/images/pool/_1_2BGhorsensA.jpg", id:"_1_2BGhorsensA"},
 		{src:"../../../assets/images/pool/_1_2BGhorsensB.jpg", id:"_1_2BGhorsensB"},
 		{src:"../../../assets/images/pool/_1_2BGhorsensC.jpg", id:"_1_2BGhorsensC"},
-		{src:"../../../assets/images/pool/_1_3BGhorsens.jpg", id:"_1_3BGhorsens"},
+		{src:"../../../assets/images/pool/_1_3BGhorsensNY.jpg", id:"_1_3BGhorsensNY"},
+		{src:"../../../assets/images/pool/_1_3BGhorsensNY2.jpg", id:"_1_3BGhorsensNY2"},
 		{src:"../../../assets/images/pool/_1_4BG.jpg", id:"_1_4BG"},
+		{src:"../../../assets/images/pool/_23RecruimentOffice.jpg", id:"_23RecruimentOffice"},
 		{src:"../../../assets/images/pool/_3_6BG.jpg", id:"_3_6BG"},
 		{src:"../../../assets/images/pool/ADCloseUp.png", id:"ADCloseUp"},
 		{src:"../../../assets/images/pool/AECloseUp.png", id:"AECloseUp"},
@@ -54,18 +54,6 @@ lib.properties = {
 
 
 
-(lib._112_letter_bg = function() {
-	this.initialize(img._112_letter_bg);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,465,449);
-
-
-(lib._112_letter_text = function() {
-	this.initialize(img._112_letter_text);
-}).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,415,318);
-
-
 (lib._1_1BGhorsens = function() {
 	this.initialize(img._1_1BGhorsens);
 }).prototype = p = new cjs.Bitmap();
@@ -90,14 +78,26 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._1_3BGhorsens = function() {
-	this.initialize(img._1_3BGhorsens);
+(lib._1_3BGhorsensNY = function() {
+	this.initialize(img._1_3BGhorsensNY);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._1_3BGhorsensNY2 = function() {
+	this.initialize(img._1_3BGhorsensNY2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
 (lib._1_4BG = function() {
 	this.initialize(img._1_4BG);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._23RecruimentOffice = function() {
+	this.initialize(img._23RecruimentOffice);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -833,6 +833,21 @@ p.nominalBounds = new cjs.Rectangle(-1,-1,22,22);
 p.nominalBounds = null;
 
 
+(lib.Background3_8 = function() {
+	this.initialize();
+
+	// Layer 3
+	this.instance = new lib.horsens_title();
+	this.instance.setTransform(16,14);
+
+	// Layer 2
+	this.instance_1 = new lib._23RecruimentOffice();
+
+	this.addChild(this.instance_1,this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
 (lib.Background3_7 = function() {
 	this.initialize();
 
@@ -863,13 +878,32 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
+(lib.Background3_4_2 = function() {
+	this.initialize();
+
+	// Layer 2
+	this.instance = new lib.horsens_title();
+	this.instance.setTransform(16,14);
+
+	// Layer 1
+	this.instance_1 = new lib._1_3BGhorsensNY2();
+
+	this.addChild(this.instance_1,this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
 (lib.Background3_3 = function() {
 	this.initialize();
 
-	// Layer 1
-	this.instance = new lib._1_3BGhorsens();
+	// Layer 2
+	this.instance = new lib.horsens_title();
+	this.instance.setTransform(16,14);
 
-	this.addChild(this.instance);
+	// Layer 1
+	this.instance_1 = new lib._1_3BGhorsensNY();
+
+	this.addChild(this.instance_1,this.instance);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -1477,7 +1511,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 	this.player = new lib.PlayerAudio();
 	this.player.setTransform(501.5,241,1,1,0,0,0,289.5,17);
 
-	this.text = new cjs.Text("Tilbage på Fattiggården…", "48px 'Special Elite'", "#FFFFFF");
+	this.text = new cjs.Text("På landevejen igen...", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
 	this.text.lineWidth = 737;
 	this.text.setTransform(210,38);
@@ -1528,7 +1562,7 @@ p.nominalBounds = new cjs.Rectangle(210,38,615,355);
 	this.initialize();
 
 	// Text
-	this.text = new cjs.Text("Få et godt råd af en indsat", "48px 'Special Elite'", "#FFFFFF");
+	this.text = new cjs.Text("Få et godt råd af en indlagt", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
 	this.text.lineWidth = 800;
 	this.text.setTransform(210,38);
@@ -1642,17 +1676,9 @@ p.nominalBounds = new cjs.Rectangle(210,38,803.8,219.8);
 	this.text_3.lineWidth = 584;
 	this.text_3.setTransform(121,38);
 
-	// Text png
-	this.instance = new lib._112_letter_text();
-	this.instance.setTransform(603.5,102);
-
-	// Letter
-	this.instance_1 = new lib._112_letter_bg();
-	this.instance_1.setTransform(559,91);
-
-	this.addChild(this.instance_1,this.instance,this.text_3,this.text_2,this.text_1,this.text,this.checkbox1,this.checkbox2,this.checkbox3);
+	this.addChild(this.text_3,this.text_2,this.text_1,this.text,this.checkbox1,this.checkbox2,this.checkbox3);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(121,38,903,534.5);
+p.nominalBounds = new cjs.Rectangle(121,38,903,502);
 
 
 // stage content:
@@ -1751,6 +1777,12 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,534.5);
 
 	this.timeline.addTween(cjs.Tween.get(this.choosework).wait(26));
 
+	// 3.8
+	this.bg_3_8 = new lib.Background3_8();
+	this.bg_3_8.setTransform(1025,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_3_8).wait(26));
+
 	// 3.7
 	this.bg_3_7 = new lib.Background3_7();
 	this.bg_3_7.setTransform(1025,0);
@@ -1762,6 +1794,12 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,534.5);
 	this.bg_3_6.setTransform(1024,0);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_3_6).wait(26));
+
+	// 3.4.2
+	this.bg_3_4_2 = new lib.Background3_4_2();
+	this.bg_3_4_2.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_3_4_2).wait(26));
 
 	// 3.3
 	this.bg_3_3 = new lib.Background3_3();

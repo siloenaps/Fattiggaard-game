@@ -1,3 +1,15 @@
+2015.12.09
+Test for implet i web
+må lave en del hack for at få path til at passe med web
+parser vhj af Path.js
+justerer url i manifest
+men har problemer med bagbilleder til introer
+bla bliver et billede 0_1BG forsøgt loaded seæv om det ser ud tl at jeg ikke sætter det i manifest. weird
+og hardcoder jeg path i ImaeService til assets/game/assets/images/pool, bliver path sat doblet op. crazy
+noget er helt galt et sted
+evt hack er at lægge bgbilleder til introer ind i flash igen
+
+
 2015.09.15
 Flow/manus
 From 1.4 to 1.5 to 1.6 is onot quite ready in manus yet.

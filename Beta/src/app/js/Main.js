@@ -1,4 +1,4 @@
-(function (lib, img, cjs, ss) {
+;(function (lib, img, cjs, ss) {
 
 var p; // shortcut to reference prototypes
 
@@ -9,7 +9,8 @@ lib.properties = {
 	fps: 24,
 	color: "#000000",
 	manifest: [
-		{src:"../assets/images/pool/_0_0Frontpage.jpg", id:"_0_0Frontpage"}
+		{src:"../assets/images/pool/_0_0Frontpage.jpg", id:"_0_0Frontpage"},
+		{src:"../assets/images/pool/Bitmap33.jpg", id:"Bitmap33"}
 	]
 };
 
@@ -23,6 +24,46 @@ lib.properties = {
 	this.initialize(img._0_0Frontpage);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
+
+
+(lib.Bitmap33 = function() {
+	this.initialize(img.Bitmap33);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,641,270);
+
+
+(lib.PreloaderSquares = function() {
+	this.initialize();
+
+	// Layer 1
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("rgba(194,45,27,0.329)").s().p("AgxAxIAAhiIBiAAIAABig");
+	this.shape.setTransform(5,5);
+
+	this.shape_1 = new cjs.Shape();
+	this.shape_1.graphics.f("rgba(194,45,27,0.659)").s().p("AgxAxIAAhiIBiAAIAABig");
+	this.shape_1.setTransform(17,5);
+
+	this.shape_2 = new cjs.Shape();
+	this.shape_2.graphics.f("rgba(194,45,27,0.898)").s().p("AgxAxIAAhiIBiAAIAABig");
+	this.shape_2.setTransform(17,17);
+
+	this.addChild(this.shape_2,this.shape_1,this.shape);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,22,22);
+
+
+(lib.preloaderbar = function() {
+	this.initialize();
+
+	// Layer 1
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("rgba(255,255,255,0.6)").s().p("EhP/AAeIAAg7MCf/AAAIAAA7g");
+	this.shape.setTransform(512,3);
+
+	this.addChild(this.shape);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,6);
 
 
 (lib.PageContainerEmpty = function() {
@@ -117,6 +158,32 @@ p.nominalBounds = new cjs.Rectangle(0,0,94,94);
 p.nominalBounds = new cjs.Rectangle(0,0,120,120);
 
 
+(lib.preloadersquaresanim = function(mode,startPosition,loop) {
+	this.initialize(mode,startPosition,loop,{});
+
+	// Layer 1
+	this.instance = new lib.PreloaderSquares("synched",0);
+	this.instance.setTransform(11,11,1,1,0,0,0,11,11);
+	this.instance.filters = [new cjs.ColorFilter(0, 0, 0, 1, 204, 204, 204, 0)];
+	this.instance.cache(-2,-2,26,26);
+
+	this.timeline.addTween(cjs.Tween.get(this.instance).wait(4).to({rotation:90},0).wait(5).to({rotation:180},0).wait(5).to({rotation:270},0).wait(5));
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,22,22);
+
+
+(lib.preloader = function() {
+	this.initialize();
+
+	// Layer 2
+	this.bar = new lib.preloaderbar();
+
+	this.addChild(this.bar);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(-1,-1,1026,8);
+
+
 (lib.ContinueButton = function() {
 	this.initialize();
 
@@ -135,6 +202,26 @@ p.nominalBounds = new cjs.Rectangle(0,0,120,120);
 p.nominalBounds = new cjs.Rectangle(0,0,96,96);
 
 
+(lib.PreloaderMain = function() {
+	this.initialize();
+
+	// Square
+	this.instance = new lib.preloadersquaresanim();
+	this.instance.setTransform(5,10,2.273,2.273);
+
+	// Progress Bar
+	this.progress_bar = new lib.preloader();
+
+	// BG
+	this.shape = new cjs.Shape();
+	this.shape.graphics.f("rgba(0,0,0,0.329)").s().p("EhP/AyoMAAAhlPMCf/AAAMAAABlPg");
+	this.shape.setTransform(512,324);
+
+	this.addChild(this.shape,this.progress_bar,this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
+
+
 // stage content:
 (lib.Main = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{preload:4,frontpage:14,start:24,character_build:33,poohouse:48,germany:58});
@@ -146,6 +233,11 @@ p.nominalBounds = new cjs.Rectangle(0,0,96,96);
 
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(84));
+
+	// Preloader Bar
+	this.preload_clip = new lib.PreloaderMain();
+
+	this.timeline.addTween(cjs.Tween.get(this.preload_clip).wait(84));
 
 	// Blocker
 	this.blocker_black = new lib.BlockerBLACK();
@@ -176,6 +268,12 @@ p.nominalBounds = new cjs.Rectangle(0,0,96,96);
 	this.instance._off = true;
 
 	this.timeline.addTween(cjs.Tween.get(this.instance).wait(14).to({_off:false},0).to({_off:true},10).wait(60));
+
+	// Layer 1
+	this.instance_1 = new lib.Bitmap33();
+	this.instance_1.setTransform(171,137);
+
+	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(84));
 
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(502,324,1044,768);

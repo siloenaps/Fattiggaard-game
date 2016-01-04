@@ -55,7 +55,8 @@ FlowGermany2.prototype.setup = function(){
 	this.flow.addAction('4.10.4', Delegate.create(this.illness, this), '4.10.5');
 	this.flow.addAction('4.10.5', Delegate.create(this.choose2, this), '4.10.6');
 	this.flow.addAction('4.10.6', Delegate.create(this.points6, this), '4.10.7');
-	this.flow.addAction('4.10.7', Delegate.create(this.goingHome, this), 'end');
+	this.flow.addAction('4.10.7', Delegate.create(this.goingHome, this), '4.10.8');
+	this.flow.addAction('4.10.8', Delegate.create(this.intermezzo, this), 'end');
 	this.flow.addAction('end', Delegate.create(
 		function(){
 			self.removeEvents();
@@ -170,7 +171,7 @@ FlowGermany2.prototype.chooseJobGermany = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choosejob;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Next in flow
@@ -213,7 +214,7 @@ FlowGermany2.prototype.recruitementLetter = function(trigger){
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.recruitementletter;
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 	// Dropdowns
@@ -245,7 +246,7 @@ FlowGermany2.prototype.points1 = function(trigger) {
 		PlayerStats.append('money', 1);
 		PlayerStats.append('mood', 1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -272,7 +273,7 @@ FlowGermany2.prototype.traveling = function(trigger){
 				Delegate.create(function(){
 					// Slide. Loading is self contained
 					self.slideLib = slidelib;	
-					self.playerComponent = new PlayerSliderComponent(self.currentPage.player, 13); // Added delay of sound start (frame 14)
+					self.playerComponent = new PlayerSliderComponent(self.currentPage.player); // Added delay of sound start (frame 14)
 					self.listeners.complete = self.playerComponent.on('complete', function(event){
 						self.continueBtn.activate('next');
 					}, self);
@@ -297,11 +298,8 @@ FlowGermany2.prototype.work = function(trigger){
 	var self = this;
 
 	// Get work related assets
-	var bg, slidePath, slideName;
+	var slidePath, slideName;
 	try{
-		bg = this.view.bg_4_5_1; // Index 0 is job choice for the first time in Germany [A,B,C]
-		bg.gotoAndStop(PlayerStats.job_germany[1]);
-
 		// Get path to slide script
 		var combi = PlayerStats.job_germany[0]+PlayerStats.job_germany[1];
 		slideName = 'slide_4_5_1_' + combi; // E.g. slide_4_5_1_AC
@@ -310,8 +308,9 @@ FlowGermany2.prototype.work = function(trigger){
 		console.log(err);
 	}	
 
-	// Set background
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
+	// Set background and frame for specific job
+	this.view.bg_4_5_1.gotoAndStop(PlayerStats.job_germany[1]);
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_5_1);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -346,9 +345,7 @@ FlowGermany2.prototype.points2 = function(trigger) {
 	this.trigger = trigger;
 
 	// Set background
-	var bg = this.view.bg_4_5_2; // Index 0 is job choice for the first time in Germany [A,B,C]
-	bg.gotoAndStop(PlayerStats.job_germany[1]);	
-	this.currentBackground = Transitions.changeBackground(this.currentBackground, bg);
+	// this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_5_2);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -356,7 +353,7 @@ FlowGermany2.prototype.points2 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
 		PlayerStats.append('money', 2);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -372,7 +369,7 @@ FlowGermany2.prototype.points3 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 		PlayerStats.append('money', -1);
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -398,11 +395,11 @@ FlowGermany2.prototype.danskFront = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -429,7 +426,7 @@ FlowGermany2.prototype.chooseParticipation = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.chooseparticipation;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -476,7 +473,7 @@ FlowGermany2.prototype.points4 = function(trigger) {
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -544,11 +541,11 @@ FlowGermany2.prototype.theBomb = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -585,11 +582,11 @@ FlowGermany2.prototype.illness = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -618,7 +615,7 @@ FlowGermany2.prototype.choose1 = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choose1;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -660,14 +657,14 @@ FlowGermany2.prototype.points5 = function(trigger) {
 	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 		switch(previousChoice){
 			case 'A':
-				PlayerStats.append('money', -1);
+				PlayerStats.append('money', -2);
 			break;
 			case 'B':
-				PlayerStats.append('money', 1);
+				PlayerStats.append('money', 2);
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -685,7 +682,7 @@ FlowGermany2.prototype.choose2 = function(trigger) {
 	var previousPage = this.currentPage;
 	this.currentPage = this.view.choose1;
 	Transitions.inOut({element: this.currentPage, prop: 'pos'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
-		Tick.framerate(5);
+		Tick.framerate(Tick.low);
 	}, this));
 
 		// Checkboxes
@@ -734,7 +731,7 @@ FlowGermany2.prototype.points6 = function(trigger) {
 			break;
 		}
 		Topbar.pointsUpdate();
-		Tick.disable();
+		Tick.framerate(Tick.low);
 	}, this));
 
 	this.continueBtn.activate('next');
@@ -760,11 +757,11 @@ FlowGermany2.prototype.goingHome = function(trigger){
 		// Sound Player
 		self.listeners.complete = self.playerComponent.on('complete', function(event){
 			self.continueBtn.activate('next');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.on('ready', function(event){
 			self.continueBtn.activate('skip');
-			Tick.disable();
+			Tick.framerate(Tick.low);
 		}, self);
 		self.playerComponent.preload(sound.src, sound.duration);
 	}, this));
@@ -779,5 +776,26 @@ FlowGermany2.prototype.goingHome = function(trigger){
 
 	// Next
 	this.continueBtn.ghost('skip');
+};
+FlowGermany2.prototype.intermezzo = function(trigger){
+	'use strict';
+
+	// Next move
+	this.trigger = trigger;
+
+	var self = this;
+
+	// Set background
+	this.currentBackground = Transitions.changeBackground(this.currentBackground, this.view.bg_4_10_8);
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.intermezzo;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(Tick.low);
+	}, this));
+
+	// Next
+	this.continueBtn.activate('next');
 };
 createjs.EventDispatcher.initialize(FlowGermany2.prototype);

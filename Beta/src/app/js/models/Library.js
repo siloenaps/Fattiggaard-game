@@ -1,7 +1,7 @@
 var Library = {
 	clearSlide: function(){
 		'use strict';
-		console.log('clearSlide');
+		// console.log('clearSlide');
 		try{
 			slidelib = null;
 		}catch(err){
@@ -10,7 +10,7 @@ var Library = {
 	},
 	clearGame: function(){
 		'use strict';
-		console.log('clearGame');		
+		// console.log('clearGame');		
 		try{
 			gamelib = null;
 		}catch(err){
@@ -19,7 +19,7 @@ var Library = {
 	},
 	clearMain: function(){
 		'use strict';
-		console.log('clearMain');		
+		// console.log('clearMain');		
 		try{
 			mainlib = null;
 		}catch(err){

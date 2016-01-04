@@ -22,7 +22,8 @@ lib.properties = {
 		{src:"../../../assets/images/pool/_1_2BGsvendborgA.jpg", id:"_1_2BGsvendborgA"},
 		{src:"../../../assets/images/pool/_1_2BGsvendborgB.jpg", id:"_1_2BGsvendborgB"},
 		{src:"../../../assets/images/pool/_1_2BGsvendborgC.jpg", id:"_1_2BGsvendborgC"},
-		{src:"../../../assets/images/pool/_1_3BGsundholm.jpg", id:"_1_3BGsundholm"},
+		{src:"../../../assets/images/pool/_1_3BGsundholmNY.jpg", id:"_1_3BGsundholmNY"},
+		{src:"../../../assets/images/pool/_1_3BGsundholmNY2.jpg", id:"_1_3BGsundholmNY2"},
 		{src:"../../../assets/images/pool/_1_3BGsvendborg.jpg", id:"_1_3BGsvendborg"},
 		{src:"../../../assets/images/pool/_1_4BG.jpg", id:"_1_4BG"},
 		{src:"../../../assets/images/pool/_1_5BGsvendborg2.jpg", id:"_1_5BGsvendborg2"},
@@ -143,8 +144,14 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
-(lib._1_3BGsundholm = function() {
-	this.initialize(img._1_3BGsundholm);
+(lib._1_3BGsundholmNY = function() {
+	this.initialize(img._1_3BGsundholmNY);
+}).prototype = p = new cjs.Bitmap();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
+(lib._1_3BGsundholmNY2 = function() {
+	this.initialize(img._1_3BGsundholmNY2);
 }).prototype = p = new cjs.Bitmap();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -985,13 +992,32 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
 
+(lib.Background1_3_4 = function() {
+	this.initialize();
+
+	// Layer 2
+	this.instance = new lib.sundholm_title();
+	this.instance.setTransform(22,57);
+
+	// Layer 1
+	this.instance_1 = new lib._1_3BGsundholmNY2();
+
+	this.addChild(this.instance_1,this.instance);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
+
+
 (lib.Background1_3 = function() {
 	this.initialize();
 
-	// Layer 1
-	this.instance = new lib._1_3BGsundholm();
+	// Layer 2
+	this.instance = new lib.sundholm_title();
+	this.instance.setTransform(22,57);
 
-	this.addChild(this.instance);
+	// Layer 1
+	this.instance_1 = new lib._1_3BGsundholmNY();
+
+	this.addChild(this.instance_1,this.instance);
 }).prototype = p = new cjs.Container();
 p.nominalBounds = new cjs.Rectangle(0,0,1024,540);
 
@@ -1369,7 +1395,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,579,33.8);
 	this.realname.setTransform(520,401,1.203,1.203,0,0,0,81,9.2);
 
 	// Text
-	this.text = new cjs.Text("Til det sociale udvalg\n\nUndertegnede skal tiltræde arbejde i Tyskland\nog anmoder herved høfligst det ærede udvalg\nom et lån på                 til indkøb af arbejdstøj.\n\nHåber det ærede udvalg vil bevilge dette mig\nandragende, da jeg jo ikke kan købe tøj i\nTyskland.\n\n         Ærbødigst", "24px 'Special Elite'");
+	this.text = new cjs.Text("Til det sociale udvalg\n\nUndertegnede skal tiltræde arbejde i Tyskland\nog anmoder herved høfligst det ærede udvalg\nom et lån på                 til indkøb af arbejdstøj.\n\nHåber det ærede udvalg vil bevilge dette mig\nandragende, da jeg skal medbringe mit eget\narbejdstøj.\n\n         Ærbødigst", "24px 'Special Elite'");
 	this.text.lineHeight = 26;
 	this.text.lineWidth = 599;
 	this.text.setTransform(212,132);
@@ -1609,7 +1635,7 @@ p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 	this.initialize();
 
 	// Text
-	this.text = new cjs.Text("Få et godt råd af en indsat", "48px 'Special Elite'", "#FFFFFF");
+	this.text = new cjs.Text("Få et godt råd af en indlagt", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
 	this.text.lineWidth = 800;
 	this.text.setTransform(210,38);
@@ -1620,11 +1646,11 @@ p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 	// Photo
 	this.portrait = new lib._133InmatePortraitMain();
-	this.portrait.setTransform(823,261,1,1,0,0,0,201,279);
+	this.portrait.setTransform(831,156,1,1,0,0,0,201,279);
 
 	this.addChild(this.portrait,this.player,this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(210,38,806,607);
+p.nominalBounds = new cjs.Rectangle(210,-18,814,558);
 
 
 (lib._132PageGetOut = function() {
@@ -1933,6 +1959,12 @@ p.nominalBounds = new cjs.Rectangle(211,-18,813,558);
 
 	this.timeline.addTween(cjs.Tween.get(this.bg_1_4).wait(26));
 
+	// 1.3.4
+	this.bg_1_3_4 = new lib.Background1_3_4();
+	this.bg_1_3_4.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.bg_1_3_4).wait(26));
+
 	// 1.3
 	this.bg_1_3 = new lib.Background1_3();
 	this.bg_1_3.setTransform(1024,0);
@@ -1979,7 +2011,7 @@ p.nominalBounds = new cjs.Rectangle(211,-18,813,558);
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance_4},{t:this.instance_3},{t:this.instance_2},{t:this.instance_1},{t:this.instance},{t:this.bg_1_0}]}).wait(26));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(512,252,2120,663);
+p.nominalBounds = new cjs.Rectangle(512,252,2120,558);
 
 })(gamelib = gamelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var gamelib, images, createjs, ss;

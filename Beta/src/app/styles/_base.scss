@@ -2,6 +2,16 @@
 body, html {
   margin: 0;
   background: #000;
+  background-image: url("/assets/images/Logo_wait.jpg");
+  background-repeat: no-repeat;
+}
+.debug{
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  font-size: 36px;
+  z-index: 1200;
+  color: #CCC;
 }
 .show{
   visibility: visible;
@@ -23,134 +33,37 @@ body, html {
   top:0;
   width:$w; 
   height:$h;
+  max-width: 1024px;
+  max-height: 648px;
+  padding: 10px 0 0 10px;
+  // border: 10px solid red; 
+  .image-wrapper{
+    position: absolute;
+    img{
+      width: 40px;
+    }    
+  }
   &.small{
     background: none;    
   }
-  .preloader{ 
-    $w: 1024px;
-    $h: 648px;
-    $ch: 540px;
-    $ls: 3vw;    
+  .progress-wrapper{
+    height: inherit;
+    width: 400px;
+    margin: auto;
+    transform: translateY(50%); 
+       
     .progress-bar{
-      position: relative;
-      transform: translateY(350px);
       .bar{
         height: inherit;
         width: inherit;
         background-color: rgba(255, 255, 255, 0.5);
       }
-      margin: auto;
-      position: relative; 
       height: 10px;
       width: 400px;
-      border: 1px solid #FFF;
-    }
-
-    &.full,
-    &.small{
-      width:$w; 
-      height:$h;
-      .image-wrapper{
-        top: 50%;
-        margin: 0 auto;       
-        position: relative; 
-        width:$ls;
-        height:$ls; 
-        img{
-          transform: translateY(-50%);
-          width:$ls;
-          height:$ls; 
-        }     
-      }     
-    }
-    &.full{
-      background-image: url("/assets/images/Logo_wait.jpg");
-      background-repeat: no-repeat;    
-    }
-    &.small{
-      background: none;
-      // border: 5px solid red;
+      border: 1px solid #FFF;       
     }
   }
 }
-
-
-// .preloader{	
-// 	background-color: #000;
-// 	position: absolute; 
-// 	z-index:1000; 
-// 	left:0; top:0;
-  
-//   &.startup{
-//     background-color: #000;
-//     width:1024px; 
-//     height:648px;
-//     div{
-//       top: 50%;
-//       margin: 0 auto;       
-//       position: relative; 
-//       // transform: translateY(-100%);
-//       // transform: translateX(-50%);
-//       // border: 1px solid red;      
-//       width:70px;
-//       height:70px; 
-//       img{
-//         transform: translateY(-50%);
-//         width:70px;
-//         height:70px; 
-//       }     
-//     }
-//   }
-
-//   &.full{
-//     // border: 3px solid red;
-//     background-image: url("/assets/images/Logo_wait.jpg");
-//     background-repeat: no-repeat;
-//     width:1024px; 
-//     height:648px;
-//     div{
-//       top: 50%;
-//     }
-//   }
-//   &.small{
-//     width:100px; 
-//     height:100px;
-//   }
-//   &.center{
-//     width:1024px; 
-//     height:548px;
-//     background-color: transparent;
-//     div{
-//       top: 44%;
-//     }
-//   }
-
-//   .image{
-//     background-image: url("/assets/images/preloader.gif");
-//     background-size: 70px 70px;
-//     background-repeat: no-repeat;
-//     margin: 0 auto; 
-//     width:70px;
-//     height:70px;
-//     position: relative; 
-//     transform: translateY(-50%);
-//     // border: 1px solid red;
-//   }
-//   .progress-bar{
-//     .bar{
-//       height: inherit;
-//       width: inherit;
-//       background-color: rgba(255, 255, 255, 0.5);
-//     }
-//     margin: auto;
-//     position: relative; 
-//     transform: translateY(50%);
-//     height: 10px;
-//     width: 400px;
-//     border: 1px solid #FFF;
-//   }
-// }
-
 
 // Preloadin animation
 $animation-time: 1s;

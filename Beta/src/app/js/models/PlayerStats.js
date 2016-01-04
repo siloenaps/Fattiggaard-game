@@ -2,14 +2,14 @@ var PlayerStats = {
 	challenge: 'B',			// Default test value
 	family: 'D',			// Default test value
 	nickname: null,
-	poorhouse: 'svendborg', // Test 
+	poorhouse: null,
 	mood: 2,
 	health: 4,
 	money: 3,
 	job: null,
 	advice: null,
 	wayout: null,
-	job_germany: ['B', 'A'], // Default test values
+	job_germany: ['A', 'B'], // Default test values
 	spending: null,
 	whatnow: null,
 	nazi: null,

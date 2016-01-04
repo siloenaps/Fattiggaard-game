@@ -1,9 +1,13 @@
 var HUDController = {
-	init: function(view){
+	init: function(){
+		this.soundEffectPlus = new SoundController(SoundService.matrix.points.plus.src, false);	
+		this.soundEffectMinus = new SoundController(SoundService.matrix.points.minus.src, false);	
+		this.soundEffectPlus.load();
+		this.soundEffectMinus.load();
+	},
+	setView: function(view){
 		this.view = view;		
 		this.update();
-		this.soundControllerPlus = new SoundController(SoundService.matrix.points.plus.src, SoundService.matrix.points.plus.duration);
-		this.soundControllerMinus = new SoundController(SoundService.matrix.points.minus.src, SoundService.matrix.points.minus.duration);
 	},
 	update: function(){
 		if(this.view === undefined || this.view === null){
@@ -20,14 +24,14 @@ var HUDController = {
 		for(var key in PlayerStats.pointsDiff){
 			if(PlayerStats.pointsDiff[key] > 0){
 				setTimeout(function(){ 
-					self.soundControllerPlus.play();
+					self.soundEffectPlus.play();
 				}, delay);
-				delay += 1000;
+				delay += 500;
 			}else if(PlayerStats.pointsDiff[key] < 0){
 				setTimeout(function(){ 
-					self.soundControllerMinus.play();
+					self.soundEffectMinus.play();
 				}, delay);
-				delay += 1000;
+				delay += 500;
 			}
 		}
 

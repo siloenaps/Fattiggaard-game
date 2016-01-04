@@ -1,172 +1,146 @@
-var SoundService = function(){
-	'use strict';
-}
-
-// SoundService.getPathByKey = function(key){
-// 	'use strict';
-// 	return SoundService.properties.basePath + this.matrix[key].file;
-// };
-// SoundService.getDurationByKey = function(key){
-// 	'use strict';
-// 	return this.matrix[key].duration;
-// };
-
-SoundService.getSlideDurationById = function(id){
-	'use strict';
-	return this.matrix.slides[id].duration;
-};
-SoundService.getSlideSoundpathById = function(id){
-	'use strict';
-	return SoundService.properties.slidePath + id+'.mp3';
-};
-SoundService.getSlideSoundById = function(id){
-	'use strict';
-	return SoundService.matrix.slides[id]
-};
-SoundService.getSoundByCharacter = function(character){
-	'use strict';
-	return;
-};
-
-SoundService.properties = {
-	basePath: 'assets/sounds/',
-	slidePath: 'assets/sounds/'
-};
-SoundService.matrix = {
-	effects: {
-		typewriter: { src:SoundService.properties.basePath+'typewriter.mp3', duration: null },
-		woodchopper: { src:SoundService.properties.basePath+'1.2.1_hugbraende_lydeffekt.mp3', duration: null }
+var SoundService = {
+	init: function(){
+		'use strict';
+		console.log('SoundService.init');
+		var recursive = function(obj){
+			for (var i in obj) {
+				if(typeof obj[i] === 'object'){
+					// console.log(obj[i].src);
+					if(obj[i].src !== undefined){
+						obj[i].src = SoundService.basePath() + obj[i].src;
+					}
+					recursive(obj[i]);
+				}
+			};
+		}
+		recursive(this.matrix);
 	},
-	'1.1.1' :{
-		horsens: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
-		sundholm: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 },
-		svendborg: { src:SoundService.properties.basePath+'1.1.1_forvalter_test.mp3', duration: 57.862 }
+	getSlideDurationById: function(id){
+		'use strict';
+		return this.matrix.slides[id].duration;
 	},
-	points: {
-		plus: { src:SoundService.properties.basePath+'Point_plus.mp3', duration: 2.208 },
-		minus: { src:SoundService.properties.basePath+'Point_minus.mp3', duration: 1.128 }
+	getSlideSoundpathById: function(id){
+		'use strict';
+		return SoundService.properties.slidePath + id+'.mp3';
 	},
-	dormitry: { src:SoundService.properties.basePath+'2.6.1_sovesal.mp3', duration: 83.458 },
-	drunk: { src:SoundService.properties.basePath+'1.5.1_druk.mp3', duration: 70 },
-	constable: { src:SoundService.properties.basePath+'1.6.1_betjent.mp3', duration: 5.737 },
-	'1.2.1': {
-		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
-					},
-		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
-					},
-		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
-					},
+	getSlideSoundById: function(id){
+		'use strict';
+		return SoundService.matrix.slides[id]
 	},
-	'1.3.2': { label:'wants out', src:SoundService.properties.basePath+'1.3.2_vilud.mp3', duration: 23.024 },
-	'1.3.3': { label:'inmate', src:SoundService.properties.basePath+'1.3.3_RaadIndlagt.mp3', duration: 41.987 },
-	'1.3.4': { label:'employee', src:SoundService.properties.basePath+'1.3.4_RaadAnsat.mp3', duration: 40.857 },	
-	'1.8': { label:'arrested', src:SoundService.properties.basePath+'1.8.mp3', duration: 37.908 },	
-	'2.2.1': { src:SoundService.properties.basePath+'2.2.1_hvervekontor.mp3', duration: 36.161 },
-	'2.2.3': { src:SoundService.properties.basePath+'2.2.3_hvervekontor.mp3', duration: 28.299 },
-	'2.8.1': { description:'get paid', src:SoundService.properties.basePath+'2.8.1_loen.mp3', duration: 22 },
-	'2.10.1': { description:'what now', src:SoundService.properties.basePath+'2.10.1_kontraktudlob.mp3', duration: 53.501 },
-	'2.10.2': {
-		'A': { description:'Finnish contract', src:SoundService.properties.basePath+'2.10.2a.mp3', duration: 52.881 },
-		'B': { description:'Go home', src:SoundService.properties.basePath+'2.10.2b.mp3', duration: 53.265 }
+	basePath: function(){
+		'use strict';
+		return Environment.basePath() + 'assets/sounds/';
 	},
-	'2.11.1': { description:'home comming', src:SoundService.properties.basePath+'2.11.1_hjemkomst.mp3', duration: 46.536 },
-	
-	slides: {
-				'slide_0_1': { src:SoundService.properties.basePath+'slide_intro.mp3', duration: 89.014 },
-				'slide_1_0_1': { src:SoundService.properties.basePath+'1_0_1_ankomst.mp3', duration: 67.341 },
-				'slide_2_5': { src:SoundService.properties.basePath+'slide_2_5.mp3', duration: 35.083 },
-				'slide_2_7_1_amory': { src:SoundService.properties.basePath+'slide_2_7_1_amory.mp3', duration: 29.541 },
-				'slide_2_7_1_butcher': { src:SoundService.properties.basePath+'slide_2_7_1_butcher.mp3', duration: 61.208 },
-				'slide_2_7_1_mine': { src:SoundService.properties.basePath+'slide_2_7_1_mine.mp3', duration: 48.573 },
-				'slide_home1A': { src:SoundService.properties.basePath+'slide_home1_A.mp3', duration: 48.573 },
-				'slide_home1B': { src:SoundService.properties.basePath+'slide_home1_B.mp3', duration: 48.573 },
-				'slide_3_0': { src:SoundService.properties.basePath+'3_0_anstalt_igen_alle.mp3', duration: 69.641 },
-				'slide_4_3': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_AB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_AC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_BA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_BC': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_CA': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_5_1_CB': { src:SoundService.properties.basePath+'4.3_rejse2.mp3', duration: 55.153 },
-				'slide_4_7': { src:SoundService.properties.basePath+'4.7_krigenskriderfrem.mp3', duration: 81.350 }
-				
-				// 'slide_svendborg': { src:SoundService.properties.basePath+'daughter.mp3', duration: 2.368 }
-			},
-	'0.4': { // oppinion
-			'AD': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'AE': { label: 'alkoholiker, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'AF': { label: 'alkoholiker', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'BD': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'BE': { label: 'dovenskab, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'BF': { label: 'dovenskab', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-			'CD': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
-			'CE': { label: 'svækkelse, børn', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-			'CF': { label: 'svækkelse', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 }
+	matrix: {
+		effects: {
+			typewriter: { src:'typewriter.mp3', volume: 0.4 },
+			woodchopper: { src:'1.2.1_hugbraende_lydeffekt.mp3' }
 		},
-	'3.2.1': {
-		'horsens': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_rengoring.mp3', duration: 7.916 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_havearbejde.mp3', duration: 10 }
-					},
-		'sundholm': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_hugbraende.mp3', duration: 13.327 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_pasgrise.mp3', duration: 9.721 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 }						
-					},
-		'svendborg': {
-						'A': { src:SoundService.properties.basePath+'1.2.1_skaerver2.mp3', duration: 11.309 },
-						'B': { src:SoundService.properties.basePath+'1.2.1_fletmaatter.mp3', duration: 9.272 },
-						'C': { src:SoundService.properties.basePath+'1.2.1_pilkaal.mp3', duration: 12.304 }
-					},
-	},
-	'3.3' : { label: 'tristesse', src:SoundService.properties.basePath+'3.3 - Det er trist herinde.mp3', duration: 54.282 },
-	'3.4.1': { label:'employee', src:SoundService.properties.basePath+'3.4_ansat.mp3', duration: 15.531 },
-	'3.4.2': { label:'inmate', src:SoundService.properties.basePath+'3.4_indsat.mp3', duration: 13.543 },
-	'3.7.1': { label:'work over', src:SoundService.properties.basePath+'3.7.1_arbslut.mp3', duration: 30.561 },
-	'4.6.1': { label:'dansk front', src:SoundService.properties.basePath+'4.6.1_moede.mp3', duration: 42.563 },
-	'4.10.1': { label:'dansk front', src:SoundService.properties.basePath+'4.10.1_bombe.mp3', duration: 45.637 },
-	'4.10.4': { label:'illness', src:SoundService.properties.basePath+'4.10.4_sygdom.mp3', duration: 44.285 },
-	'4.10.7': { label:'illness', src:SoundService.properties.basePath+'4.10.7_pavejhjem.mp3', duration: 51.754 },
-	'4.11.1': { label:'compensation', src:SoundService.properties.basePath+'4.11.1.mp3', duration: 80 },
-	'4.11.2': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	'4.11.3': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	'4.11.4': { src:SoundService.properties.basePath+'typewriter.mp3', duration: 8.724 },
-	
-	
-	
-	
-	// challenge: {
-	// 			// 'A': { label: 'manager', src:SoundService.properties.basePath+'alcoholic.mp3', duration: 8.314 },
-	// 			// 'B': { label: 'manager', src:SoundService.properties.basePath+'lazy.mp3', duration: 1.078 },
-	// 			// 'C': { label: 'manager', src:SoundService.properties.basePath+'weakness.mp3', duration: 1.815 }
-	// 			'A': { label: 'manager', src:SoundService.properties.basePath+'0.4_forvalter.mp3', duration: 57.862 },
-	// 			'B': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 },
-	// 			'C': { label: 'manager', src:SoundService.properties.basePath+'0.4_bekendt_anden indlagt.mp3', duration: 52.610 }
-	// 		},
-	// family: {
-	// 			'D': null,
-	// 			'E': { label: 'daughter', src:SoundService.properties.basePath+'0.4_datter.mp3', duration: 39.277 },
-	// 			'F': null
-	// 		}
-	// characters: {
-	// 			'AD': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'AE': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'AF': [ { label: 'manager', src:'alcoholic.mp3', duration: 89.014 } ],
-	// 			'BD': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'BE': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'BF': [ { label: 'manager', src:'lazy.mp3', duration: 89.014 } ],
-	// 			'CD': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ],
-	// 			'CE': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 }, { label: 'daughter', duration: 89.014 }],
-	// 			'CF': [ { label: 'manager', src:'weakness.mp3', duration: 89.014 } ]
-	// 		}
-};
+		'1.1.1' :{
+			horsens: { src:'1.1.1_horsens.mp3' },
+			sundholm: { src:'1.1.1_sundholm.mp3' },
+			svendborg: { src:'1.1.1_svendborg.mp3' }
+		},
+		points: {
+			plus: { src:'Point_plus.mp3' },
+			minus: { src:'Point_minus.mp3' }
+		},
+		dormitry: { src:'2.6.1.mp3' },
+		drunk: { src:'1.5.1.mp3' },
+		constable: { src:'1.6.1.mp3' },
+		'1.2.1': {
+			'horsens': {
+							'A': { src:'1.1.2_pashaven.mp3' },
+							'B': { src:'1.1.2_goerrent.mp3' },
+							'C': { src:'1.1.2_fletmaatter.mp3' }
+						},
+			'sundholm': {
+							'A': { src:'1.1.2_hugbraende.mp3' },
+							'B': { src:'1.1.2_pasgrise.mp3' },
+							'C': { src:'1.1.2_skaerver.mp3' }						
+						},
+			'svendborg': {
+							'A': { src:'1.1.2_skaerver.mp3' },
+							'B': { src:'1.1.2_vaevmaatter.mp3' },
+							'C': { src:'1.1.2_pilorm.mp3' }
+						},
+		},
+		'1.3.2': { label:'wants out', src:'1.3.2.mp3' },
+		'1.3.3': { label:'inmate', src:'1.3.3_indsat.mp3' },
+		'1.3.4': { label:'employee', src:'1.3.4.mp3' },	
+		'1.8': { label:'arrested', src:'1.8.mp3' },	
+		'2.2.1': { src:'2.2.1.mp3' },
+		'2.2.3': { src:'2.2.3.mp3' },
+		'2.8.1': { description:'get paid', src:'2.8.1.mp3' },
+		// '2.10.1': { description:'what now', src:'2.10.1_kontraktudlob.mp3' },
+		'2.10.2': {
+			'A': { description:'Finnish contract', src:'2.10.2.a.mp3' },
+			'B': { description:'Go home', src:'2.10.2.b.mp3' }
+		},
+		'2.11.1': { description:'home comming', src:'2.11.1.mp3' },
+		
+		slides: {
+					'slide_0_1': { src:'film01medmusik_mixdown.mp3' },
+					'slide_1_0_1': { src:'film10_mixdown.mp3' },
+					'slide_2_5': { src:'2.5_mixdown.mp3' },
+					'slide_2_7_1_amory': { src:'2.7.1.vaaben_mixdown.mp3' },
+					'slide_2_7_1_butcher': { src:'2.7.1.slagt_mixdown.mp3' },
+					'slide_2_7_1_mine': { src:'2.7.1.mine_mixdown.mp3' },
+					// 'slide_home1A': { src:'2.7.1.vaaben_mixdown.mp3' },
+					// 'slide_home1B': { src:'slide_home1_B.mp3' },
+					'slide_3_0': { src:'3.0_mixdown.mp3' },
+					'slide_4_3': { src:'4.3_mixdown.mp3' },
+					'slide_4_5_1_AB': { src:'4.5.1.mine_mixdown.mp3' },
+					'slide_4_5_1_AC': { src:'4.5.1hud_efter_vaaben_mixdown.mp3' },
+					'slide_4_5_1_BA': { src:'4.5.1.vaaben_efter kul_mixdown.mp3' },
+					'slide_4_5_1_BC': { src:'4.5.1hud_efter_mine_mixdown.mp3' },
+					'slide_4_5_1_CA': { src:'4.5.1.vaaben_efter hud_mixdown.mp3' },
+					'slide_4_5_1_CB': { src:'4.5.1.mine_mixdown.mp3' },
+					'slide_4_7': { src:'4.7_mixdown.mp3' }				
+				},
+		'0.4': { // oppinion
+				'AD': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+				'AE': { label: 'alkoholiker, børn', src:'0.4_datter.mp3' },
+				'AF': { label: 'alkoholiker', src:'0.4_forvalteren.mp3' },
+				'BD': { label: 'dovenskab', src:'0.4_kone.mp3' },
+				'BE': { label: 'dovenskab, børn', src:'0.4_datter.mp3' },
+				'BF': { label: 'dovenskab', src:'0.4_andenindlagt.mp3' },
+				'CD': { label: 'svækkelse', src:'0.4_kone.mp3' },
+				'CE': { label: 'svækkelse, børn', src:'0.4_datter.mp3' },
+				'CF': { label: 'svækkelse', src:'0.4_andenindlagt.mp3' }
+			},
+		'3.2.1': {
+			'horsens': {
+							'A': { src:'1.1.2_pashaven.mp3' },
+							'B': { src:'1.1.2_goerrent.mp3' },
+							'C': { src:'1.1.2_fletmaatter.mp3' }
+						},
+			'sundholm': {
+							'A': { src:'1.1.2_hugbraende.mp3' },
+							'B': { src:'1.1.2_pasgrise.mp3' },
+							'C': { src:'1.1.2_skaerver.mp3' }						
+						},
+			'svendborg': {
+							'A': { src:'1.1.2_skaerver.mp3' },
+							'B': { src:'1.1.2_vaevmaatter.mp3' },
+							'C': { src:'1.1.2_pilorm.mp3' }
+						},
+		},
+		'3.3' : {
+			'horsens': { src:'3.3.horsens.svendborg.mp3' },
+			'sundholm': { src:'3.3.sundholm.mp3' },
+			'svendborg': { src:'3.3.horsens.svendborg.mp3' }
+		},
+		'3.4.1': { label:'employee', src:'3.4.1.mp3' },
+		'3.4.2': { label:'inmate', src:'3.4.2.mp3' },
+		'3.7.1': { label:'work over', src:'3.7.1.mp3' },
+		'4.6.1': { label:'dansk front', src:'4.6.1.mp3' },
+		'4.10.1': { label:'bombe', src:'4.10.1.mp3' },
+		'4.10.4': { label:'illness', src:'4.10.4.mp3' },
+		'4.10.7': { label:'going home', src:'4.10.7.mp3' },
+		'4.11.1': { label:'post script', src:'14_11_1efterskrift_red_musik.mp3' },
+		'4.11.2': { label:'post script',src:'14_11_2efterskrift_red_musik.mp3' },
+		'4.11.3': { label:'post script',src:'14_11_3efterskrift_red_musik.mp3' },
+		'4.11.4': { label:'post script',src:'14_11_4efterskrift_red_musik.mp3' },
+	}
+}

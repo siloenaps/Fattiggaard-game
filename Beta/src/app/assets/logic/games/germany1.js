@@ -296,7 +296,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 	this.text.lineWidth = 262;
 	this.text.setTransform(529.8,137);
 
-	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Da du rejser hjem før tid\nmister du to måneders løn"},0).wait(1));
+	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({text:"Da du rejser hjem før tid,\nmister du to måneders løn"},0).wait(1));
 
 	// Layer 1
 	this.text_1 = new cjs.Text("Point", "48px 'Special Elite'", "#FFFFFF");
@@ -598,7 +598,7 @@ p.nominalBounds = new cjs.Rectangle(212,40,602,187);
 	this.text.lineWidth = 262;
 	this.text.setTransform(529.8,229);
 
-	this.text_1 = new cjs.Text("Du får en pæn indtægt en\nTyskland", "18px 'Special Elite'");
+	this.text_1 = new cjs.Text("Du får en pæn indtægt i\nTyskland", "18px 'Special Elite'");
 	this.text_1.lineHeight = 20;
 	this.text_1.lineWidth = 262;
 	this.text_1.setTransform(529.8,137);

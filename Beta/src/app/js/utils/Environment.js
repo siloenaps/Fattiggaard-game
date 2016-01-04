@@ -3,6 +3,7 @@
 	Wrapped in order to enable change of lib if nessesary
 */
 var Environment = {	
+	gameBasePath: undefined,
 	data: null,
 	browser: {},
 	os: null,
@@ -18,7 +19,6 @@ var Environment = {
 		this.dimensions.w = window.innerWidth;
 		this.dimensions.h = window.innerHeight;
 		
-
 		var cr = function(){
 			var ctx = document.createElement('canvas').getContext('2d'),
 	        dpr = window.devicePixelRatio || 1,
@@ -35,5 +35,11 @@ var Environment = {
 			return Environment.dimensions.w / 1024;
 		}
 		this.winScale = wf();
+	},
+	basePath: function(){		
+		// console.log('this.gameBasePath', this.gameBasePath);
+		if(this.gameBasePath === undefined)
+			this.gameBasePath = '/'; // Default local usage
+		return this.gameBasePath;
 	}
 };

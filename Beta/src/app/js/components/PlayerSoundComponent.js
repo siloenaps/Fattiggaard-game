@@ -6,8 +6,6 @@ var PlayerSoundComponent = function(view){
 	PlayerSoundComponent.counter++;
 	this.id = PlayerSoundComponent.counter;
 
-	// console.log('PlayerSoundComponent');
-
 	this.view = view;
 	this.paused = false;
 	this.duration = 0;
@@ -48,7 +46,7 @@ PlayerSoundComponent.prototype.preload = function(src, duration){
 		self.soundController.destroy();
 		self.soundController = null;
 	}
-	self.soundController = new SoundController(src, duration);
+	self.soundController = new SoundController(src);
 	self.soundController.on('ready', function(event){
 		event.remove();
 		// Enable buttons
@@ -57,6 +55,16 @@ PlayerSoundComponent.prototype.preload = function(src, duration){
 
 		// Dispatch event 
 		self.dispatchEvent(new createjs.Event('ready'));
+	}, self);
+	self.soundController.on('complete', function(event){
+		// Swap Play/Pause visibility
+		this.pauseBtn.visible(false);
+		this.playBtn.visible(true);
+
+		self.removeLoopEvent();
+
+		// Dispatch event 
+		self.dispatchEvent(new createjs.Event('complete'));
 	}, self);
 	self.soundController.load();
 };
@@ -73,22 +81,8 @@ PlayerSoundComponent.prototype.removeLoopEvent = function(){
 };
 PlayerSoundComponent.prototype.loop = function(){
 	'use strict';	
-	// var progression = this.progress();
 	var sndProgression = this.soundController.progress();
-
-	// Reached end of slide
-	if(sndProgression >= 1){
-		// Remove tick
-		this.removeLoopEvent();
-
-		// Swap Play/Pause visibility
-		this.pauseBtn.visible(false);
-		this.playBtn.visible(true);
-
-		// Dispacth event 
-		this.dispatchEvent(new createjs.Event('complete'));
-	}
-
+	
 	// Progression bar
 	this.progressionBar.scaleX = sndProgression;
 };
@@ -114,6 +108,7 @@ PlayerSoundComponent.prototype.play = function(){
 
 	// Tick
 	Tick.enable();
+	Tick.framerate(Tick.perfect);
 };
 PlayerSoundComponent.prototype.pause = function(){
 	'use strict';
