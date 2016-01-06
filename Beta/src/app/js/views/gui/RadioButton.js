@@ -69,7 +69,7 @@ RadioButton.prototype.setActive = function(state){
 };
 RadioButton.prototype.onClick = function(event){
 	'use strict';
-	if(this.active || !this.enabled){
+	if(this.active || !this.enabled){
 		return false;
 	}
 
