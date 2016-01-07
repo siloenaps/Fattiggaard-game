@@ -309,7 +309,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,602,214);
 (lib.Page04CharacterText0004 = function() {
 	this.initialize(img.Page04CharacterText0004);
 }).prototype = p = new cjs.Bitmap();
-p.nominalBounds = new cjs.Rectangle(0,0,602,214);
+p.nominalBounds = new cjs.Rectangle(0,0,610,187);
 
 
 (lib.Page04CharacterText0005 = function() {
@@ -471,7 +471,7 @@ p.nominalBounds = new cjs.Rectangle(2,18,401,540);
 
 
 (lib.Page04CharacterText = function(mode,startPosition,loop) {
-	this.initialize(mode,startPosition,loop,{"AD":0,"AE":1,"AF":2,"BD":3,"BE":4,"BF":5,"CD":6,"CE":7,"CF":8});
+if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{"AD":0,"AE":1,"AF":2,"BD":3,"BE":4,"BF":5,"CD":6,"CE":7,"CF":8});
 
 	// timeline functions:
 	this.frame_0 = function() {

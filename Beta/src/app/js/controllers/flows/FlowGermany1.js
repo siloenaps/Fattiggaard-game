@@ -99,7 +99,7 @@ FlowGermany1.prototype.setup = function(){
 // };
 FlowGermany1.prototype.onContinue = function(event) {
 	'use strict';
-	console.log('FlowGermany1::onContinue');	
+	// console.log('FlowGermany1::onContinue');	
 
 	// Stop player if any
 	if(this.playerComponent != null){
@@ -569,7 +569,7 @@ FlowGermany1.prototype.points6 = function(trigger) {
 		Topbar.pointsUpdate();
 		Tick.framerate(Tick.low);
 	}, this));
-console.log('points6', PlayerStats.whatnow, this.currentPage);
+	// console.log('points6', PlayerStats.whatnow, this.currentPage);
 	this.continueBtn.activate('next');
 };
 FlowGermany1.prototype.homeComming = function(trigger){

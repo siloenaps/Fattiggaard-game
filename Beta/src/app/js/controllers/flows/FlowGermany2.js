@@ -228,7 +228,7 @@ FlowGermany2.prototype.recruitementLetter = function(trigger){
 
 	// Set name
 	var frm = PlayerStats.challenge + PlayerStats.family;
-	console.log('frm:', frm);
+	// console.log('frm:', frm);
    	this.currentPage.realname.gotoAndStop(frm);
 
 	// Next button

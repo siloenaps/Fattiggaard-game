@@ -21,7 +21,7 @@ FlowPoorhouseSecond.prototype.start = function(){
 	this.id = PlayerStats.poorhouse;
 	var gameFile;
 
-	console.log('FlowPoorhouseSecond:start');
+	// console.log('FlowPoorhouseSecond:start');
 
 	LoadJS.load(
 		['../assets/logic/games/'+this.id+'_second.js'], 
@@ -57,7 +57,8 @@ FlowPoorhouseSecond.prototype.setup = function(){
 	this.flow.addAction('3.7.2', Delegate.create(this.points3, this), '4.0');
 	this.flow.addAction('3.8', Delegate.create(this.letterWrite, this), '3.9');
 	this.flow.addAction('3.9', Delegate.create(this.letterAnswer, this), '3.10');
-	this.flow.addAction('3.10', Delegate.create(this.points4, this), '4.0');
+	this.flow.addAction('3.10', Delegate.create(this.points4, this), '3.11');
+	this.flow.addAction('3.11', Delegate.create(this.graduate, this), '4.0');	
 	this.flow.addAction('4.0', Delegate.create(
 		function(){
 			self.removeEvents();
@@ -66,7 +67,7 @@ FlowPoorhouseSecond.prototype.setup = function(){
 	);
 
 	//this.id = 'svendborg';
-	console.log('FlowPoorhouseSecond:setup', this.id);
+	// console.log('FlowPoorhouseSecond:setup', this.id);
 
 	this.lib = gamelib;
 	switch(this.id){
@@ -104,7 +105,7 @@ FlowPoorhouseSecond.prototype.setup = function(){
 		// Set start page
 		self.next();
 
-		console.log('FlowPoorhouseSecond:onLoadComplete');
+		// console.log('FlowPoorhouseSecond:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
@@ -171,7 +172,7 @@ FlowPoorhouseSecond.prototype.chooseJob = function(trigger) {
 	'use strict';
 	var self = this;
 
-	console.log('chooseJob');
+	// console.log('chooseJob');
 
 	// Next move
 	this.trigger = trigger;
@@ -561,6 +562,27 @@ FlowPoorhouseSecond.prototype.points4 = function(trigger) {
 		Topbar.pointsUpdate();
 		Tick.framerate(Tick.low);
 	}, this));
+
+	this.continueBtn.activate('next');
+};
+FlowPoorhouseSecond.prototype.graduate = function(trigger) {
+	'use strict';
+	var self = this;
+	var currentTrigger = this.trigger;
+
+	// Next move
+	this.trigger = trigger;
+
+	// Pages in/out
+	var previousPage = this.currentPage;
+	this.currentPage = this.view.graduate;
+	Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'pos'}, Delegate.create(function(){
+		Tick.framerate(Tick.low);
+	}, this));
+
+	// Set portrait
+	var frm = PlayerStats.challenge + PlayerStats.family;
+	this.currentPage.portrait.gotoAndStop(frm);
 
 	this.continueBtn.activate('next');
 };

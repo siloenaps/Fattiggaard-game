@@ -24,7 +24,7 @@ var SubFlowController = function(){
 
 			var action = this.actions[trigger];
 
-			console.log('next:', trigger, action);
+			// console.log('next:', trigger, action);
 			
 			try{
 				action.delegate(action.triggers);

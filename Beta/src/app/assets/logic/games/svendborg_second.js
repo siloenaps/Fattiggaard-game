@@ -1089,6 +1089,24 @@ p.nominalBounds = new cjs.Rectangle(0,0,34,34);
 p.nominalBounds = new cjs.Rectangle(0,0,34,34);
 
 
+(lib._311PageCantGraduate = function() {
+	this.initialize();
+
+	// Portrait
+	this.portrait = new lib.OpenionCloseups();
+	this.portrait.setTransform(0,0,1,1,0,0,0,-622,18);
+
+	// Text
+	this.text = new cjs.Text("Du kan ikke dimittere. Uden arbejde kan der\nnemt gå flere måneder før socialudvalget\nmener, at du har gjort dig fortjent til en\ndimittering. Tysklandsarbejde er din bedste\nchance for at komme ud af anstalten i en fart,\nog er derfor et oplagt valg.", "24px 'Special Elite'", "#D9D1B4");
+	this.text.lineHeight = 26;
+	this.text.lineWidth = 594;
+	this.text.setTransform(212,132);
+
+	this.addChild(this.text,this.portrait);
+}).prototype = p = new cjs.Container();
+p.nominalBounds = new cjs.Rectangle(212,-18,812,558);
+
+
 (lib._361Yougotwork = function() {
 	this.initialize();
 
@@ -1689,6 +1707,12 @@ p.nominalBounds = new cjs.Rectangle(121,38,903,502);
 
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(26));
+
+	// 3.11 Can't Graduate
+	this.graduate = new lib._311PageCantGraduate();
+	this.graduate.setTransform(1024,0);
+
+	this.timeline.addTween(cjs.Tween.get(this.graduate).wait(26));
 
 	// 3.10 Points4
 	this.points4 = new lib._310PagePoints4();

@@ -16,6 +16,7 @@ var gulp = require('gulp'),
     replace = require('gulp-replace'),
     shell = require('gulp-shell'),
     runSequence = require('run-sequence'),
+    strip = require('gulp-strip-comments'),
     isWatching = false;
 
 var htmlminOpts = {
@@ -208,7 +209,14 @@ gulp.task('logic', function() {
 // gulp.task('scripts-dist', ['templates-dist'], function () {
 //   return logicFiles().pipe(dist('js', bower.name, {ngAnnotate: true}));
 // });
-
+/**
+ * Strip logging
+ */
+// gulp.task('strip', function () {
+//   return gulp.src('./dist/*.min.js')
+//     .pipe(strip())
+//     .pipe(gulp.dest('./dist/'));
+// });
 
 /**
  * Dist

@@ -8,7 +8,7 @@ PreloadGFX = {
 		(progress === undefined || progress === null)? progress = true : progress = progress;
 		
 		if(this.preloader !== undefined && this.preloader !== null){
-			console.log('show', this.preloader.visible);
+			// console.log('show', this.preloader.visible);
 			this.preloader.visible = true;
 			if(progress)
 				this.preloader.progress_bar.visible = true;
@@ -25,7 +25,7 @@ PreloadGFX = {
 		this.shown--;
 
 		if(this.preloader !== undefined && this.preloader !== null){
-			console.log('hide', this.shown);
+			// console.log('hide', this.shown);
 			if(this.shown == 0)
 				this.preloader.visible = false;
 		}

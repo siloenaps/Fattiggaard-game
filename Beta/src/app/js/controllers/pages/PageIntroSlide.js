@@ -39,7 +39,7 @@ PageIntroSlide.prototype.start = function(flowId, slideName){
 };
 PageIntroSlide.prototype.setup = function(){
 	'use strict';
-	console.log('PageIntroSlide::setup:runonce', this.container);
+	// console.log('PageIntroSlide::setup:runonce', this.container);
 
 	if(this.runonce != null)
 		return;
@@ -125,7 +125,7 @@ PageIntroSlide.prototype.addContent = function(){
 		}
 	};
 	var onLoadComplete = function(event){
-		console.log('onLoadComplete');
+		// console.log('onLoadComplete');
 		// Instantiate view
 		self.view = new Clss();
 
@@ -210,7 +210,7 @@ PageIntroSlide.prototype.intro = function(trigger){
 	this.view.bg_container.x = 0;
 
 	// Background
-	console.log('this.bgImage.src:', this.bgImage.src);
+	// console.log('this.bgImage.src:', this.bgImage.src);
 	var bitmap = new createjs.Bitmap(this.bgImage.src);	
 	this.view.bg_container.addChild(bitmap);
 
