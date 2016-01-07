@@ -518,15 +518,15 @@ p.nominalBounds = new cjs.Rectangle(0,0,603.5,262);
 (lib.CharacterIntro = function() {
 	this.initialize();
 
-	// Layer 2
-	this.text = new cjs.Text("Du bliver nu indlagt og indespærret på en\nfattiggård et sted i Danmark på et tidspunkt i\nåret 1940. Du stilles over for - og skal tage stilling til de samme dilemmaer som en række\nfattige og udsatte danskere stod over for under\n2. verdenskrig og dermed tage del i deres\nhistorie. Du skal vælge mellem fattiggård eller fjendeland.\n\nMen først skal du være med til at bestemme,\nhvem du er…", "24px 'Special Elite'", "#D9D1B4");
+	// Layer 1
+	this.text = new cjs.Text("Du bliver nu indlagt og indespærret på en\nfattiggård et sted i Danmark på et tidspunkt i\nåret 1940. Du stilles over for - og skal tage\nstilling til de samme dilemmaer som en række\nfattige og udsatte danskere stod over for under\n2. verdenskrig og dermed tage del i deres\nhistorie. Du skal vælge mellem fattiggård eller\nfjendeland.\n\nMen først skal du være med til at bestemme,\nhvem du er…", "24px 'Special Elite'", "#D9D1B4");
 	this.text.lineHeight = 26;
-	this.text.lineWidth = 594;
-	this.text.setTransform(212,132);
+	this.text.lineWidth = 603;
+	this.text.setTransform(208,128);
 
 	this.addChild(this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(212,132,597.6,392.8);
+p.nominalBounds = new cjs.Rectangle(208,128,607,428);
 
 
 (lib.CharacterCardPortrait = function(mode,startPosition,loop) {
@@ -1323,7 +1323,6 @@ if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{sta
 	// 0.2.1 Intro
 	this.character_intro = new lib.CharacterIntro();
 	this.character_intro.setTransform(1024,0);
-	this.character_intro.cache(210,130,602,397);
 
 	this.timeline.addTween(cjs.Tween.get(this.character_intro).wait(24));
 
@@ -1364,7 +1363,7 @@ if (loop == null) { loop = false; }	this.initialize(mode,startPosition,loop,{sta
 	this.timeline.addTween(cjs.Tween.get(this.bg_0_2_1).wait(24));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(1536,252,2261.3,558);
+p.nominalBounds = new cjs.Rectangle(1536,252,2261.3,574);
 
 })(gamelib = gamelib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var gamelib, images, createjs, ss;

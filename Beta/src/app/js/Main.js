@@ -234,6 +234,14 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(84));
 
+	// Actions
+	this.text = new cjs.Text("abcdefghijklmnopqrdtuvxyzæøå", "24px 'Special Elite'", "#D9D1B4");
+	this.text.lineHeight = 26;
+	this.text.lineWidth = 910;
+	this.text.setTransform(0,-40);
+
+	this.timeline.addTween(cjs.Tween.get(this.text).wait(84));
+
 	// Preloader Bar
 	this.preload_clip = new lib.PreloaderMain();
 
@@ -276,7 +284,7 @@ p.nominalBounds = new cjs.Rectangle(0,0,1024,648);
 	this.timeline.addTween(cjs.Tween.get(this.instance_1).wait(84));
 
 }).prototype = p = new cjs.MovieClip();
-p.nominalBounds = new cjs.Rectangle(502,324,1044,768);
+p.nominalBounds = new cjs.Rectangle(502,284,1044,808);
 
 })(mainlib = mainlib||{}, images = images||{}, createjs = createjs||{}, ss = ss||{});
 var mainlib, images, createjs, ss;
