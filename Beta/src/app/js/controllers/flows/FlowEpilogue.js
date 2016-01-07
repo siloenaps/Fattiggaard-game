@@ -10,6 +10,9 @@ var FlowEpilogue = function(container){
 		start: function(){
 			'use strict';
 
+			// Disable Next
+			this.continueBtn.hide(); // Remove if game has to continue
+
 			// Dispatcher
 			createjs.EventDispatcher.initialize(this);
 
@@ -160,11 +163,11 @@ var FlowEpilogue = function(container){
 				//// console.log(self.playerComponent)
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
-					self.continueBtn.activate('next');
+					// self.continueBtn.activate('next'); // Insert if game has to continue
 					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
-					self.continueBtn.activate('skip');
+					// self.continueBtn.activate('skip'); // Insert if game has to continue
 					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
@@ -179,7 +182,7 @@ var FlowEpilogue = function(container){
 			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
 			// Next
-			this.continueBtn.ghost('skip');
+			// this.continueBtn.ghost('skip');  // Insert if game has to continue
 		},
 		illness: function(trigger){
 			'use strict';
@@ -201,11 +204,11 @@ var FlowEpilogue = function(container){
 			Transitions.inOut({element: this.currentPage, prop: 'alpha'}, {element: previousPage, prop: 'alpha'}, Delegate.create(function(){
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
-					self.continueBtn.activate('next');
+					// self.continueBtn.activate('next');// Insert if game has to continue
 					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
-					self.continueBtn.activate('skip');
+					// self.continueBtn.activate('skip');// Insert if game has to continue
 					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
@@ -220,7 +223,7 @@ var FlowEpilogue = function(container){
 			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
 			// Next
-			this.continueBtn.ghost('skip');
+			// this.continueBtn.ghost('skip');// Insert if game has to continue
 		},
 		runAway: function(trigger){
 			'use strict';
@@ -243,11 +246,11 @@ var FlowEpilogue = function(container){
 				//// console.log(self.playerComponent)
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
-					self.continueBtn.activate('next');
+					// self.continueBtn.activate('next');// Insert if game has to continue
 					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
-					self.continueBtn.activate('skip');
+					// self.continueBtn.activate('skip');// Insert if game has to continue
 					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
@@ -262,7 +265,7 @@ var FlowEpilogue = function(container){
 			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
 			// Next
-			this.continueBtn.ghost('skip');
+			// this.continueBtn.ghost('skip');// Insert if game has to continue
 		},
 		hippopotimus: function(trigger){
 			'use strict';
@@ -285,11 +288,11 @@ var FlowEpilogue = function(container){
 				//// console.log(self.playerComponent)
 				// Sound Player
 				self.listeners.complete = self.playerComponent.on('complete', function(event){
-					self.continueBtn.activate('next');
+					// self.continueBtn.activate('next'); // Insert if game has to continue
 					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.on('ready', function(event){
-					self.continueBtn.activate('skip');
+					// self.continueBtn.activate('skip'); // Insert if game has to continue
 					Tick.framerate(Tick.low);
 				}, self);
 				self.playerComponent.preload(sound.src, sound.duration);
@@ -304,7 +307,7 @@ var FlowEpilogue = function(container){
 			this.playerComponent = new PlayerSoundComponent(this.currentPage.player);
 
 			// Next
-			this.continueBtn.ghost('skip');
+			// this.continueBtn.ghost('skip'); // Insert if game has to continue
 		},
 
 		outro: function(trigger){
@@ -317,7 +320,7 @@ var FlowEpilogue = function(container){
 
 
 			// Next
-			this.continueBtn.ghost('skip');
+			// this.continueBtn.ghost('skip'); // Insert if game has to continue
 		},
 
 

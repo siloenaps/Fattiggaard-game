@@ -21,7 +21,7 @@ FlowPoorhouseSecond.prototype.start = function(){
 	this.id = PlayerStats.poorhouse;
 	var gameFile;
 
-	console.log('FlowPoorhouseSecond:start');
+	// console.log('FlowPoorhouseSecond:start');
 
 	LoadJS.load(
 		['../assets/logic/games/'+this.id+'_second.js'], 
@@ -66,7 +66,7 @@ FlowPoorhouseSecond.prototype.setup = function(){
 	);
 
 	//this.id = 'svendborg';
-	console.log('FlowPoorhouseSecond:setup', this.id);
+	// console.log('FlowPoorhouseSecond:setup', this.id);
 
 	this.lib = gamelib;
 	switch(this.id){
@@ -104,7 +104,7 @@ FlowPoorhouseSecond.prototype.setup = function(){
 		// Set start page
 		self.next();
 
-		console.log('FlowPoorhouseSecond:onLoadComplete');
+		// console.log('FlowPoorhouseSecond:onLoadComplete');
 		self.dispatchEvent(new createjs.Event('ready'));
 	};
 	Preloader.load(manifest, onFileLoad, onLoadComplete, 'full');
@@ -171,7 +171,7 @@ FlowPoorhouseSecond.prototype.chooseJob = function(trigger) {
 	'use strict';
 	var self = this;
 
-	console.log('chooseJob');
+	// console.log('chooseJob');
 
 	// Next move
 	this.trigger = trigger;

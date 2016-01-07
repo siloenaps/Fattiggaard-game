@@ -393,7 +393,7 @@ FlowPoorhouse.prototype.getout = function(trigger) {
 
 	// Get sound
 	var sound = SoundService.matrix[currentTrigger];
-	console.log(sound);
+	// console.log(sound);
 
 	// Pages in/out
 	var previousPage = this.currentPage;
@@ -907,7 +907,7 @@ FlowPoorhouse.prototype.recruitementLetter = function(trigger){
 
 	// Set name
 	var frm = PlayerStats.challenge + PlayerStats.family;
-	console.log('frm:', frm);
+	// console.log('frm:', frm);
    	this.currentPage.realname.gotoAndStop(frm);
 
 	// Next button

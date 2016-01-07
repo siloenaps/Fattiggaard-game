@@ -1,7 +1,7 @@
 var SoundService = {
 	init: function(){
 		'use strict';
-		console.log('SoundService.init');
+		// console.log('SoundService.init');
 		var recursive = function(obj){
 			for (var i in obj) {
 				if(typeof obj[i] === 'object'){

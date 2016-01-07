@@ -1,7 +1,7 @@
 var ImageService = {
 	init: function(){
 		'use strict';
-		console.log('ImageService.init');
+		// console.log('ImageService.init');
 		var recursive = function(obj){
 			for (var i in obj) {
 				if(typeof obj[i] === 'object'){
