@@ -280,14 +280,14 @@ p.nominalBounds = new cjs.Rectangle(0,0,485,10);
 	this.initialize();
 
 	// Text
-	this.text = new cjs.Text("De mænd, som rejste til Tyskland fra fattiggårde i Danmark\nkæmpede alle videre efter hjemkomsten til fædrelandet,\nmen kampen var hård for dem alle, og langt de fleste endte\nhurtigt bag mure, voldgrave og pigtråd på ny. \n101 forskellige autentiske skæbner udgør kildegrundlaget\nfor dette spil. De oplevelser og scenarier du har oplevet i\nspillet er således også autentiske. Blandt disse 101\nskæbner findes ikke en eneste solstrålehistorie, her\nfindes ingen lykkelige slutninger...\n\nPå den følgende side kan du høre, hvordan det gik dig\nsidenhen.  ", "24px 'Special Elite'", "#DBD8BA");
+	this.text = new cjs.Text("De mænd, som rejste til Tyskland fra fattiggårde i Danmark\nkæmpede alle videre efter hjemkomsten til fædrelandet, men\nkampen var hård for dem alle, og langt de fleste endte hurtigt\nbag mure, voldgrave og pigtråd på ny. 101 forskellige\nautentiske skæbner udgør kildegrundlaget for dette spil. De\noplevelser og scenarier som man kommer ud for i spillet er\nsåledes også autentiske. Blandt disse 101 skæbner findes ikke\nen eneste solstrålehistorie, her findes ingen lykkelige\nslutninger...\nDerfor kan spillet heller ikke vindes. De point som du spillet\nigennem har samlet sammen, og mistet, skal udelukkende\ntydeliggøre konsekvensen af de beslutninger, du har truffet\nundervejs. \n\nPå den følgende side kan du høre, hvordan det gik dig \nsidenhen.", "24px 'Special Elite'", "#DBD8BA");
 	this.text.lineHeight = 26;
-	this.text.lineWidth = 779;
+	this.text.lineWidth = 800;
 	this.text.setTransform(141,100);
 
 	this.addChild(this.text);
 }).prototype = p = new cjs.Container();
-p.nominalBounds = new cjs.Rectangle(141,100,782.9,402);
+p.nominalBounds = new cjs.Rectangle(141,100,804,418.8);
 
 
 (lib._4106PagePoints6 = function(mode,startPosition,loop) {
