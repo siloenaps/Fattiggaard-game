@@ -1476,7 +1476,7 @@ p.nominalBounds = new cjs.Rectangle(210,38,715.3,298.7);
 	this.initialize();
 
 	// Text
-	this.text = new cjs.Text("Der er møde i Den Danske Front", "48px 'Special Elite'", "#FFFFFF");
+	this.text = new cjs.Text("Propagandamøde", "48px 'Special Elite'", "#FFFFFF");
 	this.text.lineHeight = 50;
 	this.text.lineWidth = 800;
 	this.text.setTransform(210,38);
