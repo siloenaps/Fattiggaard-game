@@ -1,2 +1,2 @@
-Game code source files is placed in the "Beta" folder. 
+Game code source files are placed in the "Beta" folder. 
 Sorry about the confusing name giving. :-/
